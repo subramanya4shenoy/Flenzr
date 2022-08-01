@@ -1,26 +1,38 @@
-import Button from '@mui/material/Button';
-import Lottie from 'lottie-react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import wave from '../assets/wave.png';
-import influencer from '../assets/influencer-day.json';
-import logo from '../assets/logo-white.svg';
+import Button from "@mui/material/Button";
+import Lottie from "lottie-react";
+import { useTranslation } from "react-i18next";
+import wave from "../assets/wave.png";
+import influencer from "../assets/influencer-day.json";
+import aurora from "../assets/aurora.json";
+import logo from "../assets/logo-white.svg";
+import { CSSProperties } from "react";
 
-/* eslint-disable-next-line */
-export interface FeatureProductPageProps {}
+export interface FeatureProductPageProps {
+  navigateTo: Function;
+}
 
-export const FeatureProductPage = (props: FeatureProductPageProps) => {
+export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
+  // * Translation hook
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const topBox = { backgroundColor: '#02021c' };
+
+  // * inline styling declaration
+  const logoStyle: CSSProperties = {
+    position: "absolute",
+    top: "10%",
+    left: "50%",
+    transform: "translate(-50%, 0%)",
+    zIndex: 100,
+  };
+  const auroraStyle: CSSProperties = {
+    top: "0%",
+    left: "50%",
+    transform: "translate(-50%, 0%)",
+  };
 
   return (
     <div className="w-screen h-screen overflow-hidden">
       {/* upper half of landing */}
-      <div
-        style={topBox}
-        className="w-screen h-screen laptop:h-3/4 desktop:h-3/4 overflow-hidden relative"
-      >
+      <div className="w-screen h-screen bg-darkBlue laptop:h-3/4 desktop:h-3/4 overflow-hidden relative">
         <Lottie
           className="mt-10 desktop:mt-auto laptop:w-full mx-auto opacity-80"
           animationData={influencer}
@@ -29,13 +41,7 @@ export const FeatureProductPage = (props: FeatureProductPageProps) => {
         />
         <img
           className="w-1/4 mt-32 hidden laptop:block desktop:block"
-          style={{
-            position: 'absolute',
-            top: '10%',
-            left: '50%',
-            transform: 'translate(-50%, 0%)',
-            zIndex: 100,
-          }}
+          style={logoStyle}
           src={logo}
           alt="Flenzr"
         />
@@ -54,36 +60,32 @@ export const FeatureProductPage = (props: FeatureProductPageProps) => {
             alt="Flenzr"
           />
           <div className="text-sm px-4 laptop:text-2xl desktop:text-2xl text-white laptop:text-black desktop:text-black font-bold mb-6 -mt-18">
-            {t('subtext')}
+            {t("subtext")}
           </div>
           <div className="mx-auto mt-4">
             <Button
               variant="contained"
               className="pr-4"
               color="success"
-              onClick={() => navigate('/signup')}
+              onClick={() => navigateTo("signup")}
             >
-              {t('join')}
+              {t("join")}
             </Button>
             <span className="px-4 text-white laptop:text-black desktop:text-black text-xs laptop:text-xl desktop:text-xl">
-              OR
+              {t("or")}
             </span>
-            <Button variant="contained" onClick={() => navigate('/signin')}>
-              {t('login')}
+            <Button variant="contained" onClick={() => navigateTo("signin")}>
+              {t("login")}
             </Button>
           </div>
         </div>
-        {/* <Lottie
+        <Lottie
           className="w-full mx-auto absolute -z-10"
           animationData={aurora}
-          style={{
-            top: '0%',
-            left: '50%',
-            transform: 'translate(-50%, 0%)',
-          }}
+          style={auroraStyle}
           loop={true}
           renderer="svg"
-        /> */}
+        />
       </div>
     </div>
   );
