@@ -18,7 +18,8 @@ module.exports = {
       info: '#2754e6',
       success: '#10d876',
       white: '#ffff',
-      black: '#000000'
+      black: '#000000',
+      darkBlue: '#02021c'
     },
     screens: {
       mobile: '640px',
