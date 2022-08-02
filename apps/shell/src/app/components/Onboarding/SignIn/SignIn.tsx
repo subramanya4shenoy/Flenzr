@@ -9,9 +9,9 @@ import {
   ACCOUNT_TYPES,
   ACCOUNT_SETTINGS,
 } from "../../../../../../Constant/AccountType";
-import BrandSignInForm from "./BrandSignInForm";
 import { SharedUiCustomSelect } from "@flenzr/shared/ui-custom-select";
 import { SharedUiFlenzrSignInForm } from "@flenzr/shared/ui-flenzr-sign-in-form";
+import { SharedUiBrandSignInForm } from "@flenzr/shared/ui-brand-sign-in-form";
 export function SignIn() {
   //** color list for ui-custom select */
   const colorList = ["#05f", "#10d876"];
@@ -37,6 +37,10 @@ export function SignIn() {
     console.log("login custom hook is called");
   };
 
+  const handleSignInBrand = () => {
+    console.log("login custom hook is called for brand login");
+  };
+
   return (
     <div className="w-screen h-screen" style={outerBox}>
       {/* mobile design */}
@@ -53,6 +57,7 @@ export function SignIn() {
               <strong>{t("signInAs")}</strong>
             </Typography>
             <div className="mx-4 -mt-1">
+               
               <SharedUiCustomSelect
                 list={ACCOUNT_TYPES}
                 selectedOption={userType}
@@ -71,7 +76,10 @@ export function SignIn() {
                 }}
               ></SharedUiFlenzrSignInForm>
             ) : (
-              <BrandSignInForm></BrandSignInForm>
+              <SharedUiBrandSignInForm 
+              onSignIn={(e: Event) => {
+                handleSignInBrand();
+              }}></SharedUiBrandSignInForm>
             )}
           </div>
         </div>
@@ -115,7 +123,11 @@ export function SignIn() {
                   }}
                 ></SharedUiFlenzrSignInForm>
               ) : (
-                <BrandSignInForm></BrandSignInForm>
+              <SharedUiBrandSignInForm 
+              onSignIn={(e: Event) => {
+                handleSignInBrand();
+              }}
+              ></SharedUiBrandSignInForm>                
               )}
             </div>
           </div>

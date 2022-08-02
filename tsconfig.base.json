@@ -10,7 +10,10 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
@@ -18,11 +21,22 @@
       "@flenzr/feature/product-page": [
         "libs/feature/product-page/src/index.ts"
       ],
-      "@flenzr/shared/assets": ["libs/shared/assets/src/index.ts"],
+      "@flenzr/shared/assets": [
+        "libs/shared/assets/src/index.ts"
+      ],
+      "@flenzr/shared/ui-flenzr-sign-in-form": [
+        "libs/shared/ui-flenzr-sign-in-form/src/index.ts"
+      ],
+      "@flenzr/shared/ui-brand-sign-in-form": [
+        "libs/shared/ui-brand-sign-in-form/src/index.ts"
+      ],
       "@flenzr/shared/ui-custom-select": [
         "libs/shared/ui-custom-select/src/index.ts"
       ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }
