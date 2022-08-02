@@ -4,7 +4,9 @@
   "projects": {
     "feature-product-page": "libs/feature/product-page",
     "shared-assets": "libs/shared/assets",
+    "shared-ui-brand-sign-in-form": "libs/shared/ui-brand-sign-in-form",
     "shared-ui-custom-select": "libs/shared/ui-custom-select",
+    "shared-ui-flenzr-sign-in-form": "libs/shared/ui-flenzr-sign-in-form",
     "shell": "apps/shell",
     "shell-e2e": "apps/shell-e2e"
   }

@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import { Button, FormControl, TextField } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-const SignInForm = () => {
+import { useState } from 'react';
+import Button  from '@mui/material/Button';
+import FormControl  from '@mui/material/FormControl';
+import TextField from '@mui/material/TextField';
+import { useTranslation } from 'react-i18next';  
+
+/* eslint-disable-next-line */
+export interface SharedUiFlenzrSignInFormProps {
+  onSignIn: any
+}
+export function SharedUiFlenzrSignInForm({onSignIn}: SharedUiFlenzrSignInFormProps) {
+  
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const handleLogin = () => {
-    navigate('');
-  };
 
   return (
     <FormControl className="w-full">
@@ -38,7 +40,7 @@ const SignInForm = () => {
         </Button>
         <Button
           className="w-full"
-          onClick={handleLogin}
+          onClick={onSignIn}
           variant="contained"
           size="large"
         >
@@ -49,4 +51,5 @@ const SignInForm = () => {
   );
 };
 
-export default SignInForm;
+
+export default SharedUiFlenzrSignInForm;
