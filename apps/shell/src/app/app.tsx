@@ -14,7 +14,6 @@ export function App() {
   const navigate = useNavigate();
 
   const navigationPaths = (path: string) => {
-    let routeTo = "*";
     switch (path) {
       case "signup":
         navigate("/signup");
