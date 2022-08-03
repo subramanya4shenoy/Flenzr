@@ -8,7 +8,7 @@ import Typography from "@mui/material/Typography/Typography";
 import {
   ACCOUNT_TYPES,
   ACCOUNT_SETTINGS,
-} from "../../../../../../Constant/AccountType";
+} from "@flenzr/shared/constant-user-type";
 import { SharedUiCustomSelect } from "@flenzr/shared/ui-custom-select";
 import { SharedUiFlenzrSignInForm } from "@flenzr/shared/ui-flenzr-sign-in-form";
 import { SharedUiBrandSignInForm } from "@flenzr/shared/ui-brand-sign-in-form";
