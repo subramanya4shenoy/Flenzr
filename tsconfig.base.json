@@ -24,14 +24,17 @@
       "@flenzr/shared/assets": [
         "libs/shared/assets/src/index.ts"
       ],
-      "@flenzr/shared/ui-flenzr-sign-in-form": [
-        "libs/shared/ui-flenzr-sign-in-form/src/index.ts"
+      "@flenzr/shared/constant-user-type": [
+        "libs/shared/constant-user-type/src/index.ts"
       ],
       "@flenzr/shared/ui-brand-sign-in-form": [
         "libs/shared/ui-brand-sign-in-form/src/index.ts"
       ],
       "@flenzr/shared/ui-custom-select": [
         "libs/shared/ui-custom-select/src/index.ts"
+      ],
+      "@flenzr/shared/ui-flenzr-sign-in-form": [
+        "libs/shared/ui-flenzr-sign-in-form/src/index.ts"
       ]
     }
   },
