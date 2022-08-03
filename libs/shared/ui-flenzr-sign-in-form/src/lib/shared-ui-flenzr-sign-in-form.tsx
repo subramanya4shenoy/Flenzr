@@ -6,8 +6,9 @@ import { useTranslation } from 'react-i18next';
 
 /* eslint-disable-next-line */
 export interface SharedUiFlenzrSignInFormProps {
-  onSignIn: any
+  onSignIn():void; 
 }
+
 export function SharedUiFlenzrSignInForm({onSignIn}: SharedUiFlenzrSignInFormProps) {
   
   const { t } = useTranslation();
