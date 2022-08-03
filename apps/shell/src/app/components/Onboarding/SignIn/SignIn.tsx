@@ -60,7 +60,7 @@ export function SignIn() {
                
               <SharedUiCustomSelect
                 list={ACCOUNT_TYPES}
-                selectedOption={userType}
+                selectedOption={setUserType}
                 onChangeSelection={(e: string) => {
                   handleChange(e);
                 }}
@@ -71,15 +71,12 @@ export function SignIn() {
           <div>
             {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
               <SharedUiFlenzrSignInForm
-                onSignIn={(e: Event) => {
-                  handleSignInFlenzr();
-                }}
+                onSignIn={handleSignInFlenzr}
               ></SharedUiFlenzrSignInForm>
             ) : (
               <SharedUiBrandSignInForm 
-              onSignIn={(e: Event) => {
-                handleSignInBrand();
-              }}></SharedUiBrandSignInForm>
+              onSignIn={handleSignInBrand}
+              ></SharedUiBrandSignInForm>   
             )}
           </div>
         </div>
@@ -108,7 +105,7 @@ export function SignIn() {
             <div className="mx-4 -mt-1">
               <SharedUiCustomSelect
                 list={ACCOUNT_TYPES}
-                selectedOption={userType}
+                selectedOption={setUserType}
                 onChangeSelection={(e: string) => {
                   handleChange(e);
                 }}
@@ -118,15 +115,11 @@ export function SignIn() {
             <div className="w-full mt-10">
               {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
                 <SharedUiFlenzrSignInForm
-                  onSignIn={(e: Event) => {
-                    handleSignInFlenzr();
-                  }}
+                onSignIn={handleSignInFlenzr}
                 ></SharedUiFlenzrSignInForm>
               ) : (
               <SharedUiBrandSignInForm 
-              onSignIn={(e: Event) => {
-                handleSignInBrand();
-              }}
+              onSignIn={handleSignInBrand}
               ></SharedUiBrandSignInForm>                
               )}
             </div>

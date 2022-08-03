@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 /* eslint-disable-next-line */
 export interface SharedUiBrandSignInFormProps {
-    onSignIn: any
+    onSignIn():void; 
 }
 
 export function SharedUiBrandSignInForm({onSignIn}: SharedUiBrandSignInFormProps) {

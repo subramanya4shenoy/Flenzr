@@ -8,7 +8,7 @@ import logo from "../assets/logo-white.svg";
 import { CSSProperties } from "react";
 
 export interface FeatureProductPageProps {
-  navigateTo: any;
+  navigateTo(path:string):void;
 }
 
 export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {

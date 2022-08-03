@@ -3,7 +3,6 @@
   "version": 2,
   "projects": {
     "feature-product-page": "libs/feature/product-page",
-    "shared-assets": "libs/shared/assets",
     "shared-constant-user-type": "libs/shared/constant-user-type",
     "shared-ui-brand-sign-in-form": "libs/shared/ui-brand-sign-in-form",
     "shared-ui-custom-select": "libs/shared/ui-custom-select",
