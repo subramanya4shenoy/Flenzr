@@ -4,9 +4,9 @@ import Select from '@mui/material/Select';
 /* eslint-disable-next-line */
 export interface SharedUiCustomSelectProps {
   list: Array<string>;
-  selectedOption: any;
+  selectedOption(e:string): void;
   color: string;
-  onChangeSelection: any;
+  onChangeSelection(e:any): void;
 }
 
 export function SharedUiCustomSelect({
@@ -32,7 +32,7 @@ export function SharedUiCustomSelect({
         fontWeight: 'bold',
       }}
     >
-      {list.map((type: any, key: number) => {
+      {list.map((type: string, key: number) => {
         return (
           <MenuItem value={type} key={'type_' + key}>
             {type}
