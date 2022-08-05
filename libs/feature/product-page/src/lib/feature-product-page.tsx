@@ -48,7 +48,7 @@ export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
         <img
           className="hidden laptop:block desktop:block w-full -mt-1 absolute bottom-0 -mb-1"
           src={wave}
-          alt="Flenzr"
+          alt="Wave"
         />
       </div>
 
@@ -67,6 +67,7 @@ export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
               variant="contained"
               className="pr-4"
               color="success"
+              type="button"
               onClick={() => navigateTo("signup")}
             >
               {t("join")}
