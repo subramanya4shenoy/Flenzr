@@ -60,7 +60,7 @@ export function SignIn() {
                
               <SharedUiCustomSelect
                 list={ACCOUNT_TYPES}
-                selectedOption={setUserType}
+                selectedOption={userType}
                 onChangeSelection={(e: string) => {
                   handleChange(e);
                 }}
@@ -105,7 +105,7 @@ export function SignIn() {
             <div className="mx-4 -mt-1">
               <SharedUiCustomSelect
                 list={ACCOUNT_TYPES}
-                selectedOption={setUserType}
+                selectedOption={userType}
                 onChangeSelection={(e: string) => {
                   handleChange(e);
                 }}
