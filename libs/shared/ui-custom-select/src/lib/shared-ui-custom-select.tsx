@@ -4,7 +4,7 @@ import Select from '@mui/material/Select';
 /* eslint-disable-next-line */
 export interface SharedUiCustomSelectProps {
   list: Array<string>;
-  selectedOption(e:string): void;
+  selectedOption:string;
   color: string;
   onChangeSelection(e:any): void;
 }
