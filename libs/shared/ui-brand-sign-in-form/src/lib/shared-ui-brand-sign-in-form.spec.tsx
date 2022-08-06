@@ -33,7 +33,7 @@ describe("Test cases for Brand Sign in", () => {
       const { t } = useTranslation();
       const emailInput = screen.getAllByLabelText(t('emailWithDomainName'))
       expect(emailInput).toBeDefined();
-      const passwordInput = screen.getAllByLabelText(t('emailWithDomainName'))
+      const passwordInput = screen.getAllByLabelText(t('password'))
       expect(passwordInput).toBeDefined();
       const submitButton = screen.getByRole("button", {name: t('loginBtn')})
       expect(submitButton).toBeDefined();
