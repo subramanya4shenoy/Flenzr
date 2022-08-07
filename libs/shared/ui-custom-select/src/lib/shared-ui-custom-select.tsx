@@ -17,15 +17,15 @@ export function SharedUiCustomSelect({
 }: SharedUiCustomSelectProps) {
   return (
     <Select
-      labelId="demo-simple-select-label"
-      id="demo-simple-select"
+      labelId="user-select"
+      id="user-select"
       value={selectedOption}
       onChange={(e) => {
         onChangeSelection(e.target.value);
       }}
       sx={{
         width: 100,
-        fontSize: 16,
+        fontSize: 16, 
         height: 35,
         borderRadius: 27,
         color: { color },
@@ -34,7 +34,7 @@ export function SharedUiCustomSelect({
     >
       {list.map((type: string, key: number) => {
         return (
-          <MenuItem value={type} key={'type_' + key}>
+          <MenuItem value={type} key={'type_' + key} data-testid="select-option">
             {type}
           </MenuItem>
         );
