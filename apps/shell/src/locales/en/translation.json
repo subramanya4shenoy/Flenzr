@@ -8,5 +8,7 @@
   "forgotPassword": "forgot password ?",
   "loginBtn": "login",
   "or": "or",
-  "emailWithDomainName": "Your Domain/brand Email address"
+  "emailWithDomainName": "Your Domain/brand Email address",
+  "newFlenzrOrBrand": "New Flenzr/Brand?",
+  "createNew": "Create an account"
 }

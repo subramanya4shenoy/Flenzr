@@ -5,7 +5,7 @@ import 'typeface-poppins';
 export const defaultTheme = createTheme({
   palette: {
     primary: {
-      main: '#05f',
+      main: '#4525F2',
     },
     secondary: {
       main: '#673BB7',
@@ -20,7 +20,7 @@ export const defaultTheme = createTheme({
       main: '#2754e6',
     },
     success: {
-      main: '#10d876',
+      main: '#00B24B',
     },
   },
   typography: {

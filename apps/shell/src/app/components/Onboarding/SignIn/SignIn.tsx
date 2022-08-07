@@ -14,7 +14,7 @@ import { SharedUiFlenzrSignInForm } from "@flenzr/shared/ui-flenzr-sign-in-form"
 import { SharedUiBrandSignInForm } from "@flenzr/shared/ui-brand-sign-in-form";
 export function SignIn() {
   //** color list for ui-custom select */
-  const colorList = ["#05f", "#10d876"];
+  const colorList = ["#4525F2", "#00B24B"];
   const [color, setColor] = useState(colorList[0]);
 
   const { t } = useTranslation();
@@ -52,12 +52,11 @@ export function SignIn() {
           renderer="svg"
         />
         <div className="-mt-4 bg-white mx-5 px-10 py-10 rounded-md">
-          <div className="flex mb-4 justify-center items-center">
+          <div className="flex mb-4 justify-left items-center">
             <Typography className="uppercase" variant="body1">
               <strong>{t("signInAs")}</strong>
             </Typography>
             <div className="mx-4 -mt-1">
-               
               <SharedUiCustomSelect
                 list={ACCOUNT_TYPES}
                 selectedOption={userType}
@@ -74,9 +73,9 @@ export function SignIn() {
                 onSignIn={handleSignInFlenzr}
               ></SharedUiFlenzrSignInForm>
             ) : (
-              <SharedUiBrandSignInForm 
-              onSignIn={handleSignInBrand}
-              ></SharedUiBrandSignInForm>   
+              <SharedUiBrandSignInForm
+                onSignIn={handleSignInBrand}
+              ></SharedUiBrandSignInForm>
             )}
           </div>
         </div>
@@ -98,7 +97,7 @@ export function SignIn() {
               renderer="svg"
             />
           </div>
-          <div className="w-full laptop:w-1/2 desktop:w-1/2 p-4 laptop:p-10 desktop:p-10 flex flex-wrap items-start content-start justify-center">
+          <div className="w-full laptop:w-1/2 desktop:w-1/2 p-4 laptop:p-10 desktop:p-10 flex flex-wrap items-start content-start justify-left">
             <Typography className="uppercase" variant="h6" component="h6">
               <strong>{t("signInAs")}</strong>
             </Typography>
@@ -115,12 +114,12 @@ export function SignIn() {
             <div className="w-full mt-10">
               {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
                 <SharedUiFlenzrSignInForm
-                onSignIn={handleSignInFlenzr}
+                  onSignIn={handleSignInFlenzr}
                 ></SharedUiFlenzrSignInForm>
               ) : (
-              <SharedUiBrandSignInForm 
-              onSignIn={handleSignInBrand}
-              ></SharedUiBrandSignInForm>                
+                <SharedUiBrandSignInForm
+                  onSignIn={handleSignInBrand}
+                ></SharedUiBrandSignInForm>
               )}
             </div>
           </div>

@@ -11,12 +11,12 @@ module.exports = {
   ],
   theme: {
     colors: {
-      primary: '#05f',
+      primary: '#4525F2',
       secondary: '#673BB7',
       error: '#E50202',
       warning: '#FE9431',
       info: '#2754e6',
-      success: '#10d876',
+      success: '#00B24B',
       white: '#ffff',
       black: '#000000',
       darkBlue: '#02021c'

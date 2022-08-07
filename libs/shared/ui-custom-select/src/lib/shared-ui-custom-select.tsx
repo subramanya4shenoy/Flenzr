@@ -28,8 +28,14 @@ export function SharedUiCustomSelect({
         fontSize: 16, 
         height: 35,
         borderRadius: 27,
-        color: { color },
-        fontWeight: 'bold',
+        border: "2px solid " + color,
+        backgroundColor: color,
+        outlineColor: 'transparent',
+        color: "#fff",
+        "& .MuiSvgIcon-root": {
+          color: "#fff",
+          opacity: '60%'
+      }
       }}
     >
       {list.map((type: string, key: number) => {

@@ -1,24 +1,25 @@
-import { useState } from 'react';
-import Button  from '@mui/material/Button';
-import FormControl  from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
-import { useTranslation } from 'react-i18next';  
+import { useState } from "react";
+import Button from "@mui/material/Button";
+import FormControl from "@mui/material/FormControl";
+import TextField from "@mui/material/TextField";
+import { useTranslation } from "react-i18next";
 
 /* eslint-disable-next-line */
 export interface SharedUiFlenzrSignInFormProps {
-  onSignIn():void; 
+  onSignIn(): void;
 }
 
-export function SharedUiFlenzrSignInForm({onSignIn}: SharedUiFlenzrSignInFormProps) {
-  
+export function SharedUiFlenzrSignInForm({
+  onSignIn,
+}: SharedUiFlenzrSignInFormProps) {
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <FormControl className="w-full">
       <TextField
-        label={t('emailOrMobile')}
+        label={t("emailOrMobile")}
         id="email"
         value={email}
         type="text"
@@ -27,7 +28,7 @@ export function SharedUiFlenzrSignInForm({onSignIn}: SharedUiFlenzrSignInFormPro
         onChange={(e) => setEmail(e.target.value)}
       />
       <TextField
-        label={t('password')}
+        label={t("password")}
         id="password"
         value={password}
         type="password"
@@ -36,21 +37,20 @@ export function SharedUiFlenzrSignInForm({onSignIn}: SharedUiFlenzrSignInFormPro
         onChange={(e) => setPassword(e.target.value)}
       />
       <div className="flex-none laptop:flex desktop:flex mt-4 laptop:justify-between desktop:justify-between">
-        <Button className="text-center w-full" variant="text">
-          {t('forgotPassword')}
-        </Button>
         <Button
           className="w-full"
           onClick={onSignIn}
           variant="contained"
           size="large"
         >
-          {t('loginBtn')}
+          {t("loginBtn")}
+        </Button>
+        <Button className="text-center w-full" variant="text">
+          {t("forgotPassword")}
         </Button>
       </div>
     </FormControl>
   );
-};
-
+}
 
 export default SharedUiFlenzrSignInForm;
