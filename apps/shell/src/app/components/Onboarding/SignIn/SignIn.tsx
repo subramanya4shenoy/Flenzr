@@ -52,7 +52,7 @@ export function SignIn() {
           renderer="svg"
         />
         <div className="-mt-4 bg-white mx-5 px-10 py-10 rounded-md">
-          <div className="flex mb-4 justify-center items-center">
+          <div className="flex mb-4 justify-left items-center">
             <Typography className="uppercase" variant="body1">
               <strong>{t("signInAs")}</strong>
             </Typography>
