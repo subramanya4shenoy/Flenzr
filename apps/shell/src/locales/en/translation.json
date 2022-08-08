@@ -1,14 +1,15 @@
 {
-  "login": "login",
+  "login": "sign in",
   "subtext": " Find the right Influencer for your Brand",
   "join": "Join now",
   "signInAs": "Sign In As",
   "emailOrMobile": "Email/Mobile Number",
   "password": "Password",
   "forgotPassword": "forgot password ?",
-  "loginBtn": "login",
+  "loginBtn": "sign in",
   "or": "or",
   "emailWithDomainName": "Your Domain/brand Email address",
   "newFlenzrOrBrand": "New Flenzr/Brand?",
-  "createNew": "Create an account"
+  "createNew": "Create an account",
+  "orSignInWith": "or Sign In with"
 }

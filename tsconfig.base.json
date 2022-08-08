@@ -32,6 +32,9 @@
       ],
       "@flenzr/shared/ui-flenzr-sign-in-form": [
         "libs/shared/ui-flenzr-sign-in-form/src/index.ts"
+      ],
+      "@flenzr/shared/ui-third-party-signin": [
+        "libs/shared/ui-third-party-signin/src/index.ts"
       ]
     }
   },
