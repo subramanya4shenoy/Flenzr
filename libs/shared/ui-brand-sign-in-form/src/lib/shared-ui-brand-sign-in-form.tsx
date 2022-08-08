@@ -35,6 +35,9 @@ export function SharedUiBrandSignInForm({
             '& fieldset': {
               borderColor: 'transparent',
             },
+           '&:hover fieldset': {
+            borderColor: 'transparent',
+           }
           }
         }}
         className="w-full"
@@ -54,6 +57,9 @@ export function SharedUiBrandSignInForm({
             '& fieldset': {
               borderColor: 'transparent',
             },
+           '&:hover fieldset': {
+            borderColor: 'transparent',
+           }
           }
         }}
         className="w-full"

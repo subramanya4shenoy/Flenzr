@@ -10,5 +10,6 @@
   "or": "or",
   "emailWithDomainName": "Your Domain/brand Email address",
   "newFlenzrOrBrand": "New Flenzr/Brand?",
-  "createNew": "Create an account"
+  "createNew": "Create an account",
+  "orSignInWith": "or Sign In with"
 }

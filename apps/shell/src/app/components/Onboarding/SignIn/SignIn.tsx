@@ -71,7 +71,7 @@ export function SignIn() {
             </div>
           </div>
           <div>
-          <div className="w-full my-4">
+            <div className="w-full my-4">
               {t("newFlenzrOrBrand")}
               <span>{t("createNew")}</span>
             </div>
@@ -129,17 +129,24 @@ export function SignIn() {
             </div>
             <div className="w-full mt-6 mb-2 flex items-center font-semibold">
               <div className="mr-1">{t("newFlenzrOrBrand")}</div>
-              <Link component="button" variant="inherit" className="font-semibold" underline="hover">
+              <Link
+                component="button"
+                variant="inherit"
+                className="font-semibold"
+                underline="hover"
+              >
                 {t("createNew")}
               </Link>
             </div>
             <div className="w-full">
               {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
                 <>
-                  <SharedUiFlenzrSignInForm
-                    onSignIn={handleSignInFlenzr}
-                  ></SharedUiFlenzrSignInForm>
-                  <SharedUiThirdPartySignin></SharedUiThirdPartySignin>
+                  <div className="mb-6">
+                    <SharedUiFlenzrSignInForm
+                      onSignIn={handleSignInFlenzr}
+                    ></SharedUiFlenzrSignInForm>
+                  </div>
+                  <SharedUiThirdPartySignin />
                 </>
               ) : (
                 <SharedUiBrandSignInForm
