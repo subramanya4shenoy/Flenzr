@@ -24,8 +24,8 @@ export function SharedUiCustomSelect({
         onChangeSelection(e.target.value);
       }}
       sx={{
-        width: 100,
-        fontSize: 16, 
+        width: 120,
+        fontSize: 12, 
         height: 35,
         borderRadius: 27,
         border: "2px solid " + color,

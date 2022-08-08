@@ -1,5 +1,5 @@
 import { createTheme } from '@mui/material/styles';
-import 'typeface-poppins';
+import 'typeface-noto-sans';
 
 // eslint-disable-next-line import/prefer-default-export
 export const defaultTheme = createTheme({
@@ -24,7 +24,7 @@ export const defaultTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: ['Poppins', 'sans-serif'].join(','),
+    fontFamily: ['Noto Sans', 'sans-serif'].join(','),
   },
   components: {
     MuiButton: {
@@ -36,6 +36,8 @@ export const defaultTheme = createTheme({
           style: {
             color: 'white',
             borderRadius: '27px',
+            textTransform: 'capitalize',
+            fontWeight: 600
           },
         },
       ],

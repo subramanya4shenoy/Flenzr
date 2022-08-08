@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "@mui/material/Button";
+import Link from "@mui/material/Link";
 import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
@@ -20,10 +21,22 @@ export function SharedUiFlenzrSignInForm({
     <FormControl className="w-full">
       <TextField
         label={t("emailOrMobile")}
+        color="primary"
+        autoFocus={true}
         id="email"
         value={email}
         type="text"
         margin="normal"
+        sx={{
+          background:"#F2F4F8",
+          borderColor: "#F2F4F8",
+          borderRadius: "16px",
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: 'transparent',
+            },
+          }
+        }}
         className="w-full"
         onChange={(e) => setEmail(e.target.value)}
       />
@@ -33,6 +46,16 @@ export function SharedUiFlenzrSignInForm({
         value={password}
         type="password"
         margin="normal"
+        sx={{
+          background:"#F2F4F8",
+          borderColor: "#F2F4F8",
+          borderRadius: "16px",
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: 'transparent',
+            },
+          }
+        }}
         className="w-full"
         onChange={(e) => setPassword(e.target.value)}
       />
@@ -45,9 +68,9 @@ export function SharedUiFlenzrSignInForm({
         >
           {t("loginBtn")}
         </Button>
-        <Button className="text-center w-full" variant="text">
+        <Link component="button" variant="body2" className="text-center w-full capitalize" underline="hover">
           {t("forgotPassword")}
-        </Button>
+        </Link>
       </div>
     </FormControl>
   );
