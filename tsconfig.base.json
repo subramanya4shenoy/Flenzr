@@ -21,6 +21,24 @@
       "@flenzr/feature/product-page": [
         "libs/feature/product-page/src/index.ts"
       ],
+      "@flenzr/feature/profile-about": [
+        "libs/feature/profile-about/src/index.ts"
+      ],
+      "@flenzr/feature/profile-billboard": [
+        "libs/feature/profile-billboard/src/index.ts"
+      ],
+      "@flenzr/feature/profile-brands": [
+        "libs/feature/profile-brands/src/index.ts"
+      ],
+      "@flenzr/feature/profile-community": [
+        "libs/feature/profile-community/src/index.ts"
+      ],
+      "@flenzr/feature/profile-connections": [
+        "libs/feature/profile-connections/src/index.ts"
+      ],
+      "@flenzr/feature/profile-feeds": [
+        "libs/feature/profile-feeds/src/index.ts"
+      ],
       "@flenzr/shared/constant-user-type": [
         "libs/shared/constant-user-type/src/index.ts"
       ],
@@ -32,6 +50,9 @@
       ],
       "@flenzr/shared/ui-flenzr-sign-in-form": [
         "libs/shared/ui-flenzr-sign-in-form/src/index.ts"
+      ],
+      "@flenzr/shared/ui-menu-bar": [
+        "libs/shared/ui-menu-bar/src/index.ts"
       ],
       "@flenzr/shared/ui-third-party-signin": [
         "libs/shared/ui-third-party-signin/src/index.ts"

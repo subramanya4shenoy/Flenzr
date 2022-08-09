@@ -3,10 +3,17 @@
   "version": 2,
   "projects": {
     "feature-product-page": "libs/feature/product-page",
+    "feature-profile-about": "libs/feature/profile-about",
+    "feature-profile-billboard": "libs/feature/profile-billboard",
+    "feature-profile-brands": "libs/feature/profile-brands",
+    "feature-profile-community": "libs/feature/profile-community",
+    "feature-profile-connections": "libs/feature/profile-connections",
+    "feature-profile-feeds": "libs/feature/profile-feeds",
     "shared-constant-user-type": "libs/shared/constant-user-type",
     "shared-ui-brand-sign-in-form": "libs/shared/ui-brand-sign-in-form",
     "shared-ui-custom-select": "libs/shared/ui-custom-select",
     "shared-ui-flenzr-sign-in-form": "libs/shared/ui-flenzr-sign-in-form",
+    "shared-ui-menu-bar": "libs/shared/ui-menu-bar",
     "shared-ui-third-party-signin": "libs/shared/ui-third-party-signin",
     "shell": "apps/shell",
     "shell-e2e": "apps/shell-e2e"

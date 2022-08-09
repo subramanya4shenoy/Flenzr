@@ -16,9 +16,9 @@ export const SharedUiThirdPartySignin = (
   return (
     <>
       <div className="w-full flex text-xs font-bold capitalize opacity-50 justify-center items-center mb-4">
-        <div className="border-2 h-1 w-auto rounded-full grow mx-4 opacity-25"></div>
+        <div className="border w-auto rounded-full grow mx-4 opacity-25"></div>
         <div>{t("orSignInWith")}</div>
-        <div className="border-2 h-1 w-auto rounded-full grow mx-4 opacity-25"></div>
+        <div className="border w-auto rounded-full grow mx-4 opacity-25"></div>
       </div>
       <div className="w-full justify-center flex">
         <IconButton aria-label="Google">
