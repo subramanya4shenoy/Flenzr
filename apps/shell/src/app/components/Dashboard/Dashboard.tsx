@@ -1,5 +1,6 @@
 import React from 'react'
 import { FeatureProfileBillboard } from '@flenzr/feature/profile-billboard'
+import { SharedUiMenuBar } from '@flenzr/shared/ui-menu-bar'
 
 const Dashboard = () => {
   return (
@@ -8,7 +9,8 @@ const Dashboard = () => {
       <FeatureProfileBillboard />
 
       {/* common menu bar */}
-
+      <SharedUiMenuBar />
+      
       {/* lazy loaded views */}
         {/* Feeds */}
         {/* About */}
