@@ -54,6 +54,9 @@
       "@flenzr/shared/ui-menu-bar": [
         "libs/shared/ui-menu-bar/src/index.ts"
       ],
+      "@flenzr/shared/ui-shell-bar": [
+        "libs/shared/ui-shell-bar/src/index.ts"
+      ],
       "@flenzr/shared/ui-third-party-signin": [
         "libs/shared/ui-third-party-signin/src/index.ts"
       ]

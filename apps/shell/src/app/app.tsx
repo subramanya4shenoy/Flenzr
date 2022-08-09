@@ -9,6 +9,7 @@ import { useCookies } from "react-cookie";
 
 import "../styles.scss";
 import Dashboard from "./components/Dashboard/Dashboard";
+import { SharedUiShellBar } from "@flenzr/shared/ui-shell-bar";
 
 const SignUp = lazy(() => import("./components/Onboarding/SignUp/SignUp"));
 const SignIn = lazy(() => import("./components/Onboarding/SignIn/SignIn"));
@@ -36,7 +37,7 @@ export function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       {/* common shell needs to be added */}
-      {(cookies.wu) && (<></>)}
+      {(cookies.wu) && (<SharedUiShellBar/>)}
       <React.Suspense fallback={null}>
         <Routes>
           <Route
