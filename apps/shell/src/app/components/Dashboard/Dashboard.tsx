@@ -1,4 +1,5 @@
 import React from 'react'
+import DashboardViews from './DashboardViews'
 import { FeatureProfileBillboard } from '@flenzr/feature/profile-billboard'
 import { SharedUiMenuBar } from '@flenzr/shared/ui-menu-bar'
 
@@ -12,11 +13,7 @@ const Dashboard = () => {
       <SharedUiMenuBar />
       
       {/* lazy loaded views */}
-        {/* Feeds */}
-        {/* About */}
-        {/* comunity */}
-        {/* Brands */}
-        {/* connection */}
+        <DashboardViews/>
     </>
   )
 }
