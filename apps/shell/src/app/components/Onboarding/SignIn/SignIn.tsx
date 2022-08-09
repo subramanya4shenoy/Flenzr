@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Card from "@mui/material/Card";
 import Lottie from "lottie-react";
@@ -39,6 +39,12 @@ export function SignIn({onSuccess}:SignInProps) {
     left: "50%",
     transform: "translate(-50%, -50%)",
   };
+
+  useEffect(()=>{
+    if(cookies.wu) {
+      onSuccess();
+    }
+  },[])
 
   const handleChange = (change: string) => {
     setColor(colorList[ACCOUNT_TYPES.indexOf(change)]);
