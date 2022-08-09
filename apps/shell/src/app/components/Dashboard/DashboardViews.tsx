@@ -1,31 +1,29 @@
-import React from 'react'
-import { FeatureProfileAbout } from '@flenzr/feature/profile-about'
-import { FeatureProfileFeeds } from '@flenzr/feature/profile-feeds'
-import { FeatureProfileCommunity } from '@flenzr/feature/profile-community'
-import { FeatureProfileBrands } from '@flenzr/feature/profile-brands'
-import { FeatureProfileConnections } from '@flenzr/feature/profile-connections'
+import React from "react";
+import { FeatureProfileAbout } from "@flenzr/feature/profile-about";
+import { FeatureProfileFeeds } from "@flenzr/feature/profile-feeds";
+import { FeatureProfileCommunity } from "@flenzr/feature/profile-community";
+import { FeatureProfileBrands } from "@flenzr/feature/profile-brands";
+import { FeatureProfileConnections } from "@flenzr/feature/profile-connections";
 
 const DashboardViews = () => {
   return (
-    <div>DashboardViews
-        {/* Feeds */}
-        <FeatureProfileFeeds/>
+    <div>
+      {/* Feeds */}
+      <FeatureProfileFeeds />
 
-        {/* About */}
-        <FeatureProfileAbout/>
+      {/* About */}
+      <FeatureProfileAbout />
 
-        {/* comunity */}
-        <FeatureProfileCommunity/>
+      {/* comunity */}
+      <FeatureProfileCommunity />
 
-        {/* Brands */}
-        <FeatureProfileBrands/>
+      {/* Brands */}
+      <FeatureProfileBrands />
 
-        {/* connection */}
-        <FeatureProfileConnections/>
-
+      {/* connection */}
+      <FeatureProfileConnections />
     </div>
-    
-  )
-}
+  );
+};
 
-export default DashboardViews
+export default DashboardViews;

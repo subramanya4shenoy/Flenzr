@@ -1,7 +1,7 @@
-import React from 'react'
-import DashboardViews from './DashboardViews'
-import { FeatureProfileBillboard } from '@flenzr/feature/profile-billboard'
-import { SharedUiMenuBar } from '@flenzr/shared/ui-menu-bar'
+import React from "react";
+import DashboardViews from "./DashboardViews";
+import { FeatureProfileBillboard } from "@flenzr/feature/profile-billboard";
+import { SharedUiMenuBar } from "@flenzr/shared/ui-menu-bar";
 
 const Dashboard = () => {
   return (
@@ -11,11 +11,11 @@ const Dashboard = () => {
 
       {/* common menu bar */}
       <SharedUiMenuBar />
-      
-      {/* lazy loaded views */}
-        <DashboardViews/>
-    </>
-  )
-}
 
-export default Dashboard
+      {/* lazy loaded views */}
+      <DashboardViews />
+    </>
+  );
+};
+
+export default Dashboard;
