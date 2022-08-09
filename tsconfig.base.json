@@ -21,6 +21,9 @@
       "@flenzr/feature/product-page": [
         "libs/feature/product-page/src/index.ts"
       ],
+      "@flenzr/feature/profile-billboard": [
+        "libs/feature/profile-billboard/src/index.ts"
+      ],
       "@flenzr/shared/constant-user-type": [
         "libs/shared/constant-user-type/src/index.ts"
       ],

@@ -35,6 +35,8 @@ export function App() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      {/* common shell needs to be added */}
+      {(cookies.wu) && (<></>)}
       <React.Suspense fallback={null}>
         <Routes>
           <Route
