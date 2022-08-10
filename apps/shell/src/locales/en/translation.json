@@ -12,5 +12,10 @@
   "newFlenzrOrBrand": "New Flenzr/Brand?",
   "createNew": "Create an account",
   "orSignInWith": "or Sign In with",
-  "addToConnection": "Add to connections"
+  "addToConnection": "Add to connections",
+  "feeds": "Feeds",
+  "about": "About",
+  "community": "Community",
+  "brands": "Brands",
+  "connections": "Connections"
 }
