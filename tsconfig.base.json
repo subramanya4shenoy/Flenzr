@@ -39,6 +39,9 @@
       "@flenzr/feature/profile-feeds": [
         "libs/feature/profile-feeds/src/index.ts"
       ],
+      "@flenzr/feature/social-add": [
+        "libs/feature/social-add/src/index.ts"
+      ],
       "@flenzr/shared/constant-user-type": [
         "libs/shared/constant-user-type/src/index.ts"
       ],
