@@ -1,4 +1,9 @@
-import {FeatureSocialAdd} from '@flenzr/feature/social-add';
+import { FeatureSocialAdd } from "@flenzr/feature/social-add";
+import IconButton from "@mui/material/IconButton";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
+import Tooltip from "@mui/material/Tooltip";
 
 export function FeatureProfileBillboard() {
   return (
@@ -25,11 +30,41 @@ export function FeatureProfileBillboard() {
       </div>
 
       {/* name */}
-      <div className="flex w-full justify-between pl-40 pr-4 items-center pt-2">
-        <div className="capitalize font-bold text-xl">
-          sophie carter
+      <div className="flex w-full justify-between pl-40 pr-2 items-center pt-2">
+        <div className="capitalize font-bold text-xl">sophie carter</div>
+        <div>
+          <FeatureSocialAdd />
+          <Tooltip title="Email" arrow>
+            <IconButton
+              aria-label="Email"
+              className="opacity-50 hover:opacity-100"
+              color="primary"
+              sx={{ marginLeft: "10px" }}
+            >
+              <EmailOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Chat" arrow>
+            <IconButton
+              aria-label="Chat"
+              className="opacity-50 hover:opacity-100"
+              color="primary"
+              sx={{ marginLeft: "10px" }}
+            >
+              <ModeCommentOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="More" arrow>
+            <IconButton
+              aria-label="More"
+              className="opacity-50 hover:opacity-100"
+              color="primary"
+              sx={{ marginLeft: "10px" }}
+            >
+              <MoreHorizIcon />
+            </IconButton>
+          </Tooltip>
         </div>
-        <FeatureSocialAdd/>
       </div>
     </div>
   );
