@@ -7,7 +7,7 @@ import { FeatureProfileConnections } from "@flenzr/feature/profile-connections";
 
 const DashboardViews = () => {
   return (
-    <div>
+    <div className="mx-auto max-w-5xl mt-6">
       {/* Feeds */}
       <FeatureProfileFeeds />
 
