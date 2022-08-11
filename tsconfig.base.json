@@ -42,6 +42,9 @@
       "@flenzr/feature/social-add": [
         "libs/feature/social-add/src/index.ts"
       ],
+      "@flenzr/shared/constant-menu-list": [
+        "libs/shared/constant-menu-list/src/index.ts"
+      ],
       "@flenzr/shared/constant-user-type": [
         "libs/shared/constant-user-type/src/index.ts"
       ],
