@@ -4,24 +4,28 @@ import { FeatureProfileFeeds } from "@flenzr/feature/profile-feeds";
 import { FeatureProfileCommunity } from "@flenzr/feature/profile-community";
 import { FeatureProfileBrands } from "@flenzr/feature/profile-brands";
 import { FeatureProfileConnections } from "@flenzr/feature/profile-connections";
+import { MENU_VIEW_MAP } from "@flenzr/shared/constant-menu-list";
 
-const DashboardViews = () => {
+export interface DashboardViewsProps {
+  selectedView: string
+}
+const DashboardViews = ({selectedView}:DashboardViewsProps) => {
   return (
     <div className="mx-auto max-w-5xl mt-6">
       {/* Feeds */}
-      <FeatureProfileFeeds />
+     {(selectedView === MENU_VIEW_MAP.FEED.view) && <FeatureProfileFeeds />}
 
       {/* About */}
-      <FeatureProfileAbout />
+      {(selectedView === MENU_VIEW_MAP.ABOUT.view) && <FeatureProfileAbout />}
 
       {/* comunity */}
-      <FeatureProfileCommunity />
+      {(selectedView === MENU_VIEW_MAP.COMMUNITY.view) && <FeatureProfileCommunity />}
 
       {/* Brands */}
-      <FeatureProfileBrands />
+      {(selectedView === MENU_VIEW_MAP.BRANDS.view) && <FeatureProfileBrands />}
 
       {/* connection */}
-      <FeatureProfileConnections />
+      {(selectedView === MENU_VIEW_MAP.CONNECTIONS.view) && <FeatureProfileConnections />}
     </div>
   );
 };
