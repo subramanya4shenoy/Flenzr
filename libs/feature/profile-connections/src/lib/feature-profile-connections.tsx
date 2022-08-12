@@ -1,26 +1,16 @@
+import { SharedUiUserCard } from "@flenzr/shared/ui-user-card";
 
-
-
-
-
-  import styles from './feature-profile-connections.module.scss';
-  
-
-/* eslint-disable-next-line */
-export interface FeatureProfileConnectionsProps {
-}
-
-
-
-export function FeatureProfileConnections(props: FeatureProfileConnectionsProps) {
+export function FeatureProfileConnections() {
   return (
-    <div className={styles['container']}>
-      
-      <h1>Welcome to FeatureProfileConnections!</h1>
-      
+    <div className="flex rounded-lg">
+      <div className="m-8">
+        <SharedUiUserCard />
+      </div>
+      <div className="m-8">
+        <SharedUiUserCard />
+      </div>
     </div>
   );
-};
-
+}
 
 export default FeatureProfileConnections;

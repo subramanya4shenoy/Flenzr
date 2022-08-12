@@ -65,6 +65,9 @@
       ],
       "@flenzr/shared/ui-third-party-signin": [
         "libs/shared/ui-third-party-signin/src/index.ts"
+      ],
+      "@flenzr/shared/ui-user-card": [
+        "libs/shared/ui-user-card/src/index.ts"
       ]
     }
   },

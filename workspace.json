@@ -18,6 +18,7 @@
     "shared-ui-menu-bar": "libs/shared/ui-menu-bar",
     "shared-ui-shell-bar": "libs/shared/ui-shell-bar",
     "shared-ui-third-party-signin": "libs/shared/ui-third-party-signin",
+    "shared-ui-user-card": "libs/shared/ui-user-card",
     "shell": "apps/shell",
     "shell-e2e": "apps/shell-e2e"
   }
