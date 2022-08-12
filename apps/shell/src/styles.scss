@@ -1,3 +1,7 @@
 @tailwind components;
 @tailwind base;
 @tailwind utilities;
+
+.rainbow-shadow{
+    box-shadow: "-5px -5px 30px 5px #ff000014, 5px 5px 30px 5px #0000ff1c"
+}
