@@ -7,7 +7,6 @@ export function FeatureProfileCommunity() {
       //feature-facebook-stats-card
       //feature-LinkedIn-stats-card
       //feature-twitter-stats-card
-
     </div>
   );
 };
