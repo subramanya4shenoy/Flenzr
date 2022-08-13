@@ -18,6 +18,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@flenzr/feature-social-unfollow": [
+        "libs/feature/social-unfollow/src/index.ts"
+      ],
       "@flenzr/feature/product-page": [
         "libs/feature/product-page/src/index.ts"
       ],
@@ -41,6 +44,9 @@
       ],
       "@flenzr/feature/social-add": [
         "libs/feature/social-add/src/index.ts"
+      ],
+      "@flenzr/feature/social-list": [
+        "libs/feature/social-list/src/index.ts"
       ],
       "@flenzr/shared/constant-menu-list": [
         "libs/shared/constant-menu-list/src/index.ts"
