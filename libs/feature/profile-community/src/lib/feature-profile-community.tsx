@@ -1,23 +1,13 @@
-
-
-
-
-
-  import styles from './feature-profile-community.module.scss';
-  
-
-/* eslint-disable-next-line */
-export interface FeatureProfileCommunityProps {
-}
-
-
-
-export function FeatureProfileCommunity(props: FeatureProfileCommunityProps) {
+export function FeatureProfileCommunity() {
   return (
-    <div className={styles['container']}>
-      
-      <h1>Welcome to FeatureProfileCommunity!</h1>
-      
+    <div className="flex">
+      // feature-stats-card
+      // feature-yt-stats-card
+      //feature-insta-stats-card
+      //feature-facebook-stats-card
+      //feature-LinkedIn-stats-card
+      //feature-twitter-stats-card
+
     </div>
   );
 };
