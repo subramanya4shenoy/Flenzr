@@ -10,6 +10,7 @@
     "feature-profile-connections": "libs/feature/profile-connections",
     "feature-profile-feeds": "libs/feature/profile-feeds",
     "feature-social-add": "libs/feature/social-add",
+    "feature-social-list": "libs/feature/social-list",
     "feature-social-unfollow": "libs/feature/social-unfollow",
     "shared-constant-menu-list": "libs/shared/constant-menu-list",
     "shared-constant-user-type": "libs/shared/constant-user-type",
