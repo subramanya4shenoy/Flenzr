@@ -18,6 +18,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@flenzr/feature-social-unfollow": [
+        "libs/feature/social-unfollow/src/index.ts"
+      ],
       "@flenzr/feature/product-page": [
         "libs/feature/product-page/src/index.ts"
       ],
@@ -47,9 +50,6 @@
       ],
       "@flenzr/shared/constant-user-type": [
         "libs/shared/constant-user-type/src/index.ts"
-      ],
-      "@flenzr/shared/social-unfollow": [
-        "libs/shared/social-unfollow/src/index.ts"
       ],
       "@flenzr/shared/ui-brand-sign-in-form": [
         "libs/shared/ui-brand-sign-in-form/src/index.ts"

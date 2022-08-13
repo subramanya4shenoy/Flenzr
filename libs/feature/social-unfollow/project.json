@@ -1,6 +1,6 @@
 {
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/social-unfollow/src",
+  "sourceRoot": "libs/feature/social-unfollow/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -11,17 +11,17 @@
       ],
       "options": {
         "lintFilePatterns": [
-          "libs/shared/social-unfollow/**/*.{ts,tsx,js,jsx}"
+          "libs/feature/social-unfollow/**/*.{ts,tsx,js,jsx}"
         ]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": [
-        "coverage/libs/shared/social-unfollow"
+        "coverage/libs/feature/social-unfollow"
       ],
       "options": {
-        "jestConfig": "libs/shared/social-unfollow/jest.config.ts",
+        "jestConfig": "libs/feature/social-unfollow/jest.config.ts",
         "passWithNoTests": true
       }
     }
