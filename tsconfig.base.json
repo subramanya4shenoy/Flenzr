@@ -48,6 +48,9 @@
       "@flenzr/shared/constant-user-type": [
         "libs/shared/constant-user-type/src/index.ts"
       ],
+      "@flenzr/shared/social-unfollow": [
+        "libs/shared/social-unfollow/src/index.ts"
+      ],
       "@flenzr/shared/ui-brand-sign-in-form": [
         "libs/shared/ui-brand-sign-in-form/src/index.ts"
       ],
