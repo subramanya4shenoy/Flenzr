@@ -2,7 +2,7 @@ import { SharedUiUserCard } from "@flenzr/shared/ui-user-card";
 
 export function FeatureProfileConnections() {
   return (
-    <div className="flex rounded-lg">
+    <div className="flex rounded-lg justify-center">
       <div className="m-8">
         <SharedUiUserCard />
       </div>
