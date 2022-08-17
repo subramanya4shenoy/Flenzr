@@ -9,7 +9,12 @@ import EmailTwoToneIcon from "@mui/icons-material/EmailTwoTone";
 import ChatBubbleTwoToneIcon from "@mui/icons-material/ChatBubbleTwoTone";
 import NotificationsTwoToneIcon from "@mui/icons-material/NotificationsTwoTone";
 
-export function SharedUiShellBar() {
+
+export interface SharedUiShellBarProps{
+  navigateTo(path:string):void
+}
+
+export function SharedUiShellBar({navigateTo}: SharedUiShellBarProps) {
   return (
     <div className="hidden laptop:block desktop:block w-screen shadow mb-6">
       <div className="flex w-full max-w-screen-xl	items-center content-center justify-between">
@@ -20,6 +25,7 @@ export function SharedUiShellBar() {
               <IconButton
                 aria-label="News"
                 color="primary"
+                onClick={(e) => { navigateTo('new')} }
                 className="text-black text-primary opacity-50 hover:opacity-100"
               >
                 <FeedTwoToneIcon />
@@ -29,6 +35,7 @@ export function SharedUiShellBar() {
               <IconButton
                 aria-label="work"
                 color="primary"
+                onClick={(e) => { navigateTo('works')} }
                 className="text-black text-primary opacity-50 hover:opacity-100"
               >
                 <WorkTwoToneIcon />
@@ -36,8 +43,9 @@ export function SharedUiShellBar() {
             </Tooltip>
             <Tooltip title="Search" arrow>
               <IconButton
-                aria-label="work"
+                aria-label="search"
                 color="primary"
+                onClick={(e) => { navigateTo('search')} }
                 className="text-black text-primary opacity-50 hover:opacity-100"
               >
                 <SearchTwoToneIcon />
@@ -51,6 +59,7 @@ export function SharedUiShellBar() {
               <IconButton
                 aria-label="News"
                 color="primary"
+                onClick={(e) => { navigateTo('email')} }
                 className="text-black text-primary opacity-50 hover:opacity-100"
               >
                 <EmailTwoToneIcon />
