@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@mui/material";
-import React, { lazy, useEffect } from "react";
+import React, { lazy } from "react";
 import { defaultTheme } from "../../../../libs/theme";
 import { Routes, Route } from "react-router-dom";
 import { FeatureProductPage } from "@flenzr/feature/product-page";
@@ -10,6 +10,7 @@ import { useCookies } from "react-cookie";
 import "../styles.scss";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { SharedUiShellBar } from "@flenzr/shared/ui-shell-bar";
+import WhatsNew from "./components/WhatsNew/WhatsNew";
 
 const SignUp = lazy(() => import("./components/Onboarding/SignUp/SignUp"));
 const SignIn = lazy(() => import("./components/Onboarding/SignIn/SignIn"));
@@ -46,6 +47,8 @@ export function App() {
           />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn onSuccess={() => {navigationPaths('/')}}/>} />
+          <Route path="/signup" element={<WhatsNew />} />
+          
           {/* <Route path='*' element={<Page404 />} /> */}
         </Routes>
       </React.Suspense>
