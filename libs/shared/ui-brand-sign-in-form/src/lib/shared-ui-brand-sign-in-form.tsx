@@ -75,9 +75,12 @@ export function SharedUiBrandSignInForm({
         >
           {t("loginBtn")}
         </Button>
-        <Link component="button" variant="body2" className="text-center w-full capitalize" underline="hover">
+        <Link component="button" variant="body2" className="text-center w-full capitalize hidden desktop:block laptop:block" underline="hover">
           {t("forgotPassword")}
         </Link>
+        <div className="text-primary text-center text-md font-bold capitalize mt-4 mb-1  block laptop:hidden desktop:hidden hover:underline">
+          {t("forgotPassword")}
+        </div>
       </div>
     </FormControl>
   );
