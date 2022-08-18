@@ -28,6 +28,9 @@ export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
     left: "50%",
     transform: "translate(-50%, 0%)",
   };
+  const btnOddCurve = {
+    width: '170px'
+  }
 
   return (
     <div className="w-screen h-screen overflow-hidden">
@@ -62,12 +65,16 @@ export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
           <div className="text-sm px-4 laptop:text-2xl desktop:text-2xl text-white laptop:text-black desktop:text-black font-bold mb-6 -mt-18">
             {t("subtext")}
           </div>
-          <div className="mx-auto mt-4">
+
+          {/* Desktop  */}
+          <div className="mx-auto mt-4 hidden laptop:block desktop:block">
             <Button
               variant="contained"
               className="pr-4"
               color="success"
               type="button"
+              size="large"
+              sx={btnOddCurve}
               onClick={() => navigateTo("signup")}
             >
               {t("join")}
@@ -75,10 +82,38 @@ export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
             <span className="px-4 text-white laptop:text-black desktop:text-black text-xs laptop:text-xl desktop:text-xl">
               {t("or")}
             </span>
-            <Button variant="contained" onClick={() => navigateTo("signin")}>
+            <Button variant="contained" 
+              sx={btnOddCurve}
+                size="large"
+              onClick={() => navigateTo("signin")}>
               {t("login")}
             </Button>
           </div>
+
+          {/* mobile */}
+          <div className="mx-auto mt-4 block px-14 laptop:hidden desktop:hidden">
+            <Button
+              variant="contained"
+              className="pr-4"
+              color="success"
+              type="button"
+              size="large"
+              fullWidth={true}
+              onClick={() => navigateTo("signup")}
+            >
+              {t("join")}
+            </Button>
+            <span className="px-4 text-white laptop:text-black desktop:text-black text-xs laptop:text-xl desktop:text-xl">
+              {t("or")}
+            </span>
+            <Button variant="contained" 
+                size="large"
+              fullWidth={true}
+              onClick={() => navigateTo("signin")}>
+              {t("login")}
+            </Button>
+          </div>
+
         </div>
         <Lottie
           className="w-full mx-auto absolute -z-10"
