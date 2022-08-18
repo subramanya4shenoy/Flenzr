@@ -23,7 +23,7 @@ export interface SignInProps {
 /** End of all interface */
 
 /** component */
-export function SignIn({onSuccess}:SignInProps) {
+export function SignIn({ onSuccess }: SignInProps) {
   //** color list for ui-custom select */
   const colorList = ["#4525F2", "#00B24B"];
   const [color, setColor] = useState(colorList[0]);
@@ -40,11 +40,11 @@ export function SignIn({onSuccess}:SignInProps) {
     transform: "translate(-50%, -50%)",
   };
 
-  useEffect(()=>{
-    if(cookies.wu) {
+  useEffect(() => {
+    if (cookies.wu) {
       onSuccess();
     }
-  },[])
+  }, []);
 
   const handleChange = (change: string) => {
     setColor(colorList[ACCOUNT_TYPES.indexOf(change)]);
@@ -90,22 +90,31 @@ export function SignIn({onSuccess}:SignInProps) {
             </div>
           </div>
           <div>
-            <div className="w-full my-4">
-              {t("newFlenzrOrBrand")}
-              <span>{t("createNew")}</span>
-            </div>
             {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
               <>
+                <div className="my-2">
+                  <SharedUiThirdPartySignin />
+                </div>
                 <SharedUiFlenzrSignInForm
                   onSignIn={handleSignInFlenzr}
                 ></SharedUiFlenzrSignInForm>
-                <SharedUiThirdPartySignin></SharedUiThirdPartySignin>
               </>
             ) : (
               <SharedUiBrandSignInForm
                 onSignIn={handleSignInBrand}
               ></SharedUiBrandSignInForm>
             )}
+            <div className="w-full mt-2 mb-2 flex justify-center items-center font-semibold">
+              {t("newFlenzrOrBrand")}
+              <Link
+                component="button"
+                variant="inherit"
+                className="font-semibold"
+                underline="hover"
+              >
+                {t("createNew")}
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -146,7 +155,27 @@ export function SignIn({onSuccess}:SignInProps) {
                 ></SharedUiCustomSelect>
               </div>
             </div>
-            <div className="w-full mt-6 mb-2 flex items-center font-semibold">
+            <div className="w-full">
+              {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
+                <>
+                  <div className="mt-6">
+                    <SharedUiThirdPartySignin />
+                  </div>
+                  <div className="mb-6">
+                    <SharedUiFlenzrSignInForm
+                      onSignIn={handleSignInFlenzr}
+                    ></SharedUiFlenzrSignInForm>
+                  </div>
+                </>
+              ) : (
+                <div className="mt-10 mb-6">
+                  <SharedUiBrandSignInForm
+                    onSignIn={handleSignInBrand}
+                  ></SharedUiBrandSignInForm>
+                </div>
+              )}
+            </div>
+            <div className="w-full mt-2 mb-2 flex justify-center items-center font-semibold">
               <div className="mr-1">{t("newFlenzrOrBrand")}</div>
               <Link
                 component="button"
@@ -156,22 +185,6 @@ export function SignIn({onSuccess}:SignInProps) {
               >
                 {t("createNew")}
               </Link>
-            </div>
-            <div className="w-full">
-              {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
-                <>
-                  <div className="mb-6">
-                    <SharedUiFlenzrSignInForm
-                      onSignIn={handleSignInFlenzr}
-                    ></SharedUiFlenzrSignInForm>
-                  </div>
-                  <SharedUiThirdPartySignin />
-                </>
-              ) : (
-                <SharedUiBrandSignInForm
-                  onSignIn={handleSignInBrand}
-                ></SharedUiBrandSignInForm>
-              )}
             </div>
           </div>
         </div>

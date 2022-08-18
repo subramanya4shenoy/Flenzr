@@ -10,7 +10,6 @@ export function FeatureProfileBillboard() {
     <div className="mx-auto max-w-5xl shadow p-2 rounded-[27px] h-96 overflow-hidden">
       {/* cover */}
       <div className="relative">
-        {/* <img className="" src="" alt="cover" /> */}
         <div
           className="rounded-[27px] w-full h-64 overflow-hidden bg-cover bg-center"
           style={{
