@@ -6,7 +6,7 @@ export const FeatureSocialAdd = () => {
   const { t } = useTranslation();
 
   return (
-    <Button variant="contained" color="primary" className="hidden laptop:block desktop:block">
+    <Button variant="contained" color="primary" size="small" className="hidden laptop:block desktop:block">
       {t("addToConnection")}
     </Button>
   );
