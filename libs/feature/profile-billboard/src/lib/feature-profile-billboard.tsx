@@ -29,9 +29,9 @@ export function FeatureProfileBillboard() {
       </div>
 
       {/* name */}
-      <div className="flex w-full justify-between pl-40 pr-2 items-center pt-2">
-        <div className="capitalize font-bold text-xl">sophie carter</div>
-        <div>
+      <div className="laptop:flex desktop:flex w-full justify-between laptop:pl-40 desktop:pl-40 pr-2 items-center pt-2">
+        <div className="pl-40 laptop:pl-0 desktop:pl-0 capitalize font-bold text-xl">sophie carter</div>
+        <div className="w-full flex justify-end mt-6 laptop:mt-0 desktop:mt-0 laptop:w-auto desktop:w-auto items-center">
           <FeatureSocialAdd />
           <Tooltip title="Email" arrow>
             <IconButton
