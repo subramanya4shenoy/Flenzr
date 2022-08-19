@@ -9,85 +9,150 @@ import EmailTwoToneIcon from "@mui/icons-material/EmailTwoTone";
 import ChatBubbleTwoToneIcon from "@mui/icons-material/ChatBubbleTwoTone";
 import NotificationsTwoToneIcon from "@mui/icons-material/NotificationsTwoTone";
 
+import BottomNavigation from "@mui/material/BottomNavigation";
+import BottomNavigationAction from "@mui/material/BottomNavigationAction";
+import { useState } from "react";
+import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
+import { useTranslation } from "react-i18next";
 
-export interface SharedUiShellBarProps{
-  navigateTo(path:string):void
+export interface SharedUiShellBarProps {
+  navigateTo(path: string): void;
 }
 
-export function SharedUiShellBar({navigateTo}: SharedUiShellBarProps) {
+export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
+  const [value, setValue] = useState("home");
+  const { t } = useTranslation();
+
   return (
-    <div className="hidden laptop:block desktop:block w-screen shadow mb-6">
-      <div className="flex w-full max-w-screen-xl	items-center content-center justify-between">
-        <div className="p-3 flex items-center content-center">
-          <img alt="flenzr" src={Logo} className="w-20 mr-16" />
-          <div className="flex w-36 justify-between">
-            <Tooltip title="Whats New!" arrow>
-              <IconButton
-                aria-label="News"
-                color="primary"
-                onClick={(e) => { navigateTo('new')} }
-                className="text-black text-primary opacity-50 hover:opacity-100"
-              >
-                <FeedTwoToneIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Works" arrow>
-              <IconButton
-                aria-label="work"
-                color="primary"
-                onClick={(e) => { navigateTo('works')} }
-                className="text-black text-primary opacity-50 hover:opacity-100"
-              >
-                <WorkTwoToneIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Search" arrow>
-              <IconButton
-                aria-label="search"
-                color="primary"
-                onClick={(e) => { navigateTo('search')} }
-                className="text-black text-primary opacity-50 hover:opacity-100"
-              >
-                <SearchTwoToneIcon />
-              </IconButton>
-            </Tooltip>
+    <>
+      {/* mobile */}
+      <div className="w-screen block laptop:hidden desktop:hidden fixed z-10 bottom-0">
+        <BottomNavigation value={value}>
+          <BottomNavigationAction
+            className="text-primary opacity-50 hover:opacity-100"
+            label={t("home")}
+            value="home"
+            onClick={(e) => {
+              navigateTo("/");
+              setValue("home");
+            }}
+            icon={<HomeTwoToneIcon />}
+          />
+          <BottomNavigationAction
+            className="text-primary opacity-50 hover:opacity-100"
+            label={t("new")}
+            value="new"
+            onClick={(e) => {
+              navigateTo("new");
+              setValue("new");
+            }}
+            icon={<FeedTwoToneIcon />}
+          />
+          <BottomNavigationAction
+            className="text-primary opacity-50 hover:opacity-100"
+            label={t("work")}
+            value="work"
+            onClick={(e) => {
+              navigateTo("works");
+              setValue("work");
+            }}
+            icon={<WorkTwoToneIcon />}
+          />
+          <BottomNavigationAction
+            className="text-primary opacity-50 hover:opacity-100"
+            label={t('search')}
+            value="search"
+            onClick={(e) => {
+              navigateTo("search");
+              setValue("search");
+            }}
+            icon={<SearchTwoToneIcon />}
+          />
+        </BottomNavigation>
+      </div>
+
+      {/* desktop */}
+      <div className="hidden laptop:block desktop:block w-screen shadow mb-6">
+        <div className="flex w-full max-w-screen-xl	items-center content-center justify-between">
+          <div className="p-3 flex items-center content-center">
+            <img alt="flenzr" src={Logo} className="w-20 mr-16" />
+            <div className="flex w-36 justify-between">
+              <Tooltip title="Whats New!" arrow>
+                <IconButton
+                  aria-label={t("new")}
+                  color="primary"
+                  onClick={(e) => {
+                    navigateTo("new");
+                  }}
+                  className="text-primary opacity-50 hover:opacity-100"
+                >
+                  <FeedTwoToneIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Works" arrow>
+                <IconButton
+                  aria-label={t("work")}
+                  color="primary"
+                  onClick={(e) => {
+                    navigateTo("works");
+                  }}
+                  className="text-primary opacity-50 hover:opacity-100"
+                >
+                  <WorkTwoToneIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Search" arrow>
+                <IconButton
+                  aria-label={t("search")}
+                  color="primary"
+                  onClick={(e) => {
+                    navigateTo("search");
+                  }}
+                  className="text-primary opacity-50 hover:opacity-100"
+                >
+                  <SearchTwoToneIcon />
+                </IconButton>
+              </Tooltip>
+            </div>
           </div>
-        </div>
-        <div className="p-3 flex items-center content-center">
-          <div className="flex w-48 justify-between">
-            <Tooltip title="Email" arrow>
-              <IconButton
-                aria-label="News"
-                color="primary"
-                onClick={(e) => { navigateTo('email')} }
-                className="text-black text-primary opacity-50 hover:opacity-100"
-              >
-                <EmailTwoToneIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Chat" arrow>
-              <IconButton
-                aria-label="work"
-                color="primary"
-                className="text-black text-primary opacity-50 hover:opacity-100"
-              >
-                <ChatBubbleTwoToneIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Notification" arrow>
-              <IconButton
-                aria-label="work"
-                color="primary"
-                className="text-black text-primary opacity-50 hover:opacity-100"
-              >
-                <NotificationsTwoToneIcon />
-              </IconButton>
-            </Tooltip>
-            <Avatar>S</Avatar>
+          <div className="p-3 flex items-center content-center">
+            <div className="flex w-48 justify-between">
+              <Tooltip title="Email" arrow>
+                <IconButton
+                  aria-label="email"
+                  color="primary"
+                  onClick={(e) => {
+                    navigateTo("email");
+                  }}
+                  className="text-primary opacity-50 hover:opacity-100"
+                >
+                  <EmailTwoToneIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Chat" arrow>
+                <IconButton
+                  aria-label="work"
+                  color="primary"
+                  className="text-primary opacity-50 hover:opacity-100"
+                >
+                  <ChatBubbleTwoToneIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Notification" arrow>
+                <IconButton
+                  aria-label="work"
+                  color="primary"
+                  className="text-primary opacity-50 hover:opacity-100"
+                >
+                  <NotificationsTwoToneIcon />
+                </IconButton>
+              </Tooltip>
+              <Avatar>S</Avatar>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
