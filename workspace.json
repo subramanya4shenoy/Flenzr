@@ -22,6 +22,7 @@
     "shared-constant-menu-list": "libs/shared/constant-menu-list",
     "shared-constant-user-type": "libs/shared/constant-user-type",
     "shared-social-unfollow": "libs/shared/social-unfollow",
+    "shared-ui-brand-card": "libs/shared/ui-brand-card",
     "shared-ui-brand-sign-in-form": "libs/shared/ui-brand-sign-in-form",
     "shared-ui-custom-select": "libs/shared/ui-custom-select",
     "shared-ui-flenzr-sign-in-form": "libs/shared/ui-flenzr-sign-in-form",

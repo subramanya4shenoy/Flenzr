@@ -78,6 +78,9 @@
       "@flenzr/shared/social-unfollow": [
         "libs/shared/social-unfollow/src/index.ts"
       ],
+      "@flenzr/shared/ui-brand-card": [
+        "libs/shared/ui-brand-card/src/index.ts"
+      ],
       "@flenzr/shared/ui-brand-sign-in-form": [
         "libs/shared/ui-brand-sign-in-form/src/index.ts"
       ],
