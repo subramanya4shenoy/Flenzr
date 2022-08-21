@@ -1,24 +1,16 @@
+import { SharedUiBrandCard } from "@flenzr/shared/ui-brand-card";
 
 
-
-
-
-  import styles from './feature-profile-brands.module.scss';
-  
-
-/* eslint-disable-next-line */
-export interface FeatureProfileBrandsProps {
-}
-
-
-
-export function FeatureProfileBrands(props: FeatureProfileBrandsProps) {
+export function FeatureProfileBrands() {
   return (
-    <div className={styles['container']}>
-      
-      <h1>Welcome to FeatureProfileBrands!</h1>
-      
+    <div className="flex flex-wrap rounded-lg justify-center">
+    <div className="m-8">
+      <SharedUiBrandCard />
     </div>
+    <div className="m-8">
+      <SharedUiBrandCard />
+    </div>
+  </div>
   );
 };
 
