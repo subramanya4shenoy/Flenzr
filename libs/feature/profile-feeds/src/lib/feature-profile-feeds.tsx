@@ -1,23 +1,7 @@
-
-
-
-
-
-  import styles from './feature-profile-feeds.module.scss';
-  
-
-/* eslint-disable-next-line */
-export interface FeatureProfileFeedsProps {
-}
-
-
-
-export function FeatureProfileFeeds(props: FeatureProfileFeedsProps) {
+export function FeatureProfileFeeds() {
   return (
-    <div className={styles['container']}>
-      
-      <h1>Welcome to FeatureProfileFeeds!</h1>
-      
+    <div>
+      Feed left and right rale
     </div>
   );
 };
