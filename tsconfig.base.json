@@ -42,6 +42,9 @@
       "@flenzr/feature/profile-feeds": [
         "libs/feature/profile-feeds/src/index.ts"
       ],
+      "@flenzr/feature/profile-menu": [
+        "libs/feature/profile-menu/src/index.ts"
+      ],
       "@flenzr/feature/social-add": [
         "libs/feature/social-add/src/index.ts"
       ],

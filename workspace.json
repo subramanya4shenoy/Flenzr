@@ -9,6 +9,7 @@
     "feature-profile-community": "libs/feature/profile-community",
     "feature-profile-connections": "libs/feature/profile-connections",
     "feature-profile-feeds": "libs/feature/profile-feeds",
+    "feature-profile-menu": "libs/feature/profile-menu",
     "feature-social-add": "libs/feature/social-add",
     "feature-social-list": "libs/feature/social-list",
     "feature-social-unfollow": "libs/feature/social-unfollow",
