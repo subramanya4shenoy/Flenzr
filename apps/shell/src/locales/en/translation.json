@@ -21,5 +21,10 @@
   "home": "Home",
   "new": "New",
   "work": "Work",
-  "search": "Search"
+  "search": "Search",
+
+  "profileSettings": "Profile Settings",
+  "profile": "Profile",
+  "settings": "Settings",
+  "logout": "Logout"
 }
