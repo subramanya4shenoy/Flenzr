@@ -75,6 +75,9 @@
       "@flenzr/feature/stats-yt-card": [
         "libs/feature/stats-yt-card/src/index.ts"
       ],
+      "@flenzr/feature/user-post": [
+        "libs/feature/user-post/src/index.ts"
+      ],
       "@flenzr/shared/constant-menu-list": [
         "libs/shared/constant-menu-list/src/index.ts"
       ],

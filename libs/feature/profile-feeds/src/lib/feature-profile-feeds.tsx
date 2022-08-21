@@ -2,6 +2,7 @@ import { FeatureStatsCard } from "@flenzr/feature/stats-card";
 import { FeatureProfileCategory } from "@flenzr/feature/profile-category";
 import { SharedUiRating } from "@flenzr/shared/ui-rating";
 import { FeatureProfileTargetLocation } from "@flenzr/feature/profile-target-location";
+import { FeatureUserPost } from "@flenzr/feature/user-post";
 
 export function FeatureProfileFeeds() {
   return (
@@ -17,7 +18,8 @@ export function FeatureProfileFeeds() {
         </div>
       </div>
       <div className="w-2/3">
-        right
+        <FeatureUserPost/>
+        
       </div>
     </div>
   );
