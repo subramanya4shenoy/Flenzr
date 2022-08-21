@@ -1,4 +1,5 @@
 import { FeatureStatsCard } from "@flenzr/feature/stats-card";
+import { FeatureProfileCategory } from "libs/feature/profile-category/src";
 
 export function FeatureProfileFeeds() {
   return (
@@ -8,6 +9,7 @@ export function FeatureProfileFeeds() {
         <div className="mb-4 flex justify-center items-center">
           <div>
             <FeatureStatsCard />
+            <FeatureProfileCategory/>
           </div>
         </div>
       </div>

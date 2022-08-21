@@ -6,6 +6,7 @@
     "feature-profile-about": "libs/feature/profile-about",
     "feature-profile-billboard": "libs/feature/profile-billboard",
     "feature-profile-brands": "libs/feature/profile-brands",
+    "feature-profile-category": "libs/feature/profile-category",
     "feature-profile-community": "libs/feature/profile-community",
     "feature-profile-connections": "libs/feature/profile-connections",
     "feature-profile-feeds": "libs/feature/profile-feeds",
