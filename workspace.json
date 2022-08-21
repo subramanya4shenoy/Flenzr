@@ -27,6 +27,7 @@
     "shared-ui-brand-sign-in-form": "libs/shared/ui-brand-sign-in-form",
     "shared-ui-custom-select": "libs/shared/ui-custom-select",
     "shared-ui-flenzr-sign-in-form": "libs/shared/ui-flenzr-sign-in-form",
+    "shared-ui-locations": "libs/shared/ui-locations",
     "shared-ui-menu-bar": "libs/shared/ui-menu-bar",
     "shared-ui-rating": "libs/shared/ui-rating",
     "shared-ui-shell-bar": "libs/shared/ui-shell-bar",
