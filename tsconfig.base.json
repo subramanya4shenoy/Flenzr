@@ -96,6 +96,9 @@
       "@flenzr/shared/ui-menu-bar": [
         "libs/shared/ui-menu-bar/src/index.ts"
       ],
+      "@flenzr/shared/ui-rating": [
+        "libs/shared/ui-rating/src/index.ts"
+      ],
       "@flenzr/shared/ui-shell-bar": [
         "libs/shared/ui-shell-bar/src/index.ts"
       ],

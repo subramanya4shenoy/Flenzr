@@ -1,5 +1,6 @@
 import { FeatureStatsCard } from "@flenzr/feature/stats-card";
-import { FeatureProfileCategory } from "libs/feature/profile-category/src";
+import { FeatureProfileCategory } from "@flenzr/feature/profile-category";
+import { SharedUiRating } from "@flenzr/shared/ui-rating";
 
 export function FeatureProfileFeeds() {
   return (
@@ -10,6 +11,7 @@ export function FeatureProfileFeeds() {
           <div>
             <FeatureStatsCard />
             <FeatureProfileCategory/>
+            <SharedUiRating/>
           </div>
         </div>
       </div>
