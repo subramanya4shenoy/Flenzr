@@ -22,6 +22,7 @@
     "feature-stats-twitter-card": "libs/feature/stats-twitter-card",
     "feature-stats-yt-card": "libs/feature/stats-yt-card",
     "feature-user-post": "libs/feature/user-post",
+    "feature-user-post-feed": "libs/feature/user-post-feed",
     "shared-constant-menu-list": "libs/shared/constant-menu-list",
     "shared-constant-user-type": "libs/shared/constant-user-type",
     "shared-social-unfollow": "libs/shared/social-unfollow",
