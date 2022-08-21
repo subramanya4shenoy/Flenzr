@@ -1,26 +1,29 @@
+import { FeatureStatsCard } from "@flenzr/feature/stats-card";
+import { FeatureProfileCategory } from "@flenzr/feature/profile-category";
+import { SharedUiRating } from "@flenzr/shared/ui-rating";
+import { FeatureProfileTargetLocation } from "@flenzr/feature/profile-target-location";
+import { FeatureUserPost } from "@flenzr/feature/user-post";
+import { FeatureUserPostFeed } from "@flenzr/feature/user-post-feed";
 
-
-
-
-
-  import styles from './feature-profile-feeds.module.scss';
-  
-
-/* eslint-disable-next-line */
-export interface FeatureProfileFeedsProps {
-}
-
-
-
-export function FeatureProfileFeeds(props: FeatureProfileFeedsProps) {
+export function FeatureProfileFeeds() {
   return (
-    <div className={styles['container']}>
-      
-      <h1>Welcome to FeatureProfileFeeds!</h1>
-      
+    <div className="flex">
+      <div className="w-1/3">
+        <div className="mb-4 flex justify-center items-center">
+          <div>
+            <FeatureStatsCard />
+            <FeatureProfileCategory/>
+            <SharedUiRating/>
+            <FeatureProfileTargetLocation/>
+          </div>
+        </div>
+      </div>
+      <div className="w-2/3">
+        <FeatureUserPost/>
+        <FeatureUserPostFeed />
+      </div>
     </div>
   );
-};
-
+}
 
 export default FeatureProfileFeeds;

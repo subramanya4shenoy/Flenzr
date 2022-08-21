@@ -33,6 +33,9 @@
       "@flenzr/feature/profile-brands": [
         "libs/feature/profile-brands/src/index.ts"
       ],
+      "@flenzr/feature/profile-category": [
+        "libs/feature/profile-category/src/index.ts"
+      ],
       "@flenzr/feature/profile-community": [
         "libs/feature/profile-community/src/index.ts"
       ],
@@ -44,6 +47,9 @@
       ],
       "@flenzr/feature/profile-menu": [
         "libs/feature/profile-menu/src/index.ts"
+      ],
+      "@flenzr/feature/profile-target-location": [
+        "libs/feature/profile-target-location/src/index.ts"
       ],
       "@flenzr/feature/social-add": [
         "libs/feature/social-add/src/index.ts"
@@ -69,6 +75,12 @@
       "@flenzr/feature/stats-yt-card": [
         "libs/feature/stats-yt-card/src/index.ts"
       ],
+      "@flenzr/feature/user-post": [
+        "libs/feature/user-post/src/index.ts"
+      ],
+      "@flenzr/feature/user-post-feed": [
+        "libs/feature/user-post-feed/src/index.ts"
+      ],
       "@flenzr/shared/constant-menu-list": [
         "libs/shared/constant-menu-list/src/index.ts"
       ],
@@ -90,8 +102,14 @@
       "@flenzr/shared/ui-flenzr-sign-in-form": [
         "libs/shared/ui-flenzr-sign-in-form/src/index.ts"
       ],
+      "@flenzr/shared/ui-locations": [
+        "libs/shared/ui-locations/src/index.ts"
+      ],
       "@flenzr/shared/ui-menu-bar": [
         "libs/shared/ui-menu-bar/src/index.ts"
+      ],
+      "@flenzr/shared/ui-rating": [
+        "libs/shared/ui-rating/src/index.ts"
       ],
       "@flenzr/shared/ui-shell-bar": [
         "libs/shared/ui-shell-bar/src/index.ts"
