@@ -4,7 +4,6 @@ import FeedTwoToneIcon from "@mui/icons-material/FeedTwoTone";
 import WorkTwoToneIcon from "@mui/icons-material/WorkTwoTone";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import Tooltip from "@mui/material/Tooltip";
-import Avatar from "@mui/material/Avatar";
 import EmailTwoToneIcon from "@mui/icons-material/EmailTwoTone";
 import ChatBubbleTwoToneIcon from "@mui/icons-material/ChatBubbleTwoTone";
 import NotificationsTwoToneIcon from "@mui/icons-material/NotificationsTwoTone";
@@ -14,6 +13,7 @@ import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import { useState } from "react";
 import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
 import { useTranslation } from "react-i18next";
+import { FeatureProfileMenu } from "@flenzr/feature/profile-menu";
 
 export interface SharedUiShellBarProps {
   navigateTo(path: string): void;
@@ -147,7 +147,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
                   <NotificationsTwoToneIcon />
                 </IconButton>
               </Tooltip>
-              <Avatar>S</Avatar>
+              <FeatureProfileMenu navigateTo={(e) => navigateTo(e)}/>
             </div>
           </div>
         </div>
