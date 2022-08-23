@@ -20,7 +20,9 @@ export function FeatureProfileFeeds() {
       </div>
       <div className="w-2/3">
         <FeatureUserPost/>
-        <FeatureUserPostFeed />
+        <div className="mt-10">
+          <FeatureUserPostFeed />
+        </div>
       </div>
     </div>
   );

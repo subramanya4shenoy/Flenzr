@@ -21,6 +21,9 @@
       "@flenzr/feature-social-unfollow": [
         "libs/feature/social-unfollow/src/index.ts"
       ],
+      "@flenzr/feature/feed-card": [
+        "libs/feature/feed-card/src/index.ts"
+      ],
       "@flenzr/feature/product-page": [
         "libs/feature/product-page/src/index.ts"
       ],

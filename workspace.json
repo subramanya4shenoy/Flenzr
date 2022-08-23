@@ -2,6 +2,7 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "feature-feed-card": "libs/feature/feed-card",
     "feature-product-page": "libs/feature/product-page",
     "feature-profile-about": "libs/feature/profile-about",
     "feature-profile-billboard": "libs/feature/profile-billboard",
