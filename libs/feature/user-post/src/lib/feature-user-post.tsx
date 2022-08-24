@@ -11,7 +11,6 @@ export function FeatureUserPost() {
       <div>
         <TextField
           color="primary"
-          autoFocus={true}
           type="text"
           margin="normal"
           multiline
