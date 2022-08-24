@@ -1,23 +1,8 @@
 
-
-
-
-
-  import styles from './feature-feed-card.module.scss';
-  
-
-/* eslint-disable-next-line */
-export interface FeatureFeedCardProps {
-}
-
-
-
-export function FeatureFeedCard(props: FeatureFeedCardProps) {
+export function FeatureFeedCard() {
   return (
-    <div className={styles['container']}>
-      
-      <h1>Welcome to FeatureFeedCard!</h1>
-      
+    <div>
+      feeds
     </div>
   );
 };
