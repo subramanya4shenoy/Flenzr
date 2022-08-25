@@ -1,23 +1,16 @@
+import Chip from '@mui/material/Chip';
 
-
-
-
-
-  import styles from './feature-profile-category.module.scss';
-  
-
-/* eslint-disable-next-line */
-export interface FeatureProfileCategoryProps {
-}
-
-
-
-export function FeatureProfileCategory(props: FeatureProfileCategoryProps) {
+export function FeatureProfileCategory() {
   return (
-    <div className={styles['container']}>
-      
-      <h1>Welcome to FeatureProfileCategory!</h1>
-      
+    <div className="rounded-lg shadow-md p-4 bg-white">
+      <div className="font-bold text-xs capitalize my-2">category</div>
+      <div className="capitalize flex flex-wrap">
+      <Chip label="comedy" color="primary" className="m-1" variant='outlined' />
+      <Chip label="satire" color="primary" className="m-1" variant='outlined' />
+      <Chip label="standup" color="primary" className="m-1" variant='outlined' />
+      <Chip label="comedy" color="primary" className="m-1" variant='outlined' />
+      <Chip label="prank" color="primary" className="m-1" variant='outlined' />
+      </div>
     </div>
   );
 };
