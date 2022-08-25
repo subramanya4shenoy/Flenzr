@@ -7,8 +7,8 @@ import { FeatureUserPostFeed } from "@flenzr/feature/user-post-feed";
 
 export function FeatureProfileFeeds() {
   return (
-    <div className="flex">
-      <div className="w-1/3 sticky top-0">
+    <div className="laptop:flex desktop:flex">
+      <div className="w-full hidden laptop:block desktop:block laptop:w-1/3 desktop:w-1/3 laptop:sticky desktop:sticky top-0">
         <div className="mb-4 flex justify-center items-center">
           <div>
             <FeatureStatsCard />
@@ -22,8 +22,10 @@ export function FeatureProfileFeeds() {
           </div>
         </div>
       </div>
-      <div className="w-2/3">
-        <FeatureUserPost/>
+      <div className="laptop:w-2/3 desktop:w-2/3 px-4">
+        <div className="hidden laptop:block desktop:block">
+          <FeatureUserPost/>
+        </div>
         <div className="mt-10">
           <FeatureUserPostFeed />
         </div>

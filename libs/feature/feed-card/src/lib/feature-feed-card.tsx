@@ -3,7 +3,7 @@ import Avatar from "@mui/material/Avatar";
 
 export function FeatureFeedCard() {
   return (
-    <div className="w-full bg-white rounded-lg shadow-md my-6 p-4 mx-4">
+    <div className="laptop:w-full desktop:w-full bg-white rounded-lg shadow-md my-6 p-4 mx-4">
       <div className="flex items-center">
         <Avatar
           alt="Sophie carter"

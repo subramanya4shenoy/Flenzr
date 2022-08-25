@@ -8,8 +8,8 @@ export function FeatureProfileAbout(props: FeatureProfileAboutProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="flex justify-center content-center items-top">
-      <div className="m-4 p-6 shadow rounded-lg w-1/2">
+    <div className="laptop:flex desktop:flex justify-center content-center items-top">
+      <div className="m-4 p-6 shadow rounded-lg laptop:w-1/2 desktop:w-1/2">
         <Typography variant="h6" gutterBottom>
           {t("about")}
         </Typography>
@@ -20,7 +20,7 @@ export function FeatureProfileAbout(props: FeatureProfileAboutProps) {
         </Typography>
       </div>
 
-      <div className="m-4 p-6 shadow rounded-lg w1/2">
+      <div className="m-4 p-6 shadow rounded-lg laptop:w-1/2 desktop:w-1/2">
         <Typography variant="h6" gutterBottom>
           {t("Worked with Brands")}
         </Typography>

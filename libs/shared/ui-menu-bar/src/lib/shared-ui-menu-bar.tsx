@@ -41,7 +41,7 @@ export const SharedUiMenuBar = ({
         </Tabs>
       </div>
 
-      <div className="block position sticky top-0 laptop:hidden desktop:hidden">
+      <div className="laptop:hidden desktop:hidden sticky top-0">
         <Tabs
           value={selectedMenu.index}
           onChange={(e, val) => {
