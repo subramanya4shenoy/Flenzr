@@ -72,7 +72,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
       </div>
 
       {/* desktop */}
-      <div className="hidden laptop:block desktop:block w-screen shadow mb-6">
+      <div className="hidden laptop:block desktop:block w-screen shadow mb-6 fixed top-0 bg-white z-10">
         <div className="flex w-full max-w-screen-xl	items-center content-center justify-between">
           <div className="p-3 flex items-center content-center">
             <img alt="flenzr" src={Logo} className="w-20 mr-16" />
