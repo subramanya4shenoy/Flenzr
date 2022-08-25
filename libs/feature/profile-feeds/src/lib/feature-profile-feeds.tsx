@@ -12,10 +12,12 @@ export function FeatureProfileFeeds() {
         <div className="mb-4 flex justify-center items-center">
           <div>
             <FeatureStatsCard />
-            <div className="my-4 mx-auto">
+            <div className="my-4 pr-10">
               <FeatureProfileCategory/>
             </div>
-            <SharedUiRating/>
+            <div className="my-4 pr-10">
+              <SharedUiRating/>
+            </div>
             <FeatureProfileTargetLocation/>
           </div>
         </div>
