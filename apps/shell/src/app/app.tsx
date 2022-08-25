@@ -51,7 +51,7 @@ export function App() {
             path="/"
             element={
               cookies.wu ? (
-                <div className="mt-20" >
+                <div className="laptop:mt-20 desktop:mt-20" >
                   <Dashboard />
                 </div>
               ) : (

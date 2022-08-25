@@ -1,23 +1,21 @@
+import Rating from '@mui/material/Rating';
+import { useState } from 'react';
 
+export function SharedUiRating() {
 
+  const [value, setValue] = useState<number | null>(2);
 
-
-
-  import styles from './shared-ui-rating.module.scss';
-  
-
-/* eslint-disable-next-line */
-export interface SharedUiRatingProps {
-}
-
-
-
-export function SharedUiRating(props: SharedUiRatingProps) {
   return (
-    <div className={styles['container']}>
-      
-      <h1>Welcome to SharedUiRating!</h1>
-      
+    <div className="rounded-lg shadow-md p-4 bg-white">
+      <div className="font-bold text-xs capitalize my-2">rating</div>
+      <Rating
+        name="simple-controlled"
+        value={value}
+        onChange={(event, newValue) => {
+          setValue(newValue);
+        }}
+        size="large" 
+      />
     </div>
   );
 };

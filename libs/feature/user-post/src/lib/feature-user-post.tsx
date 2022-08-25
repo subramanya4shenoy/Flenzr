@@ -6,7 +6,7 @@ export function FeatureUserPost() {
   const { t } = useTranslation();
 
   return (
-    <div className="w-full mx-4 p-5 bg-white rounded-lg shadow-md">
+    <div className="laptpo:w-full desktop:w-full mx-4 p-5 bg-white rounded-lg shadow-md">
       <div>{t("whatAreYouUpto")}</div>
       <div>
         <TextField
