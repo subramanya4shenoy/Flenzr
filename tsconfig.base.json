@@ -24,6 +24,9 @@
       "@flenzr/feature/feed-card": [
         "libs/feature/feed-card/src/index.ts"
       ],
+      "@flenzr/feature/post-reaction": [
+        "libs/feature/post-reaction/src/index.ts"
+      ],
       "@flenzr/feature/product-page": [
         "libs/feature/product-page/src/index.ts"
       ],

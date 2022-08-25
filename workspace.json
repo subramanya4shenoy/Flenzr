@@ -3,6 +3,7 @@
   "version": 2,
   "projects": {
     "feature-feed-card": "libs/feature/feed-card",
+    "feature-post-reaction": "libs/feature/post-reaction",
     "feature-product-page": "libs/feature/product-page",
     "feature-profile-about": "libs/feature/profile-about",
     "feature-profile-billboard": "libs/feature/profile-billboard",

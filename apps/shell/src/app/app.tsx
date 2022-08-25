@@ -51,7 +51,9 @@ export function App() {
             path="/"
             element={
               cookies.wu ? (
-                <Dashboard />
+                <div className="mt-20" >
+                  <Dashboard />
+                </div>
               ) : (
                 <FeatureProductPage navigateTo={navigationPaths} />
               )

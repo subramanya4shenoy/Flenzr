@@ -8,7 +8,7 @@ import { FeatureUserPostFeed } from "@flenzr/feature/user-post-feed";
 export function FeatureProfileFeeds() {
   return (
     <div className="flex">
-      <div className="w-1/3">
+      <div className="w-1/3 sticky top-0">
         <div className="mb-4 flex justify-center items-center">
           <div>
             <FeatureStatsCard />
