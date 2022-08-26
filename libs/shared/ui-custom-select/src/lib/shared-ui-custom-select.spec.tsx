@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import SharedUiCustomSelect from "./shared-ui-custom-select";
 
 const mockOnChangeSelection = jest.fn();
-const handleChanges = (e:any) => {}
+const handleChanges = (e:any) => { console.log(e)}
 
 describe("SharedUiCustomSelect", () => {
   /** Unit test cases to test the UI */
