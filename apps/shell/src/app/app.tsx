@@ -23,7 +23,7 @@ export function App() {
     switch (path) {
       case "/":
           navigate("/");
-          break;
+        break;
       case "signup":
         navigate("/signup");
         break;
