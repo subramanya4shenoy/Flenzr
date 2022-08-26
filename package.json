@@ -6,7 +6,8 @@
     "nx": "nx",
     "start": "nx serve",
     "build": "nx build",
-    "test": "nx test"
+    "test": "nx test",
+    "precommit": "lint-staged"
   },
   "private": true,
   "dependencies": {
@@ -59,8 +60,10 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.1",
     "jest": "27.5.1",
     "json-loader": "^0.5.7",
+    "lint-staged": "^13.0.3",
     "nx": "14.1.9",
     "postcss": "^8.4.14",
     "prettier": "^2.7.1",
@@ -69,5 +72,12 @@
     "ts-jest": "27.1.4",
     "ts-node": "9.1.1",
     "typescript": "~4.6.2"
-  }
+  },
+
+"lint-staged": {
+  "src/**/*.{js,tsx}": [
+    "eslint --fix",
+    "git add"
+  ]
+}
 }
