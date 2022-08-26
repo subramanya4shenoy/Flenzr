@@ -22,7 +22,7 @@ export function App() {
   const navigationPaths = (path: string) => {
     switch (path) {
       case "/":
-          navigate("/");
+        navigate("/");
         break;
       case "signup":
         navigate("/signup");
