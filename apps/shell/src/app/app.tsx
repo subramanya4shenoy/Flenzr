@@ -18,6 +18,7 @@ const SignIn = lazy(() => import("./components/Onboarding/SignIn/SignIn"));
 export function App() {
   const navigate = useNavigate();
   const [cookies] = useCookies(["wu"]);
+  const cook_ER = () => { console.log()};
 
   const navigationPaths = (path: string) => {
     switch (path) {

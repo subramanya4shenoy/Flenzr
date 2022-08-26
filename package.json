@@ -7,8 +7,7 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    "format": "nx format:write --all",
-    "format:write": "nx format:write --uncommitted",
+    "lint-fix": "nx affected:lint --fix",
     "prepare": "husky install"
   },
   "private": true,
