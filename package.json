@@ -80,7 +80,7 @@
   },
   "lint-staged": {
     "*.{js,json,css,scss,md,tsx,ts,html,graphql}": [
-      "npm run format --uncommitted"
+      "yarn format --uncommitted"
     ]
   }
 }
