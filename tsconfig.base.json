@@ -10,126 +10,48 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": [
-      "es2017",
-      "dom"
-    ],
+    "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@flenzr/feature-social-unfollow": [
-        "libs/feature/social-unfollow/src/index.ts"
-      ],
-      "@flenzr/feature/feed-card": [
-        "libs/feature/feed-card/src/index.ts"
-      ],
-      "@flenzr/feature/post-reaction": [
-        "libs/feature/post-reaction/src/index.ts"
-      ],
-      "@flenzr/feature/product-page": [
-        "libs/feature/product-page/src/index.ts"
-      ],
-      "@flenzr/feature/profile-about": [
-        "libs/feature/profile-about/src/index.ts"
-      ],
-      "@flenzr/feature/profile-billboard": [
-        "libs/feature/profile-billboard/src/index.ts"
-      ],
-      "@flenzr/feature/profile-brands": [
-        "libs/feature/profile-brands/src/index.ts"
-      ],
-      "@flenzr/feature/profile-category": [
-        "libs/feature/profile-category/src/index.ts"
-      ],
-      "@flenzr/feature/profile-community": [
-        "libs/feature/profile-community/src/index.ts"
-      ],
-      "@flenzr/feature/profile-connections": [
-        "libs/feature/profile-connections/src/index.ts"
-      ],
-      "@flenzr/feature/profile-feeds": [
-        "libs/feature/profile-feeds/src/index.ts"
-      ],
-      "@flenzr/feature/profile-menu": [
-        "libs/feature/profile-menu/src/index.ts"
-      ],
-      "@flenzr/feature/profile-target-location": [
-        "libs/feature/profile-target-location/src/index.ts"
-      ],
-      "@flenzr/feature/social-add": [
-        "libs/feature/social-add/src/index.ts"
-      ],
-      "@flenzr/feature/social-list": [
-        "libs/feature/social-list/src/index.ts"
-      ],
-      "@flenzr/feature/stats-card": [
-        "libs/feature/stats-card/src/index.ts"
-      ],
-      "@flenzr/feature/stats-fb-card": [
-        "libs/feature/stats-fb-card/src/index.ts"
-      ],
-      "@flenzr/feature/stats-insta-card": [
-        "libs/feature/stats-insta-card/src/index.ts"
-      ],
-      "@flenzr/feature/stats-linkedin-card": [
-        "libs/feature/stats-linkedin-card/src/index.ts"
-      ],
-      "@flenzr/feature/stats-twitter-card": [
-        "libs/feature/stats-twitter-card/src/index.ts"
-      ],
-      "@flenzr/feature/stats-yt-card": [
-        "libs/feature/stats-yt-card/src/index.ts"
-      ],
-      "@flenzr/feature/user-post": [
-        "libs/feature/user-post/src/index.ts"
-      ],
-      "@flenzr/feature/user-post-feed": [
-        "libs/feature/user-post-feed/src/index.ts"
-      ],
-      "@flenzr/shared/constant-menu-list": [
-        "libs/shared/constant-menu-list/src/index.ts"
-      ],
-      "@flenzr/shared/constant-user-type": [
-        "libs/shared/constant-user-type/src/index.ts"
-      ],
-      "@flenzr/shared/social-unfollow": [
-        "libs/shared/social-unfollow/src/index.ts"
-      ],
-      "@flenzr/shared/ui-brand-card": [
-        "libs/shared/ui-brand-card/src/index.ts"
-      ],
-      "@flenzr/shared/ui-brand-sign-in-form": [
-        "libs/shared/ui-brand-sign-in-form/src/index.ts"
-      ],
-      "@flenzr/shared/ui-custom-select": [
-        "libs/shared/ui-custom-select/src/index.ts"
-      ],
-      "@flenzr/shared/ui-flenzr-sign-in-form": [
-        "libs/shared/ui-flenzr-sign-in-form/src/index.ts"
-      ],
-      "@flenzr/shared/ui-locations": [
-        "libs/shared/ui-locations/src/index.ts"
-      ],
-      "@flenzr/shared/ui-menu-bar": [
-        "libs/shared/ui-menu-bar/src/index.ts"
-      ],
-      "@flenzr/shared/ui-rating": [
-        "libs/shared/ui-rating/src/index.ts"
-      ],
-      "@flenzr/shared/ui-shell-bar": [
-        "libs/shared/ui-shell-bar/src/index.ts"
-      ],
-      "@flenzr/shared/ui-third-party-signin": [
-        "libs/shared/ui-third-party-signin/src/index.ts"
-      ],
-      "@flenzr/shared/ui-user-card": [
-        "libs/shared/ui-user-card/src/index.ts"
-      ]
+      "@flenzr/feature-social-unfollow": ["libs/feature/social-unfollow/src/index.ts"],
+      "@flenzr/feature/feed-card": ["libs/feature/feed-card/src/index.ts"],
+      "@flenzr/feature/post-reaction": ["libs/feature/post-reaction/src/index.ts"],
+      "@flenzr/feature/product-page": ["libs/feature/product-page/src/index.ts"],
+      "@flenzr/feature/profile-about": ["libs/feature/profile-about/src/index.ts"],
+      "@flenzr/feature/profile-billboard": ["libs/feature/profile-billboard/src/index.ts"],
+      "@flenzr/feature/profile-brands": ["libs/feature/profile-brands/src/index.ts"],
+      "@flenzr/feature/profile-category": ["libs/feature/profile-category/src/index.ts"],
+      "@flenzr/feature/profile-community": ["libs/feature/profile-community/src/index.ts"],
+      "@flenzr/feature/profile-connections": ["libs/feature/profile-connections/src/index.ts"],
+      "@flenzr/feature/profile-feeds": ["libs/feature/profile-feeds/src/index.ts"],
+      "@flenzr/feature/profile-menu": ["libs/feature/profile-menu/src/index.ts"],
+      "@flenzr/feature/profile-target-location": ["libs/feature/profile-target-location/src/index.ts"],
+      "@flenzr/feature/social-add": ["libs/feature/social-add/src/index.ts"],
+      "@flenzr/feature/social-list": ["libs/feature/social-list/src/index.ts"],
+      "@flenzr/feature/stats-card": ["libs/feature/stats-card/src/index.ts"],
+      "@flenzr/feature/stats-fb-card": ["libs/feature/stats-fb-card/src/index.ts"],
+      "@flenzr/feature/stats-insta-card": ["libs/feature/stats-insta-card/src/index.ts"],
+      "@flenzr/feature/stats-linkedin-card": ["libs/feature/stats-linkedin-card/src/index.ts"],
+      "@flenzr/feature/stats-twitter-card": ["libs/feature/stats-twitter-card/src/index.ts"],
+      "@flenzr/feature/stats-yt-card": ["libs/feature/stats-yt-card/src/index.ts"],
+      "@flenzr/feature/user-post": ["libs/feature/user-post/src/index.ts"],
+      "@flenzr/feature/user-post-feed": ["libs/feature/user-post-feed/src/index.ts"],
+      "@flenzr/shared/constant-menu-list": ["libs/shared/constant-menu-list/src/index.ts"],
+      "@flenzr/shared/constant-user-type": ["libs/shared/constant-user-type/src/index.ts"],
+      "@flenzr/shared/social-unfollow": ["libs/shared/social-unfollow/src/index.ts"],
+      "@flenzr/shared/ui-brand-card": ["libs/shared/ui-brand-card/src/index.ts"],
+      "@flenzr/shared/ui-brand-sign-in-form": ["libs/shared/ui-brand-sign-in-form/src/index.ts"],
+      "@flenzr/shared/ui-custom-select": ["libs/shared/ui-custom-select/src/index.ts"],
+      "@flenzr/shared/ui-flenzr-sign-in-form": ["libs/shared/ui-flenzr-sign-in-form/src/index.ts"],
+      "@flenzr/shared/ui-locations": ["libs/shared/ui-locations/src/index.ts"],
+      "@flenzr/shared/ui-menu-bar": ["libs/shared/ui-menu-bar/src/index.ts"],
+      "@flenzr/shared/ui-rating": ["libs/shared/ui-rating/src/index.ts"],
+      "@flenzr/shared/ui-shell-bar": ["libs/shared/ui-shell-bar/src/index.ts"],
+      "@flenzr/shared/ui-third-party-signin": ["libs/shared/ui-third-party-signin/src/index.ts"],
+      "@flenzr/shared/ui-user-card": ["libs/shared/ui-user-card/src/index.ts"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "tmp"
-  ]
+  "exclude": ["node_modules", "tmp"]
 }
