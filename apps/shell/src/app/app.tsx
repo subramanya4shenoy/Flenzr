@@ -18,7 +18,6 @@ const SignIn = lazy(() => import("./components/Onboarding/SignIn/SignIn"));
 export function App() {
   const navigate = useNavigate();
   const [cookies] = useCookies(["wu"]);
-  const random_Name = () => { console.log('')};
   
   const navigationPaths = (path: string) => {
     switch (path) {
