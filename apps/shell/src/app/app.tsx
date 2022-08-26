@@ -18,12 +18,12 @@ const SignIn = lazy(() => import("./components/Onboarding/SignIn/SignIn"));
 export function App() {
   const navigate = useNavigate();
   const [cookies] = useCookies(["wu"]);
-  
+
   const navigationPaths = (path: string) => {
     switch (path) {
       case "/":
-        navigate("/");
-        break;
+          navigate("/");
+          break;
       case "signup":
         navigate("/signup");
         break;
@@ -51,7 +51,7 @@ export function App() {
             path="/"
             element={
               cookies.wu ? (
-                <div className="laptop:mt-20 desktop:mt-20" >
+                <div className="laptop:mt-20 desktop:mt-20">
                   <Dashboard />
                 </div>
               ) : (
@@ -59,9 +59,16 @@ export function App() {
               )
             }
           />
-          <Route path="/signup" element={<SignUp onSuccess={() => {
+          <Route
+            path="/signup"
+            element={
+              <SignUp
+                onSuccess={() => {
                   navigationPaths("/");
-                }}/>} />
+                }}
+              />
+            }
+          />
           <Route
             path="/signin"
             element={
