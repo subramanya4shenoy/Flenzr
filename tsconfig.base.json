@@ -10,7 +10,10 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
@@ -18,7 +21,9 @@
       "@flenzr/feature-social-unfollow": [
         "libs/feature/social-unfollow/src/index.ts"
       ],
-      "@flenzr/feature/feed-card": ["libs/feature/feed-card/src/index.ts"],
+      "@flenzr/feature/feed-card": [
+        "libs/feature/feed-card/src/index.ts"
+      ],
       "@flenzr/feature/post-reaction": [
         "libs/feature/post-reaction/src/index.ts"
       ],
@@ -52,9 +57,15 @@
       "@flenzr/feature/profile-target-location": [
         "libs/feature/profile-target-location/src/index.ts"
       ],
-      "@flenzr/feature/social-add": ["libs/feature/social-add/src/index.ts"],
-      "@flenzr/feature/social-list": ["libs/feature/social-list/src/index.ts"],
-      "@flenzr/feature/stats-card": ["libs/feature/stats-card/src/index.ts"],
+      "@flenzr/feature/social-add": [
+        "libs/feature/social-add/src/index.ts"
+      ],
+      "@flenzr/feature/social-list": [
+        "libs/feature/social-list/src/index.ts"
+      ],
+      "@flenzr/feature/stats-card": [
+        "libs/feature/stats-card/src/index.ts"
+      ],
       "@flenzr/feature/stats-fb-card": [
         "libs/feature/stats-fb-card/src/index.ts"
       ],
@@ -70,7 +81,9 @@
       "@flenzr/feature/stats-yt-card": [
         "libs/feature/stats-yt-card/src/index.ts"
       ],
-      "@flenzr/feature/user-post": ["libs/feature/user-post/src/index.ts"],
+      "@flenzr/feature/user-post": [
+        "libs/feature/user-post/src/index.ts"
+      ],
       "@flenzr/feature/user-post-feed": [
         "libs/feature/user-post-feed/src/index.ts"
       ],
@@ -95,15 +108,28 @@
       "@flenzr/shared/ui-flenzr-sign-in-form": [
         "libs/shared/ui-flenzr-sign-in-form/src/index.ts"
       ],
-      "@flenzr/shared/ui-locations": ["libs/shared/ui-locations/src/index.ts"],
-      "@flenzr/shared/ui-menu-bar": ["libs/shared/ui-menu-bar/src/index.ts"],
-      "@flenzr/shared/ui-rating": ["libs/shared/ui-rating/src/index.ts"],
-      "@flenzr/shared/ui-shell-bar": ["libs/shared/ui-shell-bar/src/index.ts"],
+      "@flenzr/shared/ui-locations": [
+        "libs/shared/ui-locations/src/index.ts"
+      ],
+      "@flenzr/shared/ui-menu-bar": [
+        "libs/shared/ui-menu-bar/src/index.ts"
+      ],
+      "@flenzr/shared/ui-rating": [
+        "libs/shared/ui-rating/src/index.ts"
+      ],
+      "@flenzr/shared/ui-shell-bar": [
+        "libs/shared/ui-shell-bar/src/index.ts"
+      ],
       "@flenzr/shared/ui-third-party-signin": [
         "libs/shared/ui-third-party-signin/src/index.ts"
       ],
-      "@flenzr/shared/ui-user-card": ["libs/shared/ui-user-card/src/index.ts"]
+      "@flenzr/shared/ui-user-card": [
+        "libs/shared/ui-user-card/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }
