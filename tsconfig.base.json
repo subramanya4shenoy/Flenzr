@@ -18,6 +18,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@flenzr/api/core": [
+        "libs/api/core/src/index.ts"
+      ],
       "@flenzr/feature-social-unfollow": [
         "libs/feature/social-unfollow/src/index.ts"
       ],
