@@ -3,6 +3,7 @@
   "version": 2,
   "projects": {
     "api": "apps/api",
+    "api-core": "libs/api/core",
     "feature-feed-card": "libs/feature/feed-card",
     "feature-post-reaction": "libs/feature/post-reaction",
     "feature-product-page": "libs/feature/product-page",
