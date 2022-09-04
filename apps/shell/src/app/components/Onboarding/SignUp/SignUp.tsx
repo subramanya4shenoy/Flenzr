@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { ACCOUNT_SETTINGS, ACCOUNT_TYPES } from '@flenzr/shared/constant-user-type';
 import { useCookies } from 'react-cookie';
 import Lottie from 'lottie-react';
-import loginYoga from "../../../../../../../assets/Animations/login-yoga.json";
-import { SharedUiThirdPartySignin } from '@flenzr/shared/ui-third-party-signin';
+import loginYoga from "../../../../../../../assets/Animations/signup.json";
+import { SharedUiThirdPartySignup } from '@flenzr/shared/ui-third-party-signup';
 import { SharedUiFlenzrSignInForm } from '@flenzr/shared/ui-flenzr-sign-in-form';
 import { SharedUiBrandSignInForm } from '@flenzr/shared/ui-brand-sign-in-form';
 import Link from '@mui/material/Link';
@@ -70,7 +70,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
             {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
               <>
                 <div className="my-2">
-                  <SharedUiThirdPartySignin />
+                  <SharedUiThirdPartySignup />
                 </div>
                 <SharedUiFlenzrSignInForm
                   onSignIn={handleSignInFlenzr}
@@ -82,14 +82,14 @@ export function SignUp({ onSuccess }: SignUpProps) {
               ></SharedUiBrandSignInForm>
             )}
             <div className="w-full mt-2 mb-2 flex justify-center items-center font-semibold">
-              {t("newFlenzrOrBrand")}
+              {t("alreadyHaveAnAccount")}
               <Link
                 component="button"
                 variant="inherit"
                 className="font-semibold"
                 underline="hover"
               >
-                {t("createNew")}
+                {t("loginBtn")}
               </Link>
             </div>
           </div>
@@ -126,7 +126,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
               {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
                 <>
                   <div className="mt-6">
-                    <SharedUiThirdPartySignin />
+                    <SharedUiThirdPartySignup />
                   </div>
                   <div className="mb-6">
                     <SharedUiFlenzrSignInForm
@@ -143,14 +143,14 @@ export function SignUp({ onSuccess }: SignUpProps) {
               )}
             </div>
             <div className="w-full mt-2 mb-2 flex justify-center items-center font-semibold">
-              <div className="mr-1">{t("newFlenzrOrBrand")}</div>
+              <div className="mr-1">{t("alreadyHaveAnAccount")}</div>
               <Link
                 component="button"
                 variant="inherit"
                 className="font-semibold"
                 underline="hover"
               >
-                {t("createNew")}
+                {t("loginBtn")}
               </Link>
             </div>
           </div>
