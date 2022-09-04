@@ -111,6 +111,9 @@
       "@flenzr/shared/ui-flenzr-sign-in-form": [
         "libs/shared/ui-flenzr-sign-in-form/src/index.ts"
       ],
+      "@flenzr/shared/ui-flenzr-signup-form": [
+        "libs/shared/ui-flenzr-signup-form/src/index.ts"
+      ],
       "@flenzr/shared/ui-locations": [
         "libs/shared/ui-locations/src/index.ts"
       ],

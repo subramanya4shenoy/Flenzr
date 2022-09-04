@@ -8,7 +8,7 @@ import { useCookies } from 'react-cookie';
 import Lottie from 'lottie-react';
 import loginYoga from "../../../../../../../assets/Animations/signup.json";
 import { SharedUiThirdPartySignup } from '@flenzr/shared/ui-third-party-signup';
-import { SharedUiFlenzrSignInForm } from '@flenzr/shared/ui-flenzr-sign-in-form';
+import { SharedUiFlenzrSignupForm } from '@flenzr/shared/ui-flenzr-signup-form';
 import { SharedUiBrandSignInForm } from '@flenzr/shared/ui-brand-sign-in-form';
 import Link from '@mui/material/Link';
 
@@ -72,9 +72,9 @@ export function SignUp({ onSuccess }: SignUpProps) {
                 <div className="my-2">
                   <SharedUiThirdPartySignup />
                 </div>
-                <SharedUiFlenzrSignInForm
+                <SharedUiFlenzrSignupForm
                   onSignIn={handleSignInFlenzr}
-                ></SharedUiFlenzrSignInForm>
+                ></SharedUiFlenzrSignupForm>
               </>
             ) : (
               <SharedUiBrandSignInForm
@@ -129,9 +129,9 @@ export function SignUp({ onSuccess }: SignUpProps) {
                     <SharedUiThirdPartySignup />
                   </div>
                   <div className="mb-6">
-                    <SharedUiFlenzrSignInForm
+                    <SharedUiFlenzrSignupForm
                       onSignIn={handleSignInFlenzr}
-                    ></SharedUiFlenzrSignInForm>
+                    ></SharedUiFlenzrSignupForm>
                   </div>
                 </>
               ) : (
