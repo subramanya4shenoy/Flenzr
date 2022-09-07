@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model facebook {
+  facebook_tab_id Int?
+  display_name    String? @db.VarChar
+  followers       Int?
+  trend           Int?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model instagram {
+  instagram_tab_id Int?
+  display_name     String? @db.VarChar
+  followers        Int?
+  trend            Int?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model linked_in {
+  linkedin_tab_id Int?
+  display_name    String? @db.VarChar
+  followers       Int?
+  trend           Int?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model social {
+  social_id        Int?
+  instagram_tab_id Int?
+  facebook_tab_id  Int?
+  youtube_tab_id   Int?
+  linkedin_tab_id  Int?
+
+  @@ignore
+}
+
+model user {
+  user_id         String   @id @db.VarChar
+  email           String?  @db.VarChar
+  password        String?  @db.VarChar
+  verified        Boolean?
+  source          String?  @db.VarChar
+  mobile          String?  @db.VarChar
+  mobile_verified Boolean?
+  location        String?  @db.VarChar
+  language        String?  @db.VarChar
+  created_ip      String?  @db.VarChar
+  display_name    String?  @db.VarChar
+  device_id       String?  @db.VarChar
+  name            String?  @db.VarChar
+  social_id       Int?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model youtube {
+  youtube_tab_id Int?
+  display_name   String? @db.VarChar
+  followers      Int?
+  trend          Int?
+
+  @@ignore
+}

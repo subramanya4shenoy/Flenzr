@@ -44,3 +44,4 @@ Thumbs.db
 package-lock.json
 package-lock.json
 .env
+prisma/migrations/migration_lock.toml
