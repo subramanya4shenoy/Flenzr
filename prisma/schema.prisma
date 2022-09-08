@@ -9,7 +9,7 @@ datasource db {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model facebook {
-  social_id       Int
+  user_id         Int
   facebook_tab_id Int?
   display_name    String? @db.VarChar(255)
   followers       Int?
@@ -20,7 +20,7 @@ model facebook {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model instagram {
-  social_id        Int
+  user_id          Int
   instagram_tab_id Int?
   display_name     String? @db.VarChar(255)
   followers        Int?
@@ -31,7 +31,7 @@ model instagram {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model linked_in {
-  social_id       Int
+  user_id         Int
   linkedin_tab_id Int?
   display_name    String? @db.VarChar(255)
   followers       Int?
@@ -40,9 +40,9 @@ model linked_in {
   @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model user {
-  user_id          String   @id @db.Uuid
-  social_id        String?  @db.Uuid
+  user_id          Int? @default(autoincrement())
   email            String?  @db.VarChar(255)
   password         String?  @db.VarChar(255)
   verified         Boolean?
@@ -54,12 +54,15 @@ model user {
   display_name     String?  @db.VarChar(255)
   device_id        String?  @db.VarChar(255)
   name             String?  @db.VarChar(255)
-  created_datetime DateTime @db.Timestamp(0)
+  created_datetime DateTime @default(now()) @db.Timestamp(0)
+
+  @@index([user_id], map: "user_user_id_index")
+  @@ignore
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model youtube {
-  social_id      Int
+  user_id        Int
   youtube_tab_id Int?
   display_name   String? @db.VarChar(255)
   followers      Int?
