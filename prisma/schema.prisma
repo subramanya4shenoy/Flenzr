@@ -70,4 +70,4 @@ model youtube {
   trend          Int?
 
   @@ignore
-} 
+}  
