@@ -45,15 +45,16 @@ model user {
   user_id          Int? @default(autoincrement())
   email            String?  @db.VarChar(255)
   password         String?  @db.VarChar(255)
-  verified         Boolean?
+  verified         Boolean? @default(false) 
   source           String?  @db.VarChar(255)
-  mobile_verified  Boolean?
+  mobile_verified  Boolean? @default(false) 
   location         String?  @db.VarChar(255)
   language         String?  @db.VarChar(255)
   created_ip       String?  @db.VarChar(255)
   display_name     String?  @db.VarChar(255)
   device_id        String?  @db.VarChar(255)
   name             String?  @db.VarChar(255)
+  mobile           String? @db.VarChar(255)
   created_datetime DateTime @default(now()) @db.Timestamp(0)
 
   @@index([user_id], map: "user_user_id_index")
