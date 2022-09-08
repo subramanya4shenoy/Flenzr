@@ -9,8 +9,9 @@ datasource db {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model facebook {
+  social_id       Int
   facebook_tab_id Int?
-  display_name    String? @db.VarChar
+  display_name    String? @db.VarChar(255)
   followers       Int?
   trend           Int?
 
@@ -19,8 +20,9 @@ model facebook {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model instagram {
+  social_id        Int
   instagram_tab_id Int?
-  display_name     String? @db.VarChar
+  display_name     String? @db.VarChar(255)
   followers        Int?
   trend            Int?
 
@@ -29,46 +31,37 @@ model instagram {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model linked_in {
+  social_id       Int
   linkedin_tab_id Int?
-  display_name    String? @db.VarChar
+  display_name    String? @db.VarChar(255)
   followers       Int?
   trend           Int?
 
   @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model social {
-  social_id        Int?
-  instagram_tab_id Int?
-  facebook_tab_id  Int?
-  youtube_tab_id   Int?
-  linkedin_tab_id  Int?
-
-  @@ignore
-}
-
 model user {
-  user_id         String   @id @db.VarChar
-  email           String?  @db.VarChar
-  password        String?  @db.VarChar
-  verified        Boolean?
-  source          String?  @db.VarChar
-  mobile          String?  @db.VarChar
-  mobile_verified Boolean?
-  location        String?  @db.VarChar
-  language        String?  @db.VarChar
-  created_ip      String?  @db.VarChar
-  display_name    String?  @db.VarChar
-  device_id       String?  @db.VarChar
-  name            String?  @db.VarChar
-  social_id       Int?
+  user_id          String   @id @db.Uuid
+  social_id        String?  @db.Uuid
+  email            String?  @db.VarChar(255)
+  password         String?  @db.VarChar(255)
+  verified         Boolean?
+  source           String?  @db.VarChar(255)
+  mobile_verified  Boolean?
+  location         String?  @db.VarChar(255)
+  language         String?  @db.VarChar(255)
+  created_ip       String?  @db.VarChar(255)
+  display_name     String?  @db.VarChar(255)
+  device_id        String?  @db.VarChar(255)
+  name             String?  @db.VarChar(255)
+  created_datetime DateTime @db.Timestamp(0)
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model youtube {
+  social_id      Int
   youtube_tab_id Int?
-  display_name   String? @db.VarChar
+  display_name   String? @db.VarChar(255)
   followers      Int?
   trend          Int?
 
