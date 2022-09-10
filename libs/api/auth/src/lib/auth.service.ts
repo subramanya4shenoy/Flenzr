@@ -4,10 +4,8 @@ import { AuthSignUpInput } from "./dto/auth-signup.input";
 import { UserToken } from "./models/user-token";
 import { PrismaService } from "./prisma.service";
 
-
 @Injectable()
 export class AuthService {
-
     constructor(private prisma: PrismaService) {}
 
     public tempUserToken:UserToken = { token: "xwyz", user: {}}

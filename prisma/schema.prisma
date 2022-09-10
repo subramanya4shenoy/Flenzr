@@ -63,4 +63,5 @@ model youtube {
   followers      Int?
   trend          Int?
   created_datetime DateTime @default(now()) @db.Timestamp(0)
+
 }  
