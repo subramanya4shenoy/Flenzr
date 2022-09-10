@@ -6,17 +6,17 @@ import { UserToken } from "./models/user-token";
 
 @Resolver()
 export class AuthResolver {
+  constructor(private readonly service: AuthService) {}
 
-    constructor(private readonly service:AuthService) {}
-    
-    @Mutation(()=> UserToken)
-    signIn(@Args('input', {type: () => AuthSignInInput}) input: AuthSignInInput): UserToken{
-        return this.service.signIn(input);
-    }
-    
-    @Mutation(() => UserToken)
-    signUp(@Args('input') input: AuthSignUpInput): UserToken{
-        return this.service.signUp(input);
-    }
+  @Mutation(() => UserToken)
+  async signIn(
+    @Args("input", { type: () => AuthSignInInput }) input: AuthSignInInput
+  ): Promise<UserToken> {
+    return this.service.signIn(input);
+  }
 
+  @Mutation(() => UserToken)
+  async signUp(@Args('input') input: AuthSignUpInput): Promise<UserToken>{
+      return this.service.signUp(input);
+  }
 }
