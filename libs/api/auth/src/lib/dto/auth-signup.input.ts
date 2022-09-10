@@ -30,6 +30,6 @@ export class AuthSignUpInput {
     @Field({nullable: true})
     name?: string
 
-    @Field()
+    @Field(({nullable: true}))
     mobile?: string
 }
