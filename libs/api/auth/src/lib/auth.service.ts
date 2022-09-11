@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { AuthSignInInput } from "./dto/auth-signin.input";
 import { AuthSignUpInput } from "./dto/auth-signup.input";
 import { UserToken } from "./models/user-token";
@@ -6,28 +6,45 @@ import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class AuthService {
-    constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-    public tempUserToken:UserToken = { token: "xwyz", user: {}}
+  async signIn(input: AuthSignInInput): Promise<UserToken> {
 
-    async signIn(input: AuthSignInInput): Promise<UserToken>{
-        console.log("call service");
-        const user = await this.prisma.facebook.create({
-            data: {
-                user_id: 21
-            },
-          })
-        return this.tempUserToken;
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: input.email,
+      },
+    });
+
+    if (user) {
+      if(user.password === input.password) {
+        return { token: "awdaw", user };
+      } else { this.comonError("Password miss-match"); }
     }
-
-
-    async signUp(input: AuthSignUpInput): Promise<UserToken>{
-        const user = await this.prisma.user.create({
-            data: {
-                email: "test@t.com",
-                password: "test123"
-            },
-          })
-        return  this.tempUserToken;
+    if (!user) {
+      this.comonError("This email address is does not exist. Please try signing up");
     }
+  }
+
+  async signUp(input: AuthSignUpInput): Promise<UserToken> {
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        email: input.email,
+      },
+    });
+    if (existingUser) { 
+      this.comonError("This email address is already registered. Please try Loging In");
+    } else {
+      const newUser = await this.prisma.user.create({
+        data: {
+          ...input,
+        },
+      });
+      return {token: "awda", user: newUser};
+    }
+  }
+
+  comonError(msg: string): void {
+    throw new ForbiddenException(msg);
+  }
 }
