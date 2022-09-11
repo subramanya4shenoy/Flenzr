@@ -3,6 +3,7 @@ import { AuthSignInInput } from "./dto/auth-signin.input";
 import { AuthSignUpInput } from "./dto/auth-signup.input";
 import { UserToken } from "./models/user-token";
 import { PrismaService } from "./prisma.service";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,8 @@ export class AuthService {
     });
 
     if (user) {
-      if(user.password === input.password) {
+      const isMatch = await bcrypt.compare(input.password, user.password);
+      if(isMatch) {
         return { token: "awdaw", user };
       } else { this.comonError("Password miss-match"); }
     }
@@ -35,6 +37,9 @@ export class AuthService {
     if (existingUser) { 
       this.comonError("This email address is already registered. Please try Loging In");
     } else {
+      const salt = 10
+      const hash = await bcrypt.hash(input.password, salt);
+      input.password = hash;
       const newUser = await this.prisma.user.create({
         data: {
           ...input,
