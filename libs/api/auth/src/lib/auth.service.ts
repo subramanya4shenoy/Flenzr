@@ -4,13 +4,13 @@ import { AuthSignUpInput } from "./dto/auth-signup.input";
 import { UserToken } from "./models/user-token";
 import { PrismaService } from "./prisma.service";
 import * as bcrypt from 'bcrypt';
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
-
+  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+  
   async signIn(input: AuthSignInInput): Promise<UserToken> {
-
     const user = await this.prisma.user.findFirst({
       where: {
         email: input.email,
@@ -20,7 +20,7 @@ export class AuthService {
     if (user) {
       const isMatch = await bcrypt.compare(input.password, user.password);
       if(isMatch) {
-        return { token: "awdaw", user };
+        return {token: this.generateToken(user), user: user};
       } else { this.comonError("Password miss-match"); }
     }
     if (!user) {
@@ -45,8 +45,12 @@ export class AuthService {
           ...input,
         },
       });
-      return {token: "awda", user: newUser};
+      return {token: this.generateToken(newUser), user: newUser};
     }
+  }
+
+  generateToken(payload):string {
+    return this.jwtService.sign(payload);
   }
 
   comonError(msg: string): void {
