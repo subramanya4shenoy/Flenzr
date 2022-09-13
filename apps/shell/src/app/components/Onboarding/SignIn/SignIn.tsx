@@ -15,7 +15,6 @@ import { SharedUiFlenzrSignInForm } from "@flenzr/shared/ui-flenzr-sign-in-form"
 import { SharedUiBrandSignInForm } from "@flenzr/shared/ui-brand-sign-in-form";
 import { SharedUiThirdPartySignin } from "@flenzr/shared/ui-third-party-signin";
 import { useCookies } from "react-cookie";
-
 /** All Interface */
 export interface SignInProps {
   onSuccess(): void;
@@ -39,12 +38,12 @@ export function SignIn({ onSuccess }: SignInProps) {
     left: "50%",
     transform: "translate(-50%, -50%)",
   };
-
-  useEffect(() => {
-    if (cookies.wu) {
-      onSuccess();
-    }
-  }, []);
+  
+  // useEffect(() => {
+  //   if (cookies.wu) {
+  //     onSuccess();
+  //   }
+  // }, []);
 
   const handleChange = (change: string) => {
     setColor(colorList[ACCOUNT_TYPES.indexOf(change)]);
@@ -52,7 +51,7 @@ export function SignIn({ onSuccess }: SignInProps) {
   };
 
   const handleSignInFlenzr = () => {
-    setCookie("wu", Math.random());
+    // setCookie("wu", Math.random());
     onSuccess();
     console.log("login custom hook is called");
   };

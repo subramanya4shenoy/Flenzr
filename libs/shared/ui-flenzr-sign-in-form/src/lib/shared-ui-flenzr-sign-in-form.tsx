@@ -4,6 +4,8 @@ import Link from "@mui/material/Link";
 import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
+import { useLazyQuery } from "@apollo/client"
+import { SIGN_IN } from "./graphql/signIn.query";
 
 /* eslint-disable-next-line */
 export interface SharedUiFlenzrSignInFormProps {
@@ -16,6 +18,8 @@ export function SharedUiFlenzrSignInForm({
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [signInFlenzr, {loading, error, data}] = useLazyQuery(SIGN_IN);
 
   return (
     <FormControl className="w-full">
@@ -68,7 +72,7 @@ export function SharedUiFlenzrSignInForm({
       <div className="flex-none laptop:flex desktop:flex mt-4 laptop:justify-between desktop:justify-between">
         <Button
           className="w-full"
-          onClick={onSignIn}
+          onClick={() => { signInFlenzr() }}
           variant="contained"
           size="large"
         >
