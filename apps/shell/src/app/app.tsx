@@ -17,7 +17,7 @@ const SignIn = lazy(() => import("./components/Onboarding/SignIn/SignIn"));
 
 export function App() {
   const navigate = useNavigate();
-  const [cookies] = useCookies(["wu"]);
+  const [cookies] = useCookies(["access-token"]);
   const cook_ER = () => { console.log()};
 
   const navigationPaths = (path: string) => {
@@ -45,13 +45,13 @@ export function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       {/* common shell needs to be added */}
-      {cookies.wu && <SharedUiShellBar navigateTo={navigationPaths} />}
+      {cookies["access-token"] && <SharedUiShellBar navigateTo={navigationPaths} />}
       <React.Suspense fallback={null}>
         <Routes>
           <Route
             path="/"
             element={
-              cookies.wu ? (
+              cookies["access-token"] ? (
                 <div className="laptop:mt-20 desktop:mt-20">
                   <Dashboard />
                 </div>

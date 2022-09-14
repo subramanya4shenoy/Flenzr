@@ -21,7 +21,6 @@ export function SignUp({ onSuccess }: SignUpProps) {
 
   const { t } = useTranslation();
   const [userType, setUserType] = useState(ACCOUNT_TYPES[0]);
-  const [cookies, setCookie] = useCookies(["wu"]);
 
   //** inline styles */
   const outerBox = { backgroundColor: "#02021c" };
@@ -31,21 +30,17 @@ export function SignUp({ onSuccess }: SignUpProps) {
     transform: "translate(-50%, -50%)",
   };
 
-  useEffect(() => {
-    if (cookies.wu) {
-      onSuccess();
-    }
-  }, []);
-
-
   const handleSignInFlenzr = () => {
-    setCookie("wu", Math.random());
     onSuccess();
     console.log("login custom hook is called");
   };
 
+  const handleSignUpFlenzr = () => {
+    onSuccess();
+    console.log("signUp custom hook is called");
+  };
+
   const handleSignInBrand = () => {
-    setCookie("wu", Math.random());
     onSuccess();
     console.log("login custom hook is called for brand login");
   };
@@ -73,7 +68,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
                   <SharedUiThirdPartySignup />
                 </div>
                 <SharedUiFlenzrSignupForm
-                  onSignIn={handleSignInFlenzr}
+                  onSignIn={handleSignUpFlenzr}
                 ></SharedUiFlenzrSignupForm>
               </>
             ) : (

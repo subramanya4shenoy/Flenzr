@@ -19,7 +19,6 @@ export class AuthResolver {
       return this.service.signUp(input);
   }
 
-  // @UseGuards(GqlAuthGuard)
   @Query(() => String)
     getPotato(): string {
       console.log("Asked for potato")
