@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Card from "@mui/material/Card";
 import Lottie from "lottie-react";
@@ -51,7 +51,6 @@ export function SignIn({ onSuccess }: SignInProps) {
   };
 
   const handleSignInFlenzr = () => {
-    // setCookie("wu", Math.random());
     onSuccess();
     console.log("login custom hook is called");
   };
