@@ -9,6 +9,7 @@ import { useMutation } from "@apollo/client";
 import { SIGN_UP } from "./graphql/signUp.mutation";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
+import {isMobile} from 'react-device-detect';
 
 /* eslint-disable-next-line */
 export interface SharedUiFlenzrSignUpFormProps {
@@ -22,11 +23,11 @@ export function SharedUiFlenzrSignupForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [device_id, setDevice_id] = useState("");
-  const [display_name, setDisplay_name] = useState("");
+  const [display_name, setDisplay_name] = useState(null);
   const [language, setLanguage] = useState("");
   const [location, setLocation] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState(null);
+  const [name, setName] = useState(null);
   const [source, setSource] = useState("");
   const [created_ip, setCreated_ip] = useState("");
 
@@ -112,13 +113,13 @@ export function SharedUiFlenzrSignupForm({
             signUpFlenzr({
               variables: { email: email, 
                            password: password ,
-                           device_id: device_id,
+                           device_id: (isMobile) ? "mobile" : "web-browser",
                            display_name: display_name,
-                           language: language,
-                           location: location,
+                           language: window.navigator.language || '',
+                           location: window.navigator.userAgent || '',
                            mobile: mobile,
                            name: name,
-                           source: source,
+                           source: "email",
                            created_ip: created_ip
                          },
             });
