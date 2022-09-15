@@ -6,6 +6,7 @@ export class AuthSignUpInput {
 
     @Field()    
     @IsEmail()
+    @IsNotEmpty()
     email: string
 
     @Field()

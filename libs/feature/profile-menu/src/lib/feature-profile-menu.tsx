@@ -8,6 +8,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import { useTranslation } from "react-i18next";
+import { useCookies } from "react-cookie";
 
 
 export interface FeatureProfileMenuProps {
@@ -18,8 +19,8 @@ export const FeatureProfileMenu = ({ navigateTo }: FeatureProfileMenuProps) => {
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { t } = useTranslation();
-  
   const open = Boolean(anchorEl);
+  const [cookies, setCookie, removeCookie] = useCookies(["access-token"]);
   
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -76,7 +77,7 @@ export const FeatureProfileMenu = ({ navigateTo }: FeatureProfileMenuProps) => {
           </ListItemIcon>
           {t("settings")}
         </MenuItem>
-        <MenuItem onClick={(e) => {console.log("logout")}}>
+        <MenuItem onClick={(e) => { removeCookie("access-token"); navigateTo('/')}}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
