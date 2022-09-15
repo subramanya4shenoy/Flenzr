@@ -29,11 +29,16 @@ export class AuthService {
   }
 
   async signUp(input: AuthSignUpInput): Promise<UserToken> {
+    
+    if(input.email == '' || input.password == '') {
+      this.comonError("Please fill valid email and password");
+    }
     const existingUser = await this.prisma.user.findFirst({
       where: {
         email: input.email,
       },
     });
+    
     if (existingUser) { 
       this.comonError("This email address is already registered. Please try Loging In");
     } else {

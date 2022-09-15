@@ -11,6 +11,7 @@ import { SharedUiThirdPartySignup } from '@flenzr/shared/ui-third-party-signup';
 import { SharedUiFlenzrSignupForm } from '@flenzr/shared/ui-flenzr-signup-form';
 import { SharedUiBrandSignInForm } from '@flenzr/shared/ui-brand-sign-in-form';
 import Link from '@mui/material/Link';
+import { useNavigate } from 'react-router-dom';
 
 /** All Interface */
 export interface SignUpProps {
@@ -21,6 +22,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
 
   const { t } = useTranslation();
   const [userType, setUserType] = useState(ACCOUNT_TYPES[0]);
+  const navigate = useNavigate();
 
   //** inline styles */
   const outerBox = { backgroundColor: "#02021c" };
@@ -68,7 +70,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
                   <SharedUiThirdPartySignup />
                 </div>
                 <SharedUiFlenzrSignupForm
-                  onSignIn={handleSignUpFlenzr}
+                  onSignUp={handleSignUpFlenzr}
                 ></SharedUiFlenzrSignupForm>
               </>
             ) : (
@@ -128,7 +130,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
                   </div>
                   <div className="mb-6">
                     <SharedUiFlenzrSignupForm
-                      onSignIn={handleSignInFlenzr}
+                      onSignUp={handleSignInFlenzr}
                     ></SharedUiFlenzrSignupForm>
                   </div>
                 </>
@@ -147,6 +149,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
                 variant="inherit"
                 className="font-semibold"
                 underline="hover"
+                onClick={(e) => { navigate("/signin")}}
               >
                 {t("loginBtn")}
               </Link>

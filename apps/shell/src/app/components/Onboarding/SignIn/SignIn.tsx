@@ -15,6 +15,7 @@ import { SharedUiFlenzrSignInForm } from "@flenzr/shared/ui-flenzr-sign-in-form"
 import { SharedUiBrandSignInForm } from "@flenzr/shared/ui-brand-sign-in-form";
 import { SharedUiThirdPartySignin } from "@flenzr/shared/ui-third-party-signin";
 import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
 /** All Interface */
 export interface SignInProps {
   onSuccess(): void;
@@ -30,6 +31,8 @@ export function SignIn({ onSuccess }: SignInProps) {
   const { t } = useTranslation();
   const [userType, setUserType] = useState(ACCOUNT_TYPES[0]);
   const [cookies, setCookie] = useCookies(["wu"]);
+
+  const navigate = useNavigate();
 
   //** inline styles */
   const outerBox = { backgroundColor: "#02021c" };
@@ -109,6 +112,7 @@ export function SignIn({ onSuccess }: SignInProps) {
                 variant="inherit"
                 className="font-semibold"
                 underline="hover"
+                onClick={(e) => { navigate("/signup")}}
               >
                 {t("createNew")}
               </Link>
@@ -180,6 +184,7 @@ export function SignIn({ onSuccess }: SignInProps) {
                 variant="inherit"
                 className="font-semibold"
                 underline="hover"
+                onClick={(e) => { navigate("/signup")}}
               >
                 {t("createNew")}
               </Link>
