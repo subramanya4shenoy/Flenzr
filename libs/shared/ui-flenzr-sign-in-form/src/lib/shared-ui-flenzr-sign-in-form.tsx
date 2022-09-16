@@ -9,7 +9,6 @@ import { SIGN_IN } from "./graphql/signIn.query";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import { useCookies } from "react-cookie";
-
 /* eslint-disable-next-line */
 export interface SharedUiFlenzrSignInFormProps {
   onSignIn(): void;
@@ -22,7 +21,7 @@ export function SharedUiFlenzrSignInForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [cookies, setCookie] = useCookies(["access-token"]);
-  
+
   const updateCoockie = ({signIn}: any) => {
     const { token } = signIn;
     setCookie("access-token", token);
@@ -102,7 +101,11 @@ export function SharedUiFlenzrSignInForm({
               className="w-full"
               onClick={() => {
                 signInFlenzr({
-                  variables: { email: email, password: password },
+                  variables: { 
+                      email: email, 
+                      password: password,
+                      location: ''
+                    },
                 });
               }}
               variant="contained"

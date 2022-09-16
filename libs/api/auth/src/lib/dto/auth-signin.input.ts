@@ -10,4 +10,9 @@ export class AuthSignInInput{
     @Field({nullable: false})
     @IsNotEmpty()
     password: string
+    
+    last_login_time: string
+    
+    @Field({nullable: true})
+    location: string
 }

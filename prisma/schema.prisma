@@ -9,19 +9,19 @@ datasource db {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model facebook {
-  facebook_id     Int @id @default(autoincrement())
-  user_id         Int
-  display_name    String? @db.VarChar(255)
-  followers       Int?
-  trend           Int?
+  facebook_id      Int      @id @default(autoincrement())
+  user_id          Int
+  display_name     String?  @db.VarChar(255)
+  followers        Int?
+  trend            Int?
   created_datetime DateTime @default(now()) @db.Timestamp(0)
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model instagram {
-  instagram_id     Int @id @default(autoincrement())
+  instagram_id     Int      @id @default(autoincrement())
   user_id          Int
-  display_name     String? @db.VarChar(255)
+  display_name     String?  @db.VarChar(255)
   followers        Int?
   trend            Int?
   created_datetime DateTime @default(now()) @db.Timestamp(0)
@@ -29,39 +29,44 @@ model instagram {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model linked_in {
-  linkedin_id Int @id @default(autoincrement())
-  user_id         Int
-  display_name    String? @db.VarChar(255)
-  followers       Int?
-  trend           Int?
+  linkedin_id      Int      @id @default(autoincrement())
+  user_id          Int
+  display_name     String?  @db.VarChar(255)
+  followers        Int?
+  trend            Int?
   created_datetime DateTime @default(now()) @db.Timestamp(0)
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model user {
-  user_id          Int @id @default(autoincrement())
-  email            String  @db.VarChar(255) @unique
-  password         String  @db.VarChar(255)
-  verified         Boolean? @default(false) 
+  user_id          Int      @id @default(autoincrement())
+  email            String   @unique @db.VarChar(255)
+  password         String   @db.VarChar(255)
+  verified         Boolean? @default(false)
   source           String?  @db.VarChar(255)
-  mobile_verified  Boolean? @default(false) 
+  mobile_verified  Boolean? @default(false)
   location         String?  @db.VarChar(255)
   language         String?  @db.VarChar(255)
   created_ip       String?  @db.VarChar(255)
   display_name     String?  @db.VarChar(255)
   device_id        String?  @db.VarChar(255)
   name             String?  @db.VarChar(255)
-  mobile           String? @db.VarChar(255)
+  mobile           String?  @db.VarChar(255)
   created_datetime DateTime @default(now()) @db.Timestamp(0)
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model youtube {
-  youtube_id     Int @id @default(autoincrement())
-  user_id        Int
-  display_name   String? @db.VarChar(255)
-  followers      Int?
-  trend          Int?
+  youtube_id       Int      @id @default(autoincrement())
+  user_id          Int
+  display_name     String?  @db.VarChar(255)
+  followers        Int?
+  trend            Int?
   created_datetime DateTime @default(now()) @db.Timestamp(0)
+}
 
-}  
+model user_signin_activity {
+  user_id         Int      @id
+  last_login_time String @db.VarChar(255)
+  location        String   @db.VarChar(255)
+}
