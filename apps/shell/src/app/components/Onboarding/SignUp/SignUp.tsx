@@ -1,10 +1,9 @@
 import * as React from 'react';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ACCOUNT_SETTINGS, ACCOUNT_TYPES } from '@flenzr/shared/constant-user-type';
-import { useCookies } from 'react-cookie';
 import Lottie from 'lottie-react';
 import loginYoga from "../../../../../../../assets/Animations/signup.json";
 import { SharedUiThirdPartySignup } from '@flenzr/shared/ui-third-party-signup';
@@ -12,6 +11,7 @@ import { SharedUiFlenzrSignupForm } from '@flenzr/shared/ui-flenzr-signup-form';
 import { SharedUiBrandSignInForm } from '@flenzr/shared/ui-brand-sign-in-form';
 import Link from '@mui/material/Link';
 import { useNavigate } from 'react-router-dom';
+import { isMobile } from 'react-device-detect';
 
 /** All Interface */
 export interface SignUpProps {
@@ -67,7 +67,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
             {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
               <>
                 <div className="my-2">
-                  <SharedUiThirdPartySignup />
+                  {(isMobile) && <SharedUiThirdPartySignup />}
                 </div>
                 <SharedUiFlenzrSignupForm
                   onSignUp={handleSignUpFlenzr}
@@ -126,7 +126,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
               {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
                 <>
                   <div className="mt-6">
-                    <SharedUiThirdPartySignup />
+                  {(!isMobile) && <SharedUiThirdPartySignup />}
                   </div>
                   <div className="mb-6">
                     <SharedUiFlenzrSignupForm
