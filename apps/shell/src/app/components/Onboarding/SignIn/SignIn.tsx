@@ -14,7 +14,6 @@ import { SharedUiCustomSelect } from "@flenzr/shared/ui-custom-select";
 import { SharedUiFlenzrSignInForm } from "@flenzr/shared/ui-flenzr-sign-in-form";
 import { SharedUiBrandSignInForm } from "@flenzr/shared/ui-brand-sign-in-form";
 import { SharedUiThirdPartySignin } from "@flenzr/shared/ui-third-party-signin";
-import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 /** All Interface */
 export interface SignInProps {
@@ -30,8 +29,6 @@ export function SignIn({ onSuccess }: SignInProps) {
 
   const { t } = useTranslation();
   const [userType, setUserType] = useState(ACCOUNT_TYPES[0]);
-  const [cookies, setCookie] = useCookies(["wu"]);
-
   const navigate = useNavigate();
 
   //** inline styles */
@@ -42,30 +39,14 @@ export function SignIn({ onSuccess }: SignInProps) {
     transform: "translate(-50%, -50%)",
   };
   
-  // useEffect(() => {
-  //   if (cookies.wu) {
-  //     onSuccess();
-  //   }
-  // }, []);
-
   const handleChange = (change: string) => {
     setColor(colorList[ACCOUNT_TYPES.indexOf(change)]);
     setUserType(change);
   };
 
-  const handleSignInFlenzr = () => {
-    onSuccess();
-    console.log("login custom hook is called");
-  };
-
-  const handleSignInBrand = () => {
-    setCookie("wu", Math.random());
-    onSuccess();
-    console.log("login custom hook is called for brand login");
-  };
-
   return (
     <div className="w-screen h-screen" style={outerBox}>
+
       {/* mobile design */}
       <div className="block laptop:hidden desktop:hidden">
         <Lottie
@@ -97,12 +78,12 @@ export function SignIn({ onSuccess }: SignInProps) {
                   <SharedUiThirdPartySignin />
                 </div>
                 <SharedUiFlenzrSignInForm
-                  onSignIn={handleSignInFlenzr}
+                  onSignIn={onSuccess}
                 ></SharedUiFlenzrSignInForm>
               </>
             ) : (
               <SharedUiBrandSignInForm
-                onSignIn={handleSignInBrand}
+                onSignIn={()=>{;}}
               ></SharedUiBrandSignInForm>
             )}
             <div className="w-full mt-2 mb-2 flex justify-center items-center font-semibold">
@@ -165,14 +146,14 @@ export function SignIn({ onSuccess }: SignInProps) {
                   </div>
                   <div className="mb-6">
                     <SharedUiFlenzrSignInForm
-                      onSignIn={handleSignInFlenzr}
+                      onSignIn={onSuccess}
                     ></SharedUiFlenzrSignInForm>
                   </div>
                 </>
               ) : (
                 <div className="mt-10 mb-6">
                   <SharedUiBrandSignInForm
-                    onSignIn={handleSignInBrand}
+                    onSignIn={()=>{;}}
                   ></SharedUiBrandSignInForm>
                 </div>
               )}
