@@ -5,17 +5,17 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
 import GoogleSignUp from "./google-signup/google-signUp";
+import THIRD_PARTY_ACCOUNT from "./constants/ThirdParty.constant";
 
 
-
-export function SharedUiThirdPartySignup() {
+export function SharedUiThirdPartySignup({onSuccessThirdPartySignUp}:any) {
   const { t } = useTranslation();
   return (
     <div className="w-full justify-center items-center flex">
       <div className=" text-xs font-bold opacity-50  capitalize">
         {t("signUpWith")}
       </div>
-      <GoogleSignUp/>
+      <GoogleSignUp onSuccess = {(res: any) => { onSuccessThirdPartySignUp(res, {source: THIRD_PARTY_ACCOUNT.GOOGLE.id})}}/>
       <IconButton aria-label="Instagram">
         <InstagramIcon />
       </IconButton>

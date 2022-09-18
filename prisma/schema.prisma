@@ -53,6 +53,7 @@ model user {
   name             String?  @db.VarChar(255)
   mobile           String?  @db.VarChar(255)
   created_datetime DateTime @default(now()) @db.Timestamp(0)
+  dp_source        String?  @db.VarChar(255)
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
@@ -66,7 +67,7 @@ model youtube {
 }
 
 model user_signin_activity {
-  user_id         Int      @id
+  user_id         Int    @id
   last_login_time String @db.VarChar(255)
-  location        String   @db.VarChar(255)
+  location        String @db.VarChar(255)
 }

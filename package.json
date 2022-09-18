@@ -41,6 +41,7 @@
     "i18next-http-backend": "^1.4.1",
     "jest-canvas-mock": "^2.4.0",
     "joi": "^17.6.0",
+    "jwt-decode": "^3.1.2",
     "lottie-react": "^2.3.1",
     "moment": "^2.29.4",
     "passport": "^0.6.0",

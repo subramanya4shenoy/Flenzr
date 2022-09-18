@@ -12,13 +12,10 @@ import { SharedUiBrandSignInForm } from '@flenzr/shared/ui-brand-sign-in-form';
 import Link from '@mui/material/Link';
 import { useNavigate } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
+import { handleSignUpFlenzr, onSuccessThirdPartySignUp } from '../Services/SignUp.service';
+import { handleSignInBrand, handleSignInFlenzr } from '../Services/Signin.service';
 
-/** All Interface */
-export interface SignUpProps {
-  onSuccess(): void;
-}
-
-export function SignUp({ onSuccess }: SignUpProps) {
+export function SignUp() {
 
   const { t } = useTranslation();
   const [userType, setUserType] = useState(ACCOUNT_TYPES[0]);
@@ -30,21 +27,6 @@ export function SignUp({ onSuccess }: SignUpProps) {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-  };
-
-  const handleSignInFlenzr = () => {
-    onSuccess();
-    console.log("login custom hook is called");
-  };
-
-  const handleSignUpFlenzr = () => {
-    onSuccess();
-    console.log("signUp custom hook is called");
-  };
-
-  const handleSignInBrand = () => {
-    onSuccess();
-    console.log("login custom hook is called for brand login");
   };
 
   return (
@@ -67,7 +49,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
             {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
               <>
                 <div className="my-2">
-                  {(isMobile) && <SharedUiThirdPartySignup />}
+                  {(isMobile) && <SharedUiThirdPartySignup onSuccessThirdPartySignUp={onSuccessThirdPartySignUp}/>}
                 </div>
                 <SharedUiFlenzrSignupForm
                   onSignUp={handleSignUpFlenzr}
@@ -126,7 +108,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
               {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
                 <>
                   <div className="mt-6">
-                  {(!isMobile) && <SharedUiThirdPartySignup />}
+                  {(!isMobile) && <SharedUiThirdPartySignup onSuccessThirdPartySignUp={onSuccessThirdPartySignUp}/>}
                   </div>
                   <div className="mb-6">
                     <SharedUiFlenzrSignupForm

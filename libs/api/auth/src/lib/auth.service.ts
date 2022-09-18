@@ -6,6 +6,9 @@ import { PrismaService } from "./prisma.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import * as moment from "moment";
+import { GoogleAuthSignUpInput } from "./dto/auth-tp-google.input";
+import jwt_decode from "jwt-decode";
+
 @Injectable()
 export class AuthService {
   constructor(private prisma: PrismaService, private jwtService: JwtService) {}
@@ -37,16 +40,12 @@ export class AuthService {
     }
   }
 
-
-
-
-
   /**
-   * @param input 
+   * @param input
    * @returns user Object and token
-   * @desc sign up the user with verfified as false, 
+   * @desc sign up the user with verfified as false,
    * crete the signInActivityDB entry.
-   * @pending [send email to verify] 
+   * @pending [send email to verify]
    */
   async signUp(input: AuthSignUpInput): Promise<UserToken> {
     if (input.email == "" || input.password == "") {
@@ -76,13 +75,33 @@ export class AuthService {
     }
   }
 
-
-
-
-
+  /**
+   * @param input
+   * @returns user Object and token
+   * @desc sign up the user with verfified as false,
+   * crete the signInActivityDB entry.
+   * @pending [send email to verify]
+   */
+  async signUpWithGoogle(input: GoogleAuthSignUpInput): Promise<UserToken> {
+    const {clientId, credential} = input;
+    const decoded = jwt_decode(credential);
+    console.log(decoded);
+    return {
+      token: clientId,
+      user: {
+        user_id: 1,
+        verified: false,
+        mobile_verified: false,
+        language: "en",
+        name: "",
+        display_name: "",
+        email: "",
+      },
+    };
+  }
 
   /**
-   * 
+   *
    * @param user false for already exisitng user
    * @param isNewuser true id triggered while signup
    */
@@ -110,17 +129,16 @@ export class AuthService {
 
   /**
    * @desc logic to generate jwt token
-   * @param payload 
-   * @returns 
+   * @param payload
+   * @returns
    */
   generateToken(payload): string {
     return this.jwtService.sign(payload);
   }
 
-  
   /**
    * @desc using default forbidden error
-   * @param msg 
+   * @param msg
    * @pending need to handle the error types properly and
    * avoid common forbidden method.
    */

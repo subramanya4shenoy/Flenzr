@@ -63,11 +63,7 @@ export function App() {
           <Route
             path="/signup"
             element={
-              <SignUp
-                onSuccess={() => {
-                  navigationPaths("/");
-                }}
-              />
+              <SignUp/>
             }
           />
           <Route

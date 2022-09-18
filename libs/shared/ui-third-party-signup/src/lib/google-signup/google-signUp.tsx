@@ -2,12 +2,12 @@ import IconButton from "@mui/material/IconButton";
 import { useEffect } from "react";
 import { isMobile } from "react-device-detect";
 
-const GoogleSignUp = () => {
+const GoogleSignUp = ({onSuccess}: any) => {
   useEffect(() => {
     (window as any).google.accounts.id.initialize({
       client_id: process.env["NX_GOOGLE_AUTH_UI_CLIENT_ID"],
       callback: (res: any) => {
-        console.log(res);
+        onSuccess(res);
       },
     });
 

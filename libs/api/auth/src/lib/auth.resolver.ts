@@ -3,6 +3,7 @@ import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { AuthService } from "./auth.service";
 import { AuthSignInInput } from "./dto/auth-signin.input";
 import { AuthSignUpInput } from "./dto/auth-signup.input";
+import { GoogleAuthSignUpInput } from "./dto/auth-tp-google.input";
 import { GqlAuthGuard } from "./guard/auth/jwt-auth.guard";
 import { UserToken } from "./models/user-token";
 
@@ -17,6 +18,11 @@ export class AuthResolver {
   @Mutation(() => UserToken)
   async signUp(@Args('input') input: AuthSignUpInput): Promise<UserToken>{
       return this.service.signUp(input);
+  }
+
+  @Mutation(() => UserToken)
+  async signUpWithGoogle(@Args('input') input: GoogleAuthSignUpInput): Promise<UserToken>{
+    return this.service.signUpWithGoogle(input)
   }
 
   @Query(() => String)
