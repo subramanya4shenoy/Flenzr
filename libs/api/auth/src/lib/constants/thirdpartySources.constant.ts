@@ -1,0 +1,1 @@
+export const THIRDPARTY_SOURCERS = ['google'];

@@ -9,7 +9,7 @@ import { useMutation } from "@apollo/client";
 import { SIGN_UP } from "./graphql/signUp.mutation";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
-import {isMobile} from 'react-device-detect';
+import { isMobile } from "react-device-detect";
 
 /* eslint-disable-next-line */
 export interface SharedUiFlenzrSignUpFormProps {
@@ -22,115 +22,113 @@ export function SharedUiFlenzrSignupForm({
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [device_id, setDevice_id] = useState("");
-  const [display_name, setDisplay_name] = useState(null);
-  const [language, setLanguage] = useState("");
-  const [location, setLocation] = useState("");
-  const [mobile, setMobile] = useState(null);
-  const [name, setName] = useState(null);
-  const [source, setSource] = useState("");
-  const [created_ip, setCreated_ip] = useState("");
-
+  const [display_name] = useState(null);
+  const [mobile] = useState(null);
+  const [name] = useState(null);
+  const [created_ip] = useState("");
   const [cookies, setCookie] = useCookies(["access-token"]);
-  
+
   const updateCoockie = (data: any) => {
     const { signUp } = data;
-    if(signUp) {
+    if (signUp) {
       const { token } = signUp;
       token && setCookie("access-token", token);
       onSignUp();
     }
   };
+
   const [signUpFlenzr, { data, loading, error }] = useMutation(SIGN_UP, {
     errorPolicy: "all",
     fetchPolicy: "network-only",
-    onCompleted: (data) => data && updateCoockie(data)
+    onCompleted: (data) => data && updateCoockie(data),
   });
 
   return (
     <>
-    {error && (
+      {error && (
         <Alert className="my-2" severity="error" variant="filled">
-            <span>{error.message}</span>
+          <span>{error.message}</span>
         </Alert>
       )}
-   {loading ? (
+      {loading ? (
         <div className="flex items-center justify-center">
           <CircularProgress className="flex items-center my-4" />
         </div>
       ) : (
-    <FormControl className="w-full">
-      <TextField
-        label={t("emailOrMobile")}
-        color="primary"
-        autoFocus={true}
-        id="email"
-        value={email}
-        type="text"
-        margin="normal"
-        sx={{
-          background:"#F2F4F8",
-          borderColor: "#F2F4F8",
-          borderRadius: "16px",
-          '& .MuiOutlinedInput-root': {
-            '& fieldset': {
-              borderColor: 'transparent',
-            },
-           '&:hover fieldset': {
-            borderColor: 'transparent',
-           }
-          }
-        }}
-        className="w-full"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <TextField
-        label={t("password")}
-        id="password"
-        value={password}
-        type="password"
-        margin="normal"
-        sx={{
-          background:"#F2F4F8",
-          borderColor: "#F2F4F8",
-          borderRadius: "16px",
-          '& .MuiOutlinedInput-root': {
-            '& fieldset': {
-              borderColor: 'transparent',
-            },
-           '&:hover fieldset': {
-            borderColor: 'transparent',
-           }
-          }
-        }}
-        className="w-full"
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <div className="flex-none laptop:flex desktop:flex mt-4 laptop:justify-between desktop:justify-between">
-        <Button
-          className="w-full"
-          onClick={() => {
-            signUpFlenzr({
-              variables: { email: email, 
-                           password: password ,
-                           device_id: (isMobile) ? "mobile" : "web-browser",
-                           display_name: display_name,
-                           language: window.navigator.language || '',
-                           location: window.navigator.userAgent || '',
-                           mobile: mobile,
-                           name: name,
-                           source: "email",
-                           created_ip: created_ip
-                         },
-            });
-          }}
-          variant="contained"
-          size="large"
-        >
-          {t("signUpBtn")}
-        </Button>
-      </div>
-    </FormControl>)}
+        <FormControl className="w-full">
+          <TextField
+            label={t("emailOrMobile")}
+            color="primary"
+            autoFocus={true}
+            id="email"
+            value={email}
+            type="text"
+            margin="normal"
+            sx={{
+              background: "#F2F4F8",
+              borderColor: "#F2F4F8",
+              borderRadius: "16px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "transparent",
+                },
+                "&:hover fieldset": {
+                  borderColor: "transparent",
+                },
+              },
+            }}
+            className="w-full"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            label={t("password")}
+            id="password"
+            value={password}
+            type="password"
+            margin="normal"
+            sx={{
+              background: "#F2F4F8",
+              borderColor: "#F2F4F8",
+              borderRadius: "16px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "transparent",
+                },
+                "&:hover fieldset": {
+                  borderColor: "transparent",
+                },
+              },
+            }}
+            className="w-full"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <div className="flex-none laptop:flex desktop:flex mt-4 laptop:justify-between desktop:justify-between">
+            <Button
+              className="w-full"
+              onClick={() => {
+                signUpFlenzr({
+                  variables: {
+                    email: email,
+                    password: password,
+                    device_id: isMobile ? "mobile" : "web-browser",
+                    display_name: display_name,
+                    language: window.navigator.language || "",
+                    location: window.navigator.userAgent || "",
+                    mobile: mobile,
+                    name: name,
+                    source: "email",
+                    created_ip: created_ip,
+                  },
+                });
+              }}
+              variant="contained"
+              size="large"
+            >
+              {t("signUpBtn")}
+            </Button>
+          </div>
+        </FormControl>
+      )}
     </>
   );
 }
