@@ -15,7 +15,7 @@ export function SharedUiThirdPartySignup({onSuccessThirdPartySignUp}:any) {
       <div className=" text-xs font-bold opacity-50  capitalize">
         {t("signUpWith")}
       </div>
-      <GoogleSignUp onSuccess = {(res: any) => { onSuccessThirdPartySignUp(res, {source: THIRD_PARTY_ACCOUNT.GOOGLE.id})}}/>
+      <GoogleSignUp onSuccess = {onSuccessThirdPartySignUp}/>
       <IconButton aria-label="Instagram">
         <InstagramIcon />
       </IconButton>

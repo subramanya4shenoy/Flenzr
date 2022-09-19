@@ -8,6 +8,8 @@ import * as bcrypt from "bcrypt";
 import * as moment from "moment";
 import { GoogleAuthSignUpInput } from "./dto/auth-tp-google.input";
 import jwt_decode from "jwt-decode";
+import IGoogleUser from "./interfaces/googleUserInfo.interface";
+import { THIRDPARTY_SOURCERS } from "./constants/thirdpartySources.constant";
 
 @Injectable()
 export class AuthService {
@@ -21,10 +23,13 @@ export class AuthService {
     const user = await this.prisma.user.findFirst({
       where: { email: input.email },
     });
-
+    // if user is registered with us via thirdparty we ask them to login with the same
+    if(THIRDPARTY_SOURCERS.includes(user.source)) {
+      this.comonError("Please login via " + user.source);
+    }
     /** If user found update signin activity and send token and userInfo */
     if (user) {
-      await this.updateUserLoginActivity(user, false);
+      await this.updateUserLoginActivity(user);
       const isMatch = await bcrypt.compare(input.password, user.password);
       if (isMatch) {
         return { token: this.generateToken(user), user: user };
@@ -32,7 +37,6 @@ export class AuthService {
         this.comonError("Password miss-match");
       }
     }
-
     if (!user) {
       this.comonError(
         "This email address is does not exist. Please try signing up"
@@ -51,13 +55,8 @@ export class AuthService {
     if (input.email == "" || input.password == "") {
       this.comonError("Please fill valid email and password");
     }
-    const existingUser = await this.prisma.user.findFirst({
-      where: {
-        email: input.email,
-      },
-    });
 
-    if (existingUser) {
+    if (this.DoesUserExists(input.email)) {
       this.comonError(
         "This email address is already registered. Please try Loging In"
       );
@@ -70,7 +69,7 @@ export class AuthService {
           ...input,
         },
       });
-      await this.updateUserLoginActivity(newUser, true);
+      await this.updateUserLoginActivity(newUser);
       return { token: this.generateToken(newUser), user: newUser };
     }
   }
@@ -83,21 +82,65 @@ export class AuthService {
    * @pending [send email to verify]
    */
   async signUpWithGoogle(input: GoogleAuthSignUpInput): Promise<UserToken> {
-    const {clientId, credential} = input;
-    const decoded = jwt_decode(credential);
-    console.log(decoded);
-    return {
-      token: clientId,
-      user: {
-        user_id: 1,
-        verified: false,
-        mobile_verified: false,
-        language: "en",
-        name: "",
-        display_name: "",
-        email: "",
+    const { clientId, credential } = input;
+    const userDetailsFromGoogle: IGoogleUser = jwt_decode(credential);
+    console.log(userDetailsFromGoogle);
+    const { email_verified, azp, email } = userDetailsFromGoogle;
+    if (!email_verified) {
+      this.comonError(
+        "Your account is not verified with Google. Please verify before proceeding."
+      );
+    }
+    if (azp !== process.env.NX_GOOGLE_AUTH_UI_CLIENT_ID) {
+      this.comonError("Please re-login, Your session seems to be expired");
+    }
+
+    if (azp === process.env.NX_GOOGLE_AUTH_UI_CLIENT_ID && email) {
+      console.log("EMAIL AND USEREXIST", email, this.DoesUserExists(email));
+      const existingUser = await this.DoesUserExists(email);
+      if (!existingUser) {
+        const newUser = await this.prisma.user.create({
+          data: {
+            email: email,
+            verified: true,
+            source: "google",
+            mobile_verified: false,
+            location: null,
+            language: null,
+            created_ip: null,
+            display_name: userDetailsFromGoogle.name,
+            device_id: null,
+            name:
+              userDetailsFromGoogle.given_name +
+              " " +
+              userDetailsFromGoogle.family_name,
+            password: "",
+            mobile: null,
+          },
+        });
+        this.updateUserLoginActivity(newUser);
+        return { token: this.generateToken(newUser), user: newUser };
+      } else {
+        this.comonError(
+          "You are alerady registered with us. Please try loging in via Google"
+        );
+      }
+    }
+  }
+
+  /**
+   * Check for if user already exists
+   * @param email
+   * @returns
+   */
+  async DoesUserExists(email: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: email,
       },
-    };
+    });
+
+    return user;
   }
 
   /**
@@ -105,8 +148,13 @@ export class AuthService {
    * @param user false for already exisitng user
    * @param isNewuser true id triggered while signup
    */
-  async updateUserLoginActivity(user, isNewuser?) {
-    if (!isNewuser) {
+  async updateUserLoginActivity(user) {
+    const logedInUser = this.prisma.user_signin_activity.findFirst({
+      where: {
+        user_id : user.user_id
+      }
+    })
+    if (!logedInUser) {
       await this.prisma.user_signin_activity.update({
         where: {
           user_id: user.user_id,
