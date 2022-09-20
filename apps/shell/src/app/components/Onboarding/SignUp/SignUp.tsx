@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ACCOUNT_TYPES } from "@flenzr/shared/constant-user-type";
-import { isMobile } from "react-device-detect";
 import { SignUpMobile } from "./SignUpMobile";
 import { SignUpDesktop } from "./SignUpDesktop";
 import { useNavigate } from "react-router-dom";
