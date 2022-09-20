@@ -22,7 +22,7 @@ const SignUpMobile = ({
 }: ISignUpMobileProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
- 
+
   return (
     <div className="block laptop:hidden desktop:hidden">
       <Lottie
@@ -41,11 +41,10 @@ const SignUpMobile = ({
           {userType === ACCOUNT_SETTINGS.Flenzr.id ? (
             <>
               <div className="my-2">
-                {isMobile && (
-                  <SharedUiThirdPartySignup
-                    onSuccessThirdPartySignUp={handleSignUpFlenzr}
-                  />
-                )}
+                <SharedUiThirdPartySignup
+                  onSuccessThirdPartySignUp={handleSignUpFlenzr}
+                  googleIconId="GoogleMobileIconSignUp"
+                />
               </div>
               <SharedUiFlenzrSignupForm
                 onSignUp={handleSignUpFlenzr}
@@ -64,7 +63,9 @@ const SignUpMobile = ({
               variant="inherit"
               className="font-semibold"
               underline="hover"
-              onClick={(e) => { navigate("/signin")}}
+              onClick={(e) => {
+                navigate("/signin");
+              }}
             >
               {t("loginBtn")}
             </Link>

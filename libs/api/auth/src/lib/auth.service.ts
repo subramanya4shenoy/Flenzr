@@ -6,7 +6,10 @@ import { PrismaService } from "./prisma.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import * as moment from "moment";
-import { GoogleAuthSignUpInput } from "./dto/auth-tp-google.input";
+import {
+  GoogleAuthSignInInput,
+  GoogleAuthSignUpInput,
+} from "./dto/auth-tp-google.input";
 import jwt_decode from "jwt-decode";
 import IGoogleUser from "./interfaces/googleUserInfo.interface";
 import { THIRDPARTY_SOURCERS } from "./constants/thirdpartySources.constant";
@@ -20,15 +23,15 @@ export class AuthService {
    * @desc if user found login and update signin activity
    */
   async signIn(input: AuthSignInInput): Promise<UserToken> {
-    const user = await this.prisma.user.findFirst({
-      where: { email: input.email },
-    });
-    // if user is registered with us via thirdparty we ask them to login with the same
-    if(THIRDPARTY_SOURCERS.includes(user.source)) {
-      this.comonError("Please login via " + user.source);
-    }
+    const user = await this.DoesUserExists(input.email);
+
     /** If user found update signin activity and send token and userInfo */
     if (user) {
+      // if user is registered with us via thirdparty we ask them to login with the same
+      if (THIRDPARTY_SOURCERS.includes(user.source)) {
+        this.comonError("Please login via " + user.source);
+      }
+
       await this.updateUserLoginActivity(user);
       const isMatch = await bcrypt.compare(input.password, user.password);
       if (isMatch) {
@@ -82,9 +85,8 @@ export class AuthService {
    * @pending [send email to verify]
    */
   async signUpWithGoogle(input: GoogleAuthSignUpInput): Promise<UserToken> {
-    const { clientId, credential } = input;
+    const { credential } = input;
     const userDetailsFromGoogle: IGoogleUser = jwt_decode(credential);
-    console.log(userDetailsFromGoogle);
     const { email_verified, azp, email } = userDetailsFromGoogle;
     if (!email_verified) {
       this.comonError(
@@ -129,6 +131,36 @@ export class AuthService {
   }
 
   /**
+   *
+   */
+  async signInWithGoogle(input: GoogleAuthSignInInput): Promise<UserToken> {
+    const { credential } = input;
+    const userDetailsFromGoogle: IGoogleUser = jwt_decode(credential);
+    const { email_verified, azp, email } = userDetailsFromGoogle;
+    const user = await this.DoesUserExists(userDetailsFromGoogle.email);
+    console.log(userDetailsFromGoogle, user);
+    if (!email_verified) {
+      this.comonError(
+        "Your account is not verified with Google. Please verify before proceeding."
+      );
+    }
+    if (azp !== process.env.NX_GOOGLE_AUTH_UI_CLIENT_ID) {
+      this.comonError("Please re-login, Your session seems to be expired");
+    }
+    if (azp === process.env.NX_GOOGLE_AUTH_UI_CLIENT_ID && email) {
+      if (user) {
+        return { token: this.generateToken(user), user: user };
+      } 
+      if (!user) {
+        this.comonError(
+          "This email address is does not exist. Please try signing up"
+        );
+      }
+    }
+
+  }
+
+  /**
    * Check for if user already exists
    * @param email
    * @returns
@@ -151,9 +183,9 @@ export class AuthService {
   async updateUserLoginActivity(user) {
     const logedInUser = this.prisma.user_signin_activity.findFirst({
       where: {
-        user_id : user.user_id
-      }
-    })
+        user_id: user.user_id,
+      },
+    });
     if (!logedInUser) {
       await this.prisma.user_signin_activity.update({
         where: {

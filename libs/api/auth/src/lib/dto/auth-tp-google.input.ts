@@ -9,3 +9,13 @@ export class GoogleAuthSignUpInput {
     @Field()
     credential: string
 }
+
+
+@InputType()
+export class GoogleAuthSignInInput {
+    @Field()
+    clientId: string
+
+    @Field()
+    credential: string
+}
