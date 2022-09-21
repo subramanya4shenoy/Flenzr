@@ -10,6 +10,10 @@ import { SIGN_UP } from "./graphql/signUp.mutation";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import { isMobile } from "react-device-detect";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility';
 
 /* eslint-disable-next-line */
 export interface SharedUiFlenzrSignUpFormProps {
@@ -42,6 +46,21 @@ export function SharedUiFlenzrSignupForm({
     fetchPolicy: "network-only",
     onCompleted: (data) => data && updateCoockie(data),
   });
+
+  const [values, setValues] = useState({
+    showPassword: false
+  });
+
+  const handleClickShowPassword = () => {
+    setValues({
+      ...values,
+      showPassword: !values.showPassword,
+    });
+  };
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
 
   return (
     <>
@@ -84,7 +103,7 @@ export function SharedUiFlenzrSignupForm({
             label={t("password")}
             id="password"
             value={password}
-            type="password"
+            type={values.showPassword ? 'text' : 'password'}
             margin="normal"
             sx={{
               background: "#F2F4F8",
@@ -101,6 +120,19 @@ export function SharedUiFlenzrSignupForm({
             }}
             className="w-full"
             onChange={(e) => setPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                >
+                  {values.showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <div className="flex-none laptop:flex desktop:flex mt-4 laptop:justify-between desktop:justify-between">
             <Button
