@@ -58,7 +58,6 @@ export class AuthService {
       this.comonError("Please fill valid email and password");
     }
     const userExist = await this.DoesUserExists(input.email);
-    console.log("service ->", userExist);
     if (userExist) {
       this.comonError(
         "This email address is already registered. Please try Loging In " + 
@@ -99,7 +98,6 @@ export class AuthService {
     }
 
     if (azp === process.env.NX_GOOGLE_AUTH_UI_CLIENT_ID && email) {
-      console.log("EMAIL AND USEREXIST", email, this.DoesUserExists(email));
       const existingUser = await this.DoesUserExists(email);
       if (!existingUser) {
         const newUser = await this.prisma.user.create({
@@ -139,7 +137,6 @@ export class AuthService {
     const userDetailsFromGoogle: IGoogleUser = jwt_decode(credential);
     const { email_verified, azp, email } = userDetailsFromGoogle;
     const user = await this.DoesUserExists(userDetailsFromGoogle.email);
-    console.log(userDetailsFromGoogle, user);
     if (!email_verified) {
       this.comonError(
         "Your account is not verified with Google. Please verify before proceeding."
@@ -167,7 +164,6 @@ export class AuthService {
    * @returns
    */
   async DoesUserExists(email: string) {
-    console.log(email);
     const user = await this.prisma.user.findFirst({
       where: {
         email: email,

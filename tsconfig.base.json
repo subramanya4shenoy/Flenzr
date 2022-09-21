@@ -123,6 +123,9 @@
       "@flenzr/shared/ui-menu-bar": [
         "libs/shared/ui-menu-bar/src/index.ts"
       ],
+      "@flenzr/shared/ui-password-helper": [
+        "libs/shared/ui-password-helper/src/index.ts"
+      ],
       "@flenzr/shared/ui-rating": [
         "libs/shared/ui-rating/src/index.ts"
       ],

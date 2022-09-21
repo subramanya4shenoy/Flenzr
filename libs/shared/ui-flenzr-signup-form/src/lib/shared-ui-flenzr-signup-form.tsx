@@ -14,6 +14,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
+import { SharedUiPasswordHelper } from "@flenzr/shared/ui-password-helper";
 
 /* eslint-disable-next-line */
 export interface SharedUiFlenzrSignUpFormProps {
@@ -134,6 +135,7 @@ export function SharedUiFlenzrSignupForm({
               ),
             }}
           />
+          <SharedUiPasswordHelper checkString={password}/>
           <div className="flex-none laptop:flex desktop:flex mt-4 laptop:justify-between desktop:justify-between">
             <Button
               className="w-full"
