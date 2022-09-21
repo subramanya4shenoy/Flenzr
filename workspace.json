@@ -38,6 +38,7 @@
     "shared-ui-flenzr-signup-form": "libs/shared/ui-flenzr-signup-form",
     "shared-ui-locations": "libs/shared/ui-locations",
     "shared-ui-menu-bar": "libs/shared/ui-menu-bar",
+    "shared-ui-password-helper": "libs/shared/ui-password-helper",
     "shared-ui-rating": "libs/shared/ui-rating",
     "shared-ui-shell-bar": "libs/shared/ui-shell-bar",
     "shared-ui-third-party-signin": "libs/shared/ui-third-party-signin",
