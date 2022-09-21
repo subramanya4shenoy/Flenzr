@@ -31,7 +31,6 @@ export class AuthService {
       if (THIRDPARTY_SOURCERS.includes(user.source)) {
         this.comonError("Please login via " + user.source);
       }
-
       await this.updateUserLoginActivity(user);
       const isMatch = await bcrypt.compare(input.password, user.password);
       if (isMatch) {
@@ -58,10 +57,12 @@ export class AuthService {
     if (input.email == "" || input.password == "") {
       this.comonError("Please fill valid email and password");
     }
-
-    if (this.DoesUserExists(input.email)) {
+    const userExist = await this.DoesUserExists(input.email);
+    console.log("service ->", userExist);
+    if (userExist) {
       this.comonError(
-        "This email address is already registered. Please try Loging In"
+        "This email address is already registered. Please try Loging In " + 
+        (userExist.source ? " via " + userExist.source : '')
       );
     } else {
       const salt = 10;
@@ -166,6 +167,7 @@ export class AuthService {
    * @returns
    */
   async DoesUserExists(email: string) {
+    console.log(email);
     const user = await this.prisma.user.findFirst({
       where: {
         email: email,
