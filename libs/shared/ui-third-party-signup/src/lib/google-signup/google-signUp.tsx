@@ -1,6 +1,5 @@
 import IconButton from "@mui/material/IconButton";
 import { useEffect } from "react";
-import { isMobile } from "react-device-detect";
 
 
 const GoogleSignUp = ({onSuccess, googleIconId}: any) => {

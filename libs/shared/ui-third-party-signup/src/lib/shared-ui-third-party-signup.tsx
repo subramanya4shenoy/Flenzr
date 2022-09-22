@@ -2,7 +2,6 @@ import IconButton from "@mui/material/IconButton";
 import { useTranslation } from "react-i18next";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
 import GoogleSignUp from "./google-signup/google-signUp";
 import THIRD_PARTY_ACCOUNT from "./constants/ThirdParty.constant";
@@ -11,6 +10,7 @@ import { useMutation } from "@apollo/client";
 import { useCookies } from "react-cookie";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
+import TwitterSignup from "./twitter-signup/twitter-signup";
 
 export function SharedUiThirdPartySignup({ onSuccessThirdPartySignUp, googleIconId }: any) {
   const { t } = useTranslation();
@@ -70,9 +70,10 @@ export function SharedUiThirdPartySignup({ onSuccessThirdPartySignUp, googleIcon
           <IconButton aria-label="LinkedIn">
             <LinkedInIcon />
           </IconButton>
-          <IconButton aria-label="Twitter">
-            <TwitterIcon />
-          </IconButton>
+
+          <TwitterSignup />
+          
+          
           <IconButton aria-label="Facebook">
             <FacebookRoundedIcon />
           </IconButton>
