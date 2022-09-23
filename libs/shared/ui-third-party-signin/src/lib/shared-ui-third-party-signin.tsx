@@ -5,7 +5,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
 import GoogleSignIn from "./google-signin/google-signIn";
-import { useLazyQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { GOOGLE_SIGN_IN } from "./graphql/queries/googleSignIn.query";
 import { useCookies } from "react-cookie";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -27,7 +27,7 @@ export const SharedUiThirdPartySignin = ({googleIconId, onSuccessThirdPartySignI
 
   // mutations for third party below
   // google
-  const [loginGoogleUser, { data, loading, error }] = useLazyQuery(
+  const [loginGoogleUser, { data, loading, error }] = useMutation(
     GOOGLE_SIGN_IN,
     {
       errorPolicy: "all",

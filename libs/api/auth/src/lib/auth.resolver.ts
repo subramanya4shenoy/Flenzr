@@ -10,7 +10,7 @@ import { UserToken } from "./models/user-token";
 @Resolver()
 export class AuthResolver {
   constructor(private readonly service: AuthService) {}
-  @Query(() => UserToken)
+  @Mutation(() => UserToken)
   async signIn(@Args('input') input:AuthSignInInput): Promise<UserToken> {
     return this.service.signIn(input);
   }
@@ -25,7 +25,7 @@ export class AuthResolver {
     return this.service.signUpWithGoogle(input)
   }
 
-  @Query(()=> UserToken)
+  @Mutation(()=> UserToken)
   async signInWithGoogle(@Args('input') input: GoogleAuthSignInInput): Promise<UserToken>{
     return this.service.signInWithGoogle(input)
   }

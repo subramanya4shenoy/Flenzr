@@ -179,12 +179,12 @@ export class AuthService {
    * @param isNewuser true id triggered while signup
    */
   async updateUserLoginActivity(user) {
-    const logedInUser = this.prisma.user_signin_activity.findFirst({
+    const logedInUser = this.prisma.user_signin_activity.findFirstOrThrow({
       where: {
         user_id: user.user_id,
       },
     });
-    if (!logedInUser) {
+    if (logedInUser) {
       await this.prisma.user_signin_activity.update({
         where: {
           user_id: user.user_id,
