@@ -4,7 +4,7 @@ import Link from "@mui/material/Link";
 import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
-import { useLazyQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { SIGN_IN } from "./graphql/signIn.query";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
@@ -32,7 +32,7 @@ export function SharedUiFlenzrSignInForm({
     onSignIn();
   };
 
-  const [signInFlenzr, { loading, error, data }] = useLazyQuery(SIGN_IN, {
+  const [signInFlenzr, { loading, error, data }] = useMutation(SIGN_IN, {
     errorPolicy: "all",
     fetchPolicy: "network-only",
     onCompleted: (res) => updateCoockie(res),

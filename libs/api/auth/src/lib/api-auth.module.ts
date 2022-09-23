@@ -4,7 +4,7 @@ import { AuthResolver } from "./auth.resolver";
 import { AuthService } from "./auth.service";
 import { PrismaService } from "./prisma.service";
 import { JwtModule } from "@nestjs/jwt";
-import { JwtStrategy } from "./guard/auth/jwt.stratergy";
+import { JwtStrategy } from "./guard/auth/jwt.strategy";
 
 @Module({
   imports: [
