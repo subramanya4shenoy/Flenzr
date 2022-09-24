@@ -1,5 +1,5 @@
 import { UseGuards } from "@nestjs/common";
-import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { AuthService } from "./auth.service";
 import { AuthSignInInput } from "./dto/auth-signin.input";
 import { AuthSignUpInput } from "./dto/auth-signup.input";
@@ -31,8 +31,10 @@ export class AuthResolver {
   }
 
   @Query(() => String)
-    getPotato(): string {
+  @UseGuards(GqlAuthGuard)
+    getPotato(@Context() context): string {
       console.log("Asked for potato")
+      console.log(context.req.user)
       return "potato"
     }
   
