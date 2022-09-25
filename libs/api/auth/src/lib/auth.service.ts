@@ -24,7 +24,6 @@ export class AuthService {
    */
   async signIn(input: AuthSignInInput): Promise<UserToken> {
     const user = await this.DoesUserExists(input.email);
-
     /** If user found update signin activity and send token and userInfo */
     if (user) {
       // if user is registered with us via thirdparty we ask them to login with the same
@@ -34,7 +33,8 @@ export class AuthService {
       await this.updateUserLoginActivity(user);
       const isMatch = await bcrypt.compare(input.password, user.password);
       if (isMatch) {
-        return { token: this.generateToken(user), user: user };
+        const { password, ...userData} = user;
+        return { token: this.generateToken(userData), user: userData };
       } else {
         this.comonError("Password miss-match");
       }
@@ -73,7 +73,8 @@ export class AuthService {
         },
       });
       await this.updateUserLoginActivity(newUser);
-      return { token: this.generateToken(newUser), user: newUser };
+      const { password, ...userData} = newUser;
+      return { token: this.generateToken(userData), user: userData };
     }
   }
 
@@ -120,7 +121,8 @@ export class AuthService {
           },
         });
         this.updateUserLoginActivity(newUser);
-        return { token: this.generateToken(newUser), user: newUser };
+        const { password, ...userData} = newUser;
+        return { token: this.generateToken(userData), user: userData };
       } else {
         this.comonError(
           "You are alerady registered with us. Please try loging in via Google"
@@ -147,7 +149,8 @@ export class AuthService {
     }
     if (azp === process.env.NX_GOOGLE_AUTH_UI_CLIENT_ID && email) {
       if (user) {
-        return { token: this.generateToken(user), user: user };
+        const { password, ...userData} = user;
+        return { token: this.generateToken(userData), user: userData };
       } 
       if (!user) {
         this.comonError(
