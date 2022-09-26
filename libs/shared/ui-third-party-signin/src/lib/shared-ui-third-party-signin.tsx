@@ -10,6 +10,7 @@ import { GOOGLE_SIGN_IN } from "./graphql/queries/googleSignIn.query";
 import { useCookies } from "react-cookie";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
+import FacebookSignIn from "./facebook-signin/facebook-signin";
 
 export const SharedUiThirdPartySignin = ({googleIconId, onSuccessThirdPartySignIn}: any) => {
 
@@ -73,9 +74,7 @@ export const SharedUiThirdPartySignin = ({googleIconId, onSuccessThirdPartySignI
       <IconButton aria-label="Twitter">
         <TwitterIcon />
       </IconButton>
-      <IconButton aria-label="Facebook">
-        <FacebookRoundedIcon />
-      </IconButton>
+      <FacebookSignIn />
     </div> )}
     </>
   );
