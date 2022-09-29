@@ -74,7 +74,11 @@ export const SharedUiThirdPartySignin = ({googleIconId, onSuccessThirdPartySignI
       <IconButton aria-label="Twitter">
         <TwitterIcon />
       </IconButton>
-      <FacebookSignIn />
+      <FacebookSignIn 
+        onSuccess={(res: any) =>
+          {console.log(res);}
+        }
+      />
     </div> )}
     </>
   );

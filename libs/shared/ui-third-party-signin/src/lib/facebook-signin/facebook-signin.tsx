@@ -8,10 +8,10 @@ const FacebookSignIn = ({ onSuccess }: any) => {
   return (
     <FacebookLogin
       appId= { process.env["NX_FACEBOOK_APP_ID"] as string }
-      autoLoad={false}
+      autoLoad={false}  
       fields="name,email,picture"
       onClick={(data)=>{console.log("clicked", data)}}
-      callback={(data) => { console.log("data",data)}}
+      callback={(data) => {onSuccess(data)}}
       onFailure={(data) => { console.log("error",data)}}
       render={({onClick}: any) => {
         return <IconButton onClick={onClick} aria-label="Facebook">
