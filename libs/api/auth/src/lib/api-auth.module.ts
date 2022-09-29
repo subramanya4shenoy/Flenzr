@@ -5,6 +5,7 @@ import { AuthService } from "./auth.service";
 import { PrismaService } from "./prisma.service";
 import { JwtModule } from "@nestjs/jwt";
 import { JwtStrategy } from "./guard/auth/jwt.strategy";
+import { GoogleAuthService } from "./services/google-auth.service";
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { JwtStrategy } from "./guard/auth/jwt.strategy";
     }),
   ],
   controllers: [],
-  providers: [AuthResolver, AuthService, PrismaService, JwtStrategy],
+  providers: [AuthResolver, AuthService, GoogleAuthService, PrismaService, JwtStrategy],
   exports: [JwtStrategy],
 })
 export class ApiAuthModule {}
