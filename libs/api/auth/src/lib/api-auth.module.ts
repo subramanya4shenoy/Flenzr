@@ -6,17 +6,25 @@ import { PrismaService } from "./prisma.service";
 import { JwtModule } from "@nestjs/jwt";
 import { JwtStrategy } from "./guard/auth/jwt.strategy";
 import { GoogleAuthService } from "./services/google-auth.service";
+import { FBAuthService } from "./services/facebook-auth.service";
 
 @Module({
   imports: [
     PassportModule,
     JwtModule.register({
       secret: process.env.NX_JWT_SECRET,
-      signOptions: { expiresIn: 60*60*24*3 + "s"  },
+      signOptions: { expiresIn: 60 * 60 * 24 * 3 + "s" },
     }),
   ],
   controllers: [],
-  providers: [AuthResolver, AuthService, GoogleAuthService, PrismaService, JwtStrategy],
+  providers: [
+    AuthResolver,
+    AuthService,
+    GoogleAuthService,
+    FBAuthService,
+    PrismaService,
+    JwtStrategy,
+  ],
   exports: [JwtStrategy],
 })
 export class ApiAuthModule {}

@@ -9,13 +9,15 @@ import {
 } from "./dto/auth-tp-google.input";
 import { GqlAuthGuard } from "./guard/auth/jwt-auth.guard";
 import { UserToken } from "./models/user-token";
+import { FBAuthService } from "./services/facebook-auth.service";
 import { GoogleAuthService } from "./services/google-auth.service";
 
 @Resolver()
 export class AuthResolver {
   constructor(
     private readonly service: AuthService,
-    private readonly googleService: GoogleAuthService
+    private readonly googleService: GoogleAuthService,
+    private readonly fbService: FBAuthService
   ) {}
   @Mutation(() => UserToken)
   async signIn(@Args("input") input: AuthSignInInput): Promise<UserToken> {
@@ -39,6 +41,11 @@ export class AuthResolver {
     @Args("input") input: GoogleAuthSignInInput
   ): Promise<UserToken> {
     return this.googleService.signInWithGoogle(input);
+  }
+
+  @Mutation(() => String)
+  async signUpWithFb(): Promise<string> {
+    return this.fbService.signUpWithFb();
   }
 
   @Query(() => String)

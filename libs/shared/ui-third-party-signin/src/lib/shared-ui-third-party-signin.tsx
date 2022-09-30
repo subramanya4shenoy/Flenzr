@@ -11,6 +11,7 @@ import { useCookies } from "react-cookie";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import FacebookSignIn from "./facebook-signin/facebook-signin";
+import { IFbUserDetails } from "./facebook-signin/facebook-signIn.interface";
 
 export const SharedUiThirdPartySignin = ({googleIconId, onSuccessThirdPartySignIn}: any) => {
 
@@ -75,7 +76,7 @@ export const SharedUiThirdPartySignin = ({googleIconId, onSuccessThirdPartySignI
         <TwitterIcon />
       </IconButton>
       <FacebookSignIn 
-        onSuccess={(res: any) =>
+        onSuccess={(res: IFbUserDetails) =>
           {console.log(res);}
         }
       />

@@ -6,12 +6,6 @@ import { PrismaService } from "./prisma.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import * as moment from "moment";
-import {
-  GoogleAuthSignInInput,
-  GoogleAuthSignUpInput,
-} from "./dto/auth-tp-google.input";
-import jwt_decode from "jwt-decode";
-import IGoogleUser from "./interfaces/googleUserInfo.interface";
 import { THIRDPARTY_SOURCERS } from "./constants/thirdpartySources.constant";
 
 @Injectable()
