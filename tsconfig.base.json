@@ -140,6 +140,9 @@
       ],
       "@flenzr/shared/ui-user-card": [
         "libs/shared/ui-user-card/src/index.ts"
+      ],
+      "@flenzr/shared/ui-utils": [
+        "libs/shared/ui-utils/src/index.ts"
       ]
     }
   },

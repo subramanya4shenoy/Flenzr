@@ -93,30 +93,20 @@ export class AuthService {
    * @param isNewuser true id triggered while signup
    */
   async updateUserLoginActivity(user) {
-    const logedInUser = this.prisma.user_signin_activity.findFirstOrThrow({
+    await this.prisma.user_signin_activity.upsert({
       where: {
         user_id: user.user_id,
       },
+      update: {
+        last_login_time: moment().format("D-MMM-YY hh.mm.ss.SSSSSS A Z"),
+        location: user.location || "",
+      },
+      create: {
+        user_id: user.user_id,
+        last_login_time: moment().format("D-MMM-YY hh.mm.ss.SSSSSS A Z"),
+        location: user.location || "",
+      }
     });
-    if (logedInUser) {
-      await this.prisma.user_signin_activity.update({
-        where: {
-          user_id: user.user_id,
-        },
-        data: {
-          last_login_time: moment().format("D-MMM-YY hh.mm.ss.SSSSSS A Z"),
-          location: user.location || "",
-        },
-      });
-    } else {
-      await this.prisma.user_signin_activity.create({
-        data: {
-          user_id: user.user_id,
-          last_login_time: moment().format("D-MMM-YY hh.mm.ss.SSSSSS A Z"),
-          location: user.location || "",
-        },
-      });
-    }
   }
 
   /**

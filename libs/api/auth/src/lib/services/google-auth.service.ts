@@ -45,7 +45,7 @@ export class GoogleAuthService {
       const existingUser = await this.authService.DoesUserExists(email);
       if (!existingUser) {
         const userData = await this.createNewUser(userDetailsFromGoogle, email);
-        this.authService.updateUserLoginActivity(userData);
+        await this.authService.updateUserLoginActivity(userData);
         return {
           token: this.authService.generateToken(userData),
           user: userData,
@@ -76,7 +76,9 @@ export class GoogleAuthService {
       );
     }
     if (azp === process.env.NX_GOOGLE_AUTH_UI_CLIENT_ID && email) {
+
       if (user) {
+        await this.authService.updateUserLoginActivity(user);
         const { password, ...userData } = user;
         return {
           token: this.authService.generateToken(userData),
