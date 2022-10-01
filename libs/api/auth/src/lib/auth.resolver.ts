@@ -3,6 +3,7 @@ import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { AuthService } from "./auth.service";
 import { AuthSignInInput } from "./dto/auth-signin.input";
 import { AuthSignUpInput } from "./dto/auth-signup.input";
+import { FacebookAuthSignInInput } from "./dto/auth-tp-facebook.input";
 import {
   GoogleAuthSignInInput,
   GoogleAuthSignUpInput,
@@ -43,9 +44,11 @@ export class AuthResolver {
     return this.googleService.signInWithGoogle(input);
   }
 
-  @Mutation(() => String)
-  async signUpWithFb(): Promise<string> {
-    return this.fbService.signUpWithFb();
+  @Mutation(() => UserToken)
+  async signUpWithFb(
+    @Args("input") input: FacebookAuthSignInInput
+  ): Promise<UserToken> {
+    return this.fbService.signUpWithFb(input);
   }
 
   @Query(() => String)

@@ -1,20 +1,14 @@
 import { Field, InputType } from "@nestjs/graphql";
 
 @InputType()
-export class GoogleAuthSignUpInput {
-    @Field()
-    clientId: string
-
+export class FacbookAuthSignUpInput {
     @Field()
     credential: string
 }
 
 
 @InputType()
-export class GoogleAuthSignInInput {
-    @Field()
-    clientId: string
-
+export class FacebookAuthSignInInput {
     @Field()
     credential: string
 }

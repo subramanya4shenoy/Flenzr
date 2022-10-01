@@ -60,7 +60,7 @@
         "hmr": true,
         "port": 4200,
         "ssl": true,
-        "host": "127.0.0.1",
+        "host": "localhost",
         "sslKey": "./certs/local-key.pem",
         "sslCert": "./certs/local-cert.pem"
       },
