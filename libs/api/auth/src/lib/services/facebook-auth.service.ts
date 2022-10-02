@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { AuthService } from "../auth.service";
-import { FacebookAuthSignInInput } from "../dto/auth-tp-facebook.input";
+import { FacebookAuthSignInInput, FacebookAuthSignUpInput } from "../dto/auth-tp-facebook.input";
 import IFacebookUser from "../interfaces/facebookUserInfo.interface";
 import jwt_decode from "jwt-decode";
 import { UserToken } from "../models/user-token";
@@ -12,6 +12,27 @@ export class FBAuthService {
     private readonly authService: AuthService,
     private prisma: PrismaService
   ) {}
+  
+  async signInWithFb(input: FacebookAuthSignInInput): Promise<UserToken> {
+    const { credential } = input;
+    const userDetailsFromFacebook: IFacebookUser = jwt_decode(credential);
+    const { email } = userDetailsFromFacebook;
+    const user = await this.authService.DoesUserExists(email);
+      if (user) {
+        await this.authService.updateUserLoginActivity(user);
+        const { password, ...userData } = user;
+        return {
+          token: this.authService.generateToken(userData),
+          user: userData,
+        };
+      }
+      if (!user) {
+        this.authService.comonError(
+          "This email address is does not exist. Please try signing up"
+        );
+      }
+  }
+
 
   /**
    * @param input
@@ -20,7 +41,7 @@ export class FBAuthService {
    * crete the signInActivityDB entry.
    * @pending [send email to verify]
    */
-  async signUpWithFb(input: FacebookAuthSignInInput): Promise<UserToken> {
+  async signUpWithFb(input: FacebookAuthSignUpInput): Promise<UserToken> {
     const { credential } = input;
     const userDetailsFromFacebook: IFacebookUser = jwt_decode(credential);
     const { email } = userDetailsFromFacebook;
@@ -39,7 +60,7 @@ export class FBAuthService {
         };
       } else {
         this.authService.comonError(
-          "You are alerady registered with us. Please try loging in via Facebook"
+          "You are alerady registered with us. Please try loging in via " + existingUser.source
         );
       }
     }

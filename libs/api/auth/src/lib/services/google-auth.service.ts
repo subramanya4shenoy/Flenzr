@@ -52,7 +52,7 @@ export class GoogleAuthService {
         };
       } else {
         this.authService.comonError(
-          "You are alerady registered with us. Please try loging in via Google"
+          "You are alerady registered with us. Please try loging in via " + existingUser.source
         );
       }
     }

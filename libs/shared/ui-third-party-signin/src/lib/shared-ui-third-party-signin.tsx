@@ -13,15 +13,15 @@ import FacebookSignIn from "./facebook-signin/facebook-signin";
 import { IFbUserDetails } from "./facebook-signin/facebook-signIn.interface";
 import { CreateJWT } from "@flenzr/shared/ui-utils";
 import { FACEBOOK_SIGN_IN } from "./graphql/mutation/facebookSignIn.mutation";
-export const SharedUiThirdPartySignin = ({googleIconId, onSuccessThirdPartySignIn}: any) => {
-
+export const SharedUiThirdPartySignin = ({
+  googleIconId,
+  onSuccessThirdPartySignIn,
+}: any) => {
   const { t } = useTranslation();
   const [cookie, setCookie] = useCookies(["access-token"]);
 
-  const updateCoockie = (data: any) => {
-    const { signInWithGoogle } = data;
-    if (signInWithGoogle) {
-      const { token } = signInWithGoogle;
+  const updateCoockie = ({ token }: any) => {
+    if (token) {
       token && setCookie("access-token", token);
       onSuccessThirdPartySignIn();
     }
@@ -29,44 +29,47 @@ export const SharedUiThirdPartySignin = ({googleIconId, onSuccessThirdPartySignI
 
   // mutations for third party below
   // google
-  const [loginGoogleUser, { data:gData, loading:gLoading, error:gError }] = useMutation(
-    GOOGLE_SIGN_IN,
-    {
+  const [loginGoogleUser, { data: gData, loading: gLoading, error: gError }] =
+    useMutation(GOOGLE_SIGN_IN, {
       errorPolicy: "all",
       fetchPolicy: "network-only",
-      onCompleted: (gData) => gData && updateCoockie(gData),
-    }
-  );
+      onCompleted: (gData) => {
+        const { signInWithGoogle } = gData;
+        signInWithGoogle && updateCoockie(signInWithGoogle);
+      },
+    });
 
   // facebook
-  const [loginFacebookUser, { data:fbData, loading:fbLoading, error:fbError }] = useMutation(
-    FACEBOOK_SIGN_IN,
-    {
-      errorPolicy: "all",
-      fetchPolicy: "network-only",
-      onCompleted: (fbData) => fbData && updateCoockie(fbData),
-    }
-  );
+  const [
+    loginFacebookUser,
+    { data: fbData, loading: fbLoading, error: fbError },
+  ] = useMutation(FACEBOOK_SIGN_IN, {
+    errorPolicy: "all",
+    fetchPolicy: "network-only",
+    onCompleted: (fbData) => {
+      const { signInWithFb } = fbData;
+      signInWithFb && updateCoockie(signInWithFb);
+    },
+  });
 
-  
   return (
     <>
-    {(gError || fbError) && (
-      <Alert className="my-2" severity="error" variant="filled">
-        <span>{gError?.message || fbError?.message}</span>
-      </Alert>
-    )}
-    {(gLoading || fbLoading) ? (
-      <div className="flex items-center justify-center">
-        <CircularProgress className="flex items-center my-4" />
-      </div>
-    ) : (
-    <div className="w-full justify-center items-center flex">
-      <div className=" text-xs font-bold opacity-50  capitalize">
-        {t("signInWith")}
-      </div>
-      <GoogleSignIn
-            googleIconId = {googleIconId}
+      {(gError || fbError) && (
+        <Alert className="my-2" severity="error" variant="filled">
+          <span>{gError?.message || fbError?.message}</span>
+        </Alert>
+      )}
+      {gLoading || fbLoading ? (
+        <div className="flex items-center justify-center">
+          <CircularProgress className="flex items-center my-4" />
+        </div>
+      ) : (
+        <div className="w-full justify-center items-center flex">
+          <div className=" text-xs font-bold opacity-50  capitalize">
+            {t("signInWith")}
+          </div>
+          <GoogleSignIn
+            googleIconId={googleIconId}
             onSuccess={(res: any) =>
               loginGoogleUser({
                 variables: {
@@ -76,25 +79,26 @@ export const SharedUiThirdPartySignin = ({googleIconId, onSuccessThirdPartySignI
               })
             }
           />
-      <IconButton aria-label="Instagram">
-        <InstagramIcon />
-      </IconButton>
-      <IconButton aria-label="LinkedIn">
-        <LinkedInIcon />
-      </IconButton>
-      <IconButton aria-label="Twitter">
-        <TwitterIcon />
-      </IconButton>
-      <FacebookSignIn 
-        onSuccess={(res: IFbUserDetails) =>
-          {loginFacebookUser({
-            variables: {
-              credential: CreateJWT(res),
-            },
-          })}
-        }
-      />
-    </div> )}
+          <IconButton aria-label="Instagram">
+            <InstagramIcon />
+          </IconButton>
+          <IconButton aria-label="LinkedIn">
+            <LinkedInIcon />
+          </IconButton>
+          <IconButton aria-label="Twitter">
+            <TwitterIcon />
+          </IconButton>
+          <FacebookSignIn
+            onSuccess={(res: IFbUserDetails) => {
+              loginFacebookUser({
+                variables: {
+                  credential: CreateJWT(res),
+                },
+              });
+            }}
+          />
+        </div>
+      )}
     </>
   );
 };
