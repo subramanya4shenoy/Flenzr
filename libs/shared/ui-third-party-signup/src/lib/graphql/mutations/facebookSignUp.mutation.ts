@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
-export const FACEBOOK_SIGN_IN = gql`
+export const FACEBOOK_SIGN_UP = gql`
 mutation($credential: String!) {
-  signInWithFb(input:{
+    signUpWithFb(input:{
         credential: $credential
     }) {
         token

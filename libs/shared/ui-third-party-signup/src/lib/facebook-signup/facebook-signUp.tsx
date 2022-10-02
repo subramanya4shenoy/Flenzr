@@ -2,7 +2,7 @@ import IconButton from "@mui/material/IconButton";
 import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
 
-const FacebookSignIn = ({ onSuccess }: any) => {
+const FacebookSignUp = ({ onSuccess }: any) => {
 
   return (
     <FacebookLogin
@@ -21,4 +21,4 @@ const FacebookSignIn = ({ onSuccess }: any) => {
   );
 };
 
-export default FacebookSignIn;
+export default FacebookSignUp;
