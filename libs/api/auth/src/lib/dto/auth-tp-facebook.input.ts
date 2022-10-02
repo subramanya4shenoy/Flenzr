@@ -6,7 +6,6 @@ export class FacebookAuthSignUpInput {
     credential: string
 }
 
-
 @InputType()
 export class FacebookAuthSignInInput {
     @Field()
