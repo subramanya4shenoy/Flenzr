@@ -19,6 +19,13 @@ export class FBAuthService {
     const { email } = userDetailsFromFacebook;
     const user = await this.authService.DoesUserExists(email);
       if (user) {
+        if(user.source !== 'facebook') {
+          this.authService.comonError(
+          "You are alerady registered with us via "
+          + user.source + 
+          ". Please try loging in via "
+          + user.source)
+        }
         await this.authService.updateUserLoginActivity(user);
         const { password, ...userData } = user;
         return {
