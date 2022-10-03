@@ -37,8 +37,10 @@ export function SharedUiThirdPartySignup({
     errorPolicy: "all",
     fetchPolicy: "network-only",
     onCompleted: (gData) => {
-      const { signInWithGoogle } = gData;
-      signInWithGoogle && updateCoockie(signInWithGoogle);
+      if(gData) {
+        const { signUpWithGoogle } = gData;
+        signUpWithGoogle && updateCoockie(signUpWithGoogle);
+      }
     },
   });
 
@@ -50,8 +52,10 @@ export function SharedUiThirdPartySignup({
     errorPolicy: "all",
     fetchPolicy: "network-only",
     onCompleted: (fbData) => {
-      const { signInWithFb } = fbData;
-      signInWithFb && updateCoockie(signInWithFb);
+      if(fbData) {
+        const { signUpWithFb } = fbData;
+        signUpWithFb && updateCoockie(signUpWithFb);
+      }
     },
   });
 

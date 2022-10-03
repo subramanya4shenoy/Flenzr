@@ -78,6 +78,14 @@ export class GoogleAuthService {
     if (azp === process.env.NX_GOOGLE_AUTH_UI_CLIENT_ID && email) {
 
       if (user) {
+        if(user.source !== 'google') {
+          this.authService.comonError(
+          "You are alerady registered with us via "
+          + user.source + 
+          ". Please try loging in via "
+          + user.source
+          )
+        }
         await this.authService.updateUserLoginActivity(user);
         const { password, ...userData } = user;
         return {

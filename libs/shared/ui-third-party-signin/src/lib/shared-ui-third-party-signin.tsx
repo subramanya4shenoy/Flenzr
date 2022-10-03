@@ -34,8 +34,10 @@ export const SharedUiThirdPartySignin = ({
       errorPolicy: "all",
       fetchPolicy: "network-only",
       onCompleted: (gData) => {
-        const { signInWithGoogle } = gData;
-        signInWithGoogle && updateCoockie(signInWithGoogle);
+        if(gData) {
+          const { signInWithGoogle } = gData;
+          signInWithGoogle && updateCoockie(signInWithGoogle);
+        }
       },
     });
 
@@ -47,8 +49,10 @@ export const SharedUiThirdPartySignin = ({
     errorPolicy: "all",
     fetchPolicy: "network-only",
     onCompleted: (fbData) => {
-      const { signInWithFb } = fbData;
-      signInWithFb && updateCoockie(signInWithFb);
+      if(fbData){
+        const { signInWithFb } = fbData;
+        signInWithFb && updateCoockie(signInWithFb);
+      }
     },
   });
 
