@@ -13,6 +13,7 @@ import FacebookSignIn from "./facebook-signin/facebook-signin";
 import { IFbUserDetails } from "./facebook-signin/facebook-signIn.interface";
 import { CreateJWT } from "@flenzr/shared/ui-utils";
 import { FACEBOOK_SIGN_IN } from "./graphql/mutation/facebookSignIn.mutation";
+import InstagramSignIn from "./instagram-signin/instagram-signin";
 export const SharedUiThirdPartySignin = ({
   googleIconId,
   onSuccessThirdPartySignIn,
@@ -83,9 +84,14 @@ export const SharedUiThirdPartySignin = ({
               })
             }
           />
-          <IconButton aria-label="Instagram">
-            <InstagramIcon />
-          </IconButton>
+          <InstagramSignIn 
+            onSuccess={(res: IFbUserDetails) => {
+              loginFacebookUser({
+                variables: {
+                  credential: CreateJWT(res),
+                },
+              })
+            }}/>
           <IconButton aria-label="LinkedIn">
             <LinkedInIcon />
           </IconButton>
