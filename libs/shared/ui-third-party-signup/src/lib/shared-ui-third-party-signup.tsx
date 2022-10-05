@@ -13,6 +13,9 @@ import { FACEBOOK_SIGN_UP } from "./graphql/mutations/facebookSignUp.mutation";
 import { IFbUserDetails } from "./facebook-signup/facebook-signUp.interface";
 import { CreateJWT } from "@flenzr/shared/ui-utils";
 import FacebookSignUp from "./facebook-signup/facebook-signUp";
+import InstagramSignUp from "./instagram-signup/instagram-signUp";
+import { IInstaUserDetails } from "./instagram-signup/instagram-signUp.interface";
+import { INSTAGRAM_SIGN_UP } from "./graphql/mutations/instagramSignUp.mutation";
 
 export function SharedUiThirdPartySignup({
   onSuccessThirdPartySignUp,
@@ -59,14 +62,32 @@ export function SharedUiThirdPartySignup({
     },
   });
 
+  //Instagram
+    const [
+      registerInstagramUser,
+      { data: instaData, loading: instaLoading, error: instaError },
+    ] = useMutation(INSTAGRAM_SIGN_UP, {
+      errorPolicy: "all",
+      fetchPolicy: "network-only",
+      onCompleted: (instaData) => {
+        if(instaData) {
+          const { signUpWithInsta } = instaData;
+          signUpWithInsta && updateCoockie(signUpWithInsta);
+        }
+      },
+    });
+
   return (
     <>
-      {(gError || fbError) && (
+      {(gError || fbError || instaError) && (
         <Alert className="my-2" severity="error" variant="filled">
-          <span>{gError?.message || fbError?.message}</span>
+          <span>{gError?.message || 
+                 fbError?.message || 
+                 instaError?.message}
+          </span>
         </Alert>
       )}
-      {gLoading ? (
+      {(gLoading || instaLoading || fbLoading) ? (
         <div className="flex items-center justify-center">
           <CircularProgress className="flex items-center my-4" />
         </div>
@@ -88,9 +109,15 @@ export function SharedUiThirdPartySignup({
             }
           />
 
-          <IconButton aria-label="Instagram">
-            <InstagramIcon />
-          </IconButton>
+        <InstagramSignUp 
+            onSuccess={(res: IInstaUserDetails) => {
+              console.log("Insta data=>",res)
+              registerInstagramUser({
+                variables: {
+                  credential: CreateJWT(res),
+                },
+              });
+            }}/>
           <IconButton aria-label="LinkedIn">
             <LinkedInIcon />
           </IconButton>
