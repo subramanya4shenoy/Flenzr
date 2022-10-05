@@ -75,6 +75,13 @@ export class AuthResolver {
   async signUpWithInsta(
     @Args("input") input: InstagramAuthSignUpInput
   ): Promise<UserToken> {
+    return this.instaService.signUpWithInstagram(input);
+  }
+
+  @Mutation(() => UserToken)
+  async signInWithInsta(
+    @Args("input") input: InstagramAuthSignUpInput
+  ): Promise<UserToken> {
     return this.instaService.signInWithInstagram(input);
   }
 
