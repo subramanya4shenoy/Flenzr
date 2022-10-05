@@ -1,7 +1,6 @@
 import IconButton from "@mui/material/IconButton";
 import { useTranslation } from "react-i18next";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import InstagramIcon from "@mui/icons-material/Instagram";
 import GoogleSignUp from "./google-signup/google-signUp";
 import { GOOGLE_SIGN_UP } from "./graphql/mutations/googleSignUp.mutation";
 import { useMutation } from "@apollo/client";
@@ -13,9 +12,9 @@ import { FACEBOOK_SIGN_UP } from "./graphql/mutations/facebookSignUp.mutation";
 import { IFbUserDetails } from "./facebook-signup/facebook-signUp.interface";
 import { CreateJWT } from "@flenzr/shared/ui-utils";
 import FacebookSignUp from "./facebook-signup/facebook-signUp";
-import InstagramSignUp from "./instagram-signup/instagram-signUp";
 import { IInstaUserDetails } from "./instagram-signup/instagram-signUp.interface";
 import { INSTAGRAM_SIGN_UP } from "./graphql/mutations/instagramSignUp.mutation";
+import InstagramSignUp from "./instagram-signup/instagram-signUp";
 
 export function SharedUiThirdPartySignup({
   onSuccessThirdPartySignUp,

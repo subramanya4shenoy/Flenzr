@@ -1,7 +1,6 @@
 import IconButton from "@mui/material/IconButton";
 import { useTranslation } from "react-i18next";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import GoogleSignIn from "./google-signin/google-signIn";
 import { useMutation } from "@apollo/client";
@@ -14,6 +13,8 @@ import { IFbUserDetails } from "./facebook-signin/facebook-signIn.interface";
 import { CreateJWT } from "@flenzr/shared/ui-utils";
 import { FACEBOOK_SIGN_IN } from "./graphql/mutation/facebookSignIn.mutation";
 import InstagramSignIn from "./instagram-signin/instagram-signin";
+import { INSTAGRAM_SIGN_IN } from "./graphql/mutation/instagramSignin.mutation";
+import { IInstaUserDetails } from "./instagram-signin/instagram-signin.interface";
 
 export const SharedUiThirdPartySignin = ({
   googleIconId,
@@ -58,14 +59,32 @@ export const SharedUiThirdPartySignin = ({
     },
   });
 
+    //Instagram
+    const [
+      loginInstagramUser,
+      { data: instaData, loading: instaLoading, error: instaError },
+    ] = useMutation(INSTAGRAM_SIGN_IN, {
+      errorPolicy: "all",
+      fetchPolicy: "network-only",
+      onCompleted: (instaData) => {
+        if(instaData) {
+          const { signUpWithInsta } = instaData;
+          signUpWithInsta && updateCoockie(signUpWithInsta);
+        }
+      },
+    });
+
   return (
     <>
-      {(gError || fbError) && (
+      {(gError || fbError || instaError) && (
         <Alert className="my-2" severity="error" variant="filled">
-          <span>{gError?.message || fbError?.message}</span>
+          <span>{gError?.message || 
+                 fbError?.message || 
+                 instaError?.message}
+          </span>
         </Alert>
       )}
-      {gLoading || fbLoading ? (
+      {(gLoading || instaLoading || fbLoading) ? (
         <div className="flex items-center justify-center">
           <CircularProgress className="flex items-center my-4" />
         </div>
@@ -86,8 +105,12 @@ export const SharedUiThirdPartySignin = ({
             }
           />
           <InstagramSignIn 
-            onSuccess={(res: IFbUserDetails) => {
-              console.log(res);
+            onSuccess={(res: IInstaUserDetails) => {
+              loginInstagramUser({
+                variables: {
+                  credential: CreateJWT(res),
+                },
+              })
             }}/>
           <IconButton aria-label="LinkedIn">
             <LinkedInIcon />
