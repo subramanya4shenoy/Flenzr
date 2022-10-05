@@ -7,6 +7,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { JwtStrategy } from "./guard/auth/jwt.strategy";
 import { GoogleAuthService } from "./services/google-auth.service";
 import { FBAuthService } from "./services/facebook-auth.service";
+import { InstagramAuthService } from "./services/instagram-auth.service";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FBAuthService } from "./services/facebook-auth.service";
     AuthService,
     GoogleAuthService,
     FBAuthService,
+    InstagramAuthService,
     PrismaService,
     JwtStrategy,
   ],
