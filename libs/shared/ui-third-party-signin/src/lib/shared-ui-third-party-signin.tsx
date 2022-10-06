@@ -68,8 +68,8 @@ export const SharedUiThirdPartySignin = ({
       fetchPolicy: "network-only",
       onCompleted: (instaData) => {
         if(instaData) {
-          const { signUpWithInsta } = instaData;
-          signUpWithInsta && updateCoockie(signUpWithInsta);
+          const { signInWithInsta } = instaData;
+          signInWithInsta && updateCoockie(signInWithInsta);
         }
       },
     });
