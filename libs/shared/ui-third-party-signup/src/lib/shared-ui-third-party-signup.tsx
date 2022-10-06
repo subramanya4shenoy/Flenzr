@@ -110,7 +110,6 @@ export function SharedUiThirdPartySignup({
 
         <InstagramSignUp 
             onSuccess={(res: IInstaUserDetails) => {
-              console.log("Insta data=>",res)
               registerInstagramUser({
                 variables: {
                   credential: CreateJWT(res),

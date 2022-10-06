@@ -11,7 +11,7 @@ const InstagramSignIn = ({ onSuccess }: any) => {
       redirect_uri={process.env["NX_INSTAGRAM_REDIRECT_URI"] as string}
       isOnlyGetToken={false}
       onResolve={(data:any) => {
-        console.log("handle data");
+        onSuccess(data);
       }}
       onReject={(err: any) => {
         console.log(err);
