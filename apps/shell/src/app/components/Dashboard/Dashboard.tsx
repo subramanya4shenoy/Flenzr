@@ -12,10 +12,8 @@ const Dashboard = () => {
     <>
       {/* Profile banner - cover and picture*/}
       <FeatureProfileBillboard />
-
       {/* common menu bar */}
       <SharedUiMenuBar selectedMenu={selectedMenu} onMenuChange={setSelectedMenu}/>
-
       {/* lazy loaded views */}
       <DashboardViews selectedView={selectedMenu.view}/>
     </>

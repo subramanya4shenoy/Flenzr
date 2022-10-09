@@ -85,6 +85,12 @@ export class AuthResolver {
     return this.instaService.signInWithInstagram(input);
   }
 
+  @Query(() => Boolean)
+  @UseGuards(GqlAuthGuard)
+  async me(): Promise<boolean> {
+    return true;
+  }
+
   @Query(() => String)
   @UseGuards(GqlAuthGuard)
   getPotato(@Context() context): string {

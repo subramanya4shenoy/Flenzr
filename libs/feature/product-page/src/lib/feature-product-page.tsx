@@ -6,14 +6,12 @@ import influencer from "../assets/influencer-day.json";
 import aurora from "../assets/aurora.json";
 import logo from "../assets/logo-white.svg";
 import { CSSProperties } from "react";
+import { useNavigate } from "react-router-dom";
 
-export interface FeatureProductPageProps {
-  navigateTo(path:string):void;
-}
-
-export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
+export const FeatureProductPage = () => {
   // * Translation hook
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   // * inline styling declaration
   const logoStyle: CSSProperties = {
@@ -75,7 +73,7 @@ export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
               type="button"
               size="large"
               sx={btnOddCurve}
-              onClick={() => navigateTo("signup")}
+              onClick={() => navigate("/signup")}
             >
               {t("join")}
             </Button>
@@ -85,7 +83,7 @@ export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
             <Button variant="contained" 
               sx={btnOddCurve}
                 size="large"
-              onClick={() => navigateTo("signin")}>
+              onClick={() => navigate("/signin")}>
               {t("login")}
             </Button>
           </div>
@@ -99,7 +97,7 @@ export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
               type="button"
               size="large"
               fullWidth={true}
-              onClick={() => navigateTo("signup")}
+              onClick={() => navigate("/signup")}
             >
               {t("join")}
             </Button>
@@ -109,7 +107,7 @@ export const FeatureProductPage = ({ navigateTo }: FeatureProductPageProps) => {
             <Button variant="contained" 
                 size="large"
               fullWidth={true}
-              onClick={() => navigateTo("signin")}>
+              onClick={() => navigate("/signin")}>
               {t("login")}
             </Button>
           </div>

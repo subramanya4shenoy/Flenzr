@@ -45,6 +45,7 @@
     "shared-ui-third-party-signup": "libs/shared/ui-third-party-signup",
     "shared-ui-user-card": "libs/shared/ui-user-card",
     "shared-ui-utils": "libs/shared/ui-utils",
+    "shared-with-autherization": "libs/shared/with-autherization",
     "shell": "apps/shell",
     "shell-e2e": "apps/shell-e2e"
   }

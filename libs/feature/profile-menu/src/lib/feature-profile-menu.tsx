@@ -68,16 +68,16 @@ export const FeatureProfileMenu = ({ navigateTo }: FeatureProfileMenuProps) => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={(e) => {navigateTo('/')}}>
+        <MenuItem onClick={(e) => {navigateTo('')}}>
           <Avatar/> {t("profile")}
         </MenuItem>
-        <MenuItem onClick={(e) => {navigateTo('/settings')}}>
+        <MenuItem onClick={(e) => {navigateTo('settings')}}>
           <ListItemIcon>
             <Settings fontSize="small" />
           </ListItemIcon>
           {t("settings")}
         </MenuItem>
-        <MenuItem onClick={(e) => { removeCookie("access-token"); navigateTo('/')}}>
+        <MenuItem onClick={(e) => { removeCookie("access-token"); navigateTo('')}}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
