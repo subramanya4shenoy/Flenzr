@@ -1,25 +1,29 @@
-import { NetworkStatus, useQuery } from "@apollo/client";
+import { NetworkStatus, useLazyQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { ME } from "./graphql/me.query";
 
 export const SharedWithAutherization = ({children}:any) => {
   const [auth, setAuth] = useState(false);
-  const { loading, error, data, refetch, networkStatus } = useQuery(ME, 
+  const [cookies] = useCookies(["access-token"]);
+  const [getMe, { loading, error, data, refetch, networkStatus }] = useLazyQuery(ME, 
     { notifyOnNetworkStatusChange: true,
       fetchPolicy: "network-only",
-      onCompleted: (data) => { console.log("me==>", data); setAuth(data)}
+      onCompleted: (data) => {setAuth(data)}
     }
   );
 
-  useEffect(() => {;}, [auth])
+  useEffect(() => {
+    console.log("access-token ===>", cookies["access-token"])
+    if(cookies && cookies["access-token"]) {
+      getMe();
+    }
+  }, [cookies])
   
   if (networkStatus === NetworkStatus.refetch) return "Refetching!";
   if (loading) return "loading";
-  if (error) {
-    console.log("ERROR", error)
-    return "error"
-  };
-  return auth ? {...children} : <>no comp {auth}</>;
+  if (error) return "error";
+  return (auth && cookies && cookies["access-token"]) ? {...children} : <></>;
 };
 
 
