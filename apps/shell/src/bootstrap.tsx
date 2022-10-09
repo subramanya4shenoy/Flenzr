@@ -10,8 +10,17 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
+const getCookie = (key:string) => {
+  const b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
+  const cookie = b ? b.pop() : "";
+  return cookie;
+}
+
 const client = new ApolloClient({
   uri: 'http://localhost:3000/graphql',
+  headers: {
+    "Authorization": "Bearer " + getCookie('access-token')
+  },
   cache: new InMemoryCache(),
 });
 

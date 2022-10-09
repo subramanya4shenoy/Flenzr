@@ -143,6 +143,9 @@
       ],
       "@flenzr/shared/ui-utils": [
         "libs/shared/ui-utils/src/index.ts"
+      ],
+      "@flenzr/shared/with-autherization": [
+        "libs/shared/with-autherization/src/index.ts"
       ]
     }
   },

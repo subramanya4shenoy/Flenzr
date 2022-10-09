@@ -26,16 +26,22 @@ export function SharedUiFlenzrSignInForm({
   const [password, setPassword] = useState("");
   const [cookies, setCookie] = useCookies(["access-token"]);
 
-  const updateCoockie = ({signIn}: any) => {
-    const { token } = signIn;
-    setCookie("access-token", token);
-    onSignIn();
+  const updateCoockie = ({token}: any) => {
+    if(token && !error) {
+      setCookie("access-token", token);
+      onSignIn();
+    }
   };
 
   const [signInFlenzr, { loading, error, data }] = useMutation(SIGN_IN, {
     errorPolicy: "all",
     fetchPolicy: "network-only",
-    onCompleted: (res) => updateCoockie(res),
+    onCompleted: (signInData) => {
+      if(signInData) {
+        const { signIn } = signInData;
+        signIn && updateCoockie(signIn)
+      }
+    },
   });
 
   const [values, setValues] = useState({
@@ -57,9 +63,7 @@ export function SharedUiFlenzrSignInForm({
     <>
       {error && (
         <Alert className="my-2" severity="error" variant="filled">
-          {error.graphQLErrors.map(({ message }, i) => (
-            <span key={i}>{message}</span>
-          ))}
+          <span>{error.message}</span>
         </Alert>
       )}
 

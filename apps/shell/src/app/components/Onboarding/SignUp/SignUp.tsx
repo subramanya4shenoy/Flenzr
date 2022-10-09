@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ACCOUNT_TYPES } from "@flenzr/shared/constant-user-type";
 import { SignUpMobile } from "./SignUpMobile";
 import { SignUpDesktop } from "./SignUpDesktop";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 export function SignUp() {
   //** inline styles */
@@ -10,6 +11,12 @@ export function SignUp() {
   
   const [userType] = useState(ACCOUNT_TYPES[0]);
   const navigate = useNavigate();
+
+  const [cookies, setCookie, removeCookie] = useCookies(["access-token"]);
+
+  useEffect(() => {
+    removeCookie("access-token");
+  },[])
 
   const handleSignUpFlenzr = () => {
     console.log("signUp custom hook is called");

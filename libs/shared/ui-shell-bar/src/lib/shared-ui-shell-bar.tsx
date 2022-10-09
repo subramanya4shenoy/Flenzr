@@ -14,14 +14,12 @@ import { useState } from "react";
 import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
 import { useTranslation } from "react-i18next";
 import { FeatureProfileMenu } from "@flenzr/feature/profile-menu";
+import { useNavigate } from "react-router-dom";
 
-export interface SharedUiShellBarProps {
-  navigateTo(path: string): void;
-}
-
-export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
+export function SharedUiShellBar() {
   const [value, setValue] = useState("home");
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -33,7 +31,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
             label={t("home")}
             value="home"
             onClick={(e) => {
-              navigateTo("/");
+              navigate("/");
               setValue("home");
             }}
             icon={<HomeTwoToneIcon />}
@@ -43,7 +41,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
             label={t("new")}
             value="new"
             onClick={(e) => {
-              navigateTo("new");
+              navigate("/new");
               setValue("new");
             }}
             icon={<FeedTwoToneIcon />}
@@ -53,7 +51,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
             label={t("work")}
             value="work"
             onClick={(e) => {
-              navigateTo("works");
+              navigate("/works");
               setValue("work");
             }}
             icon={<WorkTwoToneIcon />}
@@ -63,7 +61,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
             label={t('search')}
             value="search"
             onClick={(e) => {
-              navigateTo("search");
+              navigate("/search");
               setValue("search");
             }}
             icon={<SearchTwoToneIcon />}
@@ -82,7 +80,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
                   aria-label={t("new")}
                   color="primary"
                   onClick={(e) => {
-                    navigateTo("new");
+                    navigate("/new");
                   }}
                   className="text-primary opacity-50 hover:opacity-100"
                 >
@@ -94,7 +92,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
                   aria-label={t("work")}
                   color="primary"
                   onClick={(e) => {
-                    navigateTo("works");
+                    navigate("/works");
                   }}
                   className="text-primary opacity-50 hover:opacity-100"
                 >
@@ -106,7 +104,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
                   aria-label={t("search")}
                   color="primary"
                   onClick={(e) => {
-                    navigateTo("search");
+                    navigate("/search");
                   }}
                   className="text-primary opacity-50 hover:opacity-100"
                 >
@@ -122,7 +120,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
                   aria-label="email"
                   color="primary"
                   onClick={(e) => {
-                    navigateTo("email");
+                    navigate("/email");
                   }}
                   className="text-primary opacity-50 hover:opacity-100"
                 >
@@ -147,7 +145,7 @@ export function SharedUiShellBar({ navigateTo }: SharedUiShellBarProps) {
                   <NotificationsTwoToneIcon />
                 </IconButton>
               </Tooltip>
-              <FeatureProfileMenu navigateTo={(e) => navigateTo(e)}/>
+              <FeatureProfileMenu navigateTo={(e) => navigate("/"+e)}/>
             </div>
           </div>
         </div>
