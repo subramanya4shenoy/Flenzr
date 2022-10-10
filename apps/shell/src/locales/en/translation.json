@@ -32,5 +32,8 @@
   "settings": "Settings",
   "logout": "Logout",
   "workedWithBrands": "Worked with Brands",
-  "whatAreYouUpto": "What are you upto?"
+  "whatAreYouUpto": "What are you upto?",
+
+  "addSocialPresence": "Add your social presence",
+  "socialPresenceDesc":"This will helps us to aggregate all your contents at one place and also show your contents from all platform and showcase to the brand."
 }
