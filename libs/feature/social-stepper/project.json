@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/feature/social-stepper/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "libs/feature/social-stepper/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": [
+        "coverage/libs/feature/social-stepper"
+      ],
+      "options": {
+        "jestConfig": "libs/feature/social-stepper/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

@@ -1,5 +1,4 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
@@ -7,17 +6,21 @@ import StepContent from "@mui/material/StepContent";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
+import { SharedSocialAddPlatform } from "@flenzr/shared/social-add-platform";
+import { SharedSocialAddAbout } from "@flenzr/shared/social-add-about";
+import { SharedSocialAddStyle } from "@flenzr/shared/social-add-style";
 
-const SocialStepper = () => {
+
+export function FeatureSocialStepper() {
   const [activeStep, setActiveStep] = React.useState(0);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
+  // const handleBack = () => {
+  //   setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  // };
 
   const handleReset = () => {
     setActiveStep(0);
@@ -31,7 +34,7 @@ const SocialStepper = () => {
             <Typography> Social Links </Typography>
           </StepLabel>
           <StepContent>
-            <Typography> step_description</Typography>
+            <SharedSocialAddPlatform/>
             <div>
               <Button variant="contained" size="small" onClick={handleNext}>
                 Continue
@@ -46,7 +49,7 @@ const SocialStepper = () => {
             <Typography> Social Links </Typography>
           </StepLabel>
           <StepContent>
-            <Typography> step_description</Typography>
+            <SharedSocialAddAbout/>
             <div>
               <Button variant="contained" size="small" onClick={handleNext}>
                 Continue
@@ -61,7 +64,7 @@ const SocialStepper = () => {
             <Typography> Social Links </Typography>
           </StepLabel>
           <StepContent>
-            <Typography> step_description</Typography>
+            <SharedSocialAddStyle/>
             <div>
               <Button variant="contained" size="small" onClick={handleNext}>
                 Continue
@@ -84,4 +87,4 @@ const SocialStepper = () => {
   );
 };
 
-export default SocialStepper;
+export default FeatureSocialStepper;
