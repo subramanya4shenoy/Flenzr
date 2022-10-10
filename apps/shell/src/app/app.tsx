@@ -10,6 +10,7 @@ import { SharedUiShellBar } from "@flenzr/shared/ui-shell-bar";
 import { SharedWithAutherization } from "@flenzr/shared/with-autherization";
 import WhatsNew from "./components/WhatsNew/WhatsNew";
 import Works from "./components/Works/works";
+import MySocial from "./components/MySocial/MySocial";
 
 const SignUp = lazy(() => import("./components/Onboarding/SignUp/SignUp"));
 const SignIn = lazy(() => import("./components/Onboarding/SignIn/SignIn"));
@@ -20,10 +21,9 @@ export function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       {/* common shell needs to be added */}
-      {cookies["access-token"] && 
       <SharedWithAutherization>
         <SharedUiShellBar />
-      </SharedWithAutherization>}
+      </SharedWithAutherization>
       <React.Suspense fallback={null}>
         <Routes>
           <Route
@@ -31,11 +31,9 @@ export function App() {
             element={
               cookies["access-token"] ? (
                 <div className="laptop:mt-20 desktop:mt-20">
-                  {cookies["access-token"] && (
                     <SharedWithAutherization>
                       <Dashboard />
                     </SharedWithAutherization>
-                  )}
                 </div>
               ) : (
                 <FeatureProductPage />
@@ -46,6 +44,13 @@ export function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/new" element={<WhatsNew />} />
           <Route path="/works" element={<Works />} />
+          <Route path="/mysocial" element={
+            <SharedWithAutherization>
+              <div className="laptop:mt-20 desktop:mt-20">
+                <MySocial/>
+              </div>
+            </SharedWithAutherization>
+          }/>
         </Routes>
       </React.Suspense>
     </ThemeProvider>
