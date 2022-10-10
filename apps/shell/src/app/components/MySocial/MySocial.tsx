@@ -1,7 +1,7 @@
+import { FeatureSocialStepper } from "@flenzr/feature/social-stepper";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import SocialStepper from "./SocialStepper/SocialStepper";
 
 const MySocial = () => {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ const MySocial = () => {
       </div>
         {/* social - stepper */}
         <div className="mt-10 pl-40">
-            <SocialStepper/>
+            <FeatureSocialStepper/>
         </div>  
     </div>
   );

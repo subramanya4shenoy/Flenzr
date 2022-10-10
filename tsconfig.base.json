@@ -69,6 +69,9 @@
       "@flenzr/feature/social-list": [
         "libs/feature/social-list/src/index.ts"
       ],
+      "@flenzr/feature/social-stepper": [
+        "libs/feature/social-stepper/src/index.ts"
+      ],
       "@flenzr/feature/stats-card": [
         "libs/feature/stats-card/src/index.ts"
       ],
@@ -98,6 +101,15 @@
       ],
       "@flenzr/shared/constant-user-type": [
         "libs/shared/constant-user-type/src/index.ts"
+      ],
+      "@flenzr/shared/social-add-about": [
+        "libs/shared/social-add-about/src/index.ts"
+      ],
+      "@flenzr/shared/social-add-platform": [
+        "libs/shared/social-add-platform/src/index.ts"
+      ],
+      "@flenzr/shared/social-add-style": [
+        "libs/shared/social-add-style/src/index.ts"
       ],
       "@flenzr/shared/social-unfollow": [
         "libs/shared/social-unfollow/src/index.ts"
