@@ -24,7 +24,7 @@ const MySocial = () => {
       </Typography>
       </div>
         {/* social - stepper */}
-        <div className="mt-10 pl-40">
+        <div className="mt-10 pl-10">
             <FeatureSocialStepper/>
         </div>  
     </div>

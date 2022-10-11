@@ -35,5 +35,14 @@
   "whatAreYouUpto": "What are you upto?",
 
   "addSocialPresence": "Add your social presence",
-  "socialPresenceDesc":"This will helps us to aggregate all your contents at one place and also show your contents from all platform and showcase to the brand."
+  "socialPresenceDesc":"This will helps us to aggr egate all your contents at one place and also show your contents from all platform and showcase to the brand.",
+  
+  "addYourSocialAccounts": "Add your Social accounts",
+  "addanEpicIntro": "Write an epic Intro",
+  "setYourStyleOfContent": "Set your custom style",
+  "previous": "previous",
+  "next":"next",
+  "update": "update",
+  "letsGo": "Lets Go",
+  "edit": "edit"
 }
