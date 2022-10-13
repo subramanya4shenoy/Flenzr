@@ -5,7 +5,6 @@ import { validationSchema } from "./config/validation";
 import { GraphQLModule } from "@nestjs/graphql";
 import { CoreResolver } from "./core.resolver";
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 
 
 @Module({

@@ -8,6 +8,7 @@ import { JwtStrategy } from "./guard/auth/jwt.strategy";
 import { GoogleAuthService } from "./services/google-auth.service";
 import { FBAuthService } from "./services/facebook-auth.service";
 import { InstagramAuthService } from "./services/instagram-auth.service";
+import { GqlAuthGuard } from "./guard/auth/jwt-auth.guard";
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { InstagramAuthService } from "./services/instagram-auth.service";
     InstagramAuthService,
     PrismaService,
     JwtStrategy,
+    GqlAuthGuard
   ],
-  exports: [JwtStrategy],
+  exports: [JwtStrategy, GqlAuthGuard],
 })
 export class ApiAuthModule {}
