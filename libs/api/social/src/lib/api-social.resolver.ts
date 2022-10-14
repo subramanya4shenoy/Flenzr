@@ -1,6 +1,6 @@
+import { GqlAuthGuard } from "@flenzr/api/auth";
 import { UseGuards } from "@nestjs/common";
 import { Query, Resolver } from "@nestjs/graphql";
-import { GqlAuthGuard } from "./guard/auth/jwt-auth.guard";
 
 @Resolver()
 export class SocialResolver {
