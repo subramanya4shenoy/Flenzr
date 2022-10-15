@@ -71,3 +71,10 @@ model user_signin_activity {
   last_login_time String @db.VarChar(255)
   location        String @db.VarChar(255)
 }
+
+model google_yt_auth {
+  client_id       String @id
+  user_id         Int
+  access_token    String @db.VarChar(255)
+  reresh_token    String @db.VarChar(255)
+}

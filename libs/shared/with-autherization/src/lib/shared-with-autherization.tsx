@@ -14,7 +14,6 @@ export const SharedWithAutherization = ({children}:any) => {
   );
 
   useEffect(() => {
-    console.log("access-token ===>", cookies["access-token"])
     if(cookies && cookies["access-token"]) {
       getMe();
     }

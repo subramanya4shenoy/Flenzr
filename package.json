@@ -21,6 +21,7 @@
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.2",
     "@nestjs/apollo": "^10.0.22",
+    "@nestjs/axios": "^0.1.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.0.0",

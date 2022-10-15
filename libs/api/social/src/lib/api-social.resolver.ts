@@ -1,14 +1,17 @@
+import { GqlAuthGuard } from "@flenzr/api/auth";
 import { UseGuards } from "@nestjs/common";
-import { Query, Resolver } from "@nestjs/graphql";
-import { GqlAuthGuard } from "./guard/auth/jwt-auth.guard";
+import { Query, Resolver, Context } from "@nestjs/graphql";
+import { YTService } from "./services/youtube.services";
 
 @Resolver()
 export class SocialResolver {
 
+    constructor(private readonly ytService: YTService){}
+
     // Fetch all youtube channels of user
     @Query(() => String)
     @UseGuards(GqlAuthGuard)
-    fetchAllYtChannels(): string {
-        return "ytChannels boi!"
+    fetchAllYtChannels(@Context() context): Promise<string> {
+        return this.ytService.getYoutubeChannels(context.req.user);
     }
 }
