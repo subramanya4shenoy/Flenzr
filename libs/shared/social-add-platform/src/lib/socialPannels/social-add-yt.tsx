@@ -1,4 +1,5 @@
 import React from 'react'
+import SharedYtAddBtn from '../socialAddButton/shared-yt-add-button';
 
 const SocialAddYt = () => {
 
@@ -7,7 +8,9 @@ const SocialAddYt = () => {
   // if no channels show empty.
 
   return (
-    <div>social-add-yt</div>
+    <div >
+      <SharedYtAddBtn />
+    </div>
   )
 }
 
