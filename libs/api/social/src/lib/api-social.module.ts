@@ -1,13 +1,13 @@
-import { ApiAuthModule, GqlAuthGuard } from '@flenzr/api/auth';
-import { Module } from '@nestjs/common';
-import { SocialResolver } from './api-social.resolver';
+import { GqlAuthGuard } from "@flenzr/api/auth";
+import { Module } from "@nestjs/common";
+import { SocialResolver } from "./api-social.resolver";
+import { YTService } from "./services/youtube.services";
+import { HttpModule } from "@nestjs/axios";
+
 @Module({
-	imports: [ApiAuthModule],
-	controllers: [],
-	providers: [
-		SocialResolver,
-		GqlAuthGuard
-	],
-	exports: [],
+  imports: [HttpModule],
+  controllers: [],
+  providers: [SocialResolver, YTService, GqlAuthGuard],
+  exports: [],
 })
 export class ApiSocialModule {}

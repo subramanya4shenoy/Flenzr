@@ -8,11 +8,13 @@ import jwt_decode from "jwt-decode";
 import IGoogleUser from "../interfaces/googleUserInfo.interface";
 import { AuthService } from "../auth.service";
 import { PrismaService } from "../prisma.service";
+import { YTSetupService } from "./socialSetupServices/yt-setup.service";
 
 @Injectable()
 export class GoogleAuthService {
   constructor(
     private authService: AuthService,
+    private ytSetupService: YTSetupService,
     private prisma: PrismaService
   ) {}
 
@@ -24,6 +26,7 @@ export class GoogleAuthService {
    * @pending [send email to verify]
    */
   async signUpWithGoogle({
+    clientId,
     credential,
   }: GoogleAuthSignUpInput): Promise<UserToken> {
     const userDetailsFromGoogle: IGoogleUser = jwt_decode(credential);
@@ -46,6 +49,7 @@ export class GoogleAuthService {
       if (!existingUser) {
         const userData = await this.createNewUser(userDetailsFromGoogle, email);
         await this.authService.updateUserLoginActivity(userData);
+        await this.ytSetupService.setupYoutubeChannelList(clientId);
         return {
           token: this.authService.generateToken(userData),
           user: userData,
