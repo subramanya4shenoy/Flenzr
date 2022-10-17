@@ -12,7 +12,7 @@ import SocialAddYt from "./socialPannels/social-add-yt";
 import SocialAddIg from "./socialPannels/social-add-ig";
 import SocialAddFb from "./socialPannels/social-add-fb";
 
-export function SharedSocialAddPlatform() {
+export const SharedSocialAddPlatform = () => {
   const [value, setValue] = useState(0);
   const { t } = useTranslation();
   const handleChange = (event: SyntheticEvent, newValue: number) => {
@@ -57,5 +57,3 @@ export function SharedSocialAddPlatform() {
     </>
   );
 }
-
-export default SharedSocialAddPlatform;

@@ -1,6 +1,6 @@
 import { GqlAuthGuard } from "@flenzr/api/auth";
 import { UseGuards } from "@nestjs/common";
-import { Query, Resolver, Context } from "@nestjs/graphql";
+import { Query, Resolver, Mutation, Args } from "@nestjs/graphql";
 import { YTService } from "./services/youtube.services";
 
 @Resolver()
@@ -11,7 +11,13 @@ export class SocialResolver {
     // Fetch all youtube channels of user
     @Query(() => String)
     @UseGuards(GqlAuthGuard)
-    fetchAllYtChannels(@Context() context): Promise<string> {
-        return this.ytService.getYoutubeChannels(context.req.user);
+    addNewYTChannel(): Promise<string> {
+        return this.ytService.addYoutubeChannel();
+    }
+
+    @Mutation(() => String)
+    @UseGuards(GqlAuthGuard)
+    setYTChannelDetails(@Args("code") code: string): Promise<void>{
+        return this.ytService.setChannelDetails(code);
     }
 }

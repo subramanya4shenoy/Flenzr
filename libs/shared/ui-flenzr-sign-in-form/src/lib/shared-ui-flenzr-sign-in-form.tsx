@@ -5,7 +5,7 @@ import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { SIGN_IN } from "./graphql/signIn.query";
+import { SIGN_IN } from "./graphql/signIn.mutation";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import { useCookies } from "react-cookie";
