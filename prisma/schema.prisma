@@ -59,12 +59,22 @@ model user {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model youtube {
-  youtube_id       Int      @id @default(autoincrement())
+  youtube_id       String      @id
   user_id          Int
-  display_name     String?  @db.VarChar(255)
-  followers        Int?
-  trend            Int?
-  created_datetime DateTime @default(now()) @db.Timestamp(0)
+  title            String @db.VarChar(255)
+  description      String @db.VarChar(255)
+  thumbnails_default String @db.VarChar(255)
+  thumbnails_medium String @db.VarChar(255)
+  thumbnails_high String @db.VarChar(255)
+  added_datetime DateTime @default(now()) @db.Timestamp(0)
+}
+
+model youtube_stats {
+  youtube_id       String      @id
+  user_id          Int
+  view_count       String?  @db.VarChar(255)
+  hiddenSubscriberCount Boolean
+  videoCount       String
 }
 
 model user_signin_activity {
@@ -74,8 +84,9 @@ model user_signin_activity {
 }
 
 model google_yt_auth {
-  client_id       String @id
+  youtube_id       String @id
   user_id         Int
   access_token    String @db.VarChar(255)
   reresh_token    String @db.VarChar(255)
+  expiry_date     Int
 }

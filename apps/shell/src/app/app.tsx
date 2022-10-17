@@ -11,6 +11,7 @@ import { SharedWithAutherization } from "@flenzr/shared/with-autherization";
 import WhatsNew from "./components/WhatsNew/WhatsNew";
 import Works from "./components/Works/works";
 import MySocial from "./components/MySocial/MySocial";
+import { Googleauth } from "@flenzr/shared/social-add-platform";
 
 const SignUp = lazy(() => import("./components/Onboarding/SignUp/SignUp"));
 const SignIn = lazy(() => import("./components/Onboarding/SignIn/SignIn"));
@@ -51,6 +52,7 @@ export function App() {
               </div>
             </SharedWithAutherization>
           }/>
+          <Route path="/googleauth" element={<Googleauth/>}/>
         </Routes>
       </React.Suspense>
     </ThemeProvider>
