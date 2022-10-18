@@ -17,7 +17,7 @@ export class SocialResolver {
 
     @Mutation(() => String)
     @UseGuards(GqlAuthGuard)
-    setYTChannelDetails(@Args("code") code: string): Promise<void>{
+    setYTChannelDetails(@Args("code") code: string): Promise<string>{
         return this.ytService.setChannelDetails(code);
     }
 }
