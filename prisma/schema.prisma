@@ -61,11 +61,11 @@ model user {
 model youtube {
   youtube_id       String      @id
   user_id          Int
-  title            String @db.VarChar(255)
-  description      String @db.VarChar(255)
-  thumbnails_default String @db.VarChar(255)
-  thumbnails_medium String @db.VarChar(255)
-  thumbnails_high String @db.VarChar(255)
+  title            String @db.VarChar()
+  description      String @db.VarChar()
+  thumbnails_default String @db.VarChar()
+  thumbnails_medium String @db.VarChar()
+  thumbnails_high String @db.VarChar()
   added_datetime DateTime @default(now()) @db.Timestamp(0)
 }
 
@@ -73,8 +73,9 @@ model youtube_stats {
   youtube_id       String      @id
   user_id          Int
   view_count       String?  @db.VarChar(255)
-  hiddenSubscriberCount Boolean
-  videoCount       String
+  hidden_subscriber_count Boolean
+  video_count       String
+  subscriber_count   String
 }
 
 model user_signin_activity {
@@ -87,6 +88,6 @@ model google_yt_auth {
   youtube_id       String @id
   user_id         Int
   access_token    String @db.VarChar(255)
-  reresh_token    String @db.VarChar(255)
-  expiry_date     Int
+  refresh_token    String @db.VarChar(255)
+  expiry_date     BigInt
 }
