@@ -3,6 +3,7 @@ import { google } from "googleapis";
 import { YT_CONFIG } from "../../config/youtube.config";
 import IYTChannelDetails from "../../interfaces/youtube-channel-detail.interface";
 import IYTToken from "../../interfaces/youtube-token.interface";
+import { YoutubeChannel } from "../../models/youtubeChannel.model";
 import { YTDBService } from "./youtube.db.services";
 
 @Injectable()
@@ -63,8 +64,8 @@ export class YTService {
     }
   }
 
-  async getAllChannelsDetailsOfUser(user_id): Promise<any> {
-    return user_id;
+  async getAllChannelsDetailsOfUser(user_id): Promise<Array<YoutubeChannel>> {
+    return await this.ytDBServices.getAllYTChannel(user_id);
   }
 
   /**

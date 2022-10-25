@@ -44,5 +44,7 @@
   "next":"next",
   "update": "update",
   "letsGo": "Lets Go",
-  "edit": "edit"
+  "edit": "edit",
+
+  "addYtChannel": "Add youtube channel"
 }
