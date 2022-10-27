@@ -75,6 +75,9 @@
       "@flenzr/feature/social-stepper": [
         "libs/feature/social-stepper/src/index.ts"
       ],
+      "@flenzr/feature/social-yt-list": [
+        "libs/feature/social-yt-list/src/index.ts"
+      ],
       "@flenzr/feature/stats-card": [
         "libs/feature/stats-card/src/index.ts"
       ],
@@ -158,6 +161,9 @@
       ],
       "@flenzr/shared/ui-utils": [
         "libs/shared/ui-utils/src/index.ts"
+      ],
+      "@flenzr/shared/ui-yt-channel-icon": [
+        "libs/shared/ui-yt-channel-icon/src/index.ts"
       ],
       "@flenzr/shared/with-autherization": [
         "libs/shared/with-autherization/src/index.ts"
