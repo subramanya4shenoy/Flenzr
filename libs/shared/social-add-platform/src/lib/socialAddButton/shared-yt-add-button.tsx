@@ -22,15 +22,12 @@ const SharedYtAddBtn = () => {
   if(loading) { return <>Loading</> }
   if(error) { return <>error</> }
 
-  return <>
-  <div> list of channels </div>
-  <Button sx={{m:4}} 
+  return <Button sx={{m:4}} 
                  variant="contained" 
                  onClick={() => {getRedirectionUrl()}}
                  color="success">
     {t('addYtChannel')}
   </Button>
-  </>;
 };
 
 export default SharedYtAddBtn;

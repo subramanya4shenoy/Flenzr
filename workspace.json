@@ -22,6 +22,7 @@
     "feature-social-list": "libs/feature/social-list",
     "feature-social-stepper": "libs/feature/social-stepper",
     "feature-social-unfollow": "libs/feature/social-unfollow",
+    "feature-social-yt-list": "libs/feature/social-yt-list",
     "feature-stats-card": "libs/feature/stats-card",
     "feature-stats-fb-card": "libs/feature/stats-fb-card",
     "feature-stats-insta-card": "libs/feature/stats-insta-card",
@@ -50,6 +51,7 @@
     "shared-ui-third-party-signup": "libs/shared/ui-third-party-signup",
     "shared-ui-user-card": "libs/shared/ui-user-card",
     "shared-ui-utils": "libs/shared/ui-utils",
+    "shared-ui-yt-channel-icon": "libs/shared/ui-yt-channel-icon",
     "shared-with-autherization": "libs/shared/with-autherization",
     "shell": "apps/shell",
     "shell-e2e": "apps/shell-e2e"

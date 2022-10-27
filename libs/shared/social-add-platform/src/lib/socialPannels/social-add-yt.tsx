@@ -1,3 +1,4 @@
+import { FeatureSocialYtList } from '@flenzr/feature/social-yt-list';
 import React from 'react'
 import SharedYtAddBtn from '../socialAddButton/shared-yt-add-button';
 
@@ -9,6 +10,7 @@ const SocialAddYt = () => {
 
   return (
     <div >
+      <FeatureSocialYtList/>
       <SharedYtAddBtn />
     </div>
   )
