@@ -1,15 +1,22 @@
+import Tooltip from "@mui/material/Tooltip";
+import CancelIcon from '@mui/icons-material/Cancel';
 
-export function SharedUiYtChannelIcon({channel}:any) {
-
+export function SharedUiYtChannelIcon({ channel }: any) {
+  const boxStyle= {
+    borderRadius: "28px",
+  };
   return (
-    <div className="flex-wrap items-center justify-center">
-      <div className="w-10 h-10 rounded-full overflow-hidden" >
-      <img
-           alt={channel.title}
-           src={channel.thumbnails_default} />
+    <Tooltip title={channel.title} arrow>
+      <div className="relative">
+        <div className="absolute right-0 -mt-1 -mr-1 text-error cursor-pointer">
+          <CancelIcon/>
+        </div>
+        <div className="w-14 h-14 rounded-full overflow-hidden cursor-pointer border-4 border-white shadow" 
+        style={boxStyle}>
+          <img alt={channel.title} src={channel.thumbnails_default} />
+        </div>
       </div>
-      <div className="text-xs">{channel.title}</div>
-    </div>
+    </Tooltip>
   );
 }
 

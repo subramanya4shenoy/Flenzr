@@ -43,7 +43,7 @@ export const SharedSocialAddPlatform = () => {
         </TabPanel>
       </div>
       <div className="flex justify-end">
-        <Button
+        {(value !== 0) && (<Button
           sx={{ mr: 1 }}
           variant="contained"
           color="primary"
@@ -52,7 +52,7 @@ export const SharedSocialAddPlatform = () => {
           }}
         >
           {t("update")}
-        </Button>
+        </Button>)}
       </div>
     </>
   );
