@@ -22,6 +22,7 @@ export function SharedUiYtChannelIcon({ channel }: any) {
       <div className="relative">
         <div className="absolute right-0 -mt-1 -mr-1 text-error cursor-pointer" 
         onClick={() => { deactivateChannel()} }>
+
           <CancelIcon/>
         </div>
         <div className="w-14 h-14 rounded-full overflow-hidden cursor-pointer border-4 border-white shadow" 
