@@ -22,6 +22,12 @@ export class SocialResolver {
         return this.ytService.setChannelDetails(code, context.req.user.user_id);
     }
 
+    @Mutation(() => String)
+    @UseGuards(GqlAuthGuard)
+    disableYTChannel(@Args("youtube_id") youtube_id: string): Promise<any>{
+        return this.ytService.disableYtChannel(youtube_id);
+    }
+
     @Query(() => [YoutubeChannel])
     @UseGuards(GqlAuthGuard)
     getAllYTChannelDetailsOfUSer(@Context() context): Promise<Array<YoutubeChannel>>{

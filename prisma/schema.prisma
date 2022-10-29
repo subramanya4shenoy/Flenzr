@@ -67,6 +67,7 @@ model youtube {
   thumbnails_medium String @db.VarChar()
   thumbnails_high String @db.VarChar()
   added_datetime DateTime @default(now()) @db.Timestamp(0)
+  is_active       Boolean @default(true)
 }
 
 model youtube_stats {
@@ -90,4 +91,11 @@ model google_yt_auth {
   access_token    String @db.VarChar(255)
   refresh_token    String @db.VarChar(255)
   expiry_date     BigInt
+}
+
+model user_info {
+  user_id Int @id
+  about String @db.VarChar(255)
+  rating String @db.VarChar(255)
+  style String
 }

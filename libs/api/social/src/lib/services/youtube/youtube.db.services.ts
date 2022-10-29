@@ -44,6 +44,7 @@ export class YTDBService {
         thumbnails_default: item.snippet.thumbnails.default.url,
         thumbnails_medium: item.snippet.thumbnails.medium.url,
         thumbnails_high: item.snippet.thumbnails.high.url,
+        is_active: true
       },
       create: {
         youtube_id: item.id,
@@ -83,7 +84,19 @@ export class YTDBService {
   async getAllYTChannel(userId: number): Promise<Array<YoutubeChannel>> {
     return await this.prisma.youtube.findMany({
       where: {
-        user_id: userId
+        user_id: userId,
+        is_active: true 
+      }
+    })
+  }
+
+  async disableYTChannel(channel_id:string): Promise<YoutubeChannel> {
+    return await this.prisma.youtube.update({
+      where: {
+        youtube_id: channel_id 
+      },
+      data: {
+        is_active: false
       }
     })
   }

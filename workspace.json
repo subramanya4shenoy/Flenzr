@@ -42,6 +42,7 @@
     "shared-ui-custom-select": "libs/shared/ui-custom-select",
     "shared-ui-flenzr-sign-in-form": "libs/shared/ui-flenzr-sign-in-form",
     "shared-ui-flenzr-signup-form": "libs/shared/ui-flenzr-signup-form",
+    "shared-ui-loader": "libs/shared/ui-loader",
     "shared-ui-locations": "libs/shared/ui-locations",
     "shared-ui-menu-bar": "libs/shared/ui-menu-bar",
     "shared-ui-password-helper": "libs/shared/ui-password-helper",

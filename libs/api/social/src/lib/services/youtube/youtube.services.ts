@@ -68,6 +68,10 @@ export class YTService {
     return await this.ytDBServices.getAllYTChannel(user_id);
   }
 
+  async disableYtChannel(channel_id: string): Promise<YoutubeChannel> {
+    return await this.ytDBServices.disableYTChannel(channel_id);
+  }
+
   /**
    * @desc using default forbidden error
    * @param msg
