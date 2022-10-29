@@ -135,6 +135,9 @@
       "@flenzr/shared/ui-flenzr-signup-form": [
         "libs/shared/ui-flenzr-signup-form/src/index.ts"
       ],
+      "@flenzr/shared/ui-loader": [
+        "libs/shared/ui-loader/src/index.ts"
+      ],
       "@flenzr/shared/ui-locations": [
         "libs/shared/ui-locations/src/index.ts"
       ],

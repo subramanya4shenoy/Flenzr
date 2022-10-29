@@ -60,12 +60,13 @@ CREATE TABLE "user" (
 CREATE TABLE "youtube" (
     "youtube_id" TEXT NOT NULL,
     "user_id" INTEGER NOT NULL,
-    "title" VARCHAR(255) NOT NULL,
-    "description" VARCHAR(255) NOT NULL,
-    "thumbnails_default" VARCHAR(255) NOT NULL,
-    "thumbnails_medium" VARCHAR(255) NOT NULL,
-    "thumbnails_high" VARCHAR(255) NOT NULL,
+    "title" VARCHAR NOT NULL,
+    "description" VARCHAR NOT NULL,
+    "thumbnails_default" VARCHAR NOT NULL,
+    "thumbnails_medium" VARCHAR NOT NULL,
+    "thumbnails_high" VARCHAR NOT NULL,
     "added_datetime" TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "youtube_pkey" PRIMARY KEY ("youtube_id")
 );
@@ -75,8 +76,9 @@ CREATE TABLE "youtube_stats" (
     "youtube_id" TEXT NOT NULL,
     "user_id" INTEGER NOT NULL,
     "view_count" VARCHAR(255),
-    "hiddenSubscriberCount" BOOLEAN NOT NULL,
-    "videoCount" TEXT NOT NULL,
+    "hidden_subscriber_count" BOOLEAN NOT NULL,
+    "video_count" TEXT NOT NULL,
+    "subscriber_count" TEXT NOT NULL,
 
     CONSTRAINT "youtube_stats_pkey" PRIMARY KEY ("youtube_id")
 );
@@ -95,8 +97,8 @@ CREATE TABLE "google_yt_auth" (
     "youtube_id" TEXT NOT NULL,
     "user_id" INTEGER NOT NULL,
     "access_token" VARCHAR(255) NOT NULL,
-    "reresh_token" VARCHAR(255) NOT NULL,
-    "expiry_date" INTEGER NOT NULL,
+    "refresh_token" VARCHAR(255) NOT NULL,
+    "expiry_date" BIGINT NOT NULL,
 
     CONSTRAINT "google_yt_auth_pkey" PRIMARY KEY ("youtube_id")
 );

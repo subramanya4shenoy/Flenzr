@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import { useTranslation } from "react-i18next";
 import { ADD_YT_AUTH_URL } from "../graphql/social-yt";
 import YouTubeIcon from "@mui/icons-material/YouTube";
+import { SharedUiLoader } from "@flenzr/shared/ui-loader";
 
 const SharedYtAddBtn = () => {
   const { t } = useTranslation();
@@ -22,7 +23,7 @@ const SharedYtAddBtn = () => {
   };
 
   if (loading) {
-    return <>Loading</>;
+    return <SharedUiLoader/>;
   }
   if (error) {
     return <>error</>;

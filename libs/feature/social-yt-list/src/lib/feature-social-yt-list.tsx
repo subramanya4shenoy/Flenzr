@@ -2,6 +2,7 @@ import { SharedUiYtChannelIcon } from "@flenzr/shared/ui-yt-channel-icon";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_CHANNELS } from "../graphql/getAllChannel.query";
 import { useTranslation } from "react-i18next";
+import { SharedUiLoader } from "@flenzr/shared/ui-loader";
 
 export const FeatureSocialYtList = () => {
   const { loading, error, data } = useQuery(GET_ALL_CHANNELS, {
@@ -9,7 +10,7 @@ export const FeatureSocialYtList = () => {
   });
   const { t } = useTranslation();
 
-  if (loading) return <>'Loading...'</>;
+  if (loading) return <div className="w-50"><SharedUiLoader/></div>;
   if (error) return <>`Error! ${error.message}`</>;
 
   return (
