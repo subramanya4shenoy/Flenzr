@@ -47,5 +47,6 @@
   "edit": "edit",
 
   "addYtChannel": "Add channel",
-  "yourChannel": "Your channels"
+  "yourChannel": "Your channels",
+  "noChannelsAdded": "Add Your Youtube channels"
 }
