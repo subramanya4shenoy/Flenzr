@@ -3,12 +3,9 @@ import React from "react";
 import SharedYtAddBtn from "../socialAddButton/shared-yt-add-button";
 
 const SocialAddYt = () => {
-  //fetch first all the channels of user
-  // If active then tick ring. else normal
-  // if no channels show empty.
 
   return (
-    <div className="m-4 flex-wrap items-center justify-center">
+    <div className="m-4 flex-col w-72 items-center content-center place-content-center justify-self-center">
       <FeatureSocialYtList />
       <SharedYtAddBtn />
     </div>

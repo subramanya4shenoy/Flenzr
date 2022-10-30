@@ -4,7 +4,7 @@ import { useMutation } from "@apollo/client";
 import { DISABLE_YT_CHANNEL } from "./graphql/ytChannel.mutation";
 import { SharedUiLoader } from "@flenzr/shared/ui-loader";
 
-export function SharedUiYtChannelIcon({ channel }: any) {
+export function SharedUiYtChannelIcon({ channel, updateChannels }: any) {
 
   const [deactivateChannel, { data, loading, error }] = useMutation(DISABLE_YT_CHANNEL, {
     errorPolicy: "all",
@@ -12,7 +12,7 @@ export function SharedUiYtChannelIcon({ channel }: any) {
       youtube_id: channel.youtube_id
     },
     fetchPolicy: "network-only",
-    onCompleted: (data) => { console.log(data);},
+    onCompleted: (data) => { updateChannels();},
   });
 
   const boxStyle= { borderRadius: "28px"};

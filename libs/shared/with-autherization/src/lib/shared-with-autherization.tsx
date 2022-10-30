@@ -10,26 +10,24 @@ export const SharedWithAutherization = ({children}:any) => {
   const [getMe, { loading, error, data, refetch, networkStatus }] = useLazyQuery(ME, 
     { notifyOnNetworkStatusChange: true,
       fetchPolicy: "network-only",
+      context: {
+        headers: {
+          'Authorization': cookies["access-token"] ? `Bearer ${cookies["access-token"]}` : ''
+        }
+      },
       onCompleted: (data) => {setAuth(data)}
     }
   );
 
   useEffect(() => {
-    if(cookies && cookies["access-token"]) {
+    if(cookies["access-token"]) {
       getMe();
     }
   }, [cookies])
   
   if (networkStatus === NetworkStatus.refetch) return "Refetching!";
   if (loading) return "loading";
-  if (error) {
-    if(retryCounter < 4) {
-      setRetryCounter(retryCounter+1);
-      refetch();
-    } else {
-      return "Error"
-    }
-  }
+  if (error) return <></>;
   return (auth && cookies && cookies["access-token"]) ? {...children} : <></>;
 };
 
