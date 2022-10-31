@@ -27,6 +27,9 @@
       "@flenzr/api/social": [
         "libs/api/social/src/index.ts"
       ],
+      "@flenzr/api/user-info": [
+        "libs/api/user-info/src/index.ts"
+      ],
       "@flenzr/feature-social-unfollow": [
         "libs/feature/social-unfollow/src/index.ts"
       ],

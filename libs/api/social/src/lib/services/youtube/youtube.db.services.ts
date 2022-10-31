@@ -32,7 +32,7 @@ export class YTDBService {
     });
   }
 
-  async setYTData(userId: number, item: any) {
+  async setYTData(userId: number, item: any): Promise<any>{
     return await this.prisma.youtube.upsert({
       where: {
         youtube_id: item.id,
@@ -58,7 +58,7 @@ export class YTDBService {
     });
   }
 
-  async setYTStats(userId: number, item: any) {
+  async setYTStats(userId: number, item: any): Promise<any> {
     return await this.prisma.youtube_stats.upsert({
       where: {
         youtube_id: item.id,

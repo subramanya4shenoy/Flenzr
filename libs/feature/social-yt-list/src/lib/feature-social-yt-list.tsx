@@ -4,7 +4,7 @@ import { GET_ALL_CHANNELS } from "../graphql/getAllChannel.query";
 import { useTranslation } from "react-i18next";
 import { SharedUiLoader } from "@flenzr/shared/ui-loader";
 import { useEffect } from "react";
-
+import CachedIcon from '@mui/icons-material/Cached';
 
 export const FeatureSocialYtList = () => {
   const [fetchAllChannels, { loading, error, data, refetch }] = useLazyQuery(GET_ALL_CHANNELS, {
@@ -22,15 +22,18 @@ export const FeatureSocialYtList = () => {
   return (
     data && (
       <>
-        <div className="w-72">
+        <div className="w-72 flex justify-center items-center mb-2">
          { (data.getAllYTChannelDetailsOfUSer.length > 0) ? 
-          (<div className="font-bold text-center opacity-50">
+          (<div className="font-bold text-center flex">
             {t('yourChannel')}
+            <div className="ml-2 text-primary cursor-pointer" onClick={() => { fetchAllChannels()} }><CachedIcon /></div>
           </div>) :
-          (<div className="text-center opacity-25">
+          (<div className="text-center flex">
             {t('noChannelsAdded')}
+            <div className="ml-2 text-primary cursor-pointer" onClick={() => { fetchAllChannels()} }><CachedIcon /></div>
           </div>)}
         </div>
+
         <div className="flex justify-center items-center">
           {data.getAllYTChannelDetailsOfUSer.map((channel: any) => {
             return (
