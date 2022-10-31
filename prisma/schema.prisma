@@ -94,8 +94,8 @@ model google_yt_auth {
 }
 
 model user_info {
-  user_id Int @id
-  about String @db.VarChar(255)
-  rating String @db.VarChar(255)
-  style String
+  user_id       Int @id
+  about         String @db.VarChar(255)
+  rating        String @db.VarChar(255)
+  style         String @db.VarChar()
 }
