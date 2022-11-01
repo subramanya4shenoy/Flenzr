@@ -1,5 +1,5 @@
 import { SharedUiYtChannelIcon } from "@flenzr/shared/ui-yt-channel-icon";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { GET_ALL_CHANNELS } from "../graphql/getAllChannel.query";
 import { useTranslation } from "react-i18next";
 import { SharedUiLoader } from "@flenzr/shared/ui-loader";

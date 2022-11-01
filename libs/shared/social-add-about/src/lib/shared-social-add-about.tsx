@@ -1,11 +1,30 @@
+import { useMutation, useQuery } from "@apollo/client";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GET_USER_ABOUT } from "../graphql/getAbout.query";
+import { SET_USER_ABOUT } from "../graphql/setAbout.mutation";
+import SendIcon from '@mui/icons-material/Send';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import CircularProgress from "@mui/material/CircularProgress";
 
 export function SharedSocialAddAbout() {
-  const [about, setAbout] = useState("");
   const { t } = useTranslation();
+  const [about, setAbout] = useState("");
+  const [storedAbout, setStoredAbout] = useState("");
+  const {data, loading, error, refetch} = useQuery(GET_USER_ABOUT, {
+    fetchPolicy: 'network-only',
+    onCompleted: (data) => { setAbout(data.getUserInfo.about); setStoredAbout(data.getUserInfo.about)},
+    onError: (err) => { setAbout(''); }
+  });
+  
+  const [updateUserAbout, {data:setData, loading:setLoading, error:setError}] = useMutation(SET_USER_ABOUT, {
+    variables: {'infoTxt': about},
+    onCompleted: (setData) => { setAbout(setData.updateUserAbout.about);  refetch() }
+  })
+  
+  if(error || setError) return <></>;
   return (
     <div>
       <TextField
@@ -34,12 +53,15 @@ export function SharedSocialAddAbout() {
             onChange={(e) => setAbout(e.target.value)}
           />
       <div className='flex justify-end'>
+    {(loading || setLoading) ? <CircularProgress/> : 
     <Button sx={{mr: 1}} 
             variant="contained"
+            disabled = {storedAbout === about}
             color="primary"
-            onClick={() => {console.log("submit")}}>
-              {t('update')}
-    </Button>
+            startIcon={(storedAbout !== about) ? <SendIcon/> : <DoneAllIcon color="success"/>}
+            onClick={() => {updateUserAbout()}}>
+             { (storedAbout !== about) ? t('update'): t('All updated')}
+    </Button>}
   </div>
     </div>
   );
