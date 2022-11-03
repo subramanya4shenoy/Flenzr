@@ -19,8 +19,7 @@ export function SignUp() {
   },[])
 
   const handleSignUpFlenzr = () => {
-    console.log("signUp custom hook is called");
-    navigate('/');
+    navigate('/mysocial');
   };
 
   return (

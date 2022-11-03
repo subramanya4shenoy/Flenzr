@@ -12,7 +12,8 @@ export class UserInfoService {
     }
 
     async getUserInfo(user_id): Promise<IUserInfo>{
-        return await this.userIfoDbService.getUserInfo(user_id);
+        const data = await this.userIfoDbService.getUserInfo(user_id);
+        return data;
     }
     
 }

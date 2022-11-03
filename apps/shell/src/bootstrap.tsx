@@ -4,11 +4,17 @@ import { BrowserRouter } from 'react-router-dom';
 
 import App from './app/app';
 import './i18n';
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from "@apollo/client";
+
+import { setContext } from '@apollo/client/link/context';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+const httpLink = createHttpLink({
+  uri: 'http://localhost:3000/graphql',
+});
 
 const getCookie = (key:string) => {
   const b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
@@ -16,12 +22,20 @@ const getCookie = (key:string) => {
   return cookie;
 }
 
+const authLink = setContext((_, { headers }) => {
+  const token = getCookie('access-token');
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    }
+  }
+});
+
 const client = new ApolloClient({
-  uri: 'http://localhost:3000/graphql',
-  headers: {
-    "Authorization": "Bearer " + getCookie('access-token')
-  },
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
+  connectToDevTools: true,
 });
 
 root.render(

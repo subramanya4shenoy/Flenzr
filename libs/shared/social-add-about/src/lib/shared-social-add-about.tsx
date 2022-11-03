@@ -15,16 +15,25 @@ export function SharedSocialAddAbout() {
   const [storedAbout, setStoredAbout] = useState("");
   const {data, loading, error, refetch} = useQuery(GET_USER_ABOUT, {
     fetchPolicy: 'network-only',
-    onCompleted: (data) => { setAbout(data.getUserInfo.about); setStoredAbout(data.getUserInfo.about)},
+    onCompleted: (data) => { updateAboutValues(data)},
     onError: (err) => { setAbout(''); }
   });
+
+  const updateAboutValues = ({getUserInfo}:any) =>{
+    if(!getUserInfo){
+      setAbout('');
+      setStoredAbout('');
+    } else {
+      setAbout(getUserInfo.about); 
+      setStoredAbout(getUserInfo.about)
+    }
+  }
   
   const [updateUserAbout, {data:setData, loading:setLoading, error:setError}] = useMutation(SET_USER_ABOUT, {
     variables: {'infoTxt': about},
     onCompleted: (setData) => { setAbout(setData.updateUserAbout.about);  refetch() }
   })
   
-  if(error || setError) return <></>;
   return (
     <div>
       <TextField

@@ -81,13 +81,13 @@ export class YTDBService {
     });
   }
 
-  async getAllYTChannel(userId: number): Promise<Array<YoutubeChannel>> {
-    return await this.prisma.youtube.findMany({
+  async getAllYTChannel(userId: number): Promise<YoutubeChannel[]> {
+    const data = await this.prisma.youtube.findMany({
       where: {
-        user_id: userId,
-        is_active: true 
+          user_id: userId
       }
     })
+    return data;
   }
 
   async disableYTChannel(channel_id:string): Promise<YoutubeChannel> {

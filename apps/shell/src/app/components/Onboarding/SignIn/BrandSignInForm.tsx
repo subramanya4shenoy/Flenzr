@@ -12,7 +12,6 @@ const BrandSignInForm = () => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    console.log('Authenticate and Login to Brand Dashboard');
     navigate('/');
   };
 

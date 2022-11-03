@@ -30,7 +30,8 @@ export class SocialResolver {
 
     @Query(() => [YoutubeChannel])
     @UseGuards(GqlAuthGuard)
-    getAllYTChannelDetailsOfUSer(@Context() context): Promise<Array<YoutubeChannel>>{
-        return this.ytService.getAllChannelsDetailsOfUser(context.req.user.user_id);
+    async getAllYTChannelDetailsOfUSer(@Context() context): Promise<YoutubeChannel[]>{
+        const data = await this.ytService.getAllChannelsDetailsOfUser(context.req.user.user_id);
+        return data;
     }
 }

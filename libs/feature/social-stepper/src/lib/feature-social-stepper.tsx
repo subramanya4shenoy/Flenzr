@@ -10,9 +10,12 @@ import { SharedSocialAddStyle } from "@flenzr/shared/social-add-style";
 import { useState } from "react";
 import { MY_SOCIAL_STEPS } from "./feature-social-stepper.constant";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
 
 export function FeatureSocialStepper() {
   const [activeStep, setActiveStep] = useState(0);
+  const navigate = useNavigate();
   const [steps] = useState(MY_SOCIAL_STEPS);
   const { t } = useTranslation();
   const boxStyle= {
@@ -30,6 +33,10 @@ export function FeatureSocialStepper() {
 
   const handleReset = () => {
     setActiveStep(0);
+  };
+
+  const handleSubmit = () => {
+    navigate('/');
   };
 
   return (
@@ -61,7 +68,7 @@ export function FeatureSocialStepper() {
           <Button sx={{mr: 2}} onClick={handleReset} variant="text" color="secondary">
             {t('edit')}
           </Button>
-          <Button onClick={handleReset} variant="contained" color="success">
+          <Button onClick={handleSubmit} variant="contained" color="success">
             {t('letsGo')}
           </Button>
         </div>

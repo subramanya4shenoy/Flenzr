@@ -23,10 +23,11 @@ export class UserInfoDBService {
   }
 
   async getUserInfo(userId:number): Promise<any> {
-    return await this.prisma.user_info.findFirst({
+    const data = await this.prisma.user_info.findFirst({
       where: {
         user_id: userId
       }
     })
+    return data;
   }
 }
