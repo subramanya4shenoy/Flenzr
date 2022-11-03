@@ -64,8 +64,9 @@ export class YTService {
     }
   }
 
-  async getAllChannelsDetailsOfUser(user_id): Promise<Array<YoutubeChannel>> {
-    return await this.ytDBServices.getAllYTChannel(user_id);
+  async getAllChannelsDetailsOfUser(user_id): Promise<YoutubeChannel[]> {
+    const data = await this.ytDBServices.getAllYTChannel(user_id);
+    return data;
   }
 
   async disableYtChannel(channel_id: string): Promise<YoutubeChannel> {

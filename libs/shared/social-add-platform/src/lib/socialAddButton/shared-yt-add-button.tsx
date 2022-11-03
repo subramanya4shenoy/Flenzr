@@ -18,7 +18,6 @@ const SharedYtAddBtn = () => {
 
   const redirection = ({ addNewYTChannel }: any) => {
     if (addNewYTChannel) {
-      console.log(addNewYTChannel);
       (window as any).location.replace(addNewYTChannel);
     }
   };
