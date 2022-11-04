@@ -116,12 +116,13 @@ export function SharedUiThirdPartySignup({
                 },
               });
             }}/>
-          <IconButton aria-label="LinkedIn">
+            {/* uncomment below to support more thirdparty sign up */}
+          {/* <IconButton aria-label="LinkedIn">
             <LinkedInIcon />
           </IconButton>
           <IconButton aria-label="Twitter">
             <TwitterIcon />
-          </IconButton>
+          </IconButton> */}
           <FacebookSignUp
             onSuccess={(res: IFbUserDetails) => {
               registerFacebookUser({

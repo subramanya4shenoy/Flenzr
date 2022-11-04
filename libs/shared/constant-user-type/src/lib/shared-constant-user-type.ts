@@ -1,4 +1,5 @@
-const ACCOUNT_TYPES = ['Flenzr', 'Brand'];
+const ACCOUNT_TYPES = ['Flenzr'];
+// const ACCOUNT_TYPES = ['Flenzr', 'Brand'];
 
 const ACCOUNT_SETTINGS = {
   Flenzr: {
