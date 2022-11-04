@@ -112,12 +112,13 @@ export const SharedUiThirdPartySignin = ({
                 },
               })
             }}/>
-          <IconButton aria-label="LinkedIn">
+          {/* uncomment below liunes to support more signins */}
+          {/* <IconButton aria-label="LinkedIn">
             <LinkedInIcon />
           </IconButton>
           <IconButton aria-label="Twitter">
             <TwitterIcon />
-          </IconButton>
+          </IconButton> */}
           <FacebookSignIn
             onSuccess={(res: IFbUserDetails) => {
               loginFacebookUser({
