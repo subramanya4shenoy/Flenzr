@@ -8,10 +8,6 @@
     "defaultCollection": "@nrwl/react"
   },
   "implicitDependencies": {
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
     ".eslintrc.json": "*"
   },
   "tasksRunnerOptions": {
