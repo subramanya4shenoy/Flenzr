@@ -1,5 +1,5 @@
 module.exports = {
-    onInit: () => {
+  onBuild: () => {
       console.log('Hello world from the plugin!');
     }
   };
