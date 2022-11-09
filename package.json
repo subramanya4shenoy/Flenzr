@@ -2,12 +2,16 @@
   "name": "flenzr",
   "version": "0.0.0",
   "license": "MIT",
+  "engines" : {
+    "node" : "15.x"
+  },
   "scripts": {
     "nx": "nx",
     "start": "nx serve",
     "dev:api": "nx serve api",
     "build:dev:shell": "nx build shell --configuration development",
     "build:prod:shell": "nx build shell --configuration production",
+    "build:prod:api": "nx build api --configuration production",
     "build": "nx build",
     "test": "nx test",
     "prisma": "prisma",
