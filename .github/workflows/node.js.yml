@@ -24,6 +24,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: node --version
-    - run: echo "NPM NOW"
-    - run: npm install
+    - run: npm run nx affected --target=build
+    - run: ls
     - run: echo "NPM DONE"
