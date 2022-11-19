@@ -25,5 +25,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: node --version
     - run: npm -v
-    - run: ls
+    - run: npm i
     - run: echo "NPM DONE"
