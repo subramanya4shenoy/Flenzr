@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@mui/material";
 import React, { lazy } from "react";
-import { defaultTheme } from "../../../../libs/theme";
+import { defaultTheme } from "./theme";
 import { Routes, Route } from "react-router-dom";
 import { FeatureProductPage } from "@flenzr/feature/product-page";
 import { useCookies } from "react-cookie";
