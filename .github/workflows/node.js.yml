@@ -9,7 +9,8 @@ on:
 
 jobs:
   build:
-
+    env:
+      name: "staging"
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v2
@@ -18,7 +19,7 @@ jobs:
           with:
             node-version: 15.x
         - run: npm install --verbose
-        - run: CI=false npm run build
+        - run: CI=false npm run nx run-many --target=build
         - name: ssh deploy on aws ec2
           uses: easingthemes/ssh-deploy@v2.1.4
           env:
