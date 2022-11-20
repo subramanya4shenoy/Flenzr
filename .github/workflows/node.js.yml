@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v2
-        - name: Use Node.js 14.x to Build
+        - name: Use Node.js 15.x to Build
           uses: actions/setup-node@v2
           with:
-            node-version: 14.x
-        - run: npm install
+            node-version: 15.x
+        - run: npm install --verbose
         - run: CI=false npm run build
         - name: ssh deploy on aws ec2
           uses: easingthemes/ssh-deploy@v2.1.4
