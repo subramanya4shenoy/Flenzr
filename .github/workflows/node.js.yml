@@ -19,7 +19,7 @@ jobs:
           with:
             node-version: 15.x
         - run: npm install --verbose
-        - run: CI=false npm run nx run-many --target=build
+        - run: CI=false npm run nx build shell --configuration production
         - name: ssh deploy on aws ec2
           uses: easingthemes/ssh-deploy@v2.1.4
           env:
