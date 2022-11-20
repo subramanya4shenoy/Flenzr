@@ -24,7 +24,7 @@ jobs:
           env:
             SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
             REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
-            REMOTE_USER: ${{ secrets.DEPLOY_USER }}
+            REMOTE_USER: ${{ secrets.DEPLOY_USERNAME }}
             REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
             SOURCE: "build/"
             TARGET: ${{ secrets.DEPLOY_TARGET }}
