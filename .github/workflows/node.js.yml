@@ -10,6 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: staging
     steps:
         - uses: actions/checkout@v2
         - name: Use Node.js 15.x to Build
