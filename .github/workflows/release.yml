@@ -1,0 +1,12 @@
+name: ReleaseCI
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Release to S3
+      run: bash scripts/pipeline/release.sh ${{secrets.AWS_Bucket_Name}} "dist/apps/shell" ${{secrets.AWS_Access_Key}} ${{secrets.AWS_Access_Secret}} "shell"
