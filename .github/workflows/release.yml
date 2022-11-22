@@ -18,6 +18,6 @@ jobs:
       - run: npx nx affected --target=lint --parallel=3
       - run: npx nx affected --target=test --parallel=3 --ci --code-coverage
       - run: npm run build:prod:shell
-      - run: ls
+      - run: ls -ltar
       - name: Release to S3
         run: bash scripts/pipeline/release.sh ${{secrets.AWS_Bucket_Name}} "shell" ${{secrets.AWS_Access_Key}} ${{secrets.AWS_Access_Secret}} "dist/apps/shell"
