@@ -1,3 +1,10 @@
+#  - run: bash scripts/pipeline/release.sh 
+# ${{secrets.AWS_Bucket_Name}} 
+# "shell" 
+# ${{secrets.AWS_Access_Key}} 
+# ${{secrets.AWS_Access_Secret}} 
+# "dist/apps/shell"
+
 bucket_name=$1
 aws_key=$2
 aws_access_key=$3
