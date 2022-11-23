@@ -22,3 +22,4 @@ jobs:
       
       - name: Release to S3
       - run: bash scripts/pipeline/release.sh ${{secrets.AWS_Bucket_Name}} "shell" ${{secrets.AWS_Access_Key}} ${{secrets.AWS_Access_Secret}} "dist/apps/shell"
+      - run: ls
