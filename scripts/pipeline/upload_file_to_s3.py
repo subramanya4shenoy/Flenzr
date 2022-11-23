@@ -7,7 +7,7 @@ def main():
         # Checks for 6 because the script path is in position 0. So len is 6
         # for 5 arguments.
         sys.exit(1)
-
+# python3 scripts/pipeline/upload_file_to_s3.py $bucket_name $aws_key $aws_access_key $aws_access_secret shell.zip
     bucket_name=sys.argv[1]
     aws_key=sys.argv[2]
     aws_access_key=sys.argv[3]
