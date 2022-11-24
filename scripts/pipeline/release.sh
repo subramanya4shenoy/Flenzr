@@ -15,13 +15,13 @@ local_path=$5
 # rm -rf $local_path
 
 # Create a zip of the current directory.
-pwd
+current_path = pwd
 ls -ltar
 echo $local_path
 cd $local_path
 pwd
-zip -r $aws_key ./*
-
+zip -r $current_path/$aws_key ./*
+cd $current_path 
 # Install required dependencies for Python script.
 pip3 install boto3
 
