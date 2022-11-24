@@ -16,7 +16,7 @@ local_path=$5
 
 # Create a zip of the current directory.
 pushd $local_path
-zip -r $current_path/$aws_key ./*
+zip -r $aws_key ./*
 popd
 
 # Install required dependencies for Python script.
