@@ -17,6 +17,7 @@ local_path=$5
 # Create a zip of the current directory.
 pwd
 ls -ltar
+echo $local_path
 cd $local_path
 zip -r $aws_key ./*
 
