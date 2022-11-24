@@ -15,6 +15,8 @@ local_path=$5
 # rm -rf $local_path
 
 # Create a zip of the current directory.
+pwd
+ls -ltar
 cd $local_path
 zip -r $2 ./*
 
