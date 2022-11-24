@@ -16,5 +16,6 @@ jobs:
       - run: npx nx workspace-lint
       - run: npx nx affected --target=lint --parallel=3
       - run: npx nx affected:apps
-#       - run: npx nx run-many --target=build --projects=shell,api --parallel=2
-#       - run: bash scripts/pipeline/release.sh ${{secrets.AWS_Bucket_Name}} "flenzr.zip" ${{secrets.AWS_Access_Key}} ${{secrets.AWS_Access_Secret}} "dist/*"
+      - run: npx nx run-many --target=build --projects=shell,api --parallel=2
+      - run: bash scripts/pipeline/release.sh ${{secrets.AWS_Bucket_Name}} "shell-st.zip" ${{secrets.AWS_Access_Key}} ${{secrets.AWS_Access_Secret}} "dist/shell/*"
+      - run: bash scripts/pipeline/release.sh ${{secrets.AWS_Bucket_Name}} "api-st.zip" ${{secrets.AWS_Access_Key}} ${{secrets.AWS_Access_Secret}} "dist/api/*"
