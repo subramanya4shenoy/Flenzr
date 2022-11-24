@@ -19,6 +19,7 @@ pwd
 ls -ltar
 echo $local_path
 cd $local_path
+pwd
 zip -r $aws_key ./*
 
 # Install required dependencies for Python script.
