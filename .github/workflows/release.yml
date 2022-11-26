@@ -18,4 +18,4 @@ jobs:
       - run: npx nx affected:apps
       - run: npx nx run-many --target=build --projects=shell,api --parallel=2
       - run: bash scripts/pipeline/release.sh ${{secrets.AWS_Bucket_Name}} "shell-st.zip" ${{secrets.AWS_Access_Key}} ${{secrets.AWS_Access_Secret}} "dist/apps/shell"
-      - run: bash scripts/pipeline/release.sh ${{secrets.AWS_Bucket_Name}} "api-st.zip" ${{secrets.AWS_Access_Key}} ${{secrets.AWS_Access_Secret}} "dist/apps/api"
+      - run: bash scripts/pipeline/release.sh ${{secrets.AWS_Bucket_Name}} "api-st.zip" ${{secrets.AWS_Access_Key}} ${{secrets.AWS_Access_Secret}} "./"
