@@ -19,6 +19,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 			playground: true,
 			autoSchemaFile: true,
 			sortSchema: true,
+			persistedQueries: false
 		  })
 	],
 	controllers: [],
