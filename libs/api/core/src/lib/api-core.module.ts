@@ -17,6 +17,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 		GraphQLModule.forRoot<ApolloDriverConfig>({
 			driver: ApolloDriver,
 			playground: true,
+			introspection: true,
 			autoSchemaFile: true,
 			sortSchema: true,
 			persistedQueries: false
