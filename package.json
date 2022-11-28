@@ -7,7 +7,7 @@
   },
   "scripts": {
     "nx": "nx",
-    "dev:shell": "nx serve",
+    "dev:shell": "nx serve shell",
     "dev:api": "nx serve api",
     "shell:build:staging": "nx build shell",
     "api:build:staging": "nx build api",

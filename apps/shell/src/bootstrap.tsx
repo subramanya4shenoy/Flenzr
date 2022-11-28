@@ -13,7 +13,7 @@ const root = ReactDOM.createRoot(
 );
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3000/graphql',
+  uri: process.env['NX_DOMAIN']+'/graphql',
 });
 
 const getCookie = (key:string) => {

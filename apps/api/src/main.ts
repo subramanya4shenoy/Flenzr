@@ -5,12 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      credentials: true,
-      origin: ['http://localhost:3000', 'http://ec2-15-207-111-18.ap-south-1.compute.amazonaws.com:3000'],
-    },
-  });
+  const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   const config = app.get(ConfigService);
 
