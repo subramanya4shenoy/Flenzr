@@ -101,6 +101,7 @@ const SignInDesktop = ({ onSuccess }: any) => {
             >
               {t("createNew")}
             </Link>
+            test CI.CD
           </div>
         </div>
       </div>
