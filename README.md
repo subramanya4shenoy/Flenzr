@@ -3,4 +3,4 @@
 
 # Status
 - CI/CD pipeline and Setting up. 
-- nginx setup in ec2 istance. (UI)
+- nginx setup in ec2 istance. (UI) -attempt 2 days
