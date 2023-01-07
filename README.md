@@ -4,4 +4,4 @@
 # Status
 - CI/CD pipeline and Setting up. 
 - nginx setup in ec2 istance. - Done
-- 🟢 Live at -  http://qa.flenzr.com/ 
+- 🟢 Live at -  https://qa.flenzr.com/ 
