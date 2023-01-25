@@ -12,7 +12,7 @@ export const Googleauth = () => {
         code: searchParams.get("code")
       },
       fetchPolicy: "network-only",
-      onCompleted: (data) => { navigate(process.env['NX_DOMAIN']+'/mysocial')},
+      onCompleted: (data) => { navigate('/mysocial')},
     });
     
     useEffect(() => {
