@@ -4,6 +4,7 @@
   "projects": {
     "api": "apps/api",
     "api-auth": "libs/api/auth",
+    "api-category": "libs/api/category",
     "api-core": "libs/api/core",
     "api-social": "libs/api/social",
     "api-user-info": "libs/api/user-info",
