@@ -22,6 +22,9 @@
       "@flenzr/api/auth": [
         "libs/api/auth/src/index.ts"
       ],
+      "@flenzr/api/category": [
+        "libs/api/category/src/index.ts"
+      ],
       "@flenzr/api/core": [
         "libs/api/core/src/index.ts"
       ],
