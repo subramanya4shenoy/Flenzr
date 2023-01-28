@@ -1,4 +1,3 @@
-//add id to each category and subcategory
 export const CATEGORIES = [
   {
       "category": "Fashion",
