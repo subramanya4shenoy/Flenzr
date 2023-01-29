@@ -2,7 +2,7 @@ import { SubcategoryModel } from "./subcategory.model";
 import { Field, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
-export class CatgoryModel {
+export class CategoryModel {
 
    @Field({nullable: false})
    category: string;
