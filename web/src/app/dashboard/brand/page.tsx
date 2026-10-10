@@ -18,6 +18,7 @@ import {
   Clock,
   Briefcase,
 } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 
 interface CreatorCard {
   id: string;
@@ -161,12 +162,9 @@ export default function BrandDashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-slate-950">
-                F
-              </div>
-              <span className="font-extrabold text-white tracking-tight">FLENZR</span>
+              <Logo size={30} variant="duotone" withWordmark={true} />
             </Link>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700">
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#171717] text-[#fdf0d5]/80 font-semibold border border-[#2b2b2b]">
               Brand Portal • Lumina Audio
             </span>
           </div>
