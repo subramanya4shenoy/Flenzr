@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     SUPABASE_JWT_SECRET: str = "super-secret-supabase-jwt-key-for-local-development"
     SUPABASE_JWT_ALGORITHM: str = "HS256"
     SUPABASE_JWT_AUDIENCE: str = "authenticated"
+    SUPABASE_JWKS_URL: Union[str, None] = None
 
     # CORS
     CORS_ORIGINS: List[str] = [

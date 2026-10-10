@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 import jwt
+from jwt import PyJWKClient
 from pydantic import BaseModel
 
 from app.core.config import settings
@@ -16,23 +17,50 @@ class SupabaseTokenPayload(BaseModel):
     user_metadata: Dict[str, Any] = {}
 
 
+_jwks_client: Optional[PyJWKClient] = None
+
+
+def get_jwks_client() -> Optional[PyJWKClient]:
+    global _jwks_client
+    if _jwks_client is None and settings.SUPABASE_JWKS_URL:
+        _jwks_client = PyJWKClient(settings.SUPABASE_JWKS_URL)
+    return _jwks_client
+
+
 class SecurityService:
     @staticmethod
     def decode_and_verify_token(token: str) -> SupabaseTokenPayload:
         """
         Cryptographically validates and decodes a Supabase JWT.
-        Supports Supabase HS256 JWT secret.
+        Supports both:
+        1. Modern asymmetric ES256 JWKS verification directly from Supabase.
+        2. Symmetric HS256 fallback for tests and development.
         """
         try:
-            # Note: Supabase default tokens use HS256 signed with the SUPABASE_JWT_SECRET
+            unverified_header = jwt.get_unverified_header(token)
+            alg = unverified_header.get("alg", "HS256")
+
+            if alg == "ES256" and settings.SUPABASE_JWKS_URL:
+                jwks_client = get_jwks_client()
+                if jwks_client:
+                    signing_key = jwks_client.get_signing_key_from_jwt(token)
+                    payload = jwt.decode(
+                        token,
+                        signing_key.key,
+                        algorithms=["ES256"],
+                        options={"verify_signature": True, "verify_exp": True, "verify_aud": False},
+                    )
+                    return SupabaseTokenPayload(**payload)
+
+            # Fallback to HS256 symmetric secret
             payload = jwt.decode(
                 token,
                 settings.SUPABASE_JWT_SECRET,
-                algorithms=[settings.SUPABASE_JWT_ALGORITHM],
+                algorithms=[settings.SUPABASE_JWT_ALGORITHM, "HS256"],
                 options={
                     "verify_signature": True,
                     "verify_exp": True,
-                    "verify_aud": False,  # Aud can be verified if explicitly passed
+                    "verify_aud": False,
                 },
             )
             return SupabaseTokenPayload(**payload)
@@ -40,6 +68,8 @@ class SecurityService:
             raise ValueError("Token signature has expired")
         except jwt.InvalidTokenError as e:
             raise ValueError(f"Invalid token: {str(e)}")
+        except Exception as e:
+            raise ValueError(f"Token verification error: {str(e)}")
 
     @staticmethod
     def create_mock_token(
