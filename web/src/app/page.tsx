@@ -35,18 +35,30 @@ export default function Home() {
 
           <nav className="flex items-center gap-4 text-xs sm:text-sm font-medium">
             <Link
-              href="/sarahmiller"
-              className="text-slate-400 hover:text-emerald-400 transition-colors"
+              href="/dashboard/creator"
+              className="text-slate-300 hover:text-emerald-400 transition-colors"
             >
-              Public Profile Demo
+              Creator Studio
+            </Link>
+            <Link
+              href="/dashboard/brand"
+              className="text-slate-300 hover:text-emerald-400 transition-colors"
+            >
+              Brand Portal
+            </Link>
+            <Link
+              href="/sarahmiller"
+              className="text-slate-400 hover:text-emerald-400 transition-colors hidden sm:inline"
+            >
+              Media Kit Demo
             </Link>
             <a
               href="http://localhost:8000/docs"
               target="_blank"
               rel="noreferrer"
-              className="px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition-colors flex items-center gap-1.5"
             >
-              <span>FastAPI Docs</span>
+              <span>Swagger</span>
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </a>
           </nav>

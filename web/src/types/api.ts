@@ -262,6 +262,183 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Or Join Organization
+         * @description Onboards or registers a brand organization for the current user.
+         */
+        post: operations["create_or_join_organization_api_v1_organizations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Organization
+         * @description Returns the organization details for the current brand owner.
+         */
+        get: operations["get_my_organization_api_v1_organizations_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List My Brand Campaigns
+         * @description Returns all campaigns owned by the current brand organization.
+         */
+        get: operations["list_my_brand_campaigns_api_v1_campaigns_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Campaign
+         * @description Creates a new campaign brief for the current brand organization.
+         */
+        post: operations["create_campaign_api_v1_campaigns_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/explore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Explore Active Campaigns
+         * @description Publicly browsable open campaigns for creators seeking sponsorship opportunities.
+         */
+        get: operations["explore_active_campaigns_api_v1_campaigns_explore_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/{campaign_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Campaign */
+        get: operations["get_campaign_api_v1_campaigns__campaign_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/{campaign_id}/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply To Campaign
+         * @description Creator submits pitch and proposed quote for an active brand campaign.
+         */
+        post: operations["apply_to_campaign_api_v1_campaigns__campaign_id__apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/{campaign_id}/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invite Creator To Campaign
+         * @description Brand invites shortlisted creator to collaborate with an offered rate.
+         */
+        post: operations["invite_creator_to_campaign_api_v1_campaigns__campaign_id__invite_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery/creators": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Creators
+         * @description Search and filter verified creators for brand partnerships and sponsorships.
+         */
+        get: operations["search_creators_api_v1_discovery_creators_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/r/{short_code}": {
         parameters: {
             query?: never;
@@ -283,6 +460,156 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * ApplicationStatus
+         * @enum {string}
+         */
+        ApplicationStatus: "pending" | "accepted" | "rejected" | "withdrawn";
+        /** BrandProfileRead */
+        BrandProfileRead: {
+            /** Id */
+            id: string;
+            /** Organization Id */
+            organization_id: string;
+            /** Company Name */
+            company_name: string;
+            /** Industry */
+            industry?: string | null;
+            /** Website */
+            website?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Verified */
+            is_verified: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** CampaignApplicationCreate */
+        CampaignApplicationCreate: {
+            /** Pitch Message */
+            pitch_message?: string | null;
+            /** Proposed Rate Cents */
+            proposed_rate_cents: number;
+        };
+        /** CampaignApplicationRead */
+        CampaignApplicationRead: {
+            /** Id */
+            id: string;
+            /** Campaign Id */
+            campaign_id: string;
+            /** Creator Id */
+            creator_id: string;
+            /** Pitch Message */
+            pitch_message?: string | null;
+            /** Proposed Rate Cents */
+            proposed_rate_cents: number;
+            status: components["schemas"]["ApplicationStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** CampaignCreate */
+        CampaignCreate: {
+            /** Title */
+            title: string;
+            /** Brief */
+            brief: string;
+            /** Target Niche */
+            target_niche?: string | null;
+            /** Deliverable Summary */
+            deliverable_summary?: string | null;
+            /** Budget Total Cents */
+            budget_total_cents: number;
+            /**
+             * Currency
+             * @default USD
+             */
+            currency: string;
+            /** Start Date */
+            start_date?: string | null;
+            /** End Date */
+            end_date?: string | null;
+        };
+        /** CampaignInvitationCreate */
+        CampaignInvitationCreate: {
+            /** Creator Id */
+            creator_id: string;
+            /** Offered Rate Cents */
+            offered_rate_cents: number;
+            /** Message */
+            message?: string | null;
+        };
+        /** CampaignInvitationRead */
+        CampaignInvitationRead: {
+            /** Id */
+            id: string;
+            /** Campaign Id */
+            campaign_id: string;
+            /** Creator Id */
+            creator_id: string;
+            /** Offered Rate Cents */
+            offered_rate_cents: number;
+            /** Message */
+            message?: string | null;
+            status: components["schemas"]["InvitationStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** CampaignRead */
+        CampaignRead: {
+            /** Title */
+            title: string;
+            /** Brief */
+            brief: string;
+            /** Target Niche */
+            target_niche?: string | null;
+            /** Deliverable Summary */
+            deliverable_summary?: string | null;
+            /** Budget Total Cents */
+            budget_total_cents: number;
+            /**
+             * Currency
+             * @default USD
+             */
+            currency: string;
+            /** Start Date */
+            start_date?: string | null;
+            /** End Date */
+            end_date?: string | null;
+            /** Id */
+            id: string;
+            /** Organization Id */
+            organization_id: string;
+            status: components["schemas"]["CampaignStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * CampaignStatus
+         * @enum {string}
+         */
+        CampaignStatus: "draft" | "active" | "paused" | "completed" | "cancelled";
         /** CreatorRead */
         CreatorRead: {
             /** Handle */
@@ -344,6 +671,11 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /**
+         * InvitationStatus
+         * @enum {string}
+         */
+        InvitationStatus: "invited" | "accepted" | "declined";
         /** LinkClickSummary */
         LinkClickSummary: {
             /**
@@ -357,6 +689,51 @@ export interface components {
             country?: string | null;
             /** User Agent */
             user_agent?: string | null;
+        };
+        /** OrganizationCreate */
+        OrganizationCreate: {
+            /** Name */
+            name: string;
+            /** Billing Email */
+            billing_email: string;
+            /** Slug */
+            slug?: string | null;
+            /** Company Name */
+            company_name?: string | null;
+            /** Industry */
+            industry?: string | null;
+            /** Website */
+            website?: string | null;
+            /** Description */
+            description?: string | null;
+        };
+        /** OrganizationRead */
+        OrganizationRead: {
+            /** Name */
+            name: string;
+            /** Billing Email */
+            billing_email: string;
+            /** Id */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Logo Url */
+            logo_url?: string | null;
+            /** Billing Status */
+            billing_status: string;
+            /** Owner Id */
+            owner_id: string;
+            brand_profile?: components["schemas"]["BrandProfileRead"] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * PlatformType
@@ -1137,6 +1514,283 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QRCodeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_or_join_organization_api_v1_organizations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganizationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_organization_api_v1_organizations_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationRead"];
+                };
+            };
+        };
+    };
+    list_my_brand_campaigns_api_v1_campaigns_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignRead"][];
+                };
+            };
+        };
+    };
+    create_campaign_api_v1_campaigns_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    explore_active_campaigns_api_v1_campaigns_explore_get: {
+        parameters: {
+            query?: {
+                niche?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_campaign_api_v1_campaigns__campaign_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaign_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apply_to_campaign_api_v1_campaigns__campaign_id__apply_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaign_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignApplicationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignApplicationRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    invite_creator_to_campaign_api_v1_campaigns__campaign_id__invite_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaign_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignInvitationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignInvitationRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_creators_api_v1_discovery_creators_get: {
+        parameters: {
+            query?: {
+                /** @description Search term for handle, name, or bio */
+                q?: string | null;
+                /** @description Filter by niche/category */
+                niche?: string | null;
+                /** @description Filter by location */
+                location?: string | null;
+                /** @description Minimum creator rating */
+                min_rating?: number | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicCreatorProfile"][];
                 };
             };
             /** @description Validation Error */

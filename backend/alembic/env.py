@@ -14,6 +14,8 @@ import app.domains.identity.models  # noqa
 import app.domains.creators.models  # noqa
 import app.domains.ratecards.models  # noqa
 import app.domains.links.models  # noqa
+import app.domains.brands.models  # noqa
+import app.domains.campaigns.models  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
