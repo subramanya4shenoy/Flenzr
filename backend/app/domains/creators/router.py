@@ -5,6 +5,10 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role
 from app.core.exceptions import EntityNotFoundError
 from app.domains.creators.schemas import (
+    BioVerifyRequest,
+    BioVerifyResponse,
+    CreatorOnboardRequest,
+    CreatorOnboardResponse,
     CreatorRead,
     CreatorUpdate,
     PublicCreatorProfile,
@@ -13,6 +17,47 @@ from app.domains.creators.services import CreatorService
 from app.domains.identity.models import SystemRole, User
 
 router = APIRouter(prefix="/creators", tags=["Creators"])
+
+
+@router.post("/onboard", response_model=CreatorOnboardResponse, status_code=status.HTTP_201_CREATED)
+async def onboard_creator(
+    body: CreatorOnboardRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Complete frictionless creator onboarding in a single transaction:
+    Provisions User, Creator profile, initial Rate Cards in ₹, universal bio link, and JWT token.
+    """
+    creator, token = await CreatorService.onboard_creator(db, body)
+    return CreatorOnboardResponse(
+        creator=CreatorRead.model_validate(creator),
+        access_token=token,
+        token_type="bearer",
+        universal_bio_link=f"https://flenzr.com/@{creator.handle}",
+        message="Creator onboarded successfully with active rate cards & universal bio link.",
+    )
+
+
+@router.post("/verify-bio", response_model=BioVerifyResponse)
+async def verify_creator_bio(
+    body: BioVerifyRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Verifies creator ownership of Instagram or YouTube channels via temporary Bio/Description code.
+    """
+    verified, message = await CreatorService.verify_bio(
+        db=db,
+        platform=body.platform,
+        handle=body.handle,
+        code=body.verification_code,
+    )
+    return BioVerifyResponse(
+        verified=verified,
+        platform=body.platform,
+        handle=body.handle,
+        message=message,
+    )
 
 
 @router.get("/me", response_model=CreatorRead)
@@ -67,4 +112,8 @@ async def get_public_creator_profile(
         rating=creator.rating,
         profile_theme=creator.profile_theme or "default",
         avatar_url=avatar_url,
+        instagram_handle=creator.instagram_handle,
+        instagram_verified=creator.instagram_verified,
+        youtube_channel=creator.youtube_channel,
+        youtube_verified=creator.youtube_verified,
     )

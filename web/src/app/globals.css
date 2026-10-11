@@ -1,34 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050505;
-  --foreground: #fdf0d5;
+  --background: #ffffff;
+  --foreground: #000000;
   --brand-crimson: #c1121f;
-  --brand-cream: #fdf0d5;
+  --brand-crimson-hover: #a50e1a;
+  --brand-white: #ffffff;
   --brand-black: #000000;
-  --card: #0d0d0d;
-  --card-foreground: #fdf0d5;
-  --border: #222222;
-  --muted: #171717;
-  --muted-foreground: rgba(253, 240, 213, 0.7);
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --border: #e5e7eb;
+  --muted: #f4f4f5;
+  --muted-foreground: #666666;
+  --font-cambay: "Cambay", sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand-crimson: var(--brand-crimson);
-  --color-brand-cream: var(--brand-cream);
+  --color-brand-crimson-hover: var(--brand-crimson-hover);
+  --color-brand-white: var(--brand-white);
   --color-brand-black: var(--brand-black);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --font-sans: "Cambay", var(--font-cambay), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-sans);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Custom Selection */
 ::selection {
   background-color: #c1121f;
-  color: #fdf0d5;
+  color: #ffffff;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c1121f;
 }

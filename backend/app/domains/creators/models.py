@@ -36,5 +36,12 @@ class Creator(Base, TimestampMixin):
     custom_domain: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
     profile_theme: Mapped[Optional[str]] = mapped_column(String(64), default="default", nullable=True)
 
+    # Social Channels & Verification
+    instagram_handle: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    instagram_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    youtube_channel: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    youtube_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    verification_code: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+
     # Relationship to user
     user = relationship("User", lazy="selectin")

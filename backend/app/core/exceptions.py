@@ -51,3 +51,12 @@ class DomainRuleViolation(FlenzrException):
             message=message,
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
+
+
+class DuplicateEntityError(FlenzrException):
+    def __init__(self, entity_name: str, field: str, value: Any):
+        super().__init__(
+            code="DUPLICATE_ENTITY",
+            message=f"{entity_name} with {field} '{value}' already exists",
+            status_code=status.HTTP_409_CONFLICT,
+        )

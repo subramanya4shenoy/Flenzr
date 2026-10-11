@@ -2,45 +2,65 @@ import React from "react";
 
 interface LogoProps {
   size?: number;
-  variant?: "duotone" | "cream" | "crimson" | "black" | "monochrome";
+  variant?: "duotone" | "duotone-dark" | "duotone-light" | "white" | "cream" | "crimson" | "black" | "monochrome";
   withWordmark?: boolean;
+  wordmarkColor?: string;
   className?: string;
 }
 
 export function Logo({
-  size = 36,
+  size = 34,
   variant = "duotone",
   withWordmark = false,
+  wordmarkColor,
   className = "",
 }: LogoProps) {
-  // Brand color mappings
+  // Brand color mappings for White, Black, and Crimson palette
   let topFill = "#c1121f"; // Crimson
-  let bottomFill = "#fdf0d5"; // Cream
+  let bottomFill = "#000000"; // Black on white background
+  let resolvedWordmark = wordmarkColor || "#000000";
 
-  if (variant === "cream") {
-    topFill = "#fdf0d5";
-    bottomFill = "#fdf0d5";
+  if (variant === "duotone-dark") {
+    topFill = "#c1121f";
+    bottomFill = "#ffffff";
+    resolvedWordmark = wordmarkColor || "#ffffff";
+  } else if (variant === "white") {
+    topFill = "#ffffff";
+    bottomFill = "#ffffff";
+    resolvedWordmark = wordmarkColor || "#ffffff";
+  } else if (variant === "cream") {
+    topFill = "#ffffff";
+    bottomFill = "#ffffff";
+    resolvedWordmark = wordmarkColor || "#ffffff";
   } else if (variant === "crimson") {
     topFill = "#c1121f";
     bottomFill = "#c1121f";
+    resolvedWordmark = wordmarkColor || "#c1121f";
   } else if (variant === "black") {
     topFill = "#000000";
     bottomFill = "#000000";
+    resolvedWordmark = wordmarkColor || "#000000";
   } else if (variant === "monochrome") {
     topFill = "currentColor";
     bottomFill = "currentColor";
+    resolvedWordmark = wordmarkColor || "currentColor";
   }
 
   // Calculate proportional dimensions
-  const height = size;
-  const width = Math.round((size * 280) / 400);
+  // Icon maintains full proud presence; wordmark aligns with optical center of gravity
+  // Note: "Flenzr" contains no descenders (F, l, e, n, z, r), so with font line-box metrics
+  // an optical offset of ~12% of size centers the glyph caps & x-height with the emblem's visual equator.
+  const iconHeight = size;
+  const iconWidth = Math.round((iconHeight * 260) / 384);
+  const fontSize = Math.round(size * 0.72);
+  const opticalShiftY = Math.max(2, Math.round(size * 0.12));
 
   return (
-    <div className={`inline-flex items-center gap-3 ${className}`}>
+    <div className={`inline-flex items-center gap-2.5 ${className}`}>
       <svg
-        width={width}
-        height={height}
-        viewBox="40 70 280 400"
+        width={iconWidth}
+        height={iconHeight}
+        viewBox="50 78 262 384"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="shrink-0"
@@ -61,10 +81,14 @@ export function Logo({
 
       {withWordmark && (
         <span
-          className="font-black tracking-tight text-white select-none"
-          style={{ fontSize: `${Math.round(size * 0.72)}px`, color: "#fdf0d5" }}
+          className="font-bold tracking-tight select-none leading-none inline-flex items-center"
+          style={{
+            fontSize: `${fontSize}px`,
+            color: resolvedWordmark,
+            transform: `translateY(${opticalShiftY}px)`,
+          }}
         >
-          FLENZR
+          Flenzr
         </span>
       )}
     </div>

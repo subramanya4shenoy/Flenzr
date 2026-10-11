@@ -1,197 +1,192 @@
 import Link from "next/link";
-import {
-  Sparkles,
-  Link2,
-  QrCode,
-  DollarSign,
-  Smartphone,
-  Layers,
-  ArrowRight,
-  TrendingUp,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { HeroMotionDeck } from "@/components/home/hero-motion-deck";
+import { CollabShowcaseMotion } from "@/components/home/collab-showcase-motion";
+import { SpotlightBannerMotion } from "@/components/home/spotlight-banner-motion";
+import { CreatorCloudMotion } from "@/components/home/creator-cloud-motion";
+import { WorkflowStoryMotion } from "@/components/home/workflow-story-motion";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#050505] text-[#fdf0d5] selection:bg-[#c1121f] selection:text-[#fdf0d5]">
-      {/* Background Decorative Atmosphere */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-gradient-to-b from-[#c1121f]/20 via-[#c1121f]/5 to-transparent blur-3xl opacity-80" />
-        <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-[#c1121f]/10 blur-3xl rounded-full" />
+    <div className="min-h-screen bg-white text-black selection:bg-[#c1121f] selection:text-white flex flex-col">
+      {/* Background Subtle Accent Gradients */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-[#c1121f]/8 via-[#c1121f]/2 to-transparent blur-3xl opacity-75" />
+        <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-[#c1121f]/4 blur-3xl rounded-full" />
       </div>
 
       {/* Navigation Header */}
-      <header className="relative border-b border-[#222222] bg-[#050505]/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <Logo size={34} variant="duotone" withWordmark={true} />
+      <header className="relative border-b border-neutral-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">
+          {/* Left: Brand Logo */}
+          <Link href="/" className="flex items-center shrink-0 z-10">
+            <Logo size={32} variant="duotone" withWordmark={true} />
           </Link>
 
-          <nav className="flex items-center gap-4 text-xs sm:text-sm font-medium">
+          {/* Center: Mathematically Centered Navigation */}
+          <nav className="hidden md:flex items-center gap-7 text-sm font-medium absolute left-1/2 -translate-x-1/2">
             <Link
-              href="/dashboard/creator"
-              className="text-[#fdf0d5]/80 hover:text-[#fdf0d5] hover:underline underline-offset-4 transition-colors"
+              href="#how-it-works"
+              className="text-neutral-700 hover:text-black transition-colors"
             >
-              Creator Studio
+              How It Works
             </Link>
             <Link
-              href="/dashboard/brand"
-              className="text-[#fdf0d5]/80 hover:text-[#fdf0d5] hover:underline underline-offset-4 transition-colors"
+              href="#collab-engine"
+              className="text-neutral-700 hover:text-black transition-colors"
             >
-              Brand Portal
+              Collab Engine
+            </Link>
+            <Link
+              href="#creators"
+              className="text-neutral-700 hover:text-black transition-colors"
+            >
+              Creator Marketplace
             </Link>
             <Link
               href="/sarahmiller"
-              className="text-[#fdf0d5]/60 hover:text-[#fdf0d5] transition-colors hidden sm:inline"
+              className="text-neutral-700 hover:text-black transition-colors inline-flex items-center gap-1.5"
             >
-              Media Kit Demo
+              <span>Demo Rate Card</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-[#c1121f]/10 text-[#c1121f] leading-none inline-flex items-center">
+                EARN ₹
+              </span>
             </Link>
-            <a
-              href="http://localhost:8000/docs"
-              target="_blank"
-              rel="noreferrer"
-              className="px-3 py-1.5 rounded-lg bg-[#141414] border border-[#2b2b2b] text-[#fdf0d5] hover:border-[#c1121f] transition-colors flex items-center gap-1.5"
-            >
-              <span>Swagger</span>
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#c1121f] animate-pulse" />
-            </a>
           </nav>
+
+          {/* Right: Auth Action Buttons */}
+          <div className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold shrink-0 z-10">
+            <Link
+              href="/login"
+              className="px-3.5 py-2 rounded-full text-neutral-800 hover:text-black hover:bg-neutral-100 transition-colors inline-flex items-center leading-none"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/signup/creator"
+              className="px-4 py-2 rounded-full bg-[#c1121f] hover:bg-[#a50e1a] text-white transition-all shadow-sm inline-flex items-center gap-1.5 leading-none"
+            >
+              <span>Join as Influencer</span>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
-        <div className="text-center max-w-3xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-[#c1121f]/10 text-[#fdf0d5] border border-[#c1121f]/30">
-            <Sparkles className="w-3.5 h-3.5 text-[#c1121f]" />
-            <span>Modern Native Architecture • Python FastAPI + Next.js</span>
-          </div>
+      {/* Main Content */}
+      <main className="relative z-10 flex-1">
+        {/* 1. Hero Section: Minimal Title + Spring Fan-out Cards Deck */}
+        <HeroMotionDeck />
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-[#fdf0d5] leading-tight">
-            The Marketplace for{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c1121f] via-[#e63946] to-[#fdf0d5]">
-              Creators & Brands
-            </span>
-          </h1>
-
-          <p className="text-[#fdf0d5]/75 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Unified across Web, Native iOS, and Native Android. Manage verified rate cards, 
-            attribute link clicks, generate branded QR codes, and orchestrate campaign milestones 
-            with escrow security.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <Link
-              href="/dashboard/creator"
-              className="px-6 py-3 rounded-xl font-bold text-sm bg-[#c1121f] hover:bg-[#a50e1a] text-[#fdf0d5] transition-all shadow-lg shadow-[#c1121f]/25 flex items-center gap-2 group cursor-pointer"
-            >
-              <span>Open Creator Studio</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <Link
-              href="/dashboard/brand"
-              className="px-6 py-3 rounded-xl font-bold text-sm bg-[#121212] hover:bg-[#1a1a1a] text-[#fdf0d5] border border-[#2b2b2b] hover:border-[#fdf0d5]/40 transition-colors cursor-pointer"
-            >
-              Open Brand Portal
-            </Link>
-          </div>
+        {/* 2. Interactive Collab Showcase Stack Section (Pinterest 00:04) */}
+        <div id="collab-engine">
+          <CollabShowcaseMotion />
         </div>
 
-        {/* Feature Grid */}
-        <section className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-[#0e0e0e] border border-[#222222] rounded-2xl p-6 backdrop-blur-sm space-y-3 hover:border-[#c1121f]/50 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-[#c1121f]/10 border border-[#c1121f]/30 flex items-center justify-center text-[#c1121f]">
-              <DollarSign className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-bold text-[#fdf0d5]">Dynamic Rate Cards</h3>
-            <p className="text-sm text-[#fdf0d5]/70 leading-relaxed">
-              Define pricing packages for YouTube dedicated reviews, Instagram Reels, and podcasts 
-              with clear turnaround days and transparent pricing.
-            </p>
-          </div>
+        {/* 3. Cinematic Spotlight Creator Banner & Brand Marquee (Pinterest 00:07) */}
+        <SpotlightBannerMotion />
 
-          <div className="bg-[#0e0e0e] border border-[#222222] rounded-2xl p-6 backdrop-blur-sm space-y-3 hover:border-[#c1121f]/50 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-[#c1121f]/10 border border-[#c1121f]/30 flex items-center justify-center text-[#c1121f]">
-              <Link2 className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-bold text-[#fdf0d5]">Smart Tracked Links</h3>
-            <p className="text-sm text-[#fdf0d5]/70 leading-relaxed">
-              Auto-append UTM campaign metadata and track high-throughput click analytics 
-              via fast 307 temporary redirects.
-            </p>
-          </div>
+        {/* 4. "You will find your audience among us" Creator Cloud (Pinterest 00:21) */}
+        <div id="creators">
+          <CreatorCloudMotion />
+        </div>
 
-          <div className="bg-[#0e0e0e] border border-[#222222] rounded-2xl p-6 backdrop-blur-sm space-y-3 hover:border-[#c1121f]/50 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-[#c1121f]/10 border border-[#c1121f]/30 flex items-center justify-center text-[#c1121f]">
-              <QrCode className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-bold text-[#fdf0d5]">Dynamic QR Code Engine</h3>
-            <p className="text-sm text-[#fdf0d5]/70 leading-relaxed">
-              Generate custom-styled, vector-sharp QR codes to embed in offline collateral, 
-              video end screens, or live event media kits.
-            </p>
-          </div>
-        </section>
-
-        {/* Multi-Platform Architecture Breakdown */}
-        <section className="mt-20 bg-[#0e0e0e] border border-[#222222] rounded-3xl p-8 sm:p-10">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-[#222222]">
-            <div>
-              <h2 className="text-2xl font-bold text-[#fdf0d5]">Multi-Client Architecture</h2>
-              <p className="text-sm text-[#fdf0d5]/70 mt-1">
-                A single source of business logic serving all clients via strongly-typed OpenAPI contracts.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-lg text-xs font-semibold bg-[#c1121f]/10 text-[#fdf0d5] border border-[#c1121f]/30">
-                100% Contract Validated
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-8 text-xs">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[#fdf0d5] font-semibold">
-                <Layers className="w-4 h-4 text-[#c1121f]" />
-                <span>Backend Core</span>
-              </div>
-              <p className="text-[#fdf0d5]/65">
-                Python 3.14, FastAPI, SQLAlchemy 2.0 Async, Alembic, Supabase PostgreSQL & Auth.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[#fdf0d5] font-semibold">
-                <Smartphone className="w-4 h-4 text-[#c1121f]" />
-                <span>Native iOS</span>
-              </div>
-              <p className="text-[#fdf0d5]/65">
-                Swift 6, SwiftUI, Swift Concurrency, MVVM, Keychain storage, separate Creator & Brand targets.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[#fdf0d5] font-semibold">
-                <Smartphone className="w-4 h-4 text-[#c1121f]" />
-                <span>Native Android</span>
-              </div>
-              <p className="text-[#fdf0d5]/65">
-                Kotlin, Jetpack Compose, Coroutines & Flow, Hilt, Room, separate Creator & Brand modules.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[#fdf0d5] font-semibold">
-                <TrendingUp className="w-4 h-4 text-[#c1121f]" />
-                <span>Web Platform</span>
-              </div>
-              <p className="text-[#fdf0d5]/65">
-                Next.js 16 App Router, React 19, Tailwind CSS, TanStack Query, SSR Public Creator Pages.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* 5. "Every piece of content tells a story" 3-Card Story Bento (Pinterest 00:24) */}
+        <div id="how-it-works">
+          <WorkflowStoryMotion />
+        </div>
       </main>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-neutral-200 bg-neutral-50 mt-auto text-xs text-neutral-600">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <div className="col-span-2 space-y-4">
+              <Logo size={32} variant="duotone" withWordmark={true} />
+              <p className="text-neutral-500 text-xs max-w-sm leading-relaxed">
+                Flenzr is the marketplace where creators monetize their audience with upfront rate cards and brands scale high-converting sponsorship campaigns.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="font-bold text-black uppercase tracking-wider text-[11px]">
+                For Influencers
+              </div>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/signup/creator" className="hover:text-black transition-colors">
+                    Register &amp; Start Earning
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard/creator" className="hover:text-black transition-colors">
+                    Creator Earnings &amp; Payouts
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard/creator" className="hover:text-black transition-colors">
+                    Standard Rate Cards (₹)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/sarahmiller" className="hover:text-black transition-colors">
+                    Demo Rate Card Profile
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <div className="font-bold text-black uppercase tracking-wider text-[11px]">
+                For Brands
+              </div>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/dashboard/brand" className="hover:text-black transition-colors">
+                    Brand Portal
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard/brand" className="hover:text-black transition-colors">
+                    Hire Top Creators
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard/brand" className="hover:text-black transition-colors">
+                    Draft Review &amp; Revisions
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard/brand" className="hover:text-black transition-colors">
+                    Escrow Payments in ₹
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-500">
+            <div>
+              © 2026 Flenzr Inc. The marketplace for influencers and brands.
+            </div>
+            <div className="flex items-center gap-4">
+              <Link href="/sarahmiller" className="hover:text-black transition-colors">
+                Sample Rate Card Profile
+              </Link>
+              <span>•</span>
+              <a
+                href="http://localhost:8000/docs"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-[#c1121f] transition-colors"
+              >
+                Developer API
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
