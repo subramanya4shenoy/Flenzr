@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -19,6 +19,8 @@ import {
   Briefcase,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { searchCreators } from "@/lib/api";
+
 
 interface CreatorCard {
   id: string;
@@ -49,22 +51,21 @@ export default function BrandDashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNiche, setSelectedNiche] = useState("All");
 
-  // Mock creators from discovery database
-  const [creators] = useState<CreatorCard[]>([
+  const [creators, setCreators] = useState<CreatorCard[]>([
     {
-      id: "c-1",
-      handle: "sarahmiller",
-      display_name: "Sarah Miller",
-      niche: "Technology & Gear",
+      id: "c-subu",
+      handle: "subu_creates",
+      display_name: "Subramanya Shenoy",
+      niche: "Technology & Hardware",
       rating: 5.0,
       location: "Bengaluru, Karnataka",
-      starting_rate: 25000,
-      bio: "Tech reviewer, consumer audio enthusiast, and 4K workflow specialist.",
+      starting_rate: 10000,
+      bio: "Tech reviewer, consumer hardware specialist, and verified Flenzr creator.",
       verified: true,
     },
     {
-      id: "c-2",
-      handle: "rohansharma",
+      id: "c-rohan",
+      handle: "rohansharma_live",
       display_name: "Rohan Sharma",
       niche: "Software & Productivity",
       rating: 4.9,
@@ -74,28 +75,38 @@ export default function BrandDashboardPage() {
       verified: true,
     },
     {
-      id: "c-3",
-      handle: "pooja_fit",
-      display_name: "Pooja Verma",
-      niche: "Health & Nutrition",
-      rating: 4.8,
-      location: "Mumbai, Maharashtra",
-      starting_rate: 20000,
-      bio: "Certified fitness coach and nutritionist creating evidence-based supplement reviews.",
+      id: "c-sarah",
+      handle: "sarahmiller",
+      display_name: "Sarah Miller",
+      niche: "Technology & Gear",
+      rating: 5.0,
+      location: "Bengaluru, Karnataka",
+      starting_rate: 25000,
+      bio: "Tech reviewer, consumer audio enthusiast, and 4K workflow specialist.",
       verified: true,
     },
-    {
-      id: "c-4",
-      handle: "kabir_travels",
-      display_name: "Kabir Mehta",
-      niche: "Travel & Lifestyle",
-      rating: 4.9,
-      location: "New Delhi, NCR",
-      starting_rate: 45000,
-      bio: "Cinematic travel filmmaker partnering with premium hospitality and camera brands.",
-      verified: false,
-    },
   ]);
+
+  useEffect(() => {
+    searchCreators().then((live) => {
+      if (Array.isArray(live) && live.length > 0) {
+        setCreators(
+          live.map((c, idx) => ({
+            id: `c-live-${idx}`,
+            handle: c.handle,
+            display_name: c.display_name,
+            niche: c.niche || "Content Creator",
+            rating: c.rating || 5.0,
+            location: c.location || "India",
+            starting_rate: 15000,
+            bio: c.bio || "Verified influencer on Flenzr.",
+            verified: c.is_verified,
+          }))
+        );
+      }
+    }).catch(() => {});
+  }, []);
+
 
   // Campaigns state
   const [campaigns, setCampaigns] = useState<CampaignItem[]>([
@@ -156,15 +167,15 @@ export default function BrandDashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-white text-black selection:bg-[#c1121f] selection:text-white">
+    <div className="min-h-screen bg-[#09090b] text-neutral-100 selection:bg-[#c1121f] selection:text-white">
       {/* Top Header */}
-      <header className="border-b border-neutral-200 bg-white/90 backdrop-blur sticky top-0 z-40">
+      <header className="border-b border-neutral-800 bg-[#09090b]/85 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2">
-              <Logo size={30} variant="duotone" withWordmark={true} />
+              <Logo size={30} variant="duotone-dark" withWordmark={true} />
             </Link>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-neutral-100 text-black font-semibold border border-neutral-200">
+            <span className="h-6 px-3 rounded-full bg-neutral-900 text-neutral-200 font-semibold border border-neutral-800 text-xs inline-flex items-center justify-center leading-none">
               Brand Portal • Lumina Audio
             </span>
           </div>
@@ -172,7 +183,7 @@ export default function BrandDashboardPage() {
           <div className="flex items-center gap-3 text-xs sm:text-sm">
             <button
               onClick={() => setShowNewCampaign(true)}
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#c1121f] hover:bg-[#a50e1a] text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#c1121f]/20"
+              className="h-9 px-4 rounded-xl text-xs font-bold bg-[#c1121f] hover:bg-[#a50e1a] text-white transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-[#c1121f]/25 leading-none"
             >
               <Plus className="w-4 h-4" />
               <span>Launch Campaign</span>
@@ -185,26 +196,26 @@ export default function BrandDashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Brand Metric Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center justify-between text-xs text-neutral-500 mb-2 font-medium">
+          <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-5 shadow-xl">
+            <div className="flex items-center justify-between text-xs text-neutral-400 mb-2 font-medium">
               <span>Active Campaigns</span>
               <Briefcase className="w-4 h-4 text-[#c1121f]" />
             </div>
-            <div className="text-2xl font-black text-black">{campaigns.length}</div>
+            <div className="text-2xl font-black text-white">{campaigns.length}</div>
           </div>
 
-          <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center justify-between text-xs text-neutral-500 mb-2 font-medium">
+          <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-5 shadow-xl">
+            <div className="flex items-center justify-between text-xs text-neutral-400 mb-2 font-medium">
               <span>Allocated Budget</span>
               <DollarSign className="w-4 h-4 text-[#c1121f]" />
             </div>
-            <div className="text-2xl font-black text-black">
+            <div className="text-2xl font-black text-white">
               ₹{campaigns.reduce((a, c) => a + c.budget_dollars, 0).toLocaleString("en-IN")}
             </div>
           </div>
 
-          <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center justify-between text-xs text-neutral-500 mb-2 font-medium">
+          <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-5 shadow-xl">
+            <div className="flex items-center justify-between text-xs text-neutral-400 mb-2 font-medium">
               <span>Total Creator Applicants</span>
               <Users className="w-4 h-4 text-[#c1121f]" />
             </div>
@@ -215,13 +226,13 @@ export default function BrandDashboardPage() {
         </div>
 
         {/* Dashboard Tabs */}
-        <div className="flex border-b border-neutral-200 gap-2">
+        <div className="flex border-b border-neutral-800 gap-2">
           <button
             onClick={() => setActiveTab("discovery")}
             className={`pb-3 px-4 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
               activeTab === "discovery"
-                ? "border-[#c1121f] text-black font-bold"
-                : "border-transparent text-neutral-500 hover:text-black"
+                ? "border-[#c1121f] text-white font-bold"
+                : "border-transparent text-neutral-400 hover:text-white"
             }`}
           >
             <Search className="w-4 h-4 text-[#c1121f]" />
@@ -232,8 +243,8 @@ export default function BrandDashboardPage() {
             onClick={() => setActiveTab("campaigns")}
             className={`pb-3 px-4 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
               activeTab === "campaigns"
-                ? "border-[#c1121f] text-black font-bold"
-                : "border-transparent text-neutral-500 hover:text-black"
+                ? "border-[#c1121f] text-white font-bold"
+                : "border-transparent text-neutral-400 hover:text-white"
             }`}
           >
             <Briefcase className="w-4 h-4 text-[#c1121f]" />
@@ -245,15 +256,15 @@ export default function BrandDashboardPage() {
         {activeTab === "discovery" && (
           <section className="space-y-6">
             {/* Search & Filter Bar */}
-            <div className="bg-white border border-neutral-200 rounded-2xl p-4 flex flex-col sm:flex-row gap-3 shadow-sm">
+            <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-4 flex flex-col sm:flex-row gap-3 shadow-md">
               <div className="relative flex-1">
-                <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search creators by name, handle, or keywords..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-neutral-50 border border-neutral-200 rounded-xl pl-10 pr-4 py-2 text-xs text-black placeholder-neutral-400 focus:outline-none focus:border-[#c1121f]"
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#c1121f]"
                 />
               </div>
 
@@ -266,7 +277,7 @@ export default function BrandDashboardPage() {
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                       selectedNiche === n
                         ? "bg-[#c1121f] text-white font-bold"
-                        : "bg-neutral-100 text-black hover:bg-neutral-200"
+                        : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800 border border-neutral-800"
                     }`}
                   >
                     {n}
@@ -280,51 +291,51 @@ export default function BrandDashboardPage() {
               {filteredCreators.map((creator) => (
                 <div
                   key={creator.id}
-                  className="bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-between hover:border-[#c1121f]/50 hover:shadow-md transition-all shadow-sm"
+                  className="bg-[#121215] border border-neutral-800 rounded-2xl p-6 flex flex-col justify-between hover:border-[#c1121f]/50 hover:shadow-xl transition-all shadow-md"
                 >
                   <div className="space-y-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#c1121f] to-black p-0.5">
-                          <div className="w-full h-full rounded-[10px] bg-white flex items-center justify-center font-bold text-black">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#c1121f] to-neutral-700 p-0.5">
+                          <div className="w-full h-full rounded-[10px] bg-neutral-950 flex items-center justify-center font-bold text-white">
                             {creator.display_name.charAt(0)}
                           </div>
                         </div>
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <h3 className="font-bold text-black text-base">{creator.display_name}</h3>
+                            <h3 className="font-bold text-white text-base">{creator.display_name}</h3>
                             {creator.verified && (
                               <CheckCircle className="w-4 h-4 fill-[#c1121f] text-white" />
                             )}
                           </div>
-                          <p className="text-xs text-neutral-500">@{creator.handle}</p>
+                          <p className="text-xs text-neutral-400">@{creator.handle}</p>
                         </div>
                       </div>
 
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-black border border-neutral-200">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-800 text-white border border-neutral-700">
                         <Star className="w-3.5 h-3.5 fill-[#c1121f] text-[#c1121f]" />
                         {creator.rating.toFixed(1)}
                       </span>
                     </div>
 
-                    <p className="text-xs text-neutral-600 leading-relaxed">{creator.bio}</p>
+                    <p className="text-xs text-neutral-400 leading-relaxed">{creator.bio}</p>
 
-                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-600">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-100 border border-neutral-200 font-medium">
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-300">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800 font-medium">
                         <Tag className="w-3 h-3 text-[#c1121f]" />
                         {creator.niche}
                       </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-100 border border-neutral-200 font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800 font-medium">
                         <MapPin className="w-3 h-3 text-[#c1121f]" />
                         {creator.location}
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-neutral-200 flex items-center justify-between">
+                  <div className="mt-6 pt-4 border-t border-neutral-800 flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-neutral-500 block font-medium">Packages from</span>
-                      <span className="text-base font-extrabold text-black">
+                      <span className="text-[10px] text-neutral-400 block font-medium">Packages from</span>
+                      <span className="text-base font-extrabold text-white">
                         ₹{creator.starting_rate.toLocaleString("en-IN")}
                       </span>
                     </div>
@@ -333,14 +344,14 @@ export default function BrandDashboardPage() {
                       <Link
                         href={`/${creator.handle}`}
                         target="_blank"
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-100 hover:bg-neutral-200 text-black transition-colors flex items-center gap-1 shadow-sm"
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-white transition-colors flex items-center gap-1 shadow-sm border border-neutral-700"
                       >
                         <span>Media Kit</span>
                         <ExternalLink className="w-3 h-3" />
                       </Link>
                       <button
                         onClick={() => alert(`Invite sent to @${creator.handle}!`)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#c1121f] hover:bg-[#a50e1a] text-white transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#c1121f] hover:bg-[#a50e1a] text-white transition-colors flex items-center gap-1 cursor-pointer shadow-md shadow-[#c1121f]/25"
                       >
                         <Send className="w-3 h-3" />
                         <span>Invite</span>
@@ -360,35 +371,35 @@ export default function BrandDashboardPage() {
               {campaigns.map((camp) => (
                 <div
                   key={camp.id}
-                  className="bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#c1121f]/50 hover:shadow-md transition-all shadow-sm"
+                  className="bg-[#121215] border border-neutral-800 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#c1121f]/50 hover:shadow-xl transition-all shadow-md"
                 >
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#c1121f]/10 text-[#c1121f] border border-[#c1121f]/20">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#c1121f]/20 text-[#c1121f] border border-[#c1121f]/30">
                         {camp.status}
                       </span>
-                      <span className="text-xs text-neutral-500 font-medium">{camp.target_niche}</span>
+                      <span className="text-xs text-neutral-400 font-medium">{camp.target_niche}</span>
                     </div>
-                    <h3 className="text-base font-bold text-black">{camp.title}</h3>
-                    <p className="text-xs text-neutral-600">{camp.deliverables}</p>
+                    <h3 className="text-base font-bold text-white">{camp.title}</h3>
+                    <p className="text-xs text-neutral-400">{camp.deliverables}</p>
                   </div>
 
                   <div className="flex items-center gap-8 text-center sm:text-right">
                     <div>
-                      <span className="text-xs text-neutral-500 block font-medium">Budget</span>
-                      <span className="text-lg font-black text-black">
+                      <span className="text-xs text-neutral-400 block font-medium">Budget</span>
+                      <span className="text-lg font-black text-white">
                         ₹{camp.budget_dollars.toLocaleString("en-IN")}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-xs text-neutral-500 block font-medium">Applicants</span>
+                      <span className="text-xs text-neutral-400 block font-medium">Applicants</span>
                       <span className="text-lg font-black text-[#c1121f]">
                         {camp.applicants_count}
                       </span>
                     </div>
 
-                    <button className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-100 hover:bg-neutral-200 text-black border border-neutral-200 transition-colors cursor-pointer shadow-sm">
+                    <button className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700 transition-colors cursor-pointer shadow-sm">
                       Review Offers
                     </button>
                   </div>
@@ -400,36 +411,36 @@ export default function BrandDashboardPage() {
 
         {/* New Campaign Modal */}
         {showNewCampaign && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <form
               onSubmit={handleCreateCampaign}
-              className="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-4 shadow-2xl"
+              className="bg-[#141418] border border-neutral-800 rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-4 shadow-2xl text-white"
             >
-              <h3 className="text-lg font-bold text-black">Launch New Campaign Brief</h3>
-              <p className="text-xs text-neutral-500">
+              <h3 className="text-lg font-bold text-white">Launch New Campaign Brief</h3>
+              <p className="text-xs text-neutral-400">
                 Creators in the discovery directory can browse and submit applications.
               </p>
 
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="block text-neutral-600 mb-1 font-medium">Campaign Title</label>
+                  <label className="block text-neutral-300 mb-1 font-medium">Campaign Title</label>
                   <input
                     type="text"
                     value={newCampTitle}
                     onChange={(e) => setNewCampTitle(e.target.value)}
                     placeholder="e.g. Q4 Wireless Headphone Launch"
-                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-black focus:outline-none focus:border-[#c1121f]"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-neutral-600 mb-1 font-medium">Target Niche</label>
+                    <label className="block text-neutral-300 mb-1 font-medium">Target Niche</label>
                     <select
                       value={newCampNiche}
                       onChange={(e) => setNewCampNiche(e.target.value)}
-                      className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-black focus:outline-none focus:border-[#c1121f]"
+                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
                     >
                       <option>Technology & Gear</option>
                       <option>Software & Productivity</option>
@@ -439,36 +450,36 @@ export default function BrandDashboardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-neutral-600 mb-1 font-medium">Total Budget (INR ₹)</label>
+                    <label className="block text-neutral-300 mb-1 font-medium">Total Budget (INR ₹)</label>
                     <input
                       type="number"
                       value={newCampBudget}
                       onChange={(e) => setNewCampBudget(e.target.value)}
-                      className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-black focus:outline-none focus:border-[#c1121f]"
+                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
                       placeholder="100000"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-neutral-600 mb-1 font-medium">Deliverable Requirements</label>
+                  <label className="block text-neutral-300 mb-1 font-medium">Deliverable Requirements</label>
                   <input
                     type="text"
                     value={newCampDeliverables}
                     onChange={(e) => setNewCampDeliverables(e.target.value)}
                     placeholder="e.g. 1x Dedicated 8-10 min YouTube review + Instagram Reel"
-                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-black focus:outline-none focus:border-[#c1121f]"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-neutral-600 mb-1 font-medium">Brief Description</label>
+                  <label className="block text-neutral-300 mb-1 font-medium">Brief Description</label>
                   <textarea
                     rows={3}
                     value={newCampBrief}
                     onChange={(e) => setNewCampBrief(e.target.value)}
                     placeholder="Describe the product, key talking points, and guidelines..."
-                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-black focus:outline-none focus:border-[#c1121f]"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
                   />
                 </div>
               </div>
@@ -477,13 +488,13 @@ export default function BrandDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setShowNewCampaign(false)}
-                  className="px-4 py-2 rounded-xl text-xs bg-neutral-100 text-black hover:bg-neutral-200 cursor-pointer font-semibold"
+                  className="px-4 py-2 rounded-xl text-xs bg-neutral-800 text-neutral-300 hover:bg-neutral-700 cursor-pointer font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-[#c1121f] text-white hover:bg-[#a50e1a] cursor-pointer shadow-md shadow-[#c1121f]/20"
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-[#c1121f] text-white hover:bg-[#a50e1a] cursor-pointer shadow-lg shadow-[#c1121f]/25"
                 >
                   Publish Campaign
                 </button>

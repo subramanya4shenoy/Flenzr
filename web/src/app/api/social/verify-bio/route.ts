@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { platform, handle, verificationCode } = body;
+    const { platform, handle, verificationCode, creatorHandle } = body;
 
     if (!handle || !verificationCode) {
       return NextResponse.json(
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const cleanCode = verificationCode.trim().toUpperCase();
 
     // Call FastAPI backend to perform live bio / description verification
-    const fastApiUrl = process.env.BACKEND_API_URL || "http://localhost:8000";
+    const fastApiUrl = process.env.BACKEND_API_URL || "http://localhost:8002";
     try {
       const backendRes = await fetch(`${fastApiUrl}/api/v1/creators/verify-bio`, {
         method: "POST",
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
           platform,
           handle: cleanHandle,
           verification_code: cleanCode,
+          creator_handle: creatorHandle || null,
         }),
       });
 

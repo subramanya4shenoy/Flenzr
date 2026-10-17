@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { ArrowRight, Check, Sparkles, Shield, User, Building2 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { getCreatorByEmail } from "@/lib/api";
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -38,60 +39,146 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  const handleGoogleLogin = () => {
+  // If already logged in, redirect straight to dashboard
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("flenzr_auth_session");
+    if (raw) {
+      try {
+        const session = JSON.parse(raw);
+        if (session && (session.email || session.handle)) {
+          router.replace(session.role === "brand" ? "/dashboard/brand" : "/dashboard/creator");
+        }
+      } catch {}
+    }
+  }, [router]);
+
+  const handleGoogleLogin = async () => {
     setGoogleLoading(true);
-    // Simulate instantaneous Google OAuth token exchange
-    setTimeout(() => {
-      if (typeof window !== "undefined") {
-        localStorage.setItem(
-          "flenzr_auth_session",
-          JSON.stringify({
-            provider: "google",
-            email: role === "creator" ? "subu@flenzr.com" : "brand@sponsor.io",
-            fullName: role === "creator" ? "Subramanya Shenoy" : "Lumina Global",
-            role,
-          })
-        );
+    const targetEmail = role === "creator" ? "subu@flenzr.com" : "brand@sponsor.io";
+    const defaultName = role === "creator" ? "Subramanya Shenoy" : "Lumina Global";
+
+    if (typeof window !== "undefined") {
+      let handle = role === "creator" ? "subu_creates" : "luminaglobal";
+      try {
+        if (role === "creator") {
+          const liveCreator = await getCreatorByEmail(targetEmail);
+          if (liveCreator) {
+            handle = liveCreator.handle;
+            localStorage.setItem(
+              "flenzr_creator_profile",
+              JSON.stringify({
+                fullName: liveCreator.display_name,
+                handle: liveCreator.handle,
+                niche: liveCreator.niche,
+                email: targetEmail,
+                instagramHandle: liveCreator.instagram_handle,
+                isInstagramBioVerified: liveCreator.instagram_verified,
+                youtubeChannel: liveCreator.youtube_channel,
+                isYoutubeBioVerified: liveCreator.youtube_verified,
+              })
+            );
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch creator profile on login", err);
       }
-      setGoogleLoading(false);
-      router.push(role === "creator" ? "/dashboard/creator" : "/dashboard/brand");
-    }, 700);
+
+      localStorage.setItem(
+        "flenzr_auth_session",
+        JSON.stringify({
+          provider: "google",
+          email: targetEmail,
+          fullName: defaultName,
+          handle,
+          role,
+        })
+      );
+    }
+
+    setGoogleLoading(false);
+    router.push(role === "creator" ? "/dashboard/creator" : "/dashboard/brand");
   };
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return alert("Please enter your email");
     setIsLoading(true);
-    setTimeout(() => {
-      if (typeof window !== "undefined") {
-        localStorage.setItem(
-          "flenzr_auth_session",
-          JSON.stringify({
-            provider: "email",
-            email,
-            role,
-          })
-        );
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (typeof window !== "undefined") {
+      let derivedHandle = cleanEmail.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "");
+      let derivedName = derivedHandle.charAt(0).toUpperCase() + derivedHandle.slice(1);
+
+      try {
+        if (role === "creator") {
+          const liveCreator = await getCreatorByEmail(cleanEmail);
+          if (liveCreator) {
+            derivedHandle = liveCreator.handle;
+            derivedName = liveCreator.display_name;
+            localStorage.setItem(
+              "flenzr_creator_profile",
+              JSON.stringify({
+                fullName: liveCreator.display_name,
+                handle: liveCreator.handle,
+                niche: liveCreator.niche,
+                email: cleanEmail,
+                instagramHandle: liveCreator.instagram_handle,
+                isInstagramBioVerified: liveCreator.instagram_verified,
+                youtubeChannel: liveCreator.youtube_channel,
+                isYoutubeBioVerified: liveCreator.youtube_verified,
+              })
+            );
+          } else {
+            localStorage.setItem(
+              "flenzr_creator_profile",
+              JSON.stringify({
+                fullName: derivedName,
+                handle: derivedHandle,
+                niche: "Content Creator",
+                email: cleanEmail,
+                instagramHandle: derivedHandle,
+                isInstagramBioVerified: false,
+                youtubeChannel: null,
+                isYoutubeBioVerified: false,
+              })
+            );
+          }
+        }
+      } catch (err) {
+        console.warn("Could not check email profile", err);
       }
-      setIsLoading(false);
-      router.push(role === "creator" ? "/dashboard/creator" : "/dashboard/brand");
-    }, 600);
+
+      localStorage.setItem(
+        "flenzr_auth_session",
+        JSON.stringify({
+          provider: "email",
+          email: cleanEmail,
+          fullName: derivedName,
+          handle: derivedHandle,
+          role,
+        })
+      );
+    }
+
+    setIsLoading(false);
+    router.push(role === "creator" ? "/dashboard/creator" : "/dashboard/brand");
   };
 
   return (
-    <div className="min-h-screen bg-white text-black selection:bg-[#c1121f] selection:text-white flex flex-col font-sans">
+    <div className="min-h-screen bg-[#09090b] text-neutral-100 selection:bg-[#c1121f] selection:text-white flex flex-col font-sans">
       {/* Background Subtle Accent Gradients */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-gradient-to-b from-[#c1121f]/8 via-transparent to-transparent blur-3xl opacity-75" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-gradient-to-b from-[#c1121f]/15 via-transparent to-transparent blur-3xl opacity-75" />
       </div>
 
       {/* Top Header */}
-      <header className="relative border-b border-neutral-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-50">
+      <header className="relative border-b border-neutral-800 bg-[#09090b]/85 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center shrink-0">
-            <Logo size={32} variant="duotone" withWordmark={true} />
+            <Logo size={32} variant="duotone-dark" withWordmark={true} />
           </Link>
-          <div className="text-xs text-neutral-500 font-medium flex items-center gap-2">
+          <div className="text-xs text-neutral-400 font-medium flex items-center gap-2">
             <span>New to Flenzr?</span>
             <Link
               href="/signup/creator"
@@ -105,43 +192,43 @@ export default function LoginPage() {
 
       {/* Main Login Card */}
       <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
-        <div className="max-w-md w-full bg-white border border-neutral-200/90 rounded-3xl p-6 sm:p-9 shadow-xl shadow-black/5 text-left">
+        <div className="max-w-md w-full bg-[#121215] border border-neutral-800 rounded-3xl p-6 sm:p-9 shadow-2xl text-left">
           {/* Role Toggle */}
-          <div className="flex p-1 bg-neutral-100 rounded-2xl mb-7">
+          <div className="flex p-1 bg-neutral-900 border border-neutral-800 rounded-2xl mb-7">
             <button
               type="button"
               onClick={() => setRole("creator")}
-              className={`flex-1 py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 h-9 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-1.5 leading-none transition-all cursor-pointer ${
                 role === "creator"
-                  ? "bg-white text-black shadow-xs"
-                  : "text-neutral-500 hover:text-black"
+                  ? "bg-neutral-800 text-white shadow-xs border border-neutral-700"
+                  : "text-neutral-400 hover:text-white"
               }`}
             >
-              <User className="w-3.5 h-3.5" />
+              <User className="w-3.5 h-3.5 shrink-0" />
               <span>Creator / Influencer</span>
             </button>
             <button
               type="button"
               onClick={() => setRole("brand")}
-              className={`flex-1 py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 h-9 text-xs font-bold rounded-xl inline-flex items-center justify-center gap-1.5 leading-none transition-all cursor-pointer ${
                 role === "brand"
-                  ? "bg-white text-black shadow-xs"
-                  : "text-neutral-500 hover:text-black"
+                  ? "bg-neutral-800 text-white shadow-xs border border-neutral-700"
+                  : "text-neutral-400 hover:text-white"
               }`}
             >
-              <Building2 className="w-3.5 h-3.5" />
+              <Building2 className="w-3.5 h-3.5 shrink-0" />
               <span>Brand / Sponsor</span>
             </button>
           </div>
 
           <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Welcome back.
             </h1>
-            <p className="text-xs sm:text-sm text-neutral-600 mt-1">
+            <p className="text-xs sm:text-sm text-neutral-400 mt-1">
               {role === "creator"
                 ? "Log in to manage your ₹ rate cards, bio link, and active brand deals."
-                : "Log in to discover influencers, negotiate rate cards, and escrow payouts."}
+                : "Log in to discover influencers, negotiate rate cards, and secure Vault payouts."}
             </p>
           </div>
 
@@ -150,7 +237,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={googleLoading}
-            className="w-full py-3 px-4 rounded-2xl border-2 border-neutral-200 hover:border-black bg-white hover:bg-neutral-50 font-bold text-xs sm:text-sm text-neutral-800 transition-all flex items-center justify-center gap-2.5 shadow-xs cursor-pointer disabled:opacity-50"
+            className="w-full h-12 px-4 rounded-2xl border border-neutral-700 hover:border-neutral-500 bg-neutral-900 hover:bg-neutral-800 font-bold text-xs sm:text-sm text-white transition-all inline-flex items-center justify-center gap-2.5 shadow-md cursor-pointer disabled:opacity-50 leading-none"
           >
             <GoogleIcon className="w-4 h-4 shrink-0" />
             <span>
@@ -160,9 +247,9 @@ export default function LoginPage() {
 
           <div className="relative my-6 text-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-neutral-200" />
+              <div className="w-full border-t border-neutral-800" />
             </div>
-            <span className="relative px-3 bg-white text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+            <span className="relative px-3 bg-[#121215] text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
               Or with email
             </span>
           </div>
@@ -170,7 +257,7 @@ export default function LoginPage() {
           {/* Email & Password Form */}
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
                 Email Address
               </label>
               <input
@@ -179,13 +266,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-2xl border border-neutral-200 px-4 py-3 text-sm font-semibold outline-hidden focus:border-black transition-colors"
+                className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 text-white px-4 py-3 text-sm font-semibold outline-hidden focus:border-[#c1121f] transition-colors placeholder:text-neutral-600"
               />
             </div>
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
                   Password
                 </label>
                 <a
@@ -205,21 +292,21 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full rounded-2xl border border-neutral-200 px-4 py-3 text-sm font-semibold outline-hidden focus:border-black transition-colors"
+                className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 text-white px-4 py-3 text-sm font-semibold outline-hidden focus:border-[#c1121f] transition-colors placeholder:text-neutral-600"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 rounded-full bg-black hover:bg-neutral-800 text-white font-bold text-sm shadow-md transition-all hover:scale-[1.01] inline-flex items-center justify-center gap-2 cursor-pointer mt-2"
+              className="w-full h-12 rounded-full bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-sm shadow-lg shadow-[#c1121f]/25 transition-all hover:scale-[1.01] inline-flex items-center justify-center gap-2 cursor-pointer mt-2 leading-none"
             >
               <span>{isLoading ? "Signing In..." : "Sign In to Account"}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-500">
+          <div className="mt-6 pt-5 border-t border-neutral-800 flex items-center justify-between text-xs text-neutral-400">
             <span>Don&apos;t have an account?</span>
             <Link
               href={role === "creator" ? "/signup/creator" : "/dashboard/brand"}

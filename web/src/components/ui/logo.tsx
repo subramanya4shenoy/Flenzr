@@ -52,8 +52,7 @@ export function Logo({
   // an optical offset of ~12% of size centers the glyph caps & x-height with the emblem's visual equator.
   const iconHeight = size;
   const iconWidth = Math.round((iconHeight * 260) / 384);
-  const fontSize = Math.round(size * 0.72);
-  const opticalShiftY = Math.max(2, Math.round(size * 0.12));
+  const fontSize = Math.round(size * 0.68);
 
   return (
     <div className={`inline-flex items-center gap-2.5 ${className}`}>
@@ -85,7 +84,6 @@ export function Logo({
           style={{
             fontSize: `${fontSize}px`,
             color: resolvedWordmark,
-            transform: `translateY(${opticalShiftY}px)`,
           }}
         >
           Flenzr

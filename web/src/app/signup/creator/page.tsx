@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
@@ -126,6 +126,20 @@ export default function CreatorSignupPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // If already logged in, redirect to creator dashboard
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("flenzr_auth_session");
+    if (raw) {
+      try {
+        const session = JSON.parse(raw);
+        if (session && (session.email || session.handle)) {
+          router.replace(session.role === "brand" ? "/dashboard/brand" : "/dashboard/creator");
+        }
+      } catch {}
+    }
+  }, [router]);
 
   // Google OAuth Simulation / Real state
   const [isGoogleConnected, setIsGoogleConnected] = useState(false);
@@ -488,19 +502,19 @@ export default function CreatorSignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black selection:bg-[#c1121f] selection:text-white flex flex-col font-sans">
+    <div className="min-h-screen bg-[#09090b] text-neutral-100 selection:bg-[#c1121f] selection:text-white flex flex-col font-sans">
       {/* Background Subtle Accent Gradients */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-gradient-to-b from-[#c1121f]/8 via-transparent to-transparent blur-3xl opacity-75" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-gradient-to-b from-[#c1121f]/15 via-transparent to-transparent blur-3xl opacity-75" />
       </div>
 
       {/* Top Header */}
-      <header className="relative border-b border-neutral-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-50">
+      <header className="relative border-b border-neutral-800 bg-[#09090b]/85 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center shrink-0">
-            <Logo size={32} variant="duotone" withWordmark={true} />
+            <Logo size={32} variant="duotone-dark" withWordmark={true} />
           </Link>
-          <div className="text-xs text-neutral-500 font-medium flex items-center gap-2">
+          <div className="text-xs text-neutral-400 font-medium flex items-center gap-2">
             <span>Already on Flenzr?</span>
             <Link
               href="/login"
@@ -516,25 +530,25 @@ export default function CreatorSignupPage() {
       <main className="relative z-10 flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Step Progress Tracker */}
         <div className="mb-10">
-          <div className="flex items-center justify-between mb-3 text-xs font-bold text-neutral-500">
-            <span className={currentStep >= 1 ? "text-black" : ""}>
+          <div className="flex items-center justify-between mb-3 text-xs font-bold text-neutral-400">
+            <span className={currentStep >= 1 ? "text-white" : ""}>
               1. Claim Handle
             </span>
-            <span className={currentStep >= 2 ? "text-black" : ""}>
+            <span className={currentStep >= 2 ? "text-white" : ""}>
               2. Connect Socials &amp; Stats
             </span>
-            <span className={currentStep >= 3 ? "text-black" : ""}>
+            <span className={currentStep >= 3 ? "text-white" : ""}>
               3. Rate Card (₹)
             </span>
-            <span className={currentStep >= 4 ? "text-black" : ""}>
+            <span className={currentStep >= 4 ? "text-white" : ""}>
               4. Bio Link &amp; QR
             </span>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden flex">
+          <div className="w-full h-1.5 bg-neutral-800 rounded-full overflow-hidden flex">
             <motion.div
-              className="h-full bg-gradient-to-r from-black to-[#c1121f]"
+              className="h-full bg-gradient-to-r from-neutral-400 to-[#c1121f]"
               initial={{ width: "25%" }}
               animate={{ width: `${(currentStep / 4) * 100}%` }}
               transition={{ duration: 0.3 }}
@@ -543,7 +557,7 @@ export default function CreatorSignupPage() {
         </div>
 
         {/* Wizard Form Card */}
-        <div className="bg-white border border-neutral-200/90 rounded-3xl p-6 sm:p-10 shadow-xl shadow-black/5">
+        <div className="bg-[#121215] border border-neutral-800 rounded-3xl p-6 sm:p-10 shadow-2xl text-white">
           <AnimatePresence mode="wait" initial={false}>
             {/* STEP 1: IDENTITY & CLAIM HANDLE */}
             {currentStep === 1 && (
@@ -556,16 +570,16 @@ export default function CreatorSignupPage() {
                 className="space-y-6 text-left"
               >
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#c1121f]/10 text-[#c1121f] mb-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#c1121f]/15 text-[#e63946] border border-[#c1121f]/20 mb-2">
                     <Sparkles className="w-3.5 h-3.5 shrink-0" />
                     <span>Step 1 of 4: Influencer Profile</span>
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                     Claim your unique Flenzr handle.
                   </h2>
-                  <p className="text-xs sm:text-sm text-neutral-600 mt-1 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-neutral-400 mt-1 leading-relaxed">
                     This will be your universal bio link (e.g.{" "}
-                    <code>flenzr.com/@yourname</code>) where followers and brand
+                    <code className="text-[#e63946]">flenzr.com/@yourname</code>) where followers and brand
                     partners discover your verified rate card.
                   </p>
                 </div>
@@ -576,7 +590,7 @@ export default function CreatorSignupPage() {
                     type="button"
                     onClick={handleGoogleConnect}
                     disabled={isGoogleLoading}
-                    className="w-full py-3.5 px-4 rounded-2xl border-2 border-neutral-200 hover:border-black bg-white hover:bg-neutral-50 font-bold text-xs sm:text-sm text-neutral-800 transition-all flex items-center justify-center gap-2.5 shadow-xs cursor-pointer disabled:opacity-50"
+                    className="w-full py-3.5 px-4 rounded-2xl border border-neutral-700 hover:border-neutral-500 bg-neutral-900 hover:bg-neutral-800 font-bold text-xs sm:text-sm text-white transition-all flex items-center justify-center gap-2.5 shadow-md cursor-pointer disabled:opacity-50"
                   >
                     <GoogleIcon className="w-4 h-4 shrink-0" />
                     <span>
@@ -586,22 +600,22 @@ export default function CreatorSignupPage() {
                     </span>
                   </button>
                 ) : (
-                  <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                  <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
                         G
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                        <div className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
                           <span>Google Account Connected</span>
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                         </div>
-                        <div className="text-[11px] text-emerald-700">
+                        <div className="text-[11px] text-emerald-400/80">
                           {email || "subu@flenzr.com"}
                         </div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-200/80 text-emerald-800">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-900/60 border border-emerald-700/50 text-emerald-300">
                       Verified
                     </span>
                   </div>
@@ -609,19 +623,19 @@ export default function CreatorSignupPage() {
 
                 <div className="relative my-4 text-center">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-neutral-200" />
+                    <div className="w-full border-t border-neutral-800" />
                   </div>
-                  <span className="relative px-3 bg-white text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+                  <span className="relative px-3 bg-[#121215] text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
                     Or customize handle manually
                   </span>
                 </div>
 
                 {/* Handle Input with Live Validation Preview */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
                     Your Username Handle
                   </label>
-                  <div className="flex items-center rounded-2xl border-2 border-neutral-200 focus-within:border-black transition-colors px-3 py-2.5 bg-neutral-50/60">
+                  <div className="flex items-center rounded-2xl border border-neutral-800 focus-within:border-[#c1121f] transition-colors px-3 py-2.5 bg-neutral-950">
                     <span className="text-sm font-bold text-neutral-500 select-none">
                       flenzr.com/@
                     </span>
@@ -630,10 +644,10 @@ export default function CreatorSignupPage() {
                       placeholder="yourname"
                       value={handle}
                       onChange={(e) => handleCleanChange(e.target.value)}
-                      className="w-full bg-transparent outline-hidden font-bold text-sm text-black placeholder-neutral-400 pl-1"
+                      className="w-full bg-transparent outline-hidden font-bold text-sm text-white placeholder-neutral-600 pl-1"
                     />
                     {handle.length > 2 && (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 shrink-0 flex items-center gap-1">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 shrink-0 flex items-center gap-1">
                         <Check className="w-3 h-3" /> Available
                       </span>
                     )}
@@ -643,7 +657,7 @@ export default function CreatorSignupPage() {
                 {/* Full Name & Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
                       Full Name
                     </label>
                     <input
@@ -651,12 +665,12 @@ export default function CreatorSignupPage() {
                       placeholder="e.g. Sarah Miller or Kabir Mehta"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full rounded-2xl border border-neutral-200 px-4 py-3 text-sm font-semibold outline-hidden focus:border-black transition-colors"
+                      className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 text-white px-4 py-3 text-sm font-semibold outline-hidden focus:border-[#c1121f] transition-colors placeholder:text-neutral-600"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
                       Email Address
                     </label>
                     <input
@@ -664,7 +678,7 @@ export default function CreatorSignupPage() {
                       placeholder="you@domain.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full rounded-2xl border border-neutral-200 px-4 py-3 text-sm font-semibold outline-hidden focus:border-black transition-colors"
+                      className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 text-white px-4 py-3 text-sm font-semibold outline-hidden focus:border-[#c1121f] transition-colors placeholder:text-neutral-600"
                     />
                   </div>
                 </div>
@@ -672,7 +686,7 @@ export default function CreatorSignupPage() {
                 {/* Password (if not google connected) */}
                 {!isGoogleConnected && (
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
                       Password
                     </label>
                     <input
@@ -680,14 +694,14 @@ export default function CreatorSignupPage() {
                       placeholder="Create a secure password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full rounded-2xl border border-neutral-200 px-4 py-3 text-sm font-semibold outline-hidden focus:border-black transition-colors"
+                      className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 text-white px-4 py-3 text-sm font-semibold outline-hidden focus:border-[#c1121f] transition-colors placeholder:text-neutral-600"
                     />
                   </div>
                 )}
 
                 {/* Niche Picker */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
                     Primary Content Niche
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -698,8 +712,8 @@ export default function CreatorSignupPage() {
                         onClick={() => setNiche(n)}
                         className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                           niche === n
-                            ? "bg-black text-white shadow-sm"
-                            : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                            ? "bg-[#c1121f] text-white shadow-md shadow-[#c1121f]/25"
+                            : "bg-neutral-900 border border-neutral-800 text-neutral-300 hover:bg-neutral-800"
                         }`}
                       >
                         {n}
@@ -713,7 +727,7 @@ export default function CreatorSignupPage() {
                   <button
                     type="button"
                     onClick={handleNextStep}
-                    className="px-7 py-3 rounded-full bg-black hover:bg-neutral-800 text-white font-bold text-sm shadow-md transition-all hover:scale-[1.02] inline-flex items-center gap-2 cursor-pointer"
+                    className="h-12 px-7 rounded-full bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-sm shadow-lg shadow-[#c1121f]/25 transition-all hover:scale-[1.02] inline-flex items-center justify-center gap-2 cursor-pointer leading-none"
                   >
                     <span>Continue to Socials &amp; Stats</span>
                     <ArrowRight className="w-4 h-4" />
@@ -733,20 +747,20 @@ export default function CreatorSignupPage() {
                 className="space-y-6 text-left"
               >
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#c1121f]/10 text-[#c1121f] mb-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#c1121f]/15 text-[#e63946] border border-[#c1121f]/20 mb-2">
                     <Link2 className="w-3.5 h-3.5 shrink-0" />
                     <span>Step 2 of 4: Social Presence &amp; Stats</span>
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                     Link your social media &amp; pull stats.
                   </h2>
-                  <p className="text-xs sm:text-sm text-neutral-600 mt-1 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-neutral-400 mt-1 leading-relaxed">
                     Enter your handles to pull your current follower count, estimated views, and engagement rate. This automatically tunes your suggested ₹ rate card.
                   </p>
                 </div>
 
                 {/* Official API Verification Notice */}
-                <div className="p-4 rounded-2xl bg-neutral-900 text-white flex items-start gap-3.5 text-xs shadow-md">
+                <div className="p-4 rounded-2xl bg-neutral-900 border border-neutral-800 text-white flex items-start gap-3.5 text-xs shadow-md">
                   <Shield className="w-5 h-5 text-[#c1121f] shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <div className="font-bold text-white flex items-center gap-1.5">
@@ -755,25 +769,25 @@ export default function CreatorSignupPage() {
                         2-Stage Verification
                       </span>
                     </div>
-                    <p className="text-neutral-300 text-[11px] leading-relaxed">
+                    <p className="text-neutral-400 text-[11px] leading-relaxed">
                       We auto-enrich public metrics now for fast onboarding. You can link your official <strong>Instagram Professional</strong> &amp; <strong>YouTube OAuth API</strong> in your Creator Dashboard anytime to earn the <strong>&ldquo;Verified by Meta&rdquo;</strong> gold badge on the marketplace.
                     </p>
                   </div>
                 </div>
 
                 {/* Instagram Channel */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-neutral-50 border border-neutral-200/90 space-y-4">
+                <div className="p-4 sm:p-5 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm font-bold text-black">
-                      <InstagramIcon className="w-4 h-4 text-pink-600" />
+                    <div className="flex items-center gap-2 text-sm font-bold text-white">
+                      <InstagramIcon className="w-4 h-4 text-pink-500" />
                       <span>Instagram Profile</span>
                     </div>
                     {isInstagramBioVerified ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Verified Owner
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Verified Owner
                       </span>
                     ) : instagramStats ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-700">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300">
                         Pending Bio Verification
                       </span>
                     ) : null}
@@ -790,13 +804,13 @@ export default function CreatorSignupPage() {
                         setInstagramVerifyMsg(null);
                         setInstagramStats(null);
                       }}
-                      className="flex-1 rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-xs font-semibold outline-hidden focus:border-black"
+                      className="flex-1 rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-2.5 text-xs font-semibold text-white outline-hidden focus:border-[#c1121f] placeholder:text-neutral-600"
                     />
                     <button
                       type="button"
                       onClick={() => fetchInstagramStats()}
                       disabled={isEnrichingInstagram || !instagramHandle.trim()}
-                      className="px-4 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shrink-0"
+                      className="px-4 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shrink-0"
                     >
                       {isEnrichingInstagram ? (
                         <>
@@ -817,7 +831,7 @@ export default function CreatorSignupPage() {
                     <motion.div
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-3.5 rounded-xl bg-white border border-neutral-200 shadow-xs space-y-3 text-xs"
+                      className="p-3.5 rounded-xl bg-neutral-950 border border-neutral-800 shadow-md space-y-3 text-xs"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
@@ -828,16 +842,16 @@ export default function CreatorSignupPage() {
                               e.currentTarget.onerror = null;
                               e.currentTarget.src = `/api/proxy-image?name=${encodeURIComponent(instagramStats.displayName || instagramStats.handle)}`;
                             }}
-                            className="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-200 object-cover shrink-0"
+                            className="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-700 object-cover shrink-0"
                           />
                           <div>
-                            <div className="font-bold text-neutral-900 flex items-center gap-1.5">
+                            <div className="font-bold text-white flex items-center gap-1.5">
                               <span>{instagramStats.displayName}</span>
-                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-600 font-semibold">
+                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-neutral-800 text-neutral-300 font-semibold">
                                 {instagramStats.tier}
                               </span>
                             </div>
-                            <div className="text-[11px] text-neutral-500">
+                            <div className="text-[11px] text-neutral-400">
                               @{instagramStats.handle} • {instagramStats.category}
                             </div>
                           </div>
@@ -845,7 +859,7 @@ export default function CreatorSignupPage() {
 
                         <div className="flex items-center gap-4 text-center">
                           <div>
-                            <div className="font-extrabold text-sm text-black">
+                            <div className="font-extrabold text-sm text-white">
                               {instagramStats.followersFormatted}
                             </div>
                             <div className="text-[10px] text-neutral-400 uppercase font-semibold">
@@ -853,7 +867,7 @@ export default function CreatorSignupPage() {
                             </div>
                           </div>
                           <div>
-                            <div className="font-extrabold text-sm text-emerald-600 flex items-center justify-center gap-0.5">
+                            <div className="font-extrabold text-sm text-emerald-400 flex items-center justify-center gap-0.5">
                               <Flame className="w-3 h-3" />
                               <span>{instagramStats.engagementRate}%</span>
                             </div>
@@ -862,7 +876,7 @@ export default function CreatorSignupPage() {
                             </div>
                           </div>
                           <div>
-                            <div className="font-extrabold text-sm text-neutral-900">
+                            <div className="font-extrabold text-sm text-white">
                               {instagramStats.avgViewsFormatted}
                             </div>
                             <div className="text-[10px] text-neutral-400 uppercase font-semibold">
@@ -873,8 +887,8 @@ export default function CreatorSignupPage() {
                       </div>
 
                       {/* Quick Follower Calibration */}
-                      <div className="pt-2 border-t border-neutral-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                        <span className="text-neutral-500 font-medium">
+                      <div className="pt-2 border-t border-neutral-800 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                        <span className="text-neutral-400 font-medium">
                           Tune followers to calibrate ₹ rate cards:
                         </span>
                         <div className="flex flex-wrap gap-1">
@@ -893,8 +907,8 @@ export default function CreatorSignupPage() {
                               onClick={() => updateFollowersCount("instagram", pill.val)}
                               className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
                                 instagramStats.followers === pill.val
-                                  ? "bg-black text-white"
-                                  : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                                  ? "bg-[#c1121f] text-white"
+                                  : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
                               }`}
                             >
                               {pill.label}
@@ -911,39 +925,39 @@ export default function CreatorSignupPage() {
                       <motion.div
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1.5"
+                        className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-xs space-y-1.5"
                       >
-                        <div className="flex items-center justify-between font-bold text-emerald-900">
+                        <div className="flex items-center justify-between font-bold text-emerald-300">
                           <span className="flex items-center gap-1.5">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                             Instagram Ownership Confirmed
                           </span>
-                          <span className="px-2 py-0.5 rounded bg-emerald-200/80 text-emerald-800 text-[10px] uppercase">
+                          <span className="px-2 py-0.5 rounded bg-emerald-900/60 border border-emerald-700/50 text-emerald-300 text-[10px] uppercase">
                             Gold Badge Active
                           </span>
                         </div>
-                        <p className="text-[11px] text-emerald-800 leading-relaxed">
+                        <p className="text-[11px] text-emerald-300/80 leading-relaxed">
                           ✓ Verified! You can now remove <code>{instagramBioCode}</code> from your bio, <strong>or keep your official link <code>flenzr.com/@{handle || "yourhandle"}</code></strong> in your bio so brands can book your upfront rate cards directly.
                         </p>
                       </motion.div>
                     ) : (
-                      <div className="p-3.5 rounded-xl bg-white border border-neutral-200/90 text-xs space-y-3">
+                      <div className="p-3.5 rounded-xl bg-neutral-950 border border-neutral-800 text-xs space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-neutral-900 flex items-center gap-1.5">
+                          <span className="font-bold text-white flex items-center gap-1.5">
                             <Shield className="w-3.5 h-3.5 text-[#c1121f]" />
                             Step-by-Step Bio Verification
                           </span>
-                          <span className="text-[10px] font-bold text-neutral-500 uppercase">
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase">
                             Takes 30 Seconds
                           </span>
                         </div>
 
-                        <div className="p-2.5 rounded-lg bg-neutral-50 border border-neutral-200 flex items-center justify-between">
+                        <div className="p-2.5 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-between">
                           <div>
-                            <div className="text-[10px] text-neutral-500 font-semibold uppercase">
+                            <div className="text-[10px] text-neutral-400 font-semibold uppercase">
                               Your Verification Code:
                             </div>
-                            <code className="text-sm font-black text-black tracking-wider">
+                            <code className="text-sm font-black text-white tracking-wider">
                               {instagramBioCode}
                             </code>
                           </div>
@@ -956,7 +970,7 @@ export default function CreatorSignupPage() {
                                 setInstagramVerifyMsg(null);
                               }}
                               title="Generate new verification code"
-                              className="p-1 rounded bg-neutral-200 hover:bg-neutral-300 text-neutral-700 transition-colors cursor-pointer"
+                              className="p-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 transition-colors cursor-pointer"
                             >
                               <RefreshCw className="w-3.5 h-3.5" />
                             </button>
@@ -967,7 +981,7 @@ export default function CreatorSignupPage() {
                                 setCopiedIgCode(true);
                                 setTimeout(() => setCopiedIgCode(false), 2000);
                               }}
-                              className="px-2.5 py-1 rounded bg-black hover:bg-neutral-800 text-white font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                              className="px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-white font-bold text-[11px] flex items-center gap-1 cursor-pointer"
                             >
                               {copiedIgCode ? (
                                 <>
@@ -982,8 +996,8 @@ export default function CreatorSignupPage() {
                           </div>
                         </div>
 
-                        <p className="text-[11px] text-neutral-600 leading-normal">
-                          1. Paste <code>{instagramBioCode}</code> in your Instagram Bio.
+                        <p className="text-[11px] text-neutral-400 leading-normal">
+                          1. Paste <code className="text-white">{instagramBioCode}</code> in your Instagram Bio.
                           <br />
                           2. Click <strong>Verify Bio Code</strong> below to confirm channel ownership and earn your verified badge.
                         </p>
@@ -992,7 +1006,7 @@ export default function CreatorSignupPage() {
                           type="button"
                           onClick={handleVerifyInstagramBio}
                           disabled={isVerifyingInstagramBio || !instagramHandle.trim()}
-                          className="w-full py-2.5 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+                          className="w-full py-2.5 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#c1121f]/20 disabled:opacity-50"
                         >
                           {isVerifyingInstagramBio ? (
                             <>
@@ -1008,8 +1022,8 @@ export default function CreatorSignupPage() {
                         </button>
 
                         {instagramVerifyMsg && !isInstagramBioVerified && (
-                          <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] flex items-start gap-2">
-                            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                          <div className="p-2.5 rounded-lg bg-amber-950/40 border border-amber-800/60 text-amber-200 text-[11px] flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                             <span className="leading-relaxed">{instagramVerifyMsg.text}</span>
                           </div>
                         )}
@@ -1019,18 +1033,18 @@ export default function CreatorSignupPage() {
                 </div>
 
                 {/* YouTube Channel */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-neutral-50 border border-neutral-200/90 space-y-4">
+                <div className="p-4 sm:p-5 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm font-bold text-black">
+                    <div className="flex items-center gap-2 text-sm font-bold text-white">
                       <YoutubeIcon className="w-4 h-4 text-[#c1121f]" />
                       <span>YouTube Channel</span>
                     </div>
                     {isYoutubeBioVerified ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Verified Owner
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Verified Owner
                       </span>
                     ) : youtubeStats ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-700">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300">
                         Pending Channel Verification
                       </span>
                     ) : null}
@@ -1047,13 +1061,13 @@ export default function CreatorSignupPage() {
                         setYoutubeVerifyMsg(null);
                         setYoutubeStats(null);
                       }}
-                      className="flex-1 rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-xs font-semibold outline-hidden focus:border-black"
+                      className="flex-1 rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-2.5 text-xs font-semibold text-white outline-hidden focus:border-[#c1121f] placeholder:text-neutral-600"
                     />
                     <button
                       type="button"
                       onClick={() => fetchYoutubeStats()}
                       disabled={isEnrichingYoutube || !youtubeChannel.trim()}
-                      className="px-4 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shrink-0"
+                      className="px-4 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shrink-0"
                     >
                       {isEnrichingYoutube ? (
                         <>
@@ -1074,7 +1088,7 @@ export default function CreatorSignupPage() {
                     <motion.div
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-3.5 rounded-xl bg-white border border-neutral-200 shadow-xs space-y-3 text-xs"
+                      className="p-3.5 rounded-xl bg-neutral-950 border border-neutral-800 shadow-md space-y-3 text-xs"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
@@ -1085,21 +1099,21 @@ export default function CreatorSignupPage() {
                               e.currentTarget.onerror = null;
                               e.currentTarget.src = `/api/proxy-image?name=${encodeURIComponent(youtubeStats.displayName || youtubeStats.handle)}`;
                             }}
-                            className="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-200 object-cover shrink-0"
+                            className="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-700 object-cover shrink-0"
                           />
                           <div>
-                            <div className="font-bold text-neutral-900 flex items-center gap-1.5">
+                            <div className="font-bold text-white flex items-center gap-1.5">
                               <span>{youtubeStats.displayName}</span>
-                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-600 font-semibold">
+                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-neutral-800 text-neutral-300 font-semibold">
                                 {youtubeStats.tier}
                               </span>
                               {youtubeStats.isRealData && (
-                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-100 text-[#c1121f] font-bold">
+                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#c1121f]/20 border border-[#c1121f]/30 text-[#e63946] font-bold">
                                   Live YouTube Data
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-neutral-500">
+                            <div className="text-[11px] text-neutral-400">
                               @{youtubeStats.handle} • {youtubeStats.category}
                             </div>
                           </div>
@@ -1107,7 +1121,7 @@ export default function CreatorSignupPage() {
 
                         <div className="flex items-center gap-4 text-center">
                           <div>
-                            <div className="font-extrabold text-sm text-[#c1121f]">
+                            <div className="font-extrabold text-sm text-[#e63946]">
                               {youtubeStats.followersFormatted}
                             </div>
                             <div className="text-[10px] text-neutral-400 uppercase font-semibold">
@@ -1115,7 +1129,7 @@ export default function CreatorSignupPage() {
                             </div>
                           </div>
                           <div>
-                            <div className="font-extrabold text-sm text-emerald-600 flex items-center justify-center gap-0.5">
+                            <div className="font-extrabold text-sm text-emerald-400 flex items-center justify-center gap-0.5">
                               <Flame className="w-3 h-3" />
                               <span>{youtubeStats.engagementRate}%</span>
                             </div>
@@ -1124,7 +1138,7 @@ export default function CreatorSignupPage() {
                             </div>
                           </div>
                           <div>
-                            <div className="font-extrabold text-sm text-neutral-900">
+                            <div className="font-extrabold text-sm text-white">
                               {youtubeStats.avgViewsFormatted}
                             </div>
                             <div className="text-[10px] text-neutral-400 uppercase font-semibold">
@@ -1135,8 +1149,8 @@ export default function CreatorSignupPage() {
                       </div>
 
                       {/* Quick Subscriber Calibration */}
-                      <div className="pt-2 border-t border-neutral-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                        <span className="text-neutral-500 font-medium">
+                      <div className="pt-2 border-t border-neutral-800 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                        <span className="text-neutral-400 font-medium">
                           Tune subscribers to calibrate ₹ rate cards:
                         </span>
                         <div className="flex flex-wrap gap-1">
@@ -1154,8 +1168,8 @@ export default function CreatorSignupPage() {
                               onClick={() => updateFollowersCount("youtube", pill.val)}
                               className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
                                 youtubeStats.followers === pill.val
-                                  ? "bg-black text-white"
-                                  : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                                  ? "bg-[#c1121f] text-white"
+                                  : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
                               }`}
                             >
                               {pill.label}
@@ -1172,39 +1186,39 @@ export default function CreatorSignupPage() {
                       <motion.div
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1.5"
+                        className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-xs space-y-1.5"
                       >
-                        <div className="flex items-center justify-between font-bold text-emerald-900">
+                        <div className="flex items-center justify-between font-bold text-emerald-300">
                           <span className="flex items-center gap-1.5">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                             YouTube Channel Verified
                           </span>
-                          <span className="px-2 py-0.5 rounded bg-emerald-200/80 text-emerald-800 text-[10px] uppercase">
+                          <span className="px-2 py-0.5 rounded bg-emerald-900/60 border border-emerald-700/50 text-emerald-300 text-[10px] uppercase">
                             Gold Badge Active
                           </span>
                         </div>
-                        <p className="text-[11px] text-emerald-800 leading-relaxed">
+                        <p className="text-[11px] text-emerald-300/80 leading-relaxed">
                           ✓ Description verified! You can now remove <code>{youtubeBioCode}</code> from your channel, <strong>or keep your link <code>flenzr.com/@{handle || "yourhandle"}</code></strong> in your channel links for upfront brand bookings.
                         </p>
                       </motion.div>
                     ) : (
-                      <div className="p-3.5 rounded-xl bg-white border border-neutral-200/90 text-xs space-y-3">
+                      <div className="p-3.5 rounded-xl bg-neutral-950 border border-neutral-800 text-xs space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-neutral-900 flex items-center gap-1.5">
+                          <span className="font-bold text-white flex items-center gap-1.5">
                             <Shield className="w-3.5 h-3.5 text-[#c1121f]" />
                             Channel Description Verification
                           </span>
-                          <span className="text-[10px] font-bold text-neutral-500 uppercase">
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase">
                             Instant Scan
                           </span>
                         </div>
 
-                        <div className="p-2.5 rounded-lg bg-neutral-50 border border-neutral-200 flex items-center justify-between">
+                        <div className="p-2.5 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-between">
                           <div>
-                            <div className="text-[10px] text-neutral-500 font-semibold uppercase">
+                            <div className="text-[10px] text-neutral-400 font-semibold uppercase">
                               Your Verification Code:
                             </div>
-                            <code className="text-sm font-black text-black tracking-wider">
+                            <code className="text-sm font-black text-white tracking-wider">
                               {youtubeBioCode}
                             </code>
                           </div>
@@ -1217,7 +1231,7 @@ export default function CreatorSignupPage() {
                                 setYoutubeVerifyMsg(null);
                               }}
                               title="Generate new verification code"
-                              className="p-1 rounded bg-neutral-200 hover:bg-neutral-300 text-neutral-700 transition-colors cursor-pointer"
+                              className="p-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 transition-colors cursor-pointer"
                             >
                               <RefreshCw className="w-3.5 h-3.5" />
                             </button>
@@ -1228,7 +1242,7 @@ export default function CreatorSignupPage() {
                                 setCopiedYtCode(true);
                                 setTimeout(() => setCopiedYtCode(false), 2000);
                               }}
-                              className="px-2.5 py-1 rounded bg-black hover:bg-neutral-800 text-white font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                              className="px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-white font-bold text-[11px] flex items-center gap-1 cursor-pointer"
                             >
                               {copiedYtCode ? (
                                 <>
@@ -1243,8 +1257,8 @@ export default function CreatorSignupPage() {
                           </div>
                         </div>
 
-                        <p className="text-[11px] text-neutral-600 leading-normal">
-                          1. Paste <code>{youtubeBioCode}</code> in your YouTube Channel About description or links.
+                        <p className="text-[11px] text-neutral-400 leading-normal">
+                          1. Paste <code className="text-white">{youtubeBioCode}</code> in your YouTube Channel About description or links.
                           <br />
                           2. Click <strong>Verify Channel Code</strong> below to confirm ownership.
                         </p>
@@ -1253,7 +1267,7 @@ export default function CreatorSignupPage() {
                           type="button"
                           onClick={handleVerifyYoutubeBio}
                           disabled={isVerifyingYoutubeBio || !youtubeChannel.trim()}
-                          className="w-full py-2.5 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+                          className="w-full py-2.5 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#c1121f]/20 disabled:opacity-50"
                         >
                           {isVerifyingYoutubeBio ? (
                             <>
@@ -1269,8 +1283,8 @@ export default function CreatorSignupPage() {
                         </button>
 
                         {youtubeVerifyMsg && !isYoutubeBioVerified && (
-                          <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] flex items-start gap-2">
-                            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                          <div className="p-2.5 rounded-lg bg-amber-950/40 border border-amber-800/60 text-amber-200 text-[11px] flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                             <span className="leading-relaxed">{youtubeVerifyMsg.text}</span>
                           </div>
                         )}
@@ -1280,9 +1294,9 @@ export default function CreatorSignupPage() {
                 </div>
 
                 {/* Podcast / Other (Optional) */}
-                <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/90 space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-neutral-800">
-                    <Radio className="w-3.5 h-3.5 text-purple-600" />
+                <div className="p-4 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white">
+                    <Radio className="w-3.5 h-3.5 text-purple-400" />
                     <span>Other Platforms (Spotify, TikTok, Twitter/X)</span>
                   </div>
                   <input
@@ -1290,7 +1304,7 @@ export default function CreatorSignupPage() {
                     placeholder="URL or handle (optional)"
                     value={podcastOrOther}
                     onChange={(e) => setPodcastOrOther(e.target.value)}
-                    className="w-full rounded-xl border border-neutral-200 bg-white px-3.5 py-2.5 text-xs font-semibold outline-hidden focus:border-black"
+                    className="w-full rounded-xl border border-neutral-800 bg-neutral-950 text-white px-3.5 py-2.5 text-xs font-semibold outline-hidden focus:border-[#c1121f] placeholder:text-neutral-600"
                   />
                 </div>
 
@@ -1299,7 +1313,7 @@ export default function CreatorSignupPage() {
                   <button
                     type="button"
                     onClick={handlePrevStep}
-                    className="px-5 py-2.5 rounded-full text-xs font-bold text-neutral-600 hover:text-black hover:bg-neutral-100 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                    className="h-10 px-5 rounded-full text-xs font-bold text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer leading-none"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Back</span>
@@ -1307,7 +1321,7 @@ export default function CreatorSignupPage() {
                   <button
                     type="button"
                     onClick={handleNextStep}
-                    className="px-7 py-3 rounded-full bg-black hover:bg-neutral-800 text-white font-bold text-sm shadow-md transition-all hover:scale-[1.02] inline-flex items-center gap-2 cursor-pointer"
+                    className="h-12 px-7 rounded-full bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-sm shadow-lg shadow-[#c1121f]/25 transition-all hover:scale-[1.02] inline-flex items-center justify-center gap-2 cursor-pointer leading-none"
                   >
                     <span>Continue to Rate Card</span>
                     <ArrowRight className="w-4 h-4" />
@@ -1327,14 +1341,14 @@ export default function CreatorSignupPage() {
                 className="space-y-6 text-left"
               >
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#c1121f]/10 text-[#c1121f] mb-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#c1121f]/15 text-[#e63946] border border-[#c1121f]/20 mb-2">
                     <DollarSign className="w-3.5 h-3.5 shrink-0" />
                     <span>Step 3 of 4: Upfront Rate Card</span>
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                     Set your standard rates in Indian Rupee (₹).
                   </h2>
-                  <p className="text-xs sm:text-sm text-neutral-600 mt-1 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-neutral-400 mt-1 leading-relaxed">
                     Zero haggling in DMs. Brands book you directly at your published prices. Rates below were calibrated based on your synced reach.
                   </p>
                 </div>
@@ -1344,20 +1358,20 @@ export default function CreatorSignupPage() {
                   {rateCards.map((rc) => (
                     <div
                       key={rc.id}
-                      className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      className="p-4 rounded-2xl bg-neutral-900/60 border border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                     >
                       <div className="min-w-0">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-neutral-200 text-neutral-800 uppercase">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-neutral-800 text-neutral-300 uppercase">
                           {rc.platform}
                         </span>
-                        <div className="text-sm font-bold text-black mt-1">
+                        <div className="text-sm font-bold text-white mt-1">
                           {rc.deliverable}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0">
                         {/* Price Input in ₹ */}
-                        <div className="flex items-center rounded-xl border border-neutral-300 bg-white px-3 py-1.5 focus-within:border-black">
+                        <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 focus-within:border-[#c1121f]">
                           <span className="text-sm font-extrabold text-[#c1121f] mr-1">
                             ₹
                           </span>
@@ -1367,19 +1381,19 @@ export default function CreatorSignupPage() {
                             onChange={(e) =>
                               updateRateCardPrice(rc.id, Number(e.target.value))
                             }
-                            className="w-24 bg-transparent outline-hidden font-black text-sm text-black"
+                            className="w-24 bg-transparent outline-hidden font-black text-sm text-white"
                           />
                         </div>
 
                         {/* Turnaround Days */}
-                        <div className="text-xs text-neutral-500 flex items-center gap-1">
+                        <div className="text-xs text-neutral-400 flex items-center gap-1">
                           <input
                             type="number"
                             value={rc.days}
                             onChange={(e) =>
                               updateRateCardDays(rc.id, Number(e.target.value))
                             }
-                            className="w-12 rounded-lg border border-neutral-300 bg-white px-2 py-1 text-center font-bold text-xs"
+                            className="w-12 rounded-lg border border-neutral-800 bg-neutral-950 text-white px-2 py-1 text-center font-bold text-xs"
                           />
                           <span>days</span>
                         </div>
@@ -1388,10 +1402,10 @@ export default function CreatorSignupPage() {
                   ))}
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-[#c1121f]/5 border border-[#c1121f]/20 flex items-center gap-3 text-xs text-neutral-700">
+                <div className="p-3.5 rounded-2xl bg-[#c1121f]/10 border border-[#c1121f]/30 flex items-center gap-3 text-xs text-neutral-300">
                   <ShieldCheck className="w-5 h-5 text-[#c1121f] shrink-0" />
                   <span>
-                    <strong>Escrow Protection:</strong> Brands prepay into escrow before you start filming, and funds release immediately upon draft approval.
+                    <strong className="text-white">Escrow Protection:</strong> Brands prepay into escrow before you start filming, and funds release immediately upon draft approval.
                   </span>
                 </div>
 
@@ -1400,7 +1414,7 @@ export default function CreatorSignupPage() {
                   <button
                     type="button"
                     onClick={handlePrevStep}
-                    className="px-5 py-2.5 rounded-full text-xs font-bold text-neutral-600 hover:text-black hover:bg-neutral-100 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                    className="h-10 px-5 rounded-full text-xs font-bold text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer leading-none"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Back</span>
@@ -1408,7 +1422,7 @@ export default function CreatorSignupPage() {
                   <button
                     type="button"
                     onClick={handleNextStep}
-                    className="px-7 py-3 rounded-full bg-black hover:bg-neutral-800 text-white font-bold text-sm shadow-md transition-all hover:scale-[1.02] inline-flex items-center gap-2 cursor-pointer"
+                    className="h-12 px-7 rounded-full bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-sm shadow-lg shadow-[#c1121f]/25 transition-all hover:scale-[1.02] inline-flex items-center justify-center gap-2 cursor-pointer leading-none"
                   >
                     <span>Generate Bio Link &amp; QR</span>
                     <ArrowRight className="w-4 h-4" />
@@ -1428,32 +1442,32 @@ export default function CreatorSignupPage() {
                 className="space-y-6 text-center"
               >
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 mb-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 border border-emerald-800 text-emerald-400 mb-2">
                     <Check className="w-3.5 h-3.5 shrink-0" />
                     <span>Profile Ready!</span>
                   </div>
-                  <h2 className="text-2xl sm:text-4xl font-extrabold text-neutral-900 tracking-tight">
+                  <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                     Your Bio Link and QR Code are live!
                   </h2>
-                  <p className="text-xs sm:text-sm text-neutral-600 mt-1 max-w-md mx-auto">
+                  <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-md mx-auto">
                     Share this URL in your Instagram, YouTube, and TikTok bio. Brands can book your upfront rate card in 1-click.
                   </p>
                 </div>
 
                 {/* Universal Bio Link Card */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-neutral-50 border border-neutral-200/90 max-w-md mx-auto flex items-center justify-between gap-3">
+                <div className="p-4 sm:p-5 rounded-2xl bg-neutral-900/60 border border-neutral-800 max-w-md mx-auto flex items-center justify-between gap-3">
                   <div className="min-w-0 text-left">
                     <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                       Universal Bio Link
                     </div>
-                    <div className="text-sm font-extrabold text-black truncate">
+                    <div className="text-sm font-extrabold text-white truncate">
                       flenzr.com/@{handle || "yourhandle"}
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="px-3.5 py-2 rounded-xl bg-black hover:bg-neutral-800 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all cursor-pointer shrink-0"
+                    className="px-3.5 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all cursor-pointer shrink-0"
                   >
                     {copiedLink ? (
                       <>
@@ -1470,8 +1484,8 @@ export default function CreatorSignupPage() {
                 </div>
 
                 {/* Dynamic QR Code Mockup */}
-                <div className="p-6 rounded-2xl bg-neutral-50 border border-neutral-200/90 max-w-xs mx-auto space-y-3">
-                  <div className="aspect-square bg-white border border-neutral-200 rounded-xl p-3 flex flex-col items-center justify-center relative shadow-inner">
+                <div className="p-6 rounded-2xl bg-neutral-900/60 border border-neutral-800 max-w-xs mx-auto space-y-3">
+                  <div className="aspect-square bg-white border border-neutral-300 rounded-xl p-3 flex flex-col items-center justify-center relative shadow-inner">
                     <QrCode className="w-full h-full text-black stroke-[1.5]" />
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div className="bg-white p-1 rounded-md shadow-xs">
@@ -1479,7 +1493,7 @@ export default function CreatorSignupPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-[11px] font-bold text-neutral-500">
+                  <div className="text-[11px] font-bold text-neutral-400">
                     Scan to view {fullName || "Creator"}&apos;s rate card &amp; bio
                   </div>
                 </div>
@@ -1490,7 +1504,7 @@ export default function CreatorSignupPage() {
                     type="button"
                     onClick={handleFinishOnboarding}
                     disabled={isFinishing}
-                    className="w-full sm:w-auto px-10 py-3.5 rounded-full bg-[#c1121f] hover:bg-[#a50e1a] disabled:opacity-60 text-white font-bold text-sm shadow-lg transition-all hover:scale-[1.02] inline-flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full sm:w-auto h-12 px-10 rounded-full bg-[#c1121f] hover:bg-[#a50e1a] disabled:opacity-60 text-white font-bold text-sm shadow-lg shadow-[#c1121f]/25 transition-all hover:scale-[1.02] inline-flex items-center justify-center gap-2 cursor-pointer leading-none"
                   >
                     {isFinishing ? (
                       <>

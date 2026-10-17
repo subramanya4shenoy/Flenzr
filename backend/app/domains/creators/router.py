@@ -51,6 +51,7 @@ async def verify_creator_bio(
         platform=body.platform,
         handle=body.handle,
         code=body.verification_code,
+        creator_handle=body.creator_handle,
     )
     return BioVerifyResponse(
         verified=verified,
@@ -89,6 +90,36 @@ async def update_my_creator_profile(
     return await CreatorService.update_profile(db, creator, body)
 
 
+@router.get("/by-email/{email}", response_model=PublicCreatorProfile)
+async def get_creator_by_email(
+    email: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Look up creator profile by registered email.
+    """
+    creator = await CreatorService.get_by_email(db, email)
+    if not creator:
+        raise EntityNotFoundError("Creator with email", email)
+
+    avatar_url = creator.user.avatar_url if creator.user else None
+    return PublicCreatorProfile(
+        handle=creator.handle,
+        display_name=creator.display_name,
+        bio=creator.bio,
+        niche=creator.niche,
+        location=creator.location,
+        is_verified=creator.is_verified,
+        rating=creator.rating,
+        profile_theme=creator.profile_theme or "default",
+        avatar_url=avatar_url,
+        instagram_handle=creator.instagram_handle,
+        instagram_verified=creator.instagram_verified,
+        youtube_channel=creator.youtube_channel,
+        youtube_verified=creator.youtube_verified,
+    )
+
+
 @router.get("/public/{handle}", response_model=PublicCreatorProfile)
 async def get_public_creator_profile(
     handle: str,
@@ -117,3 +148,4 @@ async def get_public_creator_profile(
         youtube_channel=creator.youtube_channel,
         youtube_verified=creator.youtube_verified,
     )
+

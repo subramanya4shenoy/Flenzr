@@ -1,16 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Cambay } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const cambay = Cambay({
-  weight: ["400", "700"],
-  subsets: ["latin", "devanagari"],
-  variable: "--font-cambay",
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
   display: "swap",
 });
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#09090b",
 };
 
 export const metadata: Metadata = {
@@ -23,6 +22,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { LanguageProvider } from "@/lib/i18n/language-context";
+
 export default function RootLayout({
   children,
 }: {
@@ -31,18 +32,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cambay.variable} h-full antialiased`}
+      className={`${inter.variable} dark h-full antialiased`}
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Cambay:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cambay:wght@400;700&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-white text-black selection:bg-[#c1121f] selection:text-white">
-        {children}
+      <body className="min-h-full flex flex-col bg-[#09090b] text-neutral-100 selection:bg-[#c1121f] selection:text-white">
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

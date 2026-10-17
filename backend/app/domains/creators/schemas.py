@@ -86,6 +86,8 @@ class BioVerifyRequest(BaseModel):
     platform: str
     handle: str
     verification_code: str
+    creator_handle: Optional[str] = None
+
 
 
 class BioVerifyResponse(BaseModel):

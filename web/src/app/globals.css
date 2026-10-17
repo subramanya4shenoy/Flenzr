@@ -1,18 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
+  --background: #09090b;
+  --foreground: #f4f4f5;
   --brand-crimson: #c1121f;
-  --brand-crimson-hover: #a50e1a;
+  --brand-crimson-hover: #e63946;
   --brand-white: #ffffff;
   --brand-black: #000000;
-  --card: #ffffff;
-  --card-foreground: #000000;
-  --border: #e5e7eb;
-  --muted: #f4f4f5;
-  --muted-foreground: #666666;
-  --font-cambay: "Cambay", sans-serif;
+  --card: #121215;
+  --card-foreground: #ffffff;
+  --border: #27272a;
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
 }
 
 @theme inline {
@@ -25,7 +24,7 @@
   --color-card: var(--card);
   --color-border: var(--border);
   --color-muted: var(--muted);
-  --font-sans: "Cambay", var(--font-cambay), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
@@ -57,11 +56,11 @@ textarea {
 }
 
 ::-webkit-scrollbar-track {
-  background: #ffffff;
+  background: #09090b;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
+  background: #27272a;
   border-radius: 4px;
 }
 

@@ -4,6 +4,7 @@ from sqlalchemy import Boolean, Float, ForeignKey, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, TimestampMixin
+from app.domains.identity.models import User
 
 
 class Creator(Base, TimestampMixin):
