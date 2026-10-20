@@ -47,15 +47,15 @@ export function WorkflowStoryMotion() {
             <div className="p-3.5 rounded-2xl bg-neutral-950 border border-neutral-800/90 shadow-xs space-y-2 text-xs">
               <div className="flex items-center justify-between text-[11px] font-bold text-neutral-400">
                 <span>Campaign Booking</span>
-                <span className="text-emerald-400">● Verified Creator</span>
+                <span className="text-emerald-400">Connect your socials</span>
               </div>
               <div className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-between">
-                <span className="truncate text-white font-semibold">Sarah Miller • Tech</span>
-                <span className="text-[10px] font-black text-[#c1121f]">420K Reach</span>
+                <span className="truncate text-white font-semibold">Your creator profile</span>
+                <span className="text-[10px] font-black text-[#c1121f]">No audience data</span>
               </div>
               <div className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-between">
                 <span className="truncate text-white font-semibold">Deliverable: 4K Review</span>
-                <span className="text-[10px] font-black text-white">₹50,000</span>
+                <span className="text-[10px] font-black text-white">Set your rate</span>
               </div>
             </div>
           </motion.div>
@@ -87,11 +87,11 @@ export function WorkflowStoryMotion() {
               <div className="grid grid-cols-2 gap-2 text-center">
                 <div className="p-2.5 rounded-xl bg-neutral-900 border border-neutral-800">
                   <div className="text-[10px] text-neutral-400">YouTube Review</div>
-                  <div className="text-sm font-black text-white mt-0.5">₹50,000</div>
+                  <div className="text-sm font-black text-white mt-0.5">Set your rate</div>
                 </div>
                 <div className="p-2.5 rounded-xl bg-neutral-900 border border-neutral-800">
                   <div className="text-[10px] text-neutral-400">Instagram Reel</div>
-                  <div className="text-sm font-black text-white mt-0.5">₹25,000</div>
+                  <div className="text-sm font-black text-white mt-0.5">Set your rate</div>
                 </div>
               </div>
             </div>
@@ -122,12 +122,12 @@ export function WorkflowStoryMotion() {
                   <Video className="w-3.5 h-3.5 text-[#c1121f]" /> Draft Review v1
                 </span>
                 <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-[10px]">
-                  APPROVED ✓
+                  NO DRAFTS YET
                 </span>
               </div>
               <div className="p-2 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-emerald-300 font-bold flex items-center justify-between text-[11px]">
-                <span>Vault Payout Released</span>
-                <span className="font-black text-emerald-400">₹60,000</span>
+                <span>No payouts yet</span>
+                <span className="font-black text-emerald-400">₹0</span>
               </div>
             </div>
           </motion.div>

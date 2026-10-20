@@ -1,8 +1,10 @@
 import re
+import secrets
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import PermissionDeniedError
 from app.core.security import SupabaseTokenPayload
 from app.domains.creators.models import Creator
 from app.domains.identity.models import SystemRole, User, UserRole
@@ -23,6 +25,9 @@ class IdentityService:
         result = await db.execute(stmt)
         user = result.scalar_one_or_none()
 
+        if user and not user.is_active:
+            raise PermissionDeniedError("Account is inactive or suspended")
+
         full_name = (
             sync_req.full_name
             if (sync_req and sync_req.full_name)
@@ -40,6 +45,10 @@ class IdentityService:
             if (sync_req and sync_req.role)
             else SystemRole.CREATOR
         )
+
+        initial_role = SystemRole(initial_role)
+        if initial_role not in [SystemRole.CREATOR, SystemRole.BRAND_OWNER]:
+            raise PermissionDeniedError("This role cannot be self-assigned")
 
         if not user:
             # Create user
@@ -74,6 +83,7 @@ class IdentityService:
                     handle=handle,
                     display_name=full_name or "Creator",
                     bio="",
+                    verification_code="FLENZR-" + secrets.token_hex(12).upper(),
                 )
                 db.add(creator)
                 await db.flush()

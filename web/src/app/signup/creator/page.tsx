@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { selectLocalAccount } from "@/lib/local-data";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -29,7 +30,11 @@ import {
   Shield,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { getSocialAccounts, saveSocialAccount, deleteSocialAccount } from "@/lib/social-accounts";
+import { startGoogleLogin } from "@/lib/google-login";
 import { onboardCreator } from "@/lib/api";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -106,8 +111,8 @@ interface SocialEnrichedData {
   avatarUrl: string;
   followers: number;
   followersFormatted: string;
-  engagementRate: number;
-  avgViews: number;
+  engagementRate: number | null;
+  avgViews: number | null;
   avgViewsFormatted: string;
   tier: "Nano" | "Micro" | "Mid-Tier" | "Macro" | "Mega";
   category: string;
@@ -124,25 +129,16 @@ interface SocialEnrichedData {
 
 export default function CreatorSignupPage() {
   const router = useRouter();
+  const { t } = useTranslation();
+  const [accountReady, setAccountReady] = useState(false);
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // If already logged in, redirect to creator dashboard
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const raw = localStorage.getItem("flenzr_auth_session");
-    if (raw) {
-      try {
-        const session = JSON.parse(raw);
-        if (session && (session.email || session.handle)) {
-          router.replace(session.role === "brand" ? "/dashboard/brand" : "/dashboard/creator");
-        }
-      } catch {}
-    }
-  }, [router]);
 
-  // Google OAuth Simulation / Real state
-  const [isGoogleConnected, setIsGoogleConnected] = useState(false);
+
+  // Google sign-in uses the server-side Supabase OAuth flow.
+  const [isAccountConnected, setIsAccountConnected] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   // Step 1: Identity & Handle
@@ -154,29 +150,13 @@ export default function CreatorSignupPage() {
 
   // Step 2: Social Presence & Enrichment
   const [instagramHandle, setInstagramHandle] = useState("");
-  const [instagramFollowers, setInstagramFollowers] = useState("100K");
+  const [instagramFollowers, setInstagramFollowers] = useState("");
   const [isEnrichingInstagram, setIsEnrichingInstagram] = useState(false);
   const [instagramStats, setInstagramStats] = useState<SocialEnrichedData | null>(null);
 
   // Helper to generate a long, high-entropy verification token (e.g. FLENZR-8K7M4P2Q)
-  const generateSecureBioCode = () => {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let token = "";
-    for (let i = 0; i < 8; i++) {
-      token += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return `FLENZR-${token}`;
-  };
-
-  // Instagram Bio Code Verification (Long 15-char code that cannot be tricked)
-  const [instagramBioCode, setInstagramBioCode] = useState(() => {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let token = "";
-    for (let i = 0; i < 8; i++) {
-      token += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return `FLENZR-${token}`;
-  });
+  const generateSecureBioCode = () => instagramBioCode;
+  const [instagramBioCode, setInstagramBioCode] = useState("");
   const [showInstagramVerify, setShowInstagramVerify] = useState(false);
   const [isVerifyingInstagramBio, setIsVerifyingInstagramBio] = useState(false);
   const [isInstagramBioVerified, setIsInstagramBioVerified] = useState(false);
@@ -184,19 +164,12 @@ export default function CreatorSignupPage() {
   const [instagramVerifyMsg, setInstagramVerifyMsg] = useState<{ success: boolean; text: string } | null>(null);
 
   const [youtubeChannel, setYoutubeChannel] = useState("");
-  const [youtubeSubscribers, setYoutubeSubscribers] = useState("250K");
+  const [youtubeSubscribers, setYoutubeSubscribers] = useState("");
   const [isEnrichingYoutube, setIsEnrichingYoutube] = useState(false);
   const [youtubeStats, setYoutubeStats] = useState<SocialEnrichedData | null>(null);
 
   // YouTube Description Code Verification (Long 15-char secure code)
-  const [youtubeBioCode, setYoutubeBioCode] = useState(() => {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let token = "";
-    for (let i = 0; i < 8; i++) {
-      token += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return `FLENZR-${token}`;
-  });
+  const [youtubeBioCode, setYoutubeBioCode] = useState("");
   const [showYoutubeVerify, setShowYoutubeVerify] = useState(false);
   const [isVerifyingYoutubeBio, setIsVerifyingYoutubeBio] = useState(false);
   const [isYoutubeBioVerified, setIsYoutubeBioVerified] = useState(false);
@@ -204,11 +177,73 @@ export default function CreatorSignupPage() {
   const [youtubeVerifyMsg, setYoutubeVerifyMsg] = useState<{ success: boolean; text: string } | null>(null);
 
   const [podcastOrOther, setPodcastOrOther] = useState("");
+  const [removingSocial, setRemovingSocial] = useState<"instagram" | "youtube" | null>(null);
+  const socialVersion = useRef({ instagram: 0, youtube: 0 });
+  useEffect(() => {
+    fetch("/api/account/creators/me").then(async (res) => {
+      if (!res.ok) return;
+      const creator = await res.json();
+      setAccountReady(true);
+      setFullName(creator.display_name || "");
+      setHandle(creator.handle || "");
+      setInstagramHandle(creator.instagram_handle || "");
+      setYoutubeChannel(creator.youtube_channel || "");
+      setIsInstagramBioVerified(Boolean(creator.instagram_verified));
+      setIsYoutubeBioVerified(Boolean(creator.youtube_verified));
+      setInstagramBioCode(creator.verification_code || "");
+      setYoutubeBioCode(creator.verification_code || "");
+      const session = await fetch("/api/auth/session").then((r) => r.json());
+      if (session.identity) {
+        setEmail(session.identity.user.email);
+        setIsAccountConnected(true);
+      }
+    }).catch(() => {});
+  }, []);
+
+  const removeSignupAccount = async (platform: "instagram" | "youtube") => {
+    if (removingSocial) return;
+    const verified = platform === "instagram" ? isInstagramBioVerified : isYoutubeBioVerified;
+    if (verified && !window.confirm("Remove this verified account? Adding it again requires verification.")) return;
+    setRemovingSocial(platform);
+    try {
+      const saved = (await getSocialAccounts()).find((item) => item.platform === platform);
+      if (saved) await deleteSocialAccount(platform, saved.handle);
+      socialVersion.current[platform]++;
+      if (platform === "instagram") {
+        setInstagramHandle(""); setInstagramStats(null); setInstagramFollowers("");
+        setIsInstagramBioVerified(false); setInstagramVerifyMsg(null); setShowInstagramVerify(false);
+      } else {
+        setYoutubeChannel(""); setYoutubeStats(null); setYoutubeSubscribers("");
+        setIsYoutubeBioVerified(false); setYoutubeVerifyMsg(null); setShowYoutubeVerify(false);
+      }
+      try {
+        const cacheKey = `flenzr_socials_${handle}`;
+        const cached = JSON.parse(localStorage.getItem(cacheKey) || "[]");
+        if (Array.isArray(cached)) {
+          const removed = cached.filter((item: { platform: string }) => item.platform === platform);
+          const next = cached.filter((item: { platform: string }) => item.platform !== platform);
+          localStorage.setItem(cacheKey, JSON.stringify(next));
+          const selected = localStorage.getItem(`flenzr_chosen_avatar_${handle}`);
+          if (removed.some((item: { avatarUrl?: string }) => item.avatarUrl === selected)) localStorage.removeItem(`flenzr_chosen_avatar_${handle}`);
+        }
+      } catch {}
+      // Remove stale metrics from the browser profile, if onboarding was resumed.
+      const raw = localStorage.getItem("flenzr_creator_profile");
+      if (raw) {
+        const profile = JSON.parse(raw);
+        const keys = platform === "instagram" ? ["instagramHandle", "instagramStats", "instagramFollowers", "isInstagramBioVerified"] : ["youtubeChannel", "youtubeStats", "youtubeSubscribers", "isYoutubeBioVerified"];
+        keys.forEach((key) => delete profile[key]);
+        localStorage.setItem("flenzr_creator_profile", JSON.stringify(profile));
+      }
+    } catch (error) { alert(error instanceof Error ? error.message : "Could not remove account. Please retry."); }
+    finally { setRemovingSocial(null); }
+  };
 
   const handleVerifyInstagramBio = async () => {
     setIsVerifyingInstagramBio(true);
     setInstagramVerifyMsg(null);
     try {
+      await saveSocialAccount("instagram", instagramHandle);
       const res = await fetch("/api/social/verify-bio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -219,6 +254,7 @@ export default function CreatorSignupPage() {
         }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || data.error || "Verification request failed. Please sign in again and retry.");
       if (data.verified) {
         setIsInstagramBioVerified(true);
         setInstagramVerifyMsg({
@@ -234,7 +270,7 @@ export default function CreatorSignupPage() {
     } catch (e) {
       setInstagramVerifyMsg({
         success: false,
-        text: "Scan request failed. Please check your network and try again.",
+        text: e instanceof Error ? e.message : "Scan request failed. Please check your network and try again.",
       });
     } finally {
       setIsVerifyingInstagramBio(false);
@@ -245,6 +281,7 @@ export default function CreatorSignupPage() {
     setIsVerifyingYoutubeBio(true);
     setYoutubeVerifyMsg(null);
     try {
+      await saveSocialAccount("youtube", youtubeChannel);
       const res = await fetch("/api/social/verify-bio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -255,6 +292,7 @@ export default function CreatorSignupPage() {
         }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || data.error || "Verification request failed. Please sign in again and retry.");
       if (data.verified) {
         setIsYoutubeBioVerified(true);
         setYoutubeVerifyMsg({
@@ -270,7 +308,7 @@ export default function CreatorSignupPage() {
     } catch (e) {
       setYoutubeVerifyMsg({
         success: false,
-        text: "Scan request failed. Please check your network and try again.",
+        text: e instanceof Error ? e.message : "Scan request failed. Please check your network and try again.",
       });
     } finally {
       setIsVerifyingYoutubeBio(false);
@@ -278,29 +316,7 @@ export default function CreatorSignupPage() {
   };
 
   // Step 3: Rate Cards in ₹
-  const [rateCards, setRateCards] = useState<RateCardItem[]>([
-    {
-      id: "rc-1",
-      platform: "YouTube",
-      deliverable: "Dedicated 8-10 Min Review Video",
-      price: 50000,
-      days: 14,
-    },
-    {
-      id: "rc-2",
-      platform: "Instagram",
-      deliverable: "60-Second Dynamic Product Reel",
-      price: 25000,
-      days: 5,
-    },
-    {
-      id: "rc-3",
-      platform: "Instagram",
-      deliverable: "3x Story Set with Swipe-Up / Bio Link",
-      price: 12000,
-      days: 3,
-    },
-  ]);
+  const [rateCards, setRateCards] = useState<RateCardItem[]>([]);
 
   // Clean handle formatting
   const handleCleanChange = (val: string) => {
@@ -309,25 +325,21 @@ export default function CreatorSignupPage() {
   };
 
   // Google 1-Click Connect
-  const handleGoogleConnect = () => {
+  const handleGoogleConnect = async () => {
     setIsGoogleLoading(true);
-    setTimeout(() => {
-      setIsGoogleConnected(true);
-      setIsGoogleLoading(false);
-      setFullName((prev) => prev || "Subramanya Shenoy");
-      setEmail((prev) => prev || "subu@flenzr.com");
-      if (!handle) {
-        setHandle("subu_creates");
-      }
-    }, 600);
+    try { await startGoogleLogin("creator", true); }
+    catch (error) { alert(error instanceof Error ? error.message : "Could not sign in with Google"); setIsGoogleLoading(false); }
   };
 
   // Fetch Live Stats for Instagram Handle
   const fetchInstagramStats = async (overrideHandle?: string, manualCount?: number) => {
     const target = (overrideHandle || instagramHandle).trim();
-    if (!target) return;
+    if (!target || removingSocial) return;
+    const version = ++socialVersion.current.instagram;
     setIsEnrichingInstagram(true);
     try {
+      await saveSocialAccount("instagram", target);
+      if (version !== socialVersion.current.instagram) return;
       const res = await fetch("/api/social/enrich", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -340,8 +352,9 @@ export default function CreatorSignupPage() {
       });
       if (res.ok) {
         const data: SocialEnrichedData = await res.json();
+        if (version !== socialVersion.current.instagram) return;
         setInstagramStats(data);
-        setIsInstagramBioVerified(Boolean(data.codeFoundInBio));
+
         // Automatically calibrate suggested rate cards based on exact followers
         if (data.suggestedRates && data.suggestedRates.length > 0) {
           setRateCards((prev) => [
@@ -366,9 +379,12 @@ export default function CreatorSignupPage() {
   // Fetch Live Stats for YouTube Channel
   const fetchYoutubeStats = async (overrideHandle?: string, manualCount?: number) => {
     const target = (overrideHandle || youtubeChannel).trim();
-    if (!target) return;
+    if (!target || removingSocial) return;
+    const version = ++socialVersion.current.youtube;
     setIsEnrichingYoutube(true);
     try {
+      await saveSocialAccount("youtube", target);
+      if (version !== socialVersion.current.youtube) return;
       const res = await fetch("/api/social/enrich", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -381,9 +397,10 @@ export default function CreatorSignupPage() {
       });
       if (res.ok) {
         const data: SocialEnrichedData = await res.json();
+        if (version !== socialVersion.current.youtube) return;
         setYoutubeStats(data);
         setYoutubeSubscribers(data.followersFormatted);
-        setIsYoutubeBioVerified(Boolean(data.codeFoundInBio));
+
         if (data.suggestedRates && data.suggestedRates.length > 0) {
           setRateCards((prev) => [
             ...data.suggestedRates.map((sr, idx) => ({
@@ -413,11 +430,31 @@ export default function CreatorSignupPage() {
     }
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
+    if (isCreatingAccount) return;
     if (currentStep === 1) {
-      if (!fullName.trim()) return alert("Please enter your name");
-      if (!email.trim() || !email.includes("@")) return alert("Please enter a valid email");
-      if (!handle.trim()) return alert("Please claim your username handle");
+      if (!fullName.trim() || !email.includes("@") || !handle.trim()) return alert("Please enter your name, email, and username");
+      if (!accountReady) {
+        if (password.length < 8) return alert("Use a password of at least 8 characters");
+        setIsCreatingAccount(true);
+        try {
+          const res = await fetch("/api/auth/signup", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, fullName }),
+          });
+          const data = await res.json();
+          if (data.confirmationRequired) { alert(data.message); return; }
+          if (!res.ok) { alert(data.error || "Could not create your account"); return; }
+          selectLocalAccount(data.identity.user.email);
+          const creatorRes = await fetch("/api/account/creators/me");
+          if (!creatorRes.ok) { alert("Could not load your creator profile"); return; }
+          const creator = await creatorRes.json();
+          setInstagramBioCode(creator.verification_code || "");
+          setYoutubeBioCode(creator.verification_code || "");
+          setAccountReady(true);
+        } catch { alert("Could not create your account. Please retry."); return; }
+        finally { setIsCreatingAccount(false); }
+      }
     }
     setCurrentStep((prev) => Math.min(prev + 1, 4));
   };
@@ -429,6 +466,11 @@ export default function CreatorSignupPage() {
   const [isFinishing, setIsFinishing] = useState(false);
 
   const handleFinishOnboarding = async () => {
+    if (!fullName.trim() || !email.trim() || !handle.trim()) {
+      alert("Please enter your name, email, and username.");
+      return;
+    }
+    selectLocalAccount(email.trim().toLowerCase());
     setIsFinishing(true);
     const cleanHandle = (handle || "creator").replace(/[^a-zA-Z0-9_]/g, "");
 
@@ -450,13 +492,17 @@ export default function CreatorSignupPage() {
         })),
       });
 
-      if (res && res.access_token) {
-        if (typeof window !== "undefined") {
-          localStorage.setItem("flenzr_token", res.access_token);
-        }
+      if (!res?.creator) {
+        alert("Could not create your profile. Please check the connection and try again.");
+        setIsFinishing(false);
+        return;
       }
+
     } catch (err) {
-      console.warn("Backend onboard call fallback:", err);
+      console.warn("Backend onboarding failed:", err);
+      setIsFinishing(false);
+      alert("Could not create your profile. Please try again.");
+      return;
     }
 
     const profileData = {
@@ -464,7 +510,7 @@ export default function CreatorSignupPage() {
       handle: cleanHandle,
       niche,
       email,
-      isGoogleConnected,
+      isAccountConnected,
       instagramHandle,
       instagramFollowers,
       instagramStats,
@@ -477,6 +523,7 @@ export default function CreatorSignupPage() {
     };
     if (typeof window !== "undefined") {
       localStorage.setItem("flenzr_creator_profile", JSON.stringify(profileData));
+
     }
     setIsFinishing(false);
     router.push("/dashboard/creator");
@@ -514,14 +561,16 @@ export default function CreatorSignupPage() {
           <Link href="/" className="flex items-center shrink-0">
             <Logo size={32} variant="duotone-dark" withWordmark={true} />
           </Link>
-          <div className="text-xs text-neutral-400 font-medium flex items-center gap-2">
-            <span>Already on Flenzr?</span>
-            <Link
-              href="/login"
-              className="text-[#c1121f] font-bold hover:underline"
-            >
-              Log In
-            </Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher variant="compact" />
+            <div className="text-xs text-neutral-400 font-medium flex items-center gap-2">
+              <Link
+                href="/login"
+                className="text-[#c1121f] font-bold hover:underline"
+              >
+                {t("Sign In")}
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -585,7 +634,7 @@ export default function CreatorSignupPage() {
                 </div>
 
                 {/* Google 1-Click Fast Connect Option */}
-                {!isGoogleConnected ? (
+                {!isAccountConnected ? (
                   <button
                     type="button"
                     onClick={handleGoogleConnect}
@@ -596,7 +645,7 @@ export default function CreatorSignupPage() {
                     <span>
                       {isGoogleLoading
                         ? "Connecting Google Account..."
-                        : "Continue with Google (1-Click Fill)"}
+                        : "Continue with Google"}
                     </span>
                   </button>
                 ) : (
@@ -607,11 +656,11 @@ export default function CreatorSignupPage() {
                       </div>
                       <div>
                         <div className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                          <span>Google Account Connected</span>
+                          <span>Account Connected</span>
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                         </div>
                         <div className="text-[11px] text-emerald-400/80">
-                          {email || "subu@flenzr.com"}
+                          {email || "No email entered"}
                         </div>
                       </div>
                     </div>
@@ -684,7 +733,7 @@ export default function CreatorSignupPage() {
                 </div>
 
                 {/* Password (if not google connected) */}
-                {!isGoogleConnected && (
+                {!isAccountConnected && (
                   <div className="space-y-2">
                     <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
                       Password
@@ -781,6 +830,7 @@ export default function CreatorSignupPage() {
                     <div className="flex items-center gap-2 text-sm font-bold text-white">
                       <InstagramIcon className="w-4 h-4 text-pink-500" />
                       <span>Instagram Profile</span>
+                      {instagramHandle && <button type="button" aria-label="Remove Instagram account" disabled={Boolean(removingSocial) || isEnrichingInstagram || isVerifyingInstagramBio} onClick={() => removeSignupAccount("instagram")} className="text-xs text-red-300 font-medium">{removingSocial === "instagram" ? "Removing…" : "Remove"}</button>}
                     </div>
                     {isInstagramBioVerified ? (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center gap-1">
@@ -799,6 +849,7 @@ export default function CreatorSignupPage() {
                       placeholder="e.g. techburner, tanmaybhat, or your_handle"
                       value={instagramHandle}
                       onChange={(e) => {
+                        socialVersion.current.instagram++;
                         setInstagramHandle(e.target.value);
                         setIsInstagramBioVerified(false);
                         setInstagramVerifyMsg(null);
@@ -869,7 +920,7 @@ export default function CreatorSignupPage() {
                           <div>
                             <div className="font-extrabold text-sm text-emerald-400 flex items-center justify-center gap-0.5">
                               <Flame className="w-3 h-3" />
-                              <span>{instagramStats.engagementRate}%</span>
+                              <span>{instagramStats.engagementRate == null ? "--" : `${instagramStats.engagementRate}%`}</span>
                             </div>
                             <div className="text-[10px] text-neutral-400 uppercase font-semibold">
                               Engagement
@@ -1038,6 +1089,7 @@ export default function CreatorSignupPage() {
                     <div className="flex items-center gap-2 text-sm font-bold text-white">
                       <YoutubeIcon className="w-4 h-4 text-[#c1121f]" />
                       <span>YouTube Channel</span>
+                      {youtubeChannel && <button type="button" aria-label="Remove YouTube account" disabled={Boolean(removingSocial) || isEnrichingYoutube || isVerifyingYoutubeBio} onClick={() => removeSignupAccount("youtube")} className="text-xs text-red-300 font-medium">{removingSocial === "youtube" ? "Removing…" : "Remove"}</button>}
                     </div>
                     {isYoutubeBioVerified ? (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center gap-1">
@@ -1056,6 +1108,7 @@ export default function CreatorSignupPage() {
                       placeholder="e.g. mkbhd, CarryMinati, or Fireship"
                       value={youtubeChannel}
                       onChange={(e) => {
+                        socialVersion.current.youtube++;
                         setYoutubeChannel(e.target.value);
                         setIsYoutubeBioVerified(false);
                         setYoutubeVerifyMsg(null);
@@ -1131,7 +1184,7 @@ export default function CreatorSignupPage() {
                           <div>
                             <div className="font-extrabold text-sm text-emerald-400 flex items-center justify-center gap-0.5">
                               <Flame className="w-3 h-3" />
-                              <span>{youtubeStats.engagementRate}%</span>
+                              <span>{youtubeStats.engagementRate == null ? "--" : `${youtubeStats.engagementRate}%`}</span>
                             </div>
                             <div className="text-[10px] text-neutral-400 uppercase font-semibold">
                               Engagement
@@ -1355,6 +1408,7 @@ export default function CreatorSignupPage() {
 
                 {/* Rate Card Items */}
                 <div className="space-y-3">
+                  {rateCards.length === 0 && <p className="p-4 text-sm text-neutral-400">No packages yet. You can add packages in your dashboard after signup.</p>}
                   {rateCards.map((rc) => (
                     <div
                       key={rc.id}
@@ -1444,10 +1498,10 @@ export default function CreatorSignupPage() {
                 <div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 border border-emerald-800 text-emerald-400 mb-2">
                     <Check className="w-3.5 h-3.5 shrink-0" />
-                    <span>Profile Ready!</span>
+                    <span>Ready to create your profile</span>
                   </div>
                   <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-                    Your Bio Link and QR Code are live!
+                    Your Bio Link and QR Code preview
                   </h2>
                   <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-md mx-auto">
                     Share this URL in your Instagram, YouTube, and TikTok bio. Brands can book your upfront rate card in 1-click.

@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { AuthErrorNotice } from "@/components/auth-error-notice";
+import { startGoogleLogin } from "@/lib/google-login";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { selectLocalAccount } from "@/lib/local-data";
 import { motion } from "motion/react";
 import { ArrowRight, Check, Sparkles, Shield, User, Building2 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
-import { getCreatorByEmail } from "@/lib/api";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -32,137 +35,35 @@ function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
 }
 
 export default function LoginPage() {
-  const router = useRouter();
+  const { t } = useTranslation();
   const [role, setRole] = useState<"creator" | "brand">("creator");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // If already logged in, redirect straight to dashboard
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const raw = localStorage.getItem("flenzr_auth_session");
-    if (raw) {
-      try {
-        const session = JSON.parse(raw);
-        if (session && (session.email || session.handle)) {
-          router.replace(session.role === "brand" ? "/dashboard/brand" : "/dashboard/creator");
-        }
-      } catch {}
-    }
-  }, [router]);
-
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
-    const targetEmail = role === "creator" ? "subu@flenzr.com" : "brand@sponsor.io";
-    const defaultName = role === "creator" ? "Subramanya Shenoy" : "Lumina Global";
-
-    if (typeof window !== "undefined") {
-      let handle = role === "creator" ? "subu_creates" : "luminaglobal";
-      try {
-        if (role === "creator") {
-          const liveCreator = await getCreatorByEmail(targetEmail);
-          if (liveCreator) {
-            handle = liveCreator.handle;
-            localStorage.setItem(
-              "flenzr_creator_profile",
-              JSON.stringify({
-                fullName: liveCreator.display_name,
-                handle: liveCreator.handle,
-                niche: liveCreator.niche,
-                email: targetEmail,
-                instagramHandle: liveCreator.instagram_handle,
-                isInstagramBioVerified: liveCreator.instagram_verified,
-                youtubeChannel: liveCreator.youtube_channel,
-                isYoutubeBioVerified: liveCreator.youtube_verified,
-              })
-            );
-          }
-        }
-      } catch (err) {
-        console.warn("Could not fetch creator profile on login", err);
-      }
-
-      localStorage.setItem(
-        "flenzr_auth_session",
-        JSON.stringify({
-          provider: "google",
-          email: targetEmail,
-          fullName: defaultName,
-          handle,
-          role,
-        })
-      );
-    }
-
-    setGoogleLoading(false);
-    router.push(role === "creator" ? "/dashboard/creator" : "/dashboard/brand");
+    try { await startGoogleLogin(role); }
+    catch (error) { alert(error instanceof Error ? error.message : "Could not sign in with Google"); setGoogleLoading(false); }
   };
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return alert("Please enter your email");
     setIsLoading(true);
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (typeof window !== "undefined") {
-      let derivedHandle = cleanEmail.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "");
-      let derivedName = derivedHandle.charAt(0).toUpperCase() + derivedHandle.slice(1);
-
-      try {
-        if (role === "creator") {
-          const liveCreator = await getCreatorByEmail(cleanEmail);
-          if (liveCreator) {
-            derivedHandle = liveCreator.handle;
-            derivedName = liveCreator.display_name;
-            localStorage.setItem(
-              "flenzr_creator_profile",
-              JSON.stringify({
-                fullName: liveCreator.display_name,
-                handle: liveCreator.handle,
-                niche: liveCreator.niche,
-                email: cleanEmail,
-                instagramHandle: liveCreator.instagram_handle,
-                isInstagramBioVerified: liveCreator.instagram_verified,
-                youtubeChannel: liveCreator.youtube_channel,
-                isYoutubeBioVerified: liveCreator.youtube_verified,
-              })
-            );
-          } else {
-            localStorage.setItem(
-              "flenzr_creator_profile",
-              JSON.stringify({
-                fullName: derivedName,
-                handle: derivedHandle,
-                niche: "Content Creator",
-                email: cleanEmail,
-                instagramHandle: derivedHandle,
-                isInstagramBioVerified: false,
-                youtubeChannel: null,
-                isYoutubeBioVerified: false,
-              })
-            );
-          }
-        }
-      } catch (err) {
-        console.warn("Could not check email profile", err);
-      }
-
-      localStorage.setItem(
-        "flenzr_auth_session",
-        JSON.stringify({
-          provider: "email",
-          email: cleanEmail,
-          fullName: derivedName,
-          handle: derivedHandle,
-          role,
-        })
-      );
-    }
-
-    setIsLoading(false);
-    router.push(role === "creator" ? "/dashboard/creator" : "/dashboard/brand");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Sign in failed"); return; }
+      selectLocalAccount(data.identity.user.email);
+      // Local profile caches are UI preferences, never authentication.
+      window.location.assign(data.redirect);
+    } catch { alert("Could not sign in. Please try again."); }
+    finally { setIsLoading(false); }
   };
 
   return (
@@ -178,14 +79,16 @@ export default function LoginPage() {
           <Link href="/" className="flex items-center shrink-0">
             <Logo size={32} variant="duotone-dark" withWordmark={true} />
           </Link>
-          <div className="text-xs text-neutral-400 font-medium flex items-center gap-2">
-            <span>New to Flenzr?</span>
-            <Link
-              href="/signup/creator"
-              className="text-[#c1121f] font-bold hover:underline"
-            >
-              Sign Up as Creator
-            </Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher variant="compact" />
+            <div className="text-xs text-neutral-400 font-medium flex items-center gap-2">
+              <Link
+                href="/signup/creator"
+                className="text-[#c1121f] font-bold hover:underline"
+              >
+                {t("Join as Influencer")}
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -223,7 +126,7 @@ export default function LoginPage() {
 
           <div className="mb-6">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Welcome back.
+              {t("Welcome back")}.
             </h1>
             <p className="text-xs sm:text-sm text-neutral-400 mt-1">
               {role === "creator"
@@ -232,6 +135,7 @@ export default function LoginPage() {
             </p>
           </div>
 
+          <AuthErrorNotice />
           {/* Google Sign In Button */}
           <button
             type="button"
@@ -241,7 +145,7 @@ export default function LoginPage() {
           >
             <GoogleIcon className="w-4 h-4 shrink-0" />
             <span>
-              {googleLoading ? "Signing in with Google..." : "Continue with Google"}
+              {googleLoading ? "Signing in..." : t("Continue with Google")}
             </span>
           </button>
 
@@ -301,18 +205,18 @@ export default function LoginPage() {
               disabled={isLoading}
               className="w-full h-12 rounded-full bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-sm shadow-lg shadow-[#c1121f]/25 transition-all hover:scale-[1.01] inline-flex items-center justify-center gap-2 cursor-pointer mt-2 leading-none"
             >
-              <span>{isLoading ? "Signing In..." : "Sign In to Account"}</span>
+              <span>{isLoading ? "Signing In..." : t("Sign In")}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
           <div className="mt-6 pt-5 border-t border-neutral-800 flex items-center justify-between text-xs text-neutral-400">
-            <span>Don&apos;t have an account?</span>
+            <span>{t("Don't have an account?")}</span>
             <Link
               href={role === "creator" ? "/signup/creator" : "/dashboard/brand"}
               className="font-bold text-[#c1121f] hover:underline"
             >
-              {role === "creator" ? "Join as Influencer" : "Register Brand"}
+              {role === "creator" ? t("Join as Influencer") : "Register Brand"}
             </Link>
           </div>
         </div>

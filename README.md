@@ -23,3 +23,24 @@ Flenzr connects digital creators and forward-thinking brands through verified me
 ```
 
 For complete architectural details, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Local development ports
+
+Flenzr uses **frontend 3210** and **backend 8210** to stay separate from other local projects.
+
+Start the backend from the repository root:
+
+```sh
+./backend/run-dev.sh
+```
+
+Start the frontend in a second terminal:
+
+```sh
+cd web
+npm run dev
+```
+
+Open `http://localhost:3210`. The backend API docs are at `http://127.0.0.1:8210/docs`.
+The frontend environment files, API defaults, and backend CORS allowlist use this pair.
+See [Google login configuration](docs/GOOGLE_LOGIN.md) for the matching OAuth origin and callback.

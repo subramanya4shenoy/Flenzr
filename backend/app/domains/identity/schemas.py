@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Literal
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 from app.domains.identity.models import SystemRole
@@ -28,7 +28,7 @@ class UserRead(BaseModel):
 
 
 class UserSyncRequest(BaseModel):
-    role: Optional[SystemRole] = SystemRole.CREATOR
+    role: Optional[Literal["creator", "brand_owner"]] = "creator"
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
 

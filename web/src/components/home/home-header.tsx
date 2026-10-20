@@ -59,7 +59,7 @@ export function HomeHeader() {
   // Fallback: Fetch live avatar from creator public profile if handle exists
   useEffect(() => {
     if (!session?.handle || userAvatar) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002/api/v1";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8210/api/v1";
     fetch(`${apiUrl}/creators/public/${encodeURIComponent(session.handle)}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {

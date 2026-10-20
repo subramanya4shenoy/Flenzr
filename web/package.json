@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --hostname localhost --port 3210",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "start": "next start --hostname localhost --port 3210",
+    "lint": "eslint",
+    "test:zero-state": "node --test tests/zero-state.test.cjs",
+    "test:access": "node --test tests/access-control.test.cjs",
+    "test:google": "node --test tests/google-auth.test.cjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.1",

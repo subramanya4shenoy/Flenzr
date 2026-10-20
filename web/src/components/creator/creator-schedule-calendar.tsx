@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "@/lib/i18n/language-context";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -25,56 +26,77 @@ interface CalendarEvent {
   color: "indigo" | "violet" | "emerald";
 }
 
-const EVENTS_DATA: CalendarEvent[] = [
-  {
-    id: "ev-1",
-    day: 19,
-    time: "11:00 AM",
-    title: "Sony FX3 Reel Draft Due",
-    brand: "Sony India",
-    deliverableType: "60s Cinematic Reel",
-    amount: "₹45,000",
-    status: "in_progress",
-    color: "indigo",
-  },
-  {
-    id: "ev-2",
-    day: 19,
-    time: "04:30 PM",
-    title: "Sponsor Strategy Sync",
-    brand: "Sony India",
-    deliverableType: "Google Meet",
-    amount: "In Vault",
-    status: "in_progress",
-    color: "indigo",
-  },
-  {
-    id: "ev-3",
-    day: 24,
-    time: "02:00 PM",
-    title: "Keychron Q1 Script Review",
-    brand: "Keychron",
-    deliverableType: "Dedicated 4K Video",
-    amount: "₹35,000",
-    status: "review",
-    color: "violet",
-  },
-  {
-    id: "ev-4",
-    day: 28,
-    time: "06:00 PM",
-    title: "BoAt Nirvana ANC Payout Release",
-    brand: "BoAt Lifestyle",
-    deliverableType: "Vault Milestone 2",
-    amount: "₹45,000",
-    status: "completed",
-    color: "emerald",
-  },
-];
+const EVENTS_DATA: CalendarEvent[] = [];
 
-export function CreatorScheduleCalendar() {
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 9, 1)); // October 2026
-  const [selectedDay, setSelectedDay] = useState<number>(19); // Default to Oct 19
+interface CreatorScheduleCalendarProps {
+  deals?: any[];
+}
+
+export function CreatorScheduleCalendar({ deals }: CreatorScheduleCalendarProps) {
+  const { t } = useTranslation();
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [selectedDay, setSelectedDay] = useState<number>(() => new Date().getDate());
+  const [localDeals, setLocalDeals] = useState<any[]>(deals || []);
+
+  useEffect(() => {
+    if (deals !== undefined) {
+      setLocalDeals(deals);
+      return;
+    }
+    if (typeof window === "undefined") return;
+    try {
+      const stored = localStorage.getItem("flenzr_collab_pipeline_deals");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setLocalDeals(parsed);
+          return;
+        }
+      }
+    } catch {}
+  }, [deals]);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      try {
+        const stored = localStorage.getItem("flenzr_collab_pipeline_deals");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) setLocalDeals(parsed);
+        }
+      } catch {}
+    };
+    window.addEventListener("flenzr_pipeline_updated", handleUpdate);
+    return () => window.removeEventListener("flenzr_pipeline_updated", handleUpdate);
+  }, []);
+
+  const activeEvents: CalendarEvent[] = (() => {
+    if (localDeals && localDeals.length > 0) {
+      const filtered = localDeals.filter((d) => {
+        if (d.stage === "inbound" || !d.dueDate) return false;
+        const date = new Date(d.dueDate);
+        return !Number.isNaN(date.getTime()) && date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear();
+      });
+      if (filtered.length > 0) {
+        return filtered.map((deal, idx) => {
+          const dueDate = new Date(deal.dueDate);
+          const day = dueDate.getDate();
+          return {
+            id: `ev-${deal.id || idx}`,
+            day,
+            time: deal.time || "Time not set",
+            title: `${deal.brand} ${deal.deliverable}`,
+            brand: deal.brand,
+            deliverableType: deal.deliverable,
+            amount: deal.amount,
+            status: deal.stage === "completed" ? "completed" : deal.stage === "review" ? "review" : "in_progress",
+            color: deal.stage === "completed" ? "emerald" : deal.stage === "review" ? "violet" : "indigo",
+          };
+        });
+      }
+    }
+    return [];
+  })();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -97,7 +119,7 @@ export function CreatorScheduleCalendar() {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
-  const eventsForSelectedDay = EVENTS_DATA.filter((e) => e.day === selectedDay);
+  const eventsForSelectedDay = activeEvents.filter((e) => e.day === selectedDay);
 
   return (
     <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] shadow-md space-y-4 text-white">
@@ -108,8 +130,8 @@ export function CreatorScheduleCalendar() {
             <CalendarIcon className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white tracking-tight">Collab Calendar</h4>
-            <p className="text-[10px] text-[#7e8697]">Milestones &amp; Shoot Schedule</p>
+            <h4 className="text-xs font-bold text-white tracking-tight">{t("Collab Calendar")}</h4>
+            <p className="text-[10px] text-[#7e8697]">{t("Milestones & Shoot Schedule")}</p>
           </div>
         </div>
 
@@ -156,7 +178,7 @@ export function CreatorScheduleCalendar() {
         {/* Calendar Day Buttons */}
         {Array.from({ length: totalDays }, (_, i) => i + 1).map((day) => {
           const isSelected = selectedDay === day;
-          const dayEvents = EVENTS_DATA.filter((e) => e.day === day);
+          const dayEvents = activeEvents.filter((e) => e.day === day);
           const hasEvents = dayEvents.length > 0;
 
           return (
@@ -197,15 +219,15 @@ export function CreatorScheduleCalendar() {
       <div className="pt-2 border-t border-[#27272a] space-y-2.5">
         <div className="flex items-center justify-between text-xs">
           <span className="font-bold text-white text-[11px] flex items-center gap-1.5">
-            <span>Oct {selectedDay} Schedule</span>
+            <span>{monthNames[month].slice(0, 3)} {selectedDay} {t("Schedule")}</span>
             {eventsForSelectedDay.length > 0 && (
               <span className="px-1.5 py-0.2 rounded bg-white/10 text-white text-[9px] font-bold border border-white/20">
-                {eventsForSelectedDay.length} Items
+                {eventsForSelectedDay.length} {t("Items")}
               </span>
             )}
           </span>
           <span className="text-[10px] text-[#7e8697]">
-            {eventsForSelectedDay.length > 0 ? "Brand Deliverables" : "Free Slot"}
+            {eventsForSelectedDay.length > 0 ? t("Brand Deliverables") : t("Free Slot")}
           </span>
         </div>
 
@@ -219,7 +241,7 @@ export function CreatorScheduleCalendar() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h5 className="font-semibold text-white text-[11px] truncate">{ev.title}</h5>
-                    <p className="text-[10px] text-[#7e8697] truncate">{ev.brand} • {ev.deliverableType}</p>
+                    <p className="text-[10px] text-[#7e8697] truncate">{ev.brand} • {t(ev.deliverableType, ev.deliverableType)}</p>
                   </div>
                   <span
                     className={`px-1.5 py-0.5 rounded text-[9px] font-bold shrink-0 ${
@@ -228,7 +250,7 @@ export function CreatorScheduleCalendar() {
                         : "bg-white/10 text-white border border-white/20"
                     }`}
                   >
-                    {ev.status === "completed" ? "Released" : ev.time}
+                    {ev.status === "completed" ? t("Released") : ev.time}
                   </span>
                 </div>
 
@@ -237,15 +259,15 @@ export function CreatorScheduleCalendar() {
                     <Clock className="w-3 h-3 text-neutral-400" />
                     <span>{ev.time}</span>
                   </span>
-                  <span className="font-bold text-white">{ev.amount}</span>
+                  <span className="font-bold text-white">{t(ev.amount, ev.amount)}</span>
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="p-3 rounded-xl bg-[#18181b]/60 border border-dashed border-[#27272a] text-center space-y-1">
-            <p className="text-[11px] text-[#8c94a6]">No deliverables due on Oct {selectedDay}</p>
-            <p className="text-[10px] text-[#686f82]">Open for brand bookings &amp; review syncs</p>
+            <p className="text-[11px] text-[#8c94a6]">{t("No deliverables due on")} {monthNames[month].slice(0, 3)} {selectedDay}</p>
+            <p className="text-[10px] text-[#686f82]">{t("Open for brand bookings & review syncs")}</p>
           </div>
         )}
       </div>
@@ -257,10 +279,10 @@ export function CreatorScheduleCalendar() {
           onClick={() => setSelectedDay(19)}
           className="hover:text-white transition-colors cursor-pointer"
         >
-          Jump to Today (Oct 19)
+          {t("Jump to Today")} (Oct 19)
         </button>
         <span className="text-white hover:underline flex items-center gap-1 cursor-pointer">
-          <span>Sync iCal</span>
+          <span>{t("Sync iCal")}</span>
           <ExternalLink className="w-2.5 h-2.5" />
         </span>
       </div>

@@ -27,47 +27,18 @@ export interface CaseStudy {
   tags: string[];
 }
 
-const INITIAL_CASE_STUDIES: CaseStudy[] = [
-  {
-    id: "cs-1",
-    brand: "Sony India",
-    deliverable: "60s Cinematic FX3 Reel",
-    views: "850K Views",
-    ctr: "4.2% CTR",
-    revenueEst: "₹14.2L Attributed",
-    quote: "Subu delivered our highest-converting camera campaign of Q3. Flawless production quality and zero friction with Flenzr Vault.",
-    author: "Ananya Sen",
-    role: "Senior Marketing Manager, Sony India",
-    tags: ["Cinematic", "Camera Tech", "Vault Verified"],
-  },
-  {
-    id: "cs-2",
-    brand: "Keychron",
-    deliverable: "Dedicated 4K Review",
-    views: "420K Views",
-    ctr: "6.8% CTR",
-    revenueEst: "480+ Units Sold",
-    quote: "Exceptional production quality. His audience is exactly the high-intent developers and mechanical keyboard enthusiasts we target.",
-    author: "David Chen",
-    role: "Global Partnerships, Keychron",
-    tags: ["Hardware", "High Conversion", "Vault Verified"],
-  },
-  {
-    id: "cs-3",
-    brand: "BoAt Lifestyle",
-    deliverable: "Nirvana ANC Commute Reel",
-    views: "1.2M Views",
-    ctr: "3.9% CTR",
-    revenueEst: "28,400 Clicks",
-    quote: "Authentic audio benchmark without sounding like a generic sponsor read. Delivered in 4 days ahead of scheduled deadline.",
-    author: "Rahul Mehta",
-    role: "Lead Creator Growth, BoAt",
-    tags: ["Audio", "1M+ Reach", "Vault Verified"],
-  },
-];
+const INITIAL_CASE_STUDIES: CaseStudy[] = [];
 
 export function CreatorPortfolioView() {
-  const [caseStudies, setCaseStudies] = useState<CaseStudy[]>(INITIAL_CASE_STUDIES);
+  const [caseStudies, setCaseStudies] = useState<CaseStudy[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("flenzr_creator_case_studies");
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return [];
+  });
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Form state
@@ -87,15 +58,19 @@ export function CreatorPortfolioView() {
       id: `cs-${Date.now()}`,
       brand,
       deliverable: deliverable || "Sponsored Deliverable",
-      views: views ? `${views} Views` : "500K Views",
-      ctr: ctr ? `${ctr} CTR` : "4.0% CTR",
-      revenueEst: revenueEst || "High Attributed ROI",
+      views: views ? `${views} Views` : "Views not provided",
+      ctr: ctr ? `${ctr} CTR` : "CTR not provided",
+      revenueEst: revenueEst || "Impact not provided",
       quote,
-      author: author || "Brand Partnership Lead",
-      role: role || `${brand} Marketing`,
-      tags: ["Verified Sponsor", "Vault Verified"],
+      author: author || "Author not provided",
+      role: role || "Role not provided",
+      tags: [],
     };
-    setCaseStudies([newCase, ...caseStudies]);
+    const updated = [newCase, ...caseStudies];
+    setCaseStudies(updated);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("flenzr_creator_case_studies", JSON.stringify(updated));
+    }
     setShowAddModal(false);
     setBrand("");
     setDeliverable("");
@@ -119,7 +94,7 @@ export function CreatorPortfolioView() {
             </h2>
           </div>
           <p className="text-xs text-[#8c94a6] mt-0.5">
-            Verified proof-of-performance from past brand collaborations. Displayed to prospective sponsors to justify premium rates.
+            Case studies from past brand collaborations. Displayed to prospective sponsors to justify premium rates.
           </p>
         </div>
 
@@ -135,7 +110,28 @@ export function CreatorPortfolioView() {
 
       {/* Case Studies Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {caseStudies.map((cs) => (
+        {caseStudies.length === 0 ? (
+          <div className="col-span-full p-8 rounded-2xl bg-[#121215] border border-dashed border-[#27272a] text-center space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center mx-auto text-neutral-400">
+              <Award className="w-6 h-6 text-neutral-400" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold text-white">No Case Studies Published Yet</h4>
+              <p className="text-xs text-[#7e8697] max-w-md mx-auto">
+                Showcase verified reach, CTR, and sponsor testimonials to prospective brands. Case studies are automatically featured on your public media kit.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAddModal(true)}
+              className="h-9 px-4 rounded-xl bg-white hover:bg-neutral-200 text-black font-bold text-xs inline-flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02] cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Your First Case Study</span>
+            </button>
+          </div>
+        ) : (
+          caseStudies.map((cs) => (
           <div
             key={cs.id}
             className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] hover:border-neutral-600 transition-all flex flex-col justify-between space-y-4"
@@ -149,7 +145,7 @@ export function CreatorPortfolioView() {
                 </div>
                 <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[9px] font-bold border border-emerald-500/20 flex items-center gap-1">
                   <ShieldCheck className="w-2.5 h-2.5" />
-                  <span>Verified</span>
+                  <span>Creator provided</span>
                 </span>
               </div>
 
@@ -194,7 +190,8 @@ export function CreatorPortfolioView() {
               ))}
             </div>
           </div>
-        ))}
+        ))
+      )}
       </div>
 
       {/* Add Modal */}

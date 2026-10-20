@@ -9,6 +9,7 @@ from app.core.exceptions import FlenzrException
 from app.domains.brands.router import router as brands_router
 from app.domains.campaigns.router import router as campaigns_router
 from app.domains.creators.router import router as creators_router
+from app.domains.creators.socials import router as social_accounts_router
 from app.domains.discovery.router import router as discovery_router
 from app.domains.identity.router import router as identity_router
 from app.domains.links.router import redirect_router
@@ -74,6 +75,7 @@ def create_application() -> FastAPI:
 
     # Mount Domain Routers
     app.include_router(identity_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(social_accounts_router, prefix=settings.API_V1_PREFIX)
     app.include_router(creators_router, prefix=settings.API_V1_PREFIX)
     app.include_router(ratecards_router, prefix=settings.API_V1_PREFIX)
     app.include_router(links_router, prefix=settings.API_V1_PREFIX)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   TrendingUp,
   ShieldCheck,
@@ -13,25 +13,28 @@ import {
   ExternalLink,
   Download,
   Share2,
+  Lock,
+  AlertCircle,
 } from "lucide-react";
 
 export function CreatorAnalyticsView() {
   const [timeRange, setTimeRange] = useState<"30d" | "90d" | "all">("30d");
+  const [profile, setProfile] = useState<any>(null);
 
-  const GEOS = [
-    { country: "India", percentage: 74, color: "bg-white" },
-    { country: "United States", percentage: 12, color: "bg-neutral-300" },
-    { country: "United Arab Emirates", percentage: 6, color: "bg-neutral-400" },
-    { country: "United Kingdom", percentage: 4, color: "bg-neutral-500" },
-    { country: "Others", percentage: 4, color: "bg-neutral-600" },
-  ];
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = localStorage.getItem("flenzr_creator_profile");
+      if (stored) setProfile(JSON.parse(stored));
+    } catch {}
+  }, []);
 
-  const AGE_GROUPS = [
-    { label: "18 - 24", percentage: 42 },
-    { label: "25 - 34", percentage: 46 },
-    { label: "35 - 44", percentage: 9 },
-    { label: "45+", percentage: 3 },
-  ];
+  const hasYoutube = Boolean(profile?.youtubeChannel);
+  const isYoutubeVerified = Boolean(profile?.isYoutubeBioVerified);
+  const hasInstagram = Boolean(profile?.instagramHandle);
+  const isInstagramVerified = Boolean(profile?.isInstagramBioVerified);
+  const hasAnyConnected = (hasYoutube && isYoutubeVerified) || (hasInstagram && isInstagramVerified);
+
 
   return (
     <div className="space-y-6">
@@ -39,13 +42,13 @@ export function CreatorAnalyticsView() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#121215] border border-[#27272a] shadow-md">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className={`w-2.5 h-2.5 rounded-full ${hasAnyConnected ? "bg-emerald-400 animate-pulse" : "bg-neutral-500"}`} />
             <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
               Verified Audience &amp; Performance Metrics
             </h2>
           </div>
           <p className="text-xs text-[#8c94a6] mt-0.5">
-            Cryptographically authenticated via YouTube Data API &amp; Instagram Graph API. No self-reported screenshots.
+            Performance metrics will appear when connected platform analytics are available.
           </p>
         </div>
 
@@ -69,7 +72,7 @@ export function CreatorAnalyticsView() {
 
           <button
             type="button"
-            onClick={() => alert("Generating verified PDF media kit...")}
+            disabled title="PDF export is not available yet"
             className="h-8 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-xs flex items-center gap-1.5 border border-white/20 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
@@ -88,26 +91,40 @@ export function CreatorAnalyticsView() {
                 YT
               </div>
               <div>
-                <h4 className="text-xs font-bold text-white">YouTube Tech Channel</h4>
-                <p className="text-[10px] text-[#7e8697]">API Authenticated • 420K Subscribers</p>
+                <h4 className="text-xs font-bold text-white">
+                  {hasYoutube ? profile.youtubeChannel : "YouTube Channel"}
+                </h4>
+                <p className="text-[10px] text-[#7e8697]">
+                  {isYoutubeVerified
+                    ? "Ownership verified • Analytics unavailable"
+                    : hasYoutube
+                    ? "Channel Linked • Verification Pending"
+                    : "Not Connected • Connect in Profile"}
+                </p>
               </div>
             </div>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-              Verified ✓
-            </span>
+            {isYoutubeVerified ? (
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+                Verified ✓
+              </span>
+            ) : (
+              <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-neutral-400 font-medium border border-white/10">
+                Not Connected
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#27272a] text-center">
             <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">850K</div>
+              <div className="text-lg font-bold text-white">{"--"}</div>
               <div className="text-[10px] text-[#8c94a6]">Median Views</div>
             </div>
             <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">5.2%</div>
+              <div className="text-lg font-bold text-white">{"--"}</div>
               <div className="text-[10px] text-[#8c94a6]">Avg CTR</div>
             </div>
             <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">6:42m</div>
+              <div className="text-lg font-bold text-white">{"--"}</div>
               <div className="text-[10px] text-[#8c94a6]">Avg Retention</div>
             </div>
           </div>
@@ -121,26 +138,40 @@ export function CreatorAnalyticsView() {
                 IG
               </div>
               <div>
-                <h4 className="text-xs font-bold text-white">Instagram Creator</h4>
-                <p className="text-[10px] text-[#7e8697]">Meta Graph API • 184K Followers</p>
+                <h4 className="text-xs font-bold text-white">
+                  {hasInstagram ? `@${profile.instagramHandle}` : "Instagram Creator"}
+                </h4>
+                <p className="text-[10px] text-[#7e8697]">
+                  {isInstagramVerified
+                    ? "Ownership verified • Analytics unavailable"
+                    : hasInstagram
+                    ? "Handle Linked • Verification Pending"
+                    : "Not Connected • Connect in Profile"}
+                </p>
               </div>
             </div>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-              Verified ✓
-            </span>
+            {isInstagramVerified ? (
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+                Verified ✓
+              </span>
+            ) : (
+              <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-neutral-400 font-medium border border-white/10">
+                Not Connected
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#27272a] text-center">
             <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">120K</div>
+              <div className="text-lg font-bold text-white">{"--"}</div>
               <div className="text-[10px] text-[#8c94a6]">Avg Reel Plays</div>
             </div>
             <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">4.8%</div>
+              <div className="text-lg font-bold text-white">{"--"}</div>
               <div className="text-[10px] text-[#8c94a6]">Engagement Rate</div>
             </div>
             <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">18.4K</div>
+              <div className="text-lg font-bold text-white">{"--"}</div>
               <div className="text-[10px] text-[#8c94a6]">Story Reach</div>
             </div>
           </div>
@@ -148,101 +179,48 @@ export function CreatorAnalyticsView() {
       </div>
 
       {/* Demographics: Geography + Age/Gender */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Geographic Distribution */}
-        <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-white flex items-center gap-2">
-              <Globe className="w-3.5 h-3.5 text-neutral-300" />
-              <span>Audience Geographies</span>
-            </h4>
-            <span className="text-[10px] text-[#8c94a6]">Top 5 Regions</span>
-          </div>
-
-          <div className="space-y-3 pt-1">
-            {GEOS.map((g) => (
-              <div key={g.country} className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#a1a1aa] font-medium">{g.country}</span>
-                  <span className="text-white font-bold">{g.percentage}%</span>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-[#18181b] overflow-hidden">
-                  <div
-                    className={`h-full ${g.color} rounded-full transition-all duration-500`}
-                    style={{ width: `${g.percentage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Age & Gender Breakdown */}
-        <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-white flex items-center gap-2">
-              <Users className="w-3.5 h-3.5 text-neutral-300" />
-              <span>Age &amp; Gender Demographics</span>
-            </h4>
-            <span className="text-[10px] text-white font-bold bg-white/10 px-2 py-0.5 rounded border border-white/20">
-              78% Male • 22% Female
-            </span>
-          </div>
-
-          <div className="space-y-3 pt-1">
-            {AGE_GROUPS.map((a) => (
-              <div key={a.label} className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#a1a1aa] font-medium">{a.label} years</span>
-                  <span className="text-white font-bold">{a.percentage}%</span>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-[#18181b] overflow-hidden">
-                  <div
-                    className="h-full bg-white rounded-full transition-all duration-500"
-                    style={{ width: `${a.percentage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="p-8 rounded-2xl bg-[#121215] border border-dashed border-[#27272a] text-center space-y-2">
+        <h4 className="text-sm font-semibold text-white">Audience data is not available yet</h4>
+        <p className="text-xs text-[#7e8697]">Social ownership verification does not provide audience demographics or performance analytics.</p>
       </div>
 
       {/* Aspect Score Pillars Breakdown */}
       <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="text-xs font-bold text-white">Aspect Trust Score Pillars (86/100)</h4>
-            <p className="text-[10px] text-[#8c94a6]">Why top hardware brands book collaborations with you</p>
+            <h4 className="text-xs font-bold text-white">Aspect Trust Score Pillars</h4>
+            <p className="text-[10px] text-[#8c94a6]">Core trust benchmarks verified for prospective brand sponsors</p>
           </div>
           <span className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white font-bold border border-white/20">
-            Top 1% Creator
+            {"Not rated yet"}
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
           <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1">
             <span className="text-[10px] text-[#8c94a6] uppercase font-bold">Authenticity</span>
-            <div className="text-xl font-bold text-white">92 / 100</div>
-            <p className="text-[10px] text-emerald-400 font-semibold">&lt; 1.8% Bot followers detected</p>
+            <div className="text-xl font-bold text-white">{"--"}</div>
+            <p className="text-[10px] text-neutral-400 font-semibold">
+              {"Authenticity data unavailable"}
+            </p>
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1">
             <span className="text-[10px] text-[#8c94a6] uppercase font-bold">On-Time Fulfillment</span>
-            <div className="text-xl font-bold text-white">87%</div>
-            <p className="text-[10px] text-neutral-300">Avg. 5.4 days turnaround</p>
+            <div className="text-xl font-bold text-white">--</div>
+            <p className="text-[10px] text-neutral-400">Unlocks after 1st completed deal</p>
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1">
             <span className="text-[10px] text-[#8c94a6] uppercase font-bold">Brand Retention</span>
-            <div className="text-xl font-bold text-white">91%</div>
-            <p className="text-[10px] text-neutral-300">Repeat sponsor re-booking rate</p>
+            <div className="text-xl font-bold text-white">--</div>
+            <p className="text-[10px] text-neutral-400">Unlocks after repeat sponsor</p>
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1">
             <span className="text-[10px] text-[#8c94a6] uppercase font-bold">Commercial CTR</span>
-            <div className="text-xl font-bold text-white">4.8%</div>
-            <p className="text-[10px] text-emerald-400 font-semibold">2.5x Category Average</p>
+            <div className="text-xl font-bold text-white">--</div>
+            <p className="text-[10px] text-neutral-400">Tracks via Smart Links</p>
           </div>
         </div>
       </div>

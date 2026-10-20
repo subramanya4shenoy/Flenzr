@@ -98,6 +98,272 @@
         ]
       }
     },
+    "/api/v1/creators/me/social-accounts": {
+      "get": {
+        "tags": [
+          "Creator social accounts"
+        ],
+        "summary": "List Social Accounts",
+        "operationId": "list_social_accounts_api_v1_creators_me_social_accounts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SocialAccountRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Social Accounts Api V1 Creators Me Social Accounts Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/creators/me/social-accounts/{platform}": {
+      "patch": {
+        "tags": [
+          "Creator social accounts"
+        ],
+        "summary": "Save Social Account",
+        "operationId": "save_social_account_api_v1_creators_me_social_accounts__platform__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "instagram",
+                "youtube",
+                "x",
+                "tiktok",
+                "linkedin",
+                "twitch"
+              ],
+              "type": "string",
+              "title": "Platform"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SocialAccountWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SocialAccountRead"
+                  },
+                  "title": "Response Save Social Account Api V1 Creators Me Social Accounts  Platform  Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Creator social accounts"
+        ],
+        "summary": "Remove Social Account",
+        "operationId": "remove_social_account_api_v1_creators_me_social_accounts__platform__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "instagram",
+                "youtube",
+                "x",
+                "tiktok",
+                "linkedin",
+                "twitch"
+              ],
+              "type": "string",
+              "title": "Platform"
+            }
+          },
+          {
+            "name": "expected_handle",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expected Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SocialAccountRead"
+                  },
+                  "title": "Response Remove Social Account Api V1 Creators Me Social Accounts  Platform  Delete"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/creators/onboard": {
+      "post": {
+        "tags": [
+          "Creators"
+        ],
+        "summary": "Onboard Creator",
+        "description": "Complete the authenticated creator's own profile and initial rate cards.\nReuses the verified caller's token; never issues an unauthenticated session.",
+        "operationId": "onboard_creator_api_v1_creators_onboard_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatorOnboardRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatorOnboardResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/creators/verify-bio": {
+      "post": {
+        "tags": [
+          "Creators"
+        ],
+        "summary": "Verify Creator Bio",
+        "description": "Verifies creator ownership of Instagram or YouTube channels via temporary Bio/Description code.",
+        "operationId": "verify_creator_bio_api_v1_creators_verify_bio_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BioVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BioVerifyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/creators/me": {
       "get": {
         "tags": [
@@ -168,6 +434,54 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/api/v1/creators/by-email/{email}": {
+      "get": {
+        "tags": [
+          "Creators"
+        ],
+        "summary": "Get Creator By Email",
+        "description": "Look up only the signed-in account by its own registered email.",
+        "operationId": "get_creator_by_email_api_v1_creators_by_email__email__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCreatorProfile"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/creators/public/{handle}": {
@@ -911,6 +1225,11 @@
         ],
         "summary": "Get Campaign",
         "operationId": "get_campaign_api_v1_campaigns__campaign_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "campaign_id",
@@ -1231,6 +1550,77 @@
           "withdrawn"
         ],
         "title": "ApplicationStatus"
+      },
+      "BioVerifyRequest": {
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "youtube"
+            ],
+            "title": "Platform"
+          },
+          "handle": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^@?[a-zA-Z0-9_.-]+$",
+            "title": "Handle"
+          },
+          "verification_code": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Verification Code"
+          },
+          "creator_handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Handle"
+          }
+        },
+        "type": "object",
+        "required": [
+          "platform",
+          "handle",
+          "verification_code"
+        ],
+        "title": "BioVerifyRequest"
+      },
+      "BioVerifyResponse": {
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "title": "Verified"
+          },
+          "platform": {
+            "type": "string",
+            "title": "Platform"
+          },
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "verified",
+          "platform",
+          "handle",
+          "message"
+        ],
+        "title": "BioVerifyResponse"
       },
       "BrandProfileRead": {
         "properties": {
@@ -1659,6 +2049,119 @@
         ],
         "title": "CampaignStatus"
       },
+      "CreatorOnboardRequest": {
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Full Name"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 3,
+            "title": "Email"
+          },
+          "handle": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "title": "Handle"
+          },
+          "niche": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Niche"
+          },
+          "instagram_handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram Handle"
+          },
+          "instagram_verified": {
+            "type": "boolean",
+            "title": "Instagram Verified",
+            "default": false
+          },
+          "youtube_channel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Youtube Channel"
+          },
+          "youtube_verified": {
+            "type": "boolean",
+            "title": "Youtube Verified",
+            "default": false
+          },
+          "rate_cards": {
+            "items": {
+              "$ref": "#/components/schemas/InitialRateCardItem"
+            },
+            "type": "array",
+            "title": "Rate Cards",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "full_name",
+          "email",
+          "handle"
+        ],
+        "title": "CreatorOnboardRequest"
+      },
+      "CreatorOnboardResponse": {
+        "properties": {
+          "creator": {
+            "$ref": "#/components/schemas/CreatorRead"
+          },
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "universal_bio_link": {
+            "type": "string",
+            "title": "Universal Bio Link"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "creator",
+          "access_token",
+          "universal_bio_link",
+          "message"
+        ],
+        "title": "CreatorOnboardResponse"
+      },
       "CreatorRead": {
         "properties": {
           "handle": {
@@ -1745,6 +2248,49 @@
               }
             ],
             "title": "Custom Domain"
+          },
+          "instagram_handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram Handle"
+          },
+          "instagram_verified": {
+            "type": "boolean",
+            "title": "Instagram Verified",
+            "default": false
+          },
+          "youtube_channel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Youtube Channel"
+          },
+          "youtube_verified": {
+            "type": "boolean",
+            "title": "Youtube Verified",
+            "default": false
+          },
+          "verification_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Code"
           },
           "created_at": {
             "type": "string",
@@ -1856,6 +2402,34 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "InitialRateCardItem": {
+        "properties": {
+          "platform": {
+            "type": "string",
+            "title": "Platform"
+          },
+          "deliverable": {
+            "type": "string",
+            "title": "Deliverable"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "days": {
+            "type": "integer",
+            "title": "Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "platform",
+          "deliverable",
+          "price",
+          "days"
+        ],
+        "title": "InitialRateCardItem"
       },
       "InvitationStatus": {
         "type": "string",
@@ -2150,6 +2724,38 @@
               }
             ],
             "title": "Avatar Url"
+          },
+          "instagram_handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram Handle"
+          },
+          "instagram_verified": {
+            "type": "boolean",
+            "title": "Instagram Verified",
+            "default": false
+          },
+          "youtube_channel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Youtube Channel"
+          },
+          "youtube_verified": {
+            "type": "boolean",
+            "title": "Youtube Verified",
+            "default": false
           }
         },
         "type": "object",
@@ -2173,7 +2779,7 @@
             "type": "string",
             "pattern": "^#(?:[0-9a-fA-F]{3}){1,2}$",
             "title": "Fill Color",
-            "default": "#000000"
+            "default": "#c1121f"
           },
           "back_color": {
             "type": "string",
@@ -2428,6 +3034,65 @@
         },
         "type": "object",
         "title": "RateCardUpdate"
+      },
+      "SocialAccountRead": {
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "youtube",
+              "x",
+              "tiktok",
+              "linkedin",
+              "twitch"
+            ],
+            "title": "Platform"
+          },
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified"
+          }
+        },
+        "type": "object",
+        "required": [
+          "platform",
+          "handle",
+          "is_verified"
+        ],
+        "title": "SocialAccountRead"
+      },
+      "SocialAccountWrite": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_.-]+$",
+            "title": "Handle"
+          },
+          "expected_handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Handle"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "handle"
+        ],
+        "title": "SocialAccountWrite"
       },
       "SystemRole": {
         "type": "string",
@@ -2855,12 +3520,17 @@
           "role": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/SystemRole"
+                "type": "string",
+                "enum": [
+                  "creator",
+                  "brand_owner"
+                ]
               },
               {
                 "type": "null"
               }
             ],
+            "title": "Role",
             "default": "creator"
           },
           "full_name": {

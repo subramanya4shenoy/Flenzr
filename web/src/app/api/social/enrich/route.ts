@@ -1,27 +1,5 @@
 import { NextResponse } from "next/server";
-
-interface EnrichedSocialStats {
-  platform: "instagram" | "youtube";
-  handle: string;
-  displayName: string;
-  avatarUrl: string;
-  followers: number;
-  followersFormatted: string;
-  engagementRate: number;
-  avgViews: number;
-  avgViewsFormatted: string;
-  tier: "Nano" | "Micro" | "Mid-Tier" | "Macro" | "Mega";
-  category: string;
-  suggestedRates: {
-    deliverable: string;
-    price: number;
-    days: number;
-  }[];
-  apiVerified: boolean;
-  canVerifyOfficialApi: boolean;
-  isRealData: boolean;
-  codeFoundInBio?: boolean;
-}
+import { currentIdentity, sameOrigin } from "@/lib/server/session";
 
 function parseSubscriberText(text: string): number {
   const clean = text.toLowerCase().replace(/subscribers?/g, "").trim();
@@ -42,7 +20,7 @@ function parseSubscriberText(text: string): number {
     return Math.round(num * 1000);
   }
   const parsed = parseInt(clean.replace(/,/g, ""), 10);
-  return isNaN(parsed) ? 10000 : parsed;
+  return isNaN(parsed) ? 0 : parsed;
 }
 
 function calculateTier(followers: number): "Nano" | "Micro" | "Mid-Tier" | "Macro" | "Mega" {
@@ -100,6 +78,8 @@ function generateSuggestedRates(platform: "instagram" | "youtube", followers: nu
 }
 
 export async function POST(request: Request) {
+  if (!sameOrigin(request)) return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  if (!await currentIdentity()) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   try {
     const body = await request.json();
     const { platform, handle, verificationCode, manualFollowers } = body;
@@ -111,6 +91,9 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!["instagram", "youtube"].includes(platform) || typeof handle !== "string" || !/^@?[a-zA-Z0-9_.-]{1,128}$/.test(handle)) {
+      return NextResponse.json({ error: "Invalid social account" }, { status: 400 });
+    }
     const cleanHandle = handle.replace(/^@/, "").trim().toLowerCase();
     const cleanCode = (verificationCode || "").trim().toUpperCase();
 
@@ -134,8 +117,8 @@ export async function POST(request: Request) {
           const igJson = await igRes.json();
           const user = igJson?.data?.user;
           if (user) {
-            const rawFollowers = user?.edge_followed_by?.count || 12000;
-            const followers = manualFollowers ? Number(manualFollowers) : rawFollowers;
+            const rawFollowers = user?.edge_followed_by?.count ?? 0;
+            const followers = rawFollowers;
             const displayName = user?.full_name || cleanHandle;
             const rawPic = user?.profile_pic_url_hd || user?.profile_pic_url;
             const avatarUrl = rawPic
@@ -151,10 +134,8 @@ export async function POST(request: Request) {
                 bio.toLowerCase().includes(`flenzr.com/@${cleanHandle}`)
               : false;
 
-            const engagementRate = Number(
-              (followers > 1000000 ? 3.8 : followers > 100000 ? 4.9 : 6.2).toFixed(1)
-            );
-            const avgViews = Math.round(followers * 0.22);
+            const engagementRate = null;
+            const avgViews = null;
 
             return NextResponse.json({
               platform: "instagram",
@@ -165,12 +146,12 @@ export async function POST(request: Request) {
               followersFormatted: formatNumber(followers),
               engagementRate,
               avgViews,
-              avgViewsFormatted: formatNumber(avgViews),
+              avgViewsFormatted: "--",
               tier: calculateTier(followers),
               category: user?.category_name || "Content Creator",
-              suggestedRates: generateSuggestedRates("instagram", followers),
+              suggestedRates: followers > 0 ? generateSuggestedRates("instagram", followers) : [],
               apiVerified: user?.is_verified || false,
-              canVerifyOfficialApi: true,
+              canVerifyOfficialApi: false,
               isRealData: true,
               codeFoundInBio: codeFound,
             });
@@ -205,8 +186,8 @@ export async function POST(request: Request) {
           const avatarMatch = html.match(/<meta property="og:image" content="([^"]+)"/);
 
           if (nameMatch || subMatch) {
-            const rawSubs = subMatch ? subMatch[1] : "10K subscribers";
-            const followers = manualFollowers ? Number(manualFollowers) : parseSubscriberText(rawSubs);
+            const rawSubs = subMatch ? subMatch[1] : "";
+            const followers = parseSubscriberText(rawSubs);
             const displayName = nameMatch ? nameMatch[1] : cleanHandle;
             const rawPic = avatarMatch ? avatarMatch[1] : null;
             const avatarUrl = rawPic
@@ -219,8 +200,8 @@ export async function POST(request: Request) {
                 html.toLowerCase().includes(`flenzr.com/@${cleanHandle}`)
               : false;
 
-            const engagementRate = Number((followers > 500000 ? 5.2 : 6.8).toFixed(1));
-            const avgViews = Math.round(followers * 0.28);
+            const engagementRate = null;
+            const avgViews = null;
 
             return NextResponse.json({
               platform: "youtube",
@@ -231,12 +212,12 @@ export async function POST(request: Request) {
               followersFormatted: formatNumber(followers),
               engagementRate,
               avgViews,
-              avgViewsFormatted: formatNumber(avgViews),
+              avgViewsFormatted: "--",
               tier: calculateTier(followers),
               category: "Video Creator",
-              suggestedRates: generateSuggestedRates("youtube", followers),
+              suggestedRates: followers > 0 ? generateSuggestedRates("youtube", followers) : [],
               apiVerified: false,
-              canVerifyOfficialApi: true,
+              canVerifyOfficialApi: false,
               isRealData: true,
               codeFoundInBio: codeFound,
             });
@@ -250,9 +231,9 @@ export async function POST(request: Request) {
     // -------------------------------------------------------------
     // 3. CLEAN MANUAL FALLBACK (If account is private or offline)
     // -------------------------------------------------------------
-    const baseFollowers = manualFollowers ? Number(manualFollowers) : 15000;
-    const engagement = 4.5;
-    const views = Math.round(baseFollowers * 0.22);
+    const baseFollowers = Number.isFinite(Number(manualFollowers)) && Number(manualFollowers) > 0 ? Number(manualFollowers) : 0;
+    const engagement = null;
+    const views = null;
     const displayName = cleanHandle.charAt(0).toUpperCase() + cleanHandle.slice(1).replace(/_/g, " ");
 
     return NextResponse.json({
@@ -261,17 +242,17 @@ export async function POST(request: Request) {
       displayName,
       avatarUrl: `/api/proxy-image?name=${encodeURIComponent(displayName)}`,
       followers: baseFollowers,
-      followersFormatted: formatNumber(baseFollowers),
+      followersFormatted: baseFollowers > 0 ? formatNumber(baseFollowers) : "--",
       engagementRate: engagement,
       avgViews: views,
-      avgViewsFormatted: formatNumber(views),
+      avgViewsFormatted: "--",
       tier: calculateTier(baseFollowers),
       category: "Content Creator",
-      suggestedRates: generateSuggestedRates(platform, baseFollowers),
+      suggestedRates: baseFollowers > 0 ? generateSuggestedRates(platform, baseFollowers) : [],
       apiVerified: false,
-      canVerifyOfficialApi: true,
-      isRealData: manualFollowers ? true : false,
-      codeFoundInBio: cleanCode === "FLENZR-TEST",
+      canVerifyOfficialApi: false,
+      isRealData: false,
+      codeFoundInBio: false,
     });
   } catch (error) {
     return NextResponse.json(

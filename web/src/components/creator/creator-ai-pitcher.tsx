@@ -22,14 +22,14 @@ interface CreatorAiPitcherProps {
 }
 
 export function CreatorAiPitcher({
-  initialBrand = "Dyson India",
-  initialOffer = "₹35,000",
-  creatorHandle = "subu_creates",
+  initialBrand = "",
+  initialOffer = "",
+  creatorHandle = "",
 }: CreatorAiPitcherProps) {
   const [brand, setBrand] = useState(initialBrand);
-  const [deliverables, setDeliverables] = useState("1 Dedicated 4K YouTube Video + 2 Instagram Reels");
+  const [deliverables, setDeliverables] = useState("");
   const [initialBudget, setInitialBudget] = useState(initialOffer);
-  const [exclusivity, setExclusivity] = useState("30d");
+  const [exclusivity, setExclusivity] = useState("none");
   const [whitelisting, setWhitelisting] = useState("organic");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -41,78 +41,56 @@ export function CreatorAiPitcher({
     lowballPercentage: number;
     rationale: string[];
     pitchEmail: string;
-  }>({
-    minRate: "₹92,000",
-    targetRate: "₹1,05,000",
-    maxRate: "₹1,20,000",
-    lowballPercentage: 66,
-    rationale: [
-      "Verified Median Views: 850,000 on YouTube (Tech Industry Avg: 180,000).",
-      "Aspect Trust Score 86/100 puts you in the Top 1% tier of Indian tech creators.",
-      "Commercial CTR: 4.8% — delivers 2.6x higher conversion than standard category CPMs.",
-      "Includes 30-day category exclusivity blocking competing brands.",
-    ],
-    pitchEmail: `Hi Dyson Partnerships Team,
-
-Thank you for reaching out regarding the Phone / Tech campaign!
-
-Given the scope (1 Dedicated 4K Video + 2 Reels) along with 30-day category exclusivity, our standard package rate is ₹1,05,000. 
-
-For reference, our recent Sony FX3 campaign achieved 850,000 verified views with an industry-leading 4.2% CTR and ₹14.2L in attributed sales. Our audience is heavily concentrated in high-intent tech buyers (78% male, 25-34 demographic in metros).
-
-To make the workflow seamless and protect your campaign budget, all collaborations are secured via Flenzr Vault: funds remain protected in Vault and are only released upon your final milestone review and approval.
-
-You can inspect our live, API-verified metrics and lock in the dates here:
-https://flenzr.com/@${creatorHandle}
-
-Looking forward to creating something outstanding for Dyson!
-
-Best regards,
-Subramanya Shenoy`,
-  });
+  } | null>(null);
 
   const handleAnalyze = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!brand.trim() || Number(initialBudget.replace(/[^0-9]/g, "")) <= 0) return;
     setIsAnalyzing(true);
     setTimeout(() => {
       setIsAnalyzing(false);
-      const parsedOffer = Number(initialBudget.replace(/[^0-9]/g, "")) || 40000;
-      const targetVal = Math.max(parsedOffer * 2.5, 95000);
-      const minVal = Math.round(targetVal * 0.88);
-      const maxVal = Math.round(targetVal * 1.15);
+      const parsedOffer = Number(initialBudget.replace(/[^0-9]/g, ""));
+      let multiplier = 1.8;
+      if (exclusivity === "30d") multiplier += 0.25;
+      if (exclusivity === "60d") multiplier += 0.5;
+      if (whitelisting === "whitelisting") multiplier += 0.5;
+      if (whitelisting === "perpetual") multiplier += 1.0;
+
+      const targetVal = Math.round(parsedOffer * multiplier);
+      const minVal = Math.round(targetVal * 0.85);
+      const maxVal = Math.round(targetVal * 1.2);
+      const lowballPct = Math.min(Math.round(((targetVal - parsedOffer) / targetVal) * 100), 75);
 
       setResult({
         minRate: `₹${minVal.toLocaleString("en-IN")}`,
         targetRate: `₹${targetVal.toLocaleString("en-IN")}`,
         maxRate: `₹${maxVal.toLocaleString("en-IN")}`,
-        lowballPercentage: Math.min(Math.round(((targetVal - parsedOffer) / targetVal) * 100), 75),
+        lowballPercentage: lowballPct > 0 ? lowballPct : 0,
         rationale: [
-          `Verified 850K median YouTube views justifies premium ${brand} tech positioning.`,
-          `Flenzr Aspect Score of 86 signals 91% sponsor re-hire rate & zero chargebacks.`,
-          `Exclusivity lock blocks competitor promotions during your primary sales window.`,
+          `Illustrative estimate for ${deliverables || "sponsored deliverable"} based on your inputs.`,
+          `Confirm payment and delivery terms with the brand before accepting.`,
+          exclusivity !== "none" ? `Accounts for ${exclusivity} brand category exclusivity.` : "Non-exclusive delivery term.",
         ],
         pitchEmail: `Hi ${brand} Partnerships Team,
 
-Thank you for reaching out regarding the campaign collaboration!
+Thank you for reaching out regarding the collaboration!
 
-Given the deliverable scope (${deliverables}), our verified media package rate is ₹${targetVal.toLocaleString(
-          "en-IN"
-        )}.
-
-Our tech audience averages 850K organic views with a verified 4.8% commercial click-through rate, delivering high-intent conversions for hardware sponsors.
+Given the deliverable scope (${deliverables || "sponsored deliverables"})${exclusivity !== "none" ? ` along with ${exclusivity} exclusivity` : ""}, our media package rate is ₹${targetVal.toLocaleString("en-IN")}.
 
 All campaigns on our channel are backed by Flenzr Vault Protection: your budget remains securely held in Vault until you inspect and approve the final content draft.
 
 You can review our live cross-platform metrics and book directly via our verified media kit:
-https://flenzr.com/@${creatorHandle}
+https://flenzr.com/@${creatorHandle || "creator"}
 
-Best regards,
-Subramanya Shenoy`,
+Looking forward to partnering!
+
+Best regards,`,
       });
-    }, 900);
+    }, 800);
   };
 
   const handleCopy = () => {
+    if (!result) return;
     navigator.clipboard.writeText(result.pitchEmail);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -126,17 +104,17 @@ Subramanya Shenoy`,
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
             <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
-              AI Deal Negotiator &amp; Rate Estimator
+              Deal Negotiator &amp; Rate Estimator
             </h2>
           </div>
           <p className="text-xs text-[#8c94a6] mt-0.5">
-            Calculate your true fair market value backed by verified Aspect ratings. Generate assertively polite counter-offers with Flenzr Vault protection.
+            Explore an estimate based on your offer and selected usage terms. These estimates are not verified market benchmarks.
           </p>
         </div>
 
         <span className="px-2.5 py-1 rounded-full bg-white/10 text-white text-xs font-bold border border-white/20 flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Flenzr AI Model</span>
+          <span>Offer calculator</span>
         </span>
       </div>
 
@@ -237,77 +215,93 @@ Subramanya Shenoy`,
 
         {/* AI Valuation & Counter Pitch Output (Right 7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
-          {/* Rate Valuation Card */}
-          <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[10px] text-[#8c94a6] uppercase font-bold tracking-wider block">
-                  Fair Market Valuation
-                </span>
-                <div className="flex items-baseline gap-2 mt-0.5">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                    {result.targetRate}
-                  </span>
-                  <span className="text-xs text-[#8c94a6]">
-                    (Range: {result.minRate} – {result.maxRate})
-                  </span>
+          {result ? (
+            <>
+              {/* Rate Valuation Card */}
+              <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-[#8c94a6] uppercase font-bold tracking-wider block">
+                      Fair Market Valuation
+                    </span>
+                    <div className="flex items-baseline gap-2 mt-0.5">
+                      <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                        {result.targetRate}
+                      </span>
+                      <span className="text-xs text-[#8c94a6]">
+                        (Range: {result.minRate} – {result.maxRate})
+                      </span>
+                    </div>
+                  </div>
+
+                  {result.lowballPercentage > 0 && (
+                    <span className="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 text-xs font-bold border border-amber-500/20">
+                      Initial offer was {result.lowballPercentage}% below market
+                    </span>
+                  )}
+                </div>
+
+                {/* Rationale Pills */}
+                <div className="p-3 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1.5 text-xs">
+                  <div className="text-[11px] font-bold text-white flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Valuation Factors</span>
+                  </div>
+                  <ul className="space-y-1 text-[#a1a1aa] text-[11px]">
+                    {result.rationale.map((r, idx) => (
+                      <li key={idx} className="flex items-start gap-1.5">
+                        <span className="text-white">•</span>
+                        <span>{r}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
 
-              {result.lowballPercentage > 0 && (
-                <span className="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 text-xs font-bold border border-amber-500/20">
-                  Initial offer was {result.lowballPercentage}% below market
-                </span>
-              )}
-            </div>
+              {/* 1-Click Counter Pitch Email */}
+              <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                    <span>AI Generated Counter-Offer Pitch</span>
+                  </h4>
 
-            {/* Rationale Pills */}
-            <div className="p-3 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1.5 text-xs">
-              <div className="text-[11px] font-bold text-white flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Valuation Factors</span>
+                  <button
+                    type="button"
+                    onClick={handleCopy}
+                    className="h-8 px-3 rounded-lg bg-white text-black font-bold text-xs flex items-center gap-1.5 hover:bg-neutral-200 transition-colors cursor-pointer shadow-sm"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy Pitch Script</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="p-4 rounded-xl bg-[#09090b] border border-[#27272a] text-xs font-mono text-[#d4d4d8] whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto select-all">
+                  {result.pitchEmail}
+                </div>
               </div>
-              <ul className="space-y-1 text-[#a1a1aa] text-[11px]">
-                {result.rationale.map((r, idx) => (
-                  <li key={idx} className="flex items-start gap-1.5">
-                    <span className="text-white">•</span>
-                    <span>{r}</span>
-                  </li>
-                ))}
-              </ul>
+            </>
+          ) : (
+            <div className="p-8 rounded-2xl bg-[#121215] border border-dashed border-[#27272a] text-center space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center mx-auto text-neutral-400">
+                <Bot className="w-6 h-6 text-neutral-400" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-semibold text-white">AI Deal Negotiator Ready</h4>
+                <p className="text-xs text-[#7e8697] max-w-sm mx-auto">
+                  Enter the inbound brand name, deliverable scope, and initial proposed budget on the left to calculate your fair market benchmark and generate an escrow-backed counter offer.
+                </p>
+              </div>
             </div>
-          </div>
-
-          {/* 1-Click Counter Pitch Email */}
-          <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                <span>AI Generated Counter-Offer Pitch</span>
-              </h4>
-
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="h-8 px-3 rounded-lg bg-white text-black font-bold text-xs flex items-center gap-1.5 hover:bg-neutral-200 transition-colors cursor-pointer shadow-sm"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy Pitch Script</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            <div className="p-4 rounded-xl bg-[#09090b] border border-[#27272a] text-xs font-mono text-[#d4d4d8] whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto select-all">
-              {result.pitchEmail}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

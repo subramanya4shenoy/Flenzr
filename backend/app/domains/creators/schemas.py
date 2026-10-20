@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -83,9 +83,9 @@ class CreatorOnboardResponse(BaseModel):
 
 
 class BioVerifyRequest(BaseModel):
-    platform: str
-    handle: str
-    verification_code: str
+    platform: Literal["instagram", "youtube"]
+    handle: str = Field(min_length=1, max_length=128, pattern=r"^@?[a-zA-Z0-9_.-]+$")
+    verification_code: str = Field(min_length=1, max_length=64)
     creator_handle: Optional[str] = None
 
 

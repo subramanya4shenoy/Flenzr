@@ -40,29 +40,24 @@ class SecurityService:
             unverified_header = jwt.get_unverified_header(token)
             alg = unverified_header.get("alg", "HS256")
 
-            if alg == "ES256" and settings.SUPABASE_JWKS_URL:
-                jwks_client = get_jwks_client()
-                if jwks_client:
-                    signing_key = jwks_client.get_signing_key_from_jwt(token)
-                    payload = jwt.decode(
-                        token,
-                        signing_key.key,
-                        algorithms=["ES256"],
-                        options={"verify_signature": True, "verify_exp": True, "verify_aud": False},
-                    )
-                    return SupabaseTokenPayload(**payload)
-
-            # Fallback to HS256 symmetric secret
-            payload = jwt.decode(
-                token,
-                settings.SUPABASE_JWT_SECRET,
-                algorithms=[settings.SUPABASE_JWT_ALGORITHM, "HS256"],
-                options={
-                    "verify_signature": True,
-                    "verify_exp": True,
-                    "verify_aud": False,
-                },
-            )
+            issuer = settings.SUPABASE_URL.rstrip("/") + "/auth/v1"
+            options = {"require": ["sub", "exp", "iat", "iss", "aud"], "verify_signature": True}
+            if settings.SUPABASE_JWKS_URL:
+                # Do not fall back to the development HMAC secret when JWKS is configured.
+                if alg not in ("ES256", "RS256"):
+                    raise ValueError("Unsupported signing algorithm")
+                signing_key = get_jwks_client().get_signing_key_from_jwt(token)
+                payload = jwt.decode(token, signing_key.key, algorithms=[alg],
+                                     audience=settings.SUPABASE_JWT_AUDIENCE,
+                                     issuer=issuer, options=options)
+            else:
+                if len(settings.SUPABASE_JWT_SECRET) < 32 or settings.SUPABASE_JWT_SECRET == "super-secret-supabase-jwt-key-for-local-development":
+                    raise ValueError("JWT verification is not configured")
+                payload = jwt.decode(token, settings.SUPABASE_JWT_SECRET, algorithms=["HS256"],
+                                     audience=settings.SUPABASE_JWT_AUDIENCE,
+                                     issuer=issuer, options=options)
+            if not payload.get("sub") or payload.get("role") != "authenticated":
+                raise ValueError("A user session is required")
             return SupabaseTokenPayload(**payload)
         except jwt.ExpiredSignatureError:
             raise ValueError("Token signature has expired")
@@ -84,6 +79,7 @@ class SecurityService:
             "sub": sub,
             "email": email,
             "aud": settings.SUPABASE_JWT_AUDIENCE,
+            "iss": settings.SUPABASE_URL.rstrip("/") + "/auth/v1",
             "role": "authenticated",
             "iat": now,
             "exp": now + exp_seconds,

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { Language, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from "./languages";
-import { TRANSLATIONS, TranslationDictionary } from "./translations";
+import { TRANSLATIONS, TranslationDictionary, COMMON_PHRASES } from "./translations";
 
 interface LanguageContextType {
   currentLanguage: Language;
@@ -64,8 +64,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Translation resolver: e.g. t("nav.howItWorks") or t("hero.titleHighlight")
+  // Translation resolver: e.g. t("nav.howItWorks") or t("Collab Pipeline")
   const t = (path: string, fallback?: string): string => {
+    if (!path) return fallback || "";
+
+    // 1. Direct phrase check in COMMON_PHRASES for current language
+    const currentPhrases = COMMON_PHRASES[currentLangCode];
+    if (currentPhrases && currentPhrases[path]) {
+      return currentPhrases[path];
+    }
+
+    // 2. Dotted path lookup: e.g. "nav.howItWorks" or "dashboard.rateCards"
     const keys = path.split(".");
     const langDict: any = TRANSLATIONS[currentLangCode] || TRANSLATIONS.en;
     const fallbackDict: any = TRANSLATIONS.en;
@@ -84,7 +93,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       return value;
     }
 
-    // Fallback to English dictionary
+    // 3. Fallback to English dictionary
     let fallbackVal = fallbackDict;
     for (const key of keys) {
       if (fallbackVal && typeof fallbackVal === "object" && key in fallbackVal) {
@@ -97,6 +106,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
     if (typeof fallbackVal === "string") {
       return fallbackVal;
+    }
+
+    // 4. Fallback to English common phrases if fallback matches a known phrase
+    if (fallback && currentPhrases && currentPhrases[fallback]) {
+      return currentPhrases[fallback];
+    }
+
+    const enPhrases = COMMON_PHRASES.en;
+    if (enPhrases && enPhrases[path]) {
+      return enPhrases[path];
     }
 
     return fallback || path;

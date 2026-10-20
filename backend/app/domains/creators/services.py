@@ -1,10 +1,11 @@
 import uuid
+import secrets
 from typing import Optional
 import httpx
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import DuplicateEntityError, EntityNotFoundError
+from app.core.exceptions import DuplicateEntityError, EntityNotFoundError, PermissionDeniedError
 from app.core.security import SecurityService
 from app.domains.creators.models import Creator
 from app.domains.creators.schemas import CreatorOnboardRequest, CreatorUpdate
@@ -53,54 +54,32 @@ class CreatorService:
     async def onboard_creator(
         db: AsyncSession,
         payload: CreatorOnboardRequest,
-    ) -> tuple[Creator, str]:
-        """
-        Creates or links user, creator profile, rate cards, and bio links in a single transaction.
-        """
-        # 1. Check if handle already exists
+        user: User,
+    ) -> Creator:
+        """Complete only the verified caller's creator profile; never mint a session."""
+        if payload.email.strip().lower() != user.email.lower():
+            raise PermissionDeniedError("Onboarding email must match your authenticated account")
         existing_creator = await CreatorService.get_by_handle(db, payload.handle)
-        if existing_creator:
+        if existing_creator and existing_creator.user_id != user.id:
             raise DuplicateEntityError("Creator", "handle", payload.handle)
-
-        # 2. Check if user with email already exists, else create User
-        stmt = select(User).where(User.email == payload.email)
-        res = await db.execute(stmt)
-        user = res.scalar_one_or_none()
-
-        supabase_uid = f"flenzr-user-{uuid.uuid4()}"
-        if not user:
-            user = User(
-                supabase_uid=supabase_uid,
-                email=payload.email,
-                full_name=payload.full_name,
-                avatar_url=f"https://api.dicebear.com/7.x/micah/svg?seed={payload.handle}",
-            )
-            db.add(user)
-            await db.flush()
-
-            # Attach CREATOR role
-            user_role = UserRole(user_id=user.id, role=SystemRole.CREATOR)
-            db.add(user_role)
-            await db.flush()
-        else:
-            supabase_uid = user.supabase_uid
-
-        # 3. Create Creator Profile
-        verification_code = f"FLENZR-{abs(hash(payload.handle)) % 900 + 100}"
-        creator = Creator(
-            user_id=user.id,
-            handle=payload.handle,
-            display_name=payload.full_name,
-            bio=f"Official upfront rate card & verified bio link for {payload.full_name}.",
-            niche=payload.niche,
-            instagram_handle=payload.instagram_handle,
-            instagram_verified=payload.instagram_verified,
-            youtube_channel=payload.youtube_channel,
-            youtube_verified=payload.youtube_verified,
-            verification_code=verification_code,
-            is_verified=payload.instagram_verified or payload.youtube_verified,
-        )
-        db.add(creator)
+        creator = await CreatorService.get_by_user_id(db, user.id)
+        if creator is None:
+            creator = Creator(user_id=user.id, handle=payload.handle, display_name=payload.full_name)
+            db.add(creator)
+        elif creator.bio:
+            raise DuplicateEntityError("Creator", "user_id", user.id)
+        creator.handle = payload.handle
+        creator.display_name = payload.full_name
+        creator.niche = payload.niche
+        # Keep only previously server-verified accounts when handles still match.
+        creator.instagram_verified = bool(creator.instagram_verified and creator.instagram_handle == payload.instagram_handle)
+        creator.youtube_verified = bool(creator.youtube_verified and creator.youtube_channel == payload.youtube_channel)
+        creator.instagram_handle = payload.instagram_handle
+        creator.youtube_channel = payload.youtube_channel
+        creator.is_verified = creator.instagram_verified or creator.youtube_verified
+        creator.verification_code = creator.verification_code or "FLENZR-" + secrets.token_hex(12).upper()
+        creator.bio = f"Media kit for {payload.full_name}."
+        user.full_name = payload.full_name
         await db.flush()
 
         # 4. Create Initial Rate Cards in bulk
@@ -157,13 +136,7 @@ class CreatorService:
         await db.commit()
         await db.refresh(creator)
 
-        # Generate access token
-        token = SecurityService.create_mock_token(
-            sub=supabase_uid,
-            email=payload.email,
-            metadata={"full_name": payload.full_name, "handle": payload.handle},
-        )
-        return creator, token
+        return creator
 
     @staticmethod
     async def verify_bio(
@@ -171,54 +144,35 @@ class CreatorService:
         platform: str,
         handle: str,
         code: str,
-        creator_handle: Optional[str] = None,
+        creator: Creator,
     ) -> tuple[bool, str]:
         clean_handle = handle.replace("@", "").strip().lower()
         clean_code = code.strip().upper()
         platform_lower = platform.lower()
+        if not creator.verification_code or not secrets.compare_digest(clean_code, creator.verification_code):
+            raise PermissionDeniedError("Use the verification code issued to your account")
+
+        from app.domains.creators.socials import social_accounts, store_accounts
+        if not any(a.platform == platform_lower and a.handle.lstrip("@").lower() == clean_handle for a in social_accounts(creator)):
+            raise PermissionDeniedError("Add this account to your profile before verifying it")
 
         is_live_verified = False
         scan_message = ""
 
-        # Allow test bypass for automated unit tests or demo keys
-        if clean_code == "FLENZR-DEV-TEST-PASS" or clean_code.endswith("-DEMO"):
-            is_live_verified = True
-            scan_message = f"Verified! Detected test pass key for @{clean_handle}."
-
         # 1. LIVE CHECK ON INSTAGRAM
         if not is_live_verified and platform_lower == "instagram":
-            try:
-                headers = {
-                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    "x-ig-app-id": "936619743392459",
-                    "Referer": "https://www.instagram.com/",
-                }
-                async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
-                    resp = await client.get(
-                        f"https://www.instagram.com/api/v1/users/web_profile_info/?username={clean_handle}",
-                        headers=headers,
-                    )
-                    if resp.status_code == 200:
-                        user_data = resp.json().get("data", {}).get("user", {})
-                        bio = (user_data.get("biography", "") or "").upper()
-                        bio_links = str(user_data.get("bio_links", [])).lower()
-                        if (
-                            clean_code in bio
-                            or f"flenzr.com/@{clean_handle}" in bio.lower()
-                            or f"flenzr.com/@{clean_handle}" in bio_links
-                        ):
-                            is_live_verified = True
-                            scan_message = f"Live verified! Found '{clean_code}' in @{clean_handle}'s Instagram bio."
-                        else:
-                            is_live_verified = False
-                            scan_message = (
-                                f"Code '{clean_code}' was not found in @{clean_handle}'s live Instagram bio. "
-                                f"Please paste '{clean_code}' in your bio, tap save in Instagram, and retry."
-                            )
-                    else:
-                        scan_message = f"Instagram returned status {resp.status_code}."
-            except Exception as e:
-                scan_message = f"Network scan error: {str(e)}"
+            from app.domains.creators.instagram import read_instagram_bio
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+                bio = await read_instagram_bio(client, clean_handle)
+            if bio is None:
+                scan_message = "Instagram did not provide a readable bio. We could not check your code; your account remains unverified."
+            elif clean_code in bio.upper():
+                is_live_verified = True
+            else:
+                scan_message = (
+                    f"Code '{clean_code}' was not found in @{clean_handle}'s live Instagram bio. "
+                    "Save it in Instagram and retry."
+                )
 
         # 2. LIVE CHECK ON YOUTUBE
         elif not is_live_verified and platform_lower == "youtube":
@@ -229,12 +183,15 @@ class CreatorService:
                 }
                 async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
                     resp = await client.get(
-                        f"https://www.youtube.com/@{clean_handle}",
+                        f"https://www.youtube.com/@{clean_handle}/about",
                         headers=headers,
                     )
                     if resp.status_code == 200:
-                        page_text = resp.text.upper()
-                        if clean_code in page_text or f"FLENZR.COM/@{clean_handle.upper()}" in page_text:
+                        import html
+                        page_text = html.unescape(resp.text).upper()
+                        # YouTube embeds descriptions in JSON with escaped line breaks.
+                        page_text = page_text.replace("\\u002d", "-").replace("\\u002D", "-")
+                        if clean_code in page_text:
                             is_live_verified = True
                             scan_message = f"Live verified! Found '{clean_code}' in @{clean_handle}'s YouTube channel."
                         else:
@@ -246,30 +203,18 @@ class CreatorService:
                     else:
                         scan_message = f"YouTube returned status {resp.status_code}."
             except Exception as e:
-                scan_message = f"Network scan error: {str(e)}"
-
-        # If verified, update creator record in database
-        stmt = select(Creator)
-        if creator_handle:
-            stmt = stmt.where(Creator.handle == creator_handle)
-        else:
-            stmt = stmt.where(
-                (Creator.handle == clean_handle)
-                | (Creator.instagram_handle == clean_handle)
-                | (Creator.youtube_channel == clean_handle)
-                | (Creator.verification_code == clean_code)
-            )
-        result = await db.execute(stmt)
-        creator = result.scalar_one_or_none()
+                scan_message = "The platform could not be reached. Please try verification again later."
 
         if creator and is_live_verified:
-            if platform_lower == "instagram":
-                creator.instagram_handle = clean_handle
-                creator.instagram_verified = True
-            elif platform_lower == "youtube":
-                creator.youtube_channel = clean_handle
-                creator.youtube_verified = True
-            creator.is_verified = True
+            # A removal/edit during the network scan must not resurrect the old account.
+            creator = (await db.execute(select(Creator).where(Creator.id == creator.id)
+                                       .with_for_update().execution_options(populate_existing=True))).scalar_one()
+            accounts = social_accounts(creator)
+            account = next((a for a in accounts if a.platform == platform_lower and a.handle.lstrip('@').lower() == clean_handle), None)
+            if account is None:
+                raise PermissionDeniedError("This account was removed or changed. Start verification again.")
+            account.is_verified = True
+            store_accounts(creator, accounts)
             await db.commit()
 
 

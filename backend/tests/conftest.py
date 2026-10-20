@@ -1,4 +1,7 @@
 import asyncio
+import os
+os.environ["SUPABASE_JWT_SECRET"] = "test-only-signing-secret-not-a-real-credential"
+os.environ["SUPABASE_JWKS_URL"] = ""
 from typing import AsyncGenerator
 import pytest
 import pytest_asyncio

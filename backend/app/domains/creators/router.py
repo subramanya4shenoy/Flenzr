@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_role
-from app.core.exceptions import EntityNotFoundError
+from app.core.dependencies import get_current_user, require_role, security_scheme
+from fastapi.security import HTTPAuthorizationCredentials
+from app.core.exceptions import EntityNotFoundError, PermissionDeniedError
 from app.domains.creators.schemas import (
     BioVerifyRequest,
     BioVerifyResponse,
@@ -22,16 +23,18 @@ router = APIRouter(prefix="/creators", tags=["Creators"])
 @router.post("/onboard", response_model=CreatorOnboardResponse, status_code=status.HTTP_201_CREATED)
 async def onboard_creator(
     body: CreatorOnboardRequest,
+    current_user: User = Depends(require_role([SystemRole.CREATOR])),
+    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Complete frictionless creator onboarding in a single transaction:
-    Provisions User, Creator profile, initial Rate Cards in ₹, universal bio link, and JWT token.
+    Complete the authenticated creator's own profile and initial rate cards.
+    Reuses the verified caller's token; never issues an unauthenticated session.
     """
-    creator, token = await CreatorService.onboard_creator(db, body)
+    creator = await CreatorService.onboard_creator(db, body, current_user)
     return CreatorOnboardResponse(
         creator=CreatorRead.model_validate(creator),
-        access_token=token,
+        access_token=credentials.credentials,
         token_type="bearer",
         universal_bio_link=f"https://flenzr.com/@{creator.handle}",
         message="Creator onboarded successfully with active rate cards & universal bio link.",
@@ -41,17 +44,23 @@ async def onboard_creator(
 @router.post("/verify-bio", response_model=BioVerifyResponse)
 async def verify_creator_bio(
     body: BioVerifyRequest,
+    current_user: User = Depends(require_role([SystemRole.CREATOR])),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Verifies creator ownership of Instagram or YouTube channels via temporary Bio/Description code.
     """
+    creator = await CreatorService.get_by_user_id(db, current_user.id)
+    if not creator:
+        raise EntityNotFoundError("CreatorProfile", current_user.id)
+    if body.creator_handle and body.creator_handle != creator.handle:
+        raise PermissionDeniedError("Cannot verify another creator's profile")
     verified, message = await CreatorService.verify_bio(
         db=db,
         platform=body.platform,
         handle=body.handle,
         code=body.verification_code,
-        creator_handle=body.creator_handle,
+        creator=creator,
     )
     return BioVerifyResponse(
         verified=verified,
@@ -93,12 +102,15 @@ async def update_my_creator_profile(
 @router.get("/by-email/{email}", response_model=PublicCreatorProfile)
 async def get_creator_by_email(
     email: str,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Look up creator profile by registered email.
+    Look up only the signed-in account by its own registered email.
     """
-    creator = await CreatorService.get_by_email(db, email)
+    if email.strip().lower() != current_user.email.lower():
+        raise PermissionDeniedError("Cannot look up another account by email")
+    creator = await CreatorService.get_by_user_id(db, current_user.id)
     if not creator:
         raise EntityNotFoundError("Creator with email", email)
 

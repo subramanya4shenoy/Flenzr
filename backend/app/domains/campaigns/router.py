@@ -25,7 +25,7 @@ router = APIRouter(prefix="/campaigns", tags=["Campaigns & Opportunities"])
 
 @router.get("/me", response_model=List[CampaignRead])
 async def list_my_brand_campaigns(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role([SystemRole.BRAND_OWNER])),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -40,7 +40,7 @@ async def list_my_brand_campaigns(
 @router.post("", response_model=CampaignRead, status_code=status.HTTP_201_CREATED)
 async def create_campaign(
     body: CampaignCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role([SystemRole.BRAND_OWNER])),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -66,11 +66,15 @@ async def explore_active_campaigns(
 @router.get("/{campaign_id}", response_model=CampaignRead)
 async def get_campaign(
     campaign_id: str,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     campaign = await CampaignService.get_by_id(db, campaign_id)
     if not campaign:
         raise EntityNotFoundError("Campaign", campaign_id)
+    org = await BrandService.get_organization_by_owner(db, current_user.id)
+    if not org or campaign.organization_id != org.id:
+        raise PermissionDeniedError("Campaign details are restricted to the owning organization; use explore for public opportunities")
     return campaign
 
 
@@ -94,7 +98,7 @@ async def apply_to_campaign(
 async def invite_creator_to_campaign(
     campaign_id: str,
     body: CampaignInvitationCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role([SystemRole.BRAND_OWNER])),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -103,4 +107,9 @@ async def invite_creator_to_campaign(
     org = await BrandService.get_organization_by_owner(db, current_user.id)
     if not org:
         raise EntityNotFoundError("Organization", current_user.id)
+    campaign = await CampaignService.get_by_id(db, campaign_id)
+    if not campaign:
+        raise EntityNotFoundError("Campaign", campaign_id)
+    if campaign.organization_id != org.id:
+        raise PermissionDeniedError("Cannot invite creators to another organization's campaign")
     return await CampaignService.invite_creator(db, campaign_id, body)

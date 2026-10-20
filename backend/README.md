@@ -23,8 +23,10 @@ alembic upgrade head
 
 ### 4. Run Development Server
 ```bash
-uvicorn app.main:app --reload --port 8000
+./run-dev.sh
 ```
+
+The backend listens on `http://127.0.0.1:8210`; the frontend origin allowed by CORS is `http://localhost:3210`.
 
 ### 5. Run Test Suite
 ```bash

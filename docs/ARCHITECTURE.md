@@ -38,7 +38,7 @@
            | 2. API Requests + Bearer JWT      | 2. API Requests + Bearer JWT
            v                                   v
   +------------------------------------------------------------------+
-  |              Flenzr FastAPI Python Backend (Port 8000)           |
+  |              Flenzr FastAPI Python Backend (Port 8210)           |
   |------------------------------------------------------------------|
   |  - JWT Verification (JWKS / Supabase JWT Secret)                 |
   |  - Organization & Role-Based Access Control (RBAC / ABAC)        |

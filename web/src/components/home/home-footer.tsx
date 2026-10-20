@@ -79,7 +79,7 @@ export function HomeFooter() {
             </Link>
             <span>•</span>
             <a
-              href="http://localhost:8002/docs"
+              href={new URL("/docs", process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8210/api/v1").toString()}
               target="_blank"
               rel="noreferrer"
               className="hover:text-[#c1121f] transition-colors"

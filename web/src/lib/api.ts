@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8210/api/v1";
 
 export interface PublicCreatorProfile {
   handle: string;
@@ -39,7 +39,7 @@ export interface CreatorOnboardResponse {
     user_id: string;
     verification_code?: string;
   };
-  access_token: string;
+  access_token?: string;
   token_type: string;
   universal_bio_link: string;
   message: string;
@@ -101,27 +101,12 @@ export interface Organization {
 
 // ---------------- Public Endpoints ----------------
 
-export async function getCreatorByEmail(
-  email: string
-): Promise<PublicCreatorProfile | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/creators/by-email/${encodeURIComponent(email)}`, {
-      cache: "no-store",
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (error) {
-    console.error("Error fetching creator by email:", error);
-    return null;
-  }
-}
-
 export async function getPublicCreatorProfile(
   handle: string
 ): Promise<PublicCreatorProfile | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/creators/public/${encodeURIComponent(handle)}`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     return await res.json();
@@ -136,7 +121,7 @@ export async function getPublicCreatorRateCards(handle: string): Promise<RateCar
   try {
     const res = await fetch(
       `${API_BASE_URL}/ratecards/creator/${encodeURIComponent(handle)}`,
-      { next: { revalidate: 60 } }
+      { cache: "no-store" }
     );
     if (!res.ok) return [];
     return await res.json();
@@ -218,7 +203,7 @@ export async function onboardCreator(
   payload: CreatorOnboardPayload
 ): Promise<CreatorOnboardResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/creators/onboard`, {
+    const res = await fetch("/api/account/creators/onboard", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

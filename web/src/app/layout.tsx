@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   },
 };
 
+import { LocalDataBoundary } from "@/components/local-data-boundary";
 import { LanguageProvider } from "@/lib/i18n/language-context";
 
 export default function RootLayout({
@@ -43,7 +44,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-[#09090b] text-neutral-100 selection:bg-[#c1121f] selection:text-white">
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider><LocalDataBoundary>{children}</LocalDataBoundary></LanguageProvider>
       </body>
     </html>
   );

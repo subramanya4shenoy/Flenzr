@@ -1,6 +1,6 @@
 from typing import Optional
 import uuid
-from sqlalchemy import Boolean, Float, ForeignKey, Index, String, Text
+from sqlalchemy import Boolean, Float, ForeignKey, Index, String, Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, TimestampMixin
@@ -33,7 +33,7 @@ class Creator(Base, TimestampMixin):
     niche: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     location: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    rating: Mapped[float] = mapped_column(Float, default=5.0, nullable=False)
+    rating: Mapped[float] = mapped_column(Float, default=0.0, server_default="0.0", nullable=False)
     custom_domain: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
     profile_theme: Mapped[Optional[str]] = mapped_column(String(64), default="default", nullable=True)
 
@@ -43,6 +43,8 @@ class Creator(Base, TimestampMixin):
     youtube_channel: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     youtube_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     verification_code: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+
+    social_links: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}", nullable=False)
 
     # Relationship to user
     user = relationship("User", lazy="selectin")

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -42,7 +42,10 @@ import {
   InstagramIcon,
   YoutubeIcon,
   XTwitterIcon,
+  CREATOR_COVER_IMAGES,
 } from "@/components/creator/creator-profile-header";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 interface Props {
   creator: PublicCreatorProfile;
@@ -50,6 +53,14 @@ interface Props {
 }
 
 export function PublicCreatorProfileView({ creator, rateCards }: Props) {
+  const { t } = useTranslation();
+  const [coverImage, setCoverImage] = useState<string>(CREATOR_COVER_IMAGES[0]);
+
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * CREATOR_COVER_IMAGES.length);
+    setCoverImage(CREATOR_COVER_IMAGES[randomIndex]);
+  }, []);
+
   const [activeTab, setActiveTab] = useState<"rates" | "audience" | "collabs" | "reviews">("rates");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("all");
   const [copiedLink, setCopiedLink] = useState(false);
@@ -58,6 +69,8 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
   const [showAllCollabs, setShowAllCollabs] = useState(false);
   const [activeRateCardFilter, setActiveRateCardFilter] = useState<"all" | "new" | "vault">("new");
+  // Public profiles must never display another signed-in creator's local deals.
+  const completedPartnerships: Array<{ id: string; brand: string; deliverable: string }> = [];
 
   // Filter rate cards based on selected platform filter
   const filteredRateCards = rateCards.filter((card) => {
@@ -196,6 +209,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
 
           {/* Action CTAs */}
           <div className="flex items-center gap-2.5">
+            <LanguageSwitcher variant="compact" />
             <button
               onClick={handleCopyLink}
               className="h-9 px-3 rounded-lg bg-[#18181b] hover:bg-[#222226] border border-[#27272a] text-[#a1a1aa] hover:text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -218,7 +232,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
               className="h-9 px-4 rounded-lg bg-white hover:bg-neutral-200 text-black text-xs font-bold inline-flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02] cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Book Collab</span>
+              <span>{t("Book Collab")}</span>
             </button>
           </div>
         </header>
@@ -232,16 +246,21 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
             {/* ===================================================== */}
             <div className="w-full lg:w-[330px] shrink-0 space-y-5">
               <div className="rounded-2xl bg-[#121215] border border-[#27272a] overflow-hidden shadow-xl">
-                {/* 1. Sleek Dark Header Banner with White Mesh & Ambient Glow */}
-                <div className="h-28 relative bg-gradient-to-r from-neutral-900 via-neutral-850 to-neutral-900 border-b border-[#27272a] p-3 flex items-start justify-end overflow-hidden">
-                  <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:14px_14px]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
+                {/* 1. Cover Image Banner (Random 1 of 5) */}
+                <div className="h-28 relative bg-[#18181b] border-b border-[#27272a] p-3 flex items-start justify-end overflow-hidden group">
+                  <img
+                    src={coverImage}
+                    alt="Creator Profile Cover"
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#121215] via-black/40 to-black/30 pointer-events-none" />
+                  <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:14px_14px] pointer-events-none" />
 
                   {/* Verified White Badge */}
                   {creator.is_verified && (
-                    <div className="relative z-10 h-6 px-2.5 rounded-lg bg-white text-black text-[11px] font-bold shadow-sm inline-flex items-center gap-1">
+                    <div className="relative z-10 h-6 px-2.5 rounded-lg bg-white text-black text-[11px] font-bold shadow-md inline-flex items-center gap-1">
                       <Check className="w-3 h-3 text-[#c1121f] stroke-[3]" />
-                      <span>Verified</span>
+                      <span>{t("Verified")}</span>
                     </div>
                   )}
                 </div>
@@ -252,7 +271,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                   <div className="-mt-12 mb-3">
                     <div className="w-20 h-20 rounded-2xl overflow-hidden border-4 border-[#121215] bg-[#18181b] shadow-lg">
                       <img
-                        src={creator.avatar_url || "/images/sarah-miller-avatar.jpg"}
+                        src={creator.avatar_url || `/api/proxy-image?name=${encodeURIComponent(creator.display_name)}`}
                         alt={creator.display_name}
                         className="w-full h-full object-cover"
                       />
@@ -280,7 +299,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                       Creator Niches
                     </span>
                     <div className="flex flex-wrap gap-1.5">
-                      {["Tech Reviews", "Everyday Carry", "Desk Setups", "Smartphones", "Audio"].map((skill) => (
+                      {(creator.niche ? [creator.niche] : []).map((skill) => (
                         <span
                           key={skill}
                           className="px-2.5 py-1 rounded-lg bg-[#18181b] text-neutral-300 text-[11px] font-medium border border-[#27272a]"
@@ -297,7 +316,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                       Collab Formats
                     </span>
                     <div className="flex flex-wrap gap-1.5">
-                      {["4K Dedicated Video", "60s Reel", "Story Link", "Product Shoot"].map((type) => (
+                      {Array.from(new Set(rateCards.map((card) => card.deliverable_type))).map((type) => (
                         <span
                           key={type}
                           className="px-2.5 py-1 rounded-lg bg-[#18181b] text-neutral-300 text-[11px] font-medium border border-[#27272a]"
@@ -313,13 +332,13 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                     <div>
                       <span className="text-[10px] text-[#71717a] uppercase font-semibold block">Location</span>
                       <div className="text-xs font-semibold text-white mt-0.5 truncate">
-                        {creator.location || "Bengaluru, India"}
+                        {creator.location || "Not provided"}
                       </div>
                     </div>
                     <div>
                       <span className="text-[10px] text-[#71717a] uppercase font-semibold block">Timezone</span>
                       <div className="text-xs font-semibold text-white mt-0.5 truncate">
-                        IST (UTC+5:30)
+                        Not provided
                       </div>
                     </div>
                   </div>
@@ -330,62 +349,38 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                       Past Brand Partnerships
                     </span>
 
-                    <div className="space-y-2">
-                      <div className="p-2.5 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-600/30 flex items-center justify-center font-black text-xs text-emerald-400 shrink-0">
-                            B
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-xs font-semibold text-white truncate">BoAt Lifestyle</div>
-                            <div className="text-[10px] text-[#71717a] truncate">Audio Launch • 4K Review</div>
-                          </div>
-                        </div>
-                        <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                          1.2M Views
-                        </span>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-8 h-8 rounded-lg bg-red-950/80 border border-red-600/30 flex items-center justify-center font-black text-xs text-red-400 shrink-0">
-                            K
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-xs font-semibold text-white truncate">Keychron India</div>
-                            <div className="text-[10px] text-[#71717a] truncate">Custom Mechanical Keyboards</div>
-                          </div>
-                        </div>
-                        <span className="text-[10px] text-white font-bold bg-white/10 px-1.5 py-0.5 rounded">
-                          ₹8.5L GMV
-                        </span>
-                      </div>
-
-                      {showAllCollabs && (
-                        <div className="p-2.5 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-blue-950/80 border border-blue-600/30 flex items-center justify-center font-black text-xs text-blue-400 shrink-0">
-                              N
+                    {completedPartnerships.length > 0 ? (
+                      <div className="space-y-2">
+                        {completedPartnerships.map((deal: any) => (
+                          <div
+                            key={deal.id}
+                            className="p-2.5 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-600/30 flex items-center justify-center font-black text-xs text-emerald-400 shrink-0">
+                                {deal.brand?.charAt(0) || "B"}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-xs font-semibold text-white truncate">{deal.brand}</div>
+                                <div className="text-[10px] text-[#71717a] truncate">{deal.deliverable}</div>
+                              </div>
                             </div>
-                            <div className="min-w-0">
-                              <div className="text-xs font-semibold text-white truncate">Nykaa Man</div>
-                              <div className="text-[10px] text-[#71717a] truncate">Everyday Grooming &amp; Tech</div>
-                            </div>
+                            <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                              {deal.amount}
+                            </span>
                           </div>
-                          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                            580K Views
-                          </span>
-                        </div>
-                      )}
-
-                      <button
-                        onClick={() => setShowAllCollabs(!showAllCollabs)}
-                        className="text-xs text-neutral-300 hover:text-white font-medium flex items-center gap-1 pt-1 cursor-pointer transition-colors"
-                      >
-                        <span>{showAllCollabs ? "Show less" : "See 1 more"}</span>
-                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAllCollabs ? "rotate-180" : ""}`} />
-                      </button>
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-xl bg-[#18181b]/60 border border-dashed border-[#27272a] text-center space-y-1">
+                        <p className="text-[11px] text-[#8c94a6]">
+                          No completed brand partnerships yet
+                        </p>
+                        <p className="text-[10px] text-[#71717a]">
+                          Lock milestone bookings via Flenzr Vault with upfront payment escrow.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Connected Accounts Section Inside Single Card */}
@@ -453,7 +448,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
               <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 <div className="p-4 sm:p-5 rounded-2xl bg-[#121215] border border-[#27272a] shadow-md space-y-1">
                   <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                    91%
+                    --
                   </div>
                   <div className="text-xs text-[#8c94a6] font-medium">
                     Sponsor Retention
@@ -462,7 +457,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
 
                 <div className="p-4 sm:p-5 rounded-2xl bg-[#121215] border border-[#27272a] shadow-md space-y-1">
                   <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                    90%
+                    --
                   </div>
                   <div className="text-xs text-[#8c94a6] font-medium">
                     Availability
@@ -471,7 +466,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
 
                 <div className="p-4 sm:p-5 rounded-2xl bg-[#121215] border border-[#27272a] shadow-md space-y-1">
                   <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                    87%
+                    --
                   </div>
                   <div className="text-xs text-[#8c94a6] font-medium">
                     On-Time Delivery
@@ -488,7 +483,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                       Aspect Score
                     </span>
                     <span className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white font-bold border border-white/20">
-                      TOP 1% TECH
+                      Not available
                     </span>
                   </div>
 
@@ -509,23 +504,23 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                           stroke="#ffffff"
                           strokeWidth="16"
                           strokeDasharray="251.32"
-                          strokeDashoffset="35"
+                          strokeDashoffset="251.32"
                           strokeLinecap="round"
                         />
                       </svg>
                       <div className="absolute bottom-1 text-center select-none">
                         <span className="text-4xl font-extrabold text-white tracking-tight">
-                          86
+                          --
                         </span>
                         <span className="block text-[10px] text-[#7e8697] font-semibold tracking-wider mt-0.5">
-                          VERIFIED RATING
+                          --
                         </span>
                       </div>
                     </div>
                   </div>
 
                   <div className="text-center text-xs text-[#8c94a6] pt-1 border-t border-[#27272a]">
-                    High conversion rate for hardware, gadget, and D2C electronics.
+                    Performance data is not available yet.
                   </div>
                 </div>
 
@@ -541,8 +536,8 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                         <Award className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-white font-semibold">Spotlight Creator of Month</div>
-                        <div className="text-[10px] text-[#7e8697]">Awarded for highest ROI campaign</div>
+                        <div className="text-white font-semibold">No awards yet</div>
+                        <div className="text-[10px] text-[#7e8697]">Awards will appear when earned</div>
                       </div>
                     </div>
 
@@ -551,8 +546,8 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                         <ShieldCheck className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-white font-semibold">Flenzr Vault Certified</div>
-                        <div className="text-[10px] text-[#7e8697]">Guaranteed payouts held safely in ₹</div>
+                        <div className="text-white font-semibold">Payment setup pending</div>
+                        <div className="text-[10px] text-[#7e8697]">No payment protection status available</div>
                       </div>
                     </div>
 
@@ -561,15 +556,15 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                         <Clock className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-white font-semibold">Avg. 5 Days Turnaround</div>
-                        <div className="text-[10px] text-[#7e8697]">Rapid draft submission &amp; edits</div>
+                        <div className="text-white font-semibold">Turnaround varies by package</div>
+                        <div className="text-[10px] text-[#7e8697]">See the delivery time on each package</div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 3. Sarah's Active Rate Cards & Deliverables */}
+              {/* 3. Creator's Active Rate Cards & Deliverables */}
               <div className="p-5 sm:p-6 rounded-2xl bg-[#121215] border border-[#27272a] space-y-5">
                 <div className="flex items-center justify-between">
                   <div>
@@ -616,7 +611,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                         : "bg-[#121215] border-[#27272a] hover:bg-[#18181b]"
                     }`}
                   >
-                    <div className="text-xl font-bold text-white">3</div>
+                    <div className="text-xl font-bold text-white">--</div>
                     <div className="text-xs text-neutral-300 font-medium mt-0.5">Top Converting</div>
                     {activeRateCardFilter === "new" && (
                       <div className="h-1 bg-white rounded-full mt-2 w-full shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
@@ -631,7 +626,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                         : "bg-[#121215] border-[#27272a] hover:bg-[#18181b]"
                     }`}
                   >
-                    <div className="text-xl font-bold text-emerald-400">100%</div>
+                    <div className="text-xl font-bold text-emerald-400">--</div>
                     <div className="text-xs text-[#7e8697] font-medium mt-0.5">Vault Secured</div>
                     {activeRateCardFilter === "vault" && (
                       <div className="h-0.5 bg-emerald-400 rounded-full mt-2" />
@@ -802,10 +797,10 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                     </div>
 
                     <button
-                      onClick={() => setBookingSubmitted(true)}
+                      disabled title="Booking submission is not connected yet"
                       className="h-10 px-6 rounded-lg bg-white hover:bg-neutral-200 text-black font-bold text-xs shadow-md transition-all cursor-pointer"
                     >
-                      Submit Booking
+                      Booking unavailable
                     </button>
                   </div>
                 </div>

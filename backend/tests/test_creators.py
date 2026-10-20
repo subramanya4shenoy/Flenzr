@@ -1,4 +1,5 @@
 import pytest
+import httpx
 from httpx import AsyncClient
 
 
@@ -46,7 +47,8 @@ async def test_public_creator_not_found(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_creator_onboard_and_verify_workflow(client: AsyncClient):
+async def test_creator_onboard_and_verify_workflow(client: AsyncClient, monkeypatch, auth_headers):
+    headers = auth_headers(sub="verified-owner", email="shlok@techburner.in")
     payload = {
         "full_name": "Shlok Srivastava",
         "email": "shlok@techburner.in",
@@ -73,12 +75,13 @@ async def test_creator_onboard_and_verify_workflow(client: AsyncClient):
     }
 
     # 1. Onboard creator
-    onboard_res = await client.post("/api/v1/creators/onboard", json=payload)
+    onboard_res = await client.post("/api/v1/creators/onboard", json=payload, headers=headers)
     assert onboard_res.status_code == 201
     onboard_data = onboard_res.json()
     assert onboard_data["creator"]["handle"] == "techburner_official"
     assert onboard_data["creator"]["display_name"] == "Shlok Srivastava"
     assert onboard_data["creator"]["instagram_handle"] == "techburner"
+    assert onboard_data["creator"]["rating"] == 0
     assert "access_token" in onboard_data
     assert "universal_bio_link" in onboard_data
     token = onboard_data["access_token"]
@@ -91,13 +94,19 @@ async def test_creator_onboard_and_verify_workflow(client: AsyncClient):
     assert any(rc["platform"] == "youtube" for rc in rcs)
     assert any(rc["platform"] == "instagram" for rc in rcs)
 
+    # Mock the platform response; magic test tokens must not verify accounts.
+    async def social_response(self, url, **kwargs):
+        return httpx.Response(200, json={"data": {"user": {"biography": onboard_data["creator"]["verification_code"]}}})
+
+    monkeypatch.setattr(httpx.AsyncClient, "get", social_response)
     # 3. Test Bio Code verification
     verify_res = await client.post(
         "/api/v1/creators/verify-bio",
+        headers=headers,
         json={
             "platform": "instagram",
-            "handle": "techburner_official",
-            "verification_code": "FLENZR-DEV-TEST-PASS",
+            "handle": "techburner",
+            "verification_code": onboard_data["creator"]["verification_code"],
         },
     )
     assert verify_res.status_code == 200
@@ -105,8 +114,38 @@ async def test_creator_onboard_and_verify_workflow(client: AsyncClient):
     assert verify_data["verified"] is True
 
     # 4. Confirm public profile is now verified
-    pub_res = await client.get("/api/v1/creators/public/techburner_official")
+    pub_res = await client.request("GET", "/api/v1/creators/public/techburner_official")
     assert pub_res.status_code == 200
     pub_data = pub_res.json()
     assert pub_data["is_verified"] is True
     assert pub_data["instagram_verified"] is True
+
+
+@pytest.mark.asyncio
+async def test_fresh_creator_has_no_rates_or_history(client: AsyncClient, auth_headers):
+    discovery = await client.get("/api/v1/discovery/creators")
+    assert discovery.json() == []
+    campaigns = await client.get("/api/v1/campaigns/explore")
+    assert campaigns.json() == []
+    res = await client.post("/api/v1/creators/onboard", json={
+        "full_name": "Fresh Creator", "email": "fresh@example.com", "handle": "fresh_creator",
+    }, headers=auth_headers(email="fresh@example.com"))
+    assert res.status_code == 201
+    data = res.json()
+    assert data["creator"]["rating"] == 0
+    assert data["creator"]["is_verified"] is False
+    rates = await client.get("/api/v1/ratecards/creator/fresh_creator")
+    assert rates.json() == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("code", ["FLENZR-DEV-TEST-PASS", "FLENZR-ANY-DEMO"])
+async def test_magic_codes_do_not_verify_ownership(client: AsyncClient, monkeypatch, code, auth_headers):
+    async def social_response(self, url, **kwargs):
+        return httpx.Response(200, json={"data": {"user": {"biography": "No ownership code here"}}})
+
+    monkeypatch.setattr(httpx.AsyncClient, "get", social_response)
+    res = await client.post("/api/v1/creators/verify-bio", json={
+        "platform": "instagram", "handle": "fresh_creator", "verification_code": code,
+    }, headers=auth_headers())
+    assert res.status_code == 403

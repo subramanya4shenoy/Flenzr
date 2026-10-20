@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "@/lib/i18n/language-context";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Check,
@@ -19,7 +20,9 @@ import {
   CheckCircle2,
   ShieldAlert,
   ArrowRight,
+  Briefcase,
 } from "lucide-react";
+import { deleteSocialAccount, getSocialAccounts, saveSocialAccount, mergeSocialAccounts, mergeSocialAvatars, type SocialAccount } from "@/lib/social-accounts";
 import { PublicCreatorProfile } from "@/lib/api";
 
 // -------------------------------------------------------------
@@ -96,14 +99,96 @@ export interface AvailableAvatar {
   isEarliest: boolean;
 }
 
+export const CREATOR_COVER_IMAGES = [
+  "/covers/cover-1.jpg",
+  "/covers/cover-2.jpg",
+  "/covers/cover-3.jpg",
+  "/covers/cover-4.jpg",
+  "/covers/cover-5.jpg",
+];
+
 interface CreatorProfileHeaderProps {
   creator: PublicCreatorProfile;
   isEditable?: boolean;
+  rateCards?: Array<{ deliverable?: string; deliverable_type?: string; title?: string; price?: number; price_dollars?: number }>;
+  completedDeals?: Array<{
+    id: string;
+    brand: string;
+    deliverable: string;
+    amount: string;
+    completedAt?: string;
+  }>;
 }
 
-export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProfileHeaderProps) {
+export function CreatorProfileHeader({
+  creator,
+  isEditable = true,
+  rateCards,
+  completedDeals,
+}: CreatorProfileHeaderProps) {
+  const { t } = useTranslation();
   const [creatorName, setCreatorName] = useState(creator.display_name);
   const [handle, setHandle] = useState(creator.handle);
+
+  // Cover image random selection (1 of 5)
+  const [coverImage, setCoverImage] = useState<string>(CREATOR_COVER_IMAGES[0]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("flenzr_creator_cover_image");
+      if (stored && CREATOR_COVER_IMAGES.includes(stored)) {
+        setCoverImage(stored);
+        return;
+      }
+    } catch {}
+    const randomIndex = Math.floor(Math.random() * CREATOR_COVER_IMAGES.length);
+    const chosen = CREATOR_COVER_IMAGES[randomIndex];
+    setCoverImage(chosen);
+    try {
+      localStorage.setItem("flenzr_creator_cover_image", chosen);
+    } catch {}
+  }, []);
+
+  const handleShuffleCover = () => {
+    const currentIndex = CREATOR_COVER_IMAGES.indexOf(coverImage);
+    const nextIndex = (currentIndex + 1) % CREATOR_COVER_IMAGES.length;
+    const nextCover = CREATOR_COVER_IMAGES[nextIndex];
+    setCoverImage(nextCover);
+    try {
+      localStorage.setItem("flenzr_creator_cover_image", nextCover);
+    } catch {}
+  };
+
+  // Dynamic skills based on creator's niche
+  const dynamicSkills: string[] = [];
+
+  // Dynamic collab formats based on rateCards or niche fallback
+  const dynamicCollabFormats = (() => {
+    if (rateCards && rateCards.length > 0) {
+      const extracted = rateCards
+        .map((rc) => rc.deliverable || rc.deliverable_type || rc.title || "")
+        .filter(Boolean);
+      if (extracted.length > 0) return Array.from(new Set(extracted)).slice(0, 4);
+    }
+    return [];
+  })();
+
+  // Dynamic past brand partnerships
+  const dynamicPastPartnerships = (() => {
+    if (completedDeals !== undefined) return completedDeals;
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("flenzr_collab_pipeline_deals");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            return parsed.filter((d: any) => d.stage === "completed");
+          }
+        }
+      } catch {}
+    }
+    return [];
+  })();
 
   // Socials list with chronological ordering
   const [linkedSocials, setLinkedSocials] = useState<LinkedSocialItem[]>(() => {
@@ -136,39 +221,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
   useEffect(() => {
     setCreatorName(creator.display_name);
     setHandle(creator.handle);
-    const list: LinkedSocialItem[] = [];
-    let order = 1;
-    if (creator.instagram_handle) {
-      list.push({
-        id: "soc-ig",
-        platform: "instagram",
-        handle: creator.instagram_handle.replace(/^@/, ""),
-        url: `https://instagram.com/${creator.instagram_handle.replace(/^@/, "")}`,
-        isVerified: Boolean(creator.instagram_verified),
-        createdAt: 1000 * order++,
-      });
-    }
-    if (creator.youtube_channel) {
-      list.push({
-        id: "soc-yt",
-        platform: "youtube",
-        handle: creator.youtube_channel.replace(/^@/, ""),
-        url: `https://youtube.com/@${creator.youtube_channel.replace(/^@/, "")}`,
-        isVerified: Boolean(creator.youtube_verified),
-        createdAt: 1000 * order++,
-      });
-    }
-    if (list.length > 0) {
-      setLinkedSocials((prev) => (prev.length === 0 ? list : prev));
-    }
-  }, [
-    creator.display_name,
-    creator.handle,
-    creator.instagram_handle,
-    creator.instagram_verified,
-    creator.youtube_channel,
-    creator.youtube_verified,
-  ]);
+  }, [creator.display_name, creator.handle]);
 
   // Active avatar state
   const [activeAvatar, setActiveAvatar] = useState<string>(() => {
@@ -183,6 +236,10 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
 
   // Add social modal state
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingSocial, setEditingSocial] = useState<LinkedSocialItem | null>(null);
+  const [isSavingSocial, setIsSavingSocial] = useState(false);
+  const [socialsReady, setSocialsReady] = useState(false);
+  const [socialError, setSocialError] = useState("");
   const [newPlatform, setNewPlatform] = useState<PlatformKey>("instagram");
   const [newHandle, setNewHandle] = useState("");
   const [isVerifyingInModal, setIsVerifyingInModal] = useState(false);
@@ -190,20 +247,18 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
 
   // Verification drawer for existing unverified socials
   const [verifyingSocial, setVerifyingSocial] = useState<LinkedSocialItem | null>(null);
-  const [verificationCode, setVerificationCode] = useState("FLENZR-8K7M4P2Q");
+  const [verificationCode, setVerificationCode] = useState("");
   const [copiedCode, setCopiedCode] = useState(false);
   const [isLiveScanning, setIsLiveScanning] = useState(false);
   const [liveScanResult, setLiveScanResult] = useState<{ success: boolean; text: string } | null>(null);
 
   // Helper to generate secure codes
-  const generateCode = () => {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let token = "";
-    for (let i = 0; i < 8; i++) {
-      token += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return `FLENZR-${token}`;
-  };
+  const generateCode = () => verificationCode;
+  useEffect(() => {
+    fetch("/api/account/creators/me").then(async (res) => {
+      if (res.ok) setVerificationCode((await res.json()).verification_code || "");
+    }).catch(() => {});
+  }, []);
 
   // 1. HYDRATE & CACHE FROM LOCALSTORAGE
   useEffect(() => {
@@ -213,23 +268,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
     const chosenAvatar = localStorage.getItem(`flenzr_chosen_avatar_${handle}`);
     const cachedAvatar = localStorage.getItem(`flenzr_avatar_${handle}`);
 
-    // Load cached socials
-    const cachedSocials = localStorage.getItem(`flenzr_socials_${handle}`);
-    let loadedSocials = linkedSocials;
-    if (cachedSocials) {
-      try {
-        const parsed = JSON.parse(cachedSocials);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          loadedSocials = parsed.map((item, idx) => ({
-            ...item,
-            createdAt: item.createdAt || 1000 * (idx + 1),
-          }));
-          setLinkedSocials(loadedSocials);
-        }
-      } catch (e) {
-        console.error("Failed to parse cached socials", e);
-      }
-    }
+    const loadedSocials = linkedSocials;
 
     if (chosenAvatar) {
       setActiveAvatar(chosenAvatar);
@@ -255,6 +294,83 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
     }
   };
 
+  const applyServerAccounts = (accounts: SocialAccount[], metadata = linkedSocials) => {
+    const next = mergeSocialAccounts(accounts, metadata);
+    const removed = linkedSocials.filter((old) => !next.some((item) => item.platform === old.platform && item.handle === old.handle));
+    persistSocials(next);
+    try {
+      const raw = localStorage.getItem("flenzr_creator_profile");
+      const profile = raw ? JSON.parse(raw) : { handle };
+      const instagram = next.find((item) => item.platform === "instagram");
+      const youtube = next.find((item) => item.platform === "youtube");
+      if (profile.instagramHandle !== (instagram?.handle || "")) { delete profile.instagramStats; delete profile.instagramFollowers; }
+      if (profile.youtubeChannel !== (youtube?.handle || "")) { delete profile.youtubeStats; delete profile.youtubeSubscribers; }
+      Object.assign(profile, { instagramHandle: instagram?.handle || "", isInstagramBioVerified: instagram?.isVerified || false, youtubeChannel: youtube?.handle || "", isYoutubeBioVerified: youtube?.isVerified || false });
+      localStorage.setItem("flenzr_creator_profile", JSON.stringify(profile));
+      if (removed.some((item) => item.avatarUrl && (item.avatarUrl === activeAvatar || item.avatarUrl === localStorage.getItem(`flenzr_chosen_avatar_${handle}`)))) {
+        const fallback = next.find((item) => item.avatarUrl)?.avatarUrl || creator.avatar_url || "";
+        setActiveAvatar(fallback);
+        localStorage.removeItem(`flenzr_chosen_avatar_${handle}`);
+        if (fallback) localStorage.setItem(`flenzr_avatar_${handle}`, fallback);
+        else localStorage.removeItem(`flenzr_avatar_${handle}`);
+      }
+    } catch { /* Browser metadata is optional; the backend remains authoritative. */ }
+    window.dispatchEvent(new Event("flenzr_socials_updated"));
+    return next;
+  };
+
+  useEffect(() => {
+    if (!isEditable || !handle) return;
+    let active = true;
+    const load = async () => {
+      try {
+        let accounts = await getSocialAccounts();
+        if (!active) return;
+        let cached: LinkedSocialItem[] = [];
+        try { cached = JSON.parse(localStorage.getItem(`flenzr_socials_${handle}`) || "[]"); } catch {}
+        // One-time persistence of links added through the previous browser-only UI.
+        const marker = `flenzr_socials_saved_${handle}`;
+        if (!localStorage.getItem(marker) && Array.isArray(cached)) {
+          for (const item of cached) {
+            if (!active) return;
+            if (["instagram", "youtube", "x", "tiktok", "linkedin", "twitch"].includes(item.platform) && /^[a-zA-Z0-9_.-]{1,128}$/.test(item.handle) && !accounts.some((account) => account.platform === item.platform)) {
+              accounts = await saveSocialAccount(item.platform, item.handle, "");
+            }
+          }
+          localStorage.setItem(marker, "true");
+        }
+        if (!active) return;
+        const next = mergeSocialAccounts(accounts, Array.isArray(cached) ? cached : []);
+        persistSocials(next);
+        setSocialsReady(true);
+      } catch (error) { if (active) setSocialError(error instanceof Error ? error.message : "Could not load linked accounts"); }
+    };
+    load();
+    return () => { active = false; };
+  }, [handle, isEditable]);
+
+  const editSocial = (social: LinkedSocialItem) => {
+    setEditingSocial(social);
+    setNewPlatform(social.platform);
+    setNewHandle(social.handle);
+    setVerifyingSocial(null);
+    setModalVerifyMsg(null);
+    setShowAddModal(true);
+  };
+  const removeSocial = async (social: LinkedSocialItem) => {
+    if (isSavingSocial || isLiveScanning) return;
+    if (social.isVerified && !window.confirm(`Remove @${social.handle} from ${social.platform}? You can add it again, but will need to verify it again.`)) return;
+    setIsSavingSocial(true);
+    setSocialError("");
+    try {
+      applyServerAccounts(await deleteSocialAccount(social.platform, social.handle));
+      setVerifyingSocial(null);
+      setLiveScanResult(null);
+    } catch (error) { setSocialError(error instanceof Error ? error.message : "Could not remove account"); }
+    finally { setIsSavingSocial(false); }
+  };
+
+  const socialIdentity = linkedSocials.map((item) => `${item.platform}:${item.handle}`).join("|");
   // 2. ENRICH MISSING AVATARS FOR CONNECTED SOCIALS
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -289,22 +405,18 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
       }
 
       if (hasUpdates) {
-        persistSocials(updatedSocials);
+        setLinkedSocials((current) => {
+          const next = mergeSocialAvatars(current, updatedSocials);
+          localStorage.setItem(`flenzr_socials_${handle}`, JSON.stringify(next));
+          return next;
+        });
 
-        // Strict default: If user hasn't explicitly chosen an avatar, use earliest added social's avatar!
-        const userChosen = localStorage.getItem(`flenzr_chosen_avatar_${handle}`);
-        if (!userChosen) {
-          const earliest = updatedSocials.find((s) => Boolean(s.avatarUrl));
-          if (earliest?.avatarUrl) {
-            setActiveAvatar(earliest.avatarUrl);
-            localStorage.setItem(`flenzr_avatar_${handle}`, earliest.avatarUrl);
-          }
-        }
+
       }
     };
 
     enrichMissingAvatars();
-  }, [linkedSocials.length, handle]);
+  }, [socialIdentity, handle]);
 
   // 3. COMPUTE AVAILABLE AVATARS IN CHRONOLOGICAL ORDER (Earliest account first)
   const earliestSocialWithAvatar = linkedSocials.find((s) => Boolean(s.avatarUrl));
@@ -375,77 +487,30 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
   };
 
   // 4. STRICT VERIFICATION CHECK:
-  const hasLinkedSocials = linkedSocials.length > 0;
-  const allLinkedSocialsVerified =
-    hasLinkedSocials && linkedSocials.every((s) => s.isVerified === true);
-  const unverifiedSocials = linkedSocials.filter((s) => !s.isVerified);
+  const allLinkedSocialsVerified = linkedSocials.some((s) => s.isVerified);
+  const unverifiedSocials = linkedSocials.filter((s) => !s.isVerified && (s.platform === "instagram" || s.platform === "youtube"));
 
-  // Add new social handler
+  // Adding or correcting a handle is saved independently of verification.
   const handleAddSocial = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newHandle.trim()) return;
-
-    const clean = newHandle.replace(/^@/, "").trim();
-    let url = "";
-    if (newPlatform === "instagram") url = `https://instagram.com/${clean}`;
-    else if (newPlatform === "youtube") url = `https://youtube.com/@${clean}`;
-    else if (newPlatform === "x") url = `https://x.com/${clean}`;
-    else if (newPlatform === "tiktok") url = `https://tiktok.com/@${clean}`;
-    else if (newPlatform === "linkedin") url = `https://linkedin.com/in/${clean}`;
-    else if (newPlatform === "twitch") url = `https://twitch.tv/${clean}`;
-
-    // If Instagram or YouTube, pull avatar on demand for this new social
-    let fetchedAvatarUrl: string | undefined = undefined;
-    if (newPlatform === "instagram" || newPlatform === "youtube") {
-      try {
-        const enrichRes = await fetch("/api/social/enrich", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ platform: newPlatform, handle: clean }),
-        });
-        if (enrichRes.ok) {
-          const enrichData = await enrichRes.json();
-          if (enrichData.avatarUrl) {
-            fetchedAvatarUrl = enrichData.avatarUrl;
-          }
-        }
-      } catch (err) {
-        console.warn("Avatar enrichment error:", err);
+    const clean = newHandle.trim().replace(/^@/, "").toLowerCase();
+    if (!clean || isSavingSocial || !socialsReady) return;
+    setIsSavingSocial(true);
+    setModalVerifyMsg(null);
+    try {
+      const existing = editingSocial;
+      const accounts = await saveSocialAccount(newPlatform, clean, existing?.handle ?? "");
+      const next = applyServerAccounts(accounts);
+      const added = next.find((item) => item.platform === newPlatform && item.handle === clean)!;
+      setNewHandle("");
+      setShowAddModal(false);
+      setEditingSocial(null);
+      if (!added.isVerified && ["instagram", "youtube"].includes(added.platform)) {
+        setVerifyingSocial(added);
+        setLiveScanResult(null);
       }
-    }
-
-    const newSocial: LinkedSocialItem = {
-      id: `soc-${Date.now()}`,
-      platform: newPlatform,
-      handle: clean,
-      url,
-      isVerified: false,
-      avatarUrl: fetchedAvatarUrl,
-      createdAt: Date.now(),
-    };
-
-    const updated = [...linkedSocials.filter((s) => s.platform !== newPlatform), newSocial];
-    persistSocials(updated);
-
-    // STRICT REQUIREMENT:
-    // Only set as active avatar if creator currently has NO avatar at all.
-    // If the creator already has an avatar (from earliest account or custom selection), DO NOT OVERWRITE!
-    if (fetchedAvatarUrl) {
-      if (!activeAvatar || activeAvatar.includes("dicebear")) {
-        setActiveAvatar(fetchedAvatarUrl);
-        if (typeof window !== "undefined") {
-          localStorage.setItem(`flenzr_avatar_${handle}`, fetchedAvatarUrl);
-        }
-      }
-    }
-
-    setNewHandle("");
-    setShowAddModal(false);
-
-    // Auto-prompt verification for the newly linked social account
-    setVerifyingSocial(newSocial);
-    setVerificationCode(generateCode());
-    setLiveScanResult(null);
+    } catch (error) { setModalVerifyMsg({ success: false, text: error instanceof Error ? error.message : "Could not save account" }); }
+    finally { setIsSavingSocial(false); }
   };
 
   // Live verification scan
@@ -466,30 +531,13 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
         }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || data.error || data.detail?.[0]?.msg || "Verification request failed. Please sign in again and retry.");
       if (data.verified) {
         // Mark this social as verified
         const updated = linkedSocials.map((s) =>
           s.id === verifyingSocial.id ? { ...s, isVerified: true } : s
         );
-        persistSocials(updated);
-
-        // Update stored creator profile in localStorage
-        if (typeof window !== "undefined") {
-          const stored = localStorage.getItem("flenzr_creator_profile");
-          if (stored) {
-            try {
-              const parsed = JSON.parse(stored);
-              if (verifyingSocial.platform === "instagram") {
-                parsed.instagramHandle = verifyingSocial.handle;
-                parsed.isInstagramBioVerified = true;
-              } else if (verifyingSocial.platform === "youtube") {
-                parsed.youtubeChannel = verifyingSocial.handle;
-                parsed.isYoutubeBioVerified = true;
-              }
-              localStorage.setItem("flenzr_creator_profile", JSON.stringify(parsed));
-            } catch {}
-          }
-        }
+        applyServerAccounts(await getSocialAccounts(), updated);
 
         setLiveScanResult({
           success: true,
@@ -506,7 +554,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
     } catch (e) {
       setLiveScanResult({
         success: false,
-        text: "Could not complete live scan. Please check your connection.",
+        text: e instanceof Error ? e.message : "Could not complete live scan. Please check your connection.",
       });
     } finally {
       setIsLiveScanning(false);
@@ -535,16 +583,34 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
   return (
     <>
       <section className="bg-[#121215] border border-[#27272a] rounded-2xl overflow-hidden shadow-xl relative text-[#f1f3f7]">
-        {/* 1. Sleek Dark Header Banner with White Mesh & Ambient Glow */}
-        <div className="h-28 relative bg-gradient-to-r from-neutral-900 via-neutral-850 to-neutral-900 border-b border-[#27272a] p-3 flex items-start justify-end overflow-hidden">
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:14px_14px]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
+        {/* 1. Sleek Dark Header Banner with Randomly Chosen Cover Image (1 of 5) */}
+        <div className="h-28 sm:h-32 relative border-b border-[#27272a] p-3 flex items-start justify-between overflow-hidden group">
+          <img
+            src={coverImage}
+            alt="Creator Profile Cover"
+            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#121215] via-black/40 to-black/30 pointer-events-none" />
+          <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:14px_14px] pointer-events-none" />
+
+          {/* Switch / Shuffle Cover button */}
+          {isEditable && (
+            <button
+              type="button"
+              onClick={handleShuffleCover}
+              title="Shuffle Cover Image (1 of 5)"
+              className="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity h-6 px-2.5 rounded-lg bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[10px] font-semibold border border-white/20 flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            >
+              <RefreshCw className="w-2.5 h-2.5 text-neutral-300" />
+              <span>Change Cover</span>
+            </button>
+          )}
 
           {/* Verified White Badge */}
           {allLinkedSocialsVerified && (
-            <div className="relative z-10 h-6 px-2.5 rounded-lg bg-white text-black text-[11px] font-bold shadow-sm inline-flex items-center gap-1">
+            <div className="relative z-10 ml-auto h-6 px-2.5 rounded-lg bg-white text-black text-[11px] font-bold shadow-md inline-flex items-center gap-1">
               <Check className="w-3 h-3 text-[#c1121f] stroke-[3]" />
-              <span>Verified</span>
+              <span>{t("Verified")}</span>
             </div>
           )}
         </div>
@@ -580,7 +646,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                   title="Switch profile picture"
                 >
                   <Camera className="w-4 h-4 mb-0.5 text-white" />
-                  <span>Switch</span>
+                  <span>{t("Switch")}</span>
                 </button>
               )}
             </div>
@@ -594,7 +660,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                 className="absolute bottom-0 right-0 bg-[#18181b] hover:bg-[#222226] text-white px-2 py-0.5 rounded-lg border border-[#27272a] shadow-md flex items-center gap-1 text-[10px] font-bold cursor-pointer transition-transform hover:scale-105 active:scale-95 z-20"
               >
                 <Camera className="w-3 h-3 text-white" />
-                <span>Switch</span>
+                <span>{t("Switch")}</span>
               </button>
             )}
           </div>
@@ -611,7 +677,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                 </span>
               </div>
               <p className="text-xs text-[#7e8697] font-medium mt-0.5">
-                @{handle} {creator.location ? `• ${creator.location}` : "• Bengaluru, India"}
+                @{handle} {creator.location ? `• ${creator.location}` : ""}
               </p>
             </div>
 
@@ -619,8 +685,8 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
             <div className="pt-0.5">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-[#18181b] border border-[#27272a] text-white">
                 <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                {creator.rating ? creator.rating.toFixed(1) : "5.0"}
-                <span className="text-[#71717a] font-normal text-[10px]">(Verified)</span>
+                {creator.rating > 0 ? creator.rating.toFixed(1) : "No reviews yet"}
+                <span className="text-[#71717a] font-normal text-[10px]">({t("Brand reviews")})</span>
               </span>
             </div>
 
@@ -633,15 +699,16 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
             {/* 3. Skills Section (from Virgil Pana screenshot) */}
             <div className="space-y-1.5 pt-1">
               <span className="text-[11px] uppercase tracking-wider text-[#71717a] font-semibold block">
-                Skills
+                {t("Skills")}
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {["Tech Reviews", "Smartphones", "Desk Setups", "Hardware", "Audio"].map((skill) => (
+                {dynamicSkills.length === 0 && <span className="text-xs text-neutral-500">No skills added yet</span>}
+                {dynamicSkills.map((skill) => (
                   <span
                     key={skill}
                     className="px-2.5 py-1 rounded-lg bg-[#18181b] text-neutral-300 text-[11px] font-medium border border-[#27272a]"
                   >
-                    {skill}
+                    {t(skill, skill)}
                   </span>
                 ))}
               </div>
@@ -650,15 +717,16 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
             {/* 4. Position Type Section (Collab Formats) */}
             <div className="space-y-1.5 pt-0.5">
               <span className="text-[11px] uppercase tracking-wider text-[#71717a] font-semibold block">
-                Position type
+                {t("Position type")}
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {["Dedicated 4K Video", "60s Reel", "Story Link"].map((type) => (
+                {dynamicCollabFormats.length === 0 && <span className="text-xs text-neutral-500">No formats published yet</span>}
+                {dynamicCollabFormats.map((type) => (
                   <span
                     key={type}
                     className="px-2.5 py-1 rounded-lg bg-[#18181b] text-neutral-300 text-[11px] font-medium border border-[#27272a]"
                   >
-                    {type}
+                    {t(type, type)}
                   </span>
                 ))}
               </div>
@@ -667,15 +735,15 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
             {/* 5. Location & Timezone Split Card */}
             <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-[#18181b] border border-[#27272a]">
               <div>
-                <span className="text-[10px] text-[#71717a] uppercase font-semibold block">Location</span>
+                <span className="text-[10px] text-[#71717a] uppercase font-semibold block">{t("Location")}</span>
                 <div className="text-xs font-semibold text-white mt-0.5 truncate">
-                  {creator.location || "Bengaluru, India"}
+                  {creator.location || "Not provided"}
                 </div>
               </div>
               <div>
-                <span className="text-[10px] text-[#71717a] uppercase font-semibold block">Timezone</span>
+                <span className="text-[10px] text-[#71717a] uppercase font-semibold block">{t("Timezone")}</span>
                 <div className="text-xs font-semibold text-white mt-0.5 truncate">
-                  IST (UTC+5:30)
+                  Not provided
                 </div>
               </div>
             </div>
@@ -683,119 +751,90 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
             {/* 6. Past Brand Partnerships */}
             <div className="space-y-2 pt-2 border-t border-[#27272a]">
               <span className="text-[11px] uppercase tracking-wider text-[#71717a] font-semibold block">
-                Past Brand Partnerships
+                {t("Past Brand Partnerships")}
               </span>
 
-              <div className="space-y-2">
-                <div className="p-2.5 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-600/30 flex items-center justify-center font-black text-xs text-emerald-400 shrink-0">
-                      B
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-semibold text-white truncate">BoAt Lifestyle</div>
-                      <div className="text-[10px] text-[#71717a] truncate">Audio Launch • 4K Review</div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                    1.2M Views
-                  </span>
+              {dynamicPastPartnerships.length > 0 ? (
+                <div className="space-y-2">
+                  {dynamicPastPartnerships.slice(0, 3).map((deal, idx) => {
+                    const initial = (deal.brand || "B").charAt(0).toUpperCase();
+                    const colors = [
+                      "bg-emerald-950/80 border-emerald-600/30 text-emerald-400",
+                      "bg-violet-950/80 border-violet-600/30 text-violet-400",
+                      "bg-sky-950/80 border-sky-600/30 text-sky-400",
+                    ];
+                    const colorClass = colors[idx % colors.length];
+                    return (
+                      <div
+                        key={deal.id || idx}
+                        className="p-2.5 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div
+                            className={`w-8 h-8 rounded-lg border flex items-center justify-center font-black text-xs shrink-0 ${colorClass}`}
+                          >
+                            {initial}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-semibold text-white truncate">{deal.brand}</div>
+                            <div className="text-[10px] text-[#71717a] truncate">{deal.deliverable}</div>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-white font-bold bg-white/10 px-2 py-0.5 rounded border border-white/10 shrink-0">
+                          {deal.amount}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-
-                <div className="p-2.5 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-red-950/80 border border-red-600/30 flex items-center justify-center font-black text-xs text-red-400 shrink-0">
-                      K
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-semibold text-white truncate">Keychron India</div>
-                      <div className="text-[10px] text-[#71717a] truncate">Mechanical Keyboards</div>
-                    </div>
+              ) : (
+                <div className="p-3 rounded-xl bg-[#18181b]/60 border border-dashed border-[#27272a] text-center space-y-1">
+                  <div className="text-xs font-semibold text-neutral-300">
+                    {t("No completed brand partnerships yet")}
                   </div>
-                  <span className="text-[10px] text-white font-bold bg-white/10 px-1.5 py-0.5 rounded">
-                    ₹8.5L GMV
-                  </span>
+                  <p className="text-[10px] text-[#71717a] leading-relaxed">
+                    {t("Lock your first collab in Flenzr Vault to unlock verified performance case studies and GMV proof badges.")}
+                  </p>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* 7. ROW OF LINKED SOCIAL LOGOS WITH RED TICK ON VERIFIED ONES + '+' BUTTON */}
             <div className="pt-2 border-t border-[#27272a]">
               <span className="text-[10px] uppercase tracking-wider text-[#686f82] font-bold block mb-1.5">
-                Connected Accounts
+                {t("Connected Accounts")}
               </span>
               <div className="flex flex-wrap items-center gap-2">
-                {linkedSocials.map((social) => {
-                  const isVerified = social.isVerified;
-                  return (
-                    <div key={social.id} className="relative group/soc">
-                      <a
-                        href={isVerified ? social.url : "#verify"}
-                        onClick={(e) => {
-                          if (!isVerified && isEditable) {
-                            e.preventDefault();
-                            setVerifyingSocial(social);
-                            setVerificationCode(generateCode());
-                            setLiveScanResult(null);
-                          }
-                        }}
-                        target={isVerified ? "_blank" : undefined}
-                        rel={isVerified ? "noopener noreferrer" : undefined}
-                        className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all hover:scale-105 shadow-xs cursor-pointer ${
-                          isVerified
-                            ? "bg-neutral-800/80 hover:bg-neutral-750 border-neutral-700"
-                            : "bg-amber-950/40 hover:bg-amber-900/50 border-amber-500/50 ring-2 ring-amber-500/20"
-                        }`}
-                        title={
-                          isVerified
-                            ? `${social.platform}: @${social.handle} (Verified Owner - Click to visit)`
-                            : `${social.platform}: @${social.handle} (Unverified - Click to Verify Bio Code)`
-                        }
-                      >
-                        {getPlatformIcon(social.platform)}
-                      </a>
-
-                      {/* BADGE: CRIMSON RED TICK IF VERIFIED, OR INTERACTIVE SHIELD PILL IF UNVERIFIED */}
-                      {isVerified ? (
-                        <div
-                          title="Verified Owner (Red Tick)"
-                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#c1121f] text-white flex items-center justify-center shadow-xs ring-1.5 ring-neutral-900"
-                        >
-                          <Check className="w-2.5 h-2.5 stroke-[3]" />
-                        </div>
-                      ) : (
-                        isEditable && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setVerifyingSocial(social);
-                              setVerificationCode(generateCode());
-                              setLiveScanResult(null);
-                            }}
-                            title="Click to Verify Account Ownership"
-                            className="absolute -top-1.5 -right-1.5 px-1 py-0.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-0.5 shadow-sm ring-1.5 ring-neutral-900 cursor-pointer transition-all hover:scale-110 active:scale-95 group/pill"
-                          >
-                            <ShieldCheck className="w-2.5 h-2.5 shrink-0" />
-                            <span className="text-[8px] font-black uppercase tracking-wider hidden group-hover/pill:inline pr-0.5">
-                              Verify
-                            </span>
-                          </button>
-                        )
-                      )}
+                {linkedSocials.map((social) => (
+                  <div key={social.id} className="w-full flex items-center gap-2 p-2 rounded-xl bg-neutral-900 border border-neutral-800">
+                    <a href={social.url} target="_blank" rel="noopener noreferrer" className="w-9 h-9 shrink-0 flex items-center justify-center" aria-label={`Visit ${social.platform} @${social.handle}`}>
+                      {getPlatformIcon(social.platform)}
+                    </a>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-semibold text-white truncate">@{social.handle}</div>
+                      <div className="text-[10px] text-neutral-400">{social.platform} · {social.isVerified ? "Verified" : "Not verified"}</div>
                     </div>
-                  );
-                })}
+                    {isEditable && <div className="flex flex-wrap gap-1 shrink-0">
+                      {!social.isVerified && ["instagram", "youtube"].includes(social.platform) && <button type="button" disabled={isSavingSocial || !socialsReady} onClick={() => { setVerifyingSocial(social); setLiveScanResult(null); }} className="px-2 py-1 text-[10px] text-amber-300" aria-label={`Verify ${social.platform} @${social.handle}`}>Verify</button>}
+                      <button type="button" disabled={isSavingSocial || !socialsReady} onClick={() => editSocial(social)} className="px-2 py-1 text-[10px] text-neutral-300" aria-label={`Edit ${social.platform} @${social.handle}`}>Edit</button>
+                      <button type="button" disabled={isSavingSocial || !socialsReady} onClick={() => removeSocial(social)} className="px-2 py-1 text-[10px] text-red-300" aria-label={`Remove ${social.platform} @${social.handle}`}>Remove</button>
+                    </div>}
+                  </div>
+                ))}
+                {!linkedSocials.length && <p className="text-xs text-neutral-500">No accounts linked yet.</p>}
+                {socialError && <p role="alert" className="text-xs text-red-300">{socialError}</p>}
 
                 {/* THE '+' BUTTON TO ADD MORE SOCIAL LINKS */}
                 {isEditable && (
                   <button
                     type="button"
                     onClick={() => {
+                      setEditingSocial(null);
+                      setNewHandle("");
                       setShowAddModal(true);
                       setModalVerifyMsg(null);
                     }}
-                    title="Add More Social Links"
+                    title="Add More Social Links" disabled={isSavingSocial || !socialsReady}
                     className="w-9 h-9 rounded-xl border border-dashed border-neutral-700 hover:border-neutral-500 bg-neutral-800/80 hover:bg-neutral-750 flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer shadow-xs group"
                   >
                     <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -842,7 +881,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                 <p className="text-[11px] text-neutral-400 pt-2 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
                   <span>
-                    Verified tag appears next to your name once <strong>all</strong> linked socials have a red tick.
+                    Verify ownership to earn a verified tag. You can edit or remove any account without verifying it.
                   </span>
                 </p>
               )}
@@ -868,7 +907,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                   <div className="w-7 h-7 rounded-lg bg-[#c1121f]/20 text-[#c1121f] border border-[#c1121f]/30 flex items-center justify-center">
                     <Plus className="w-4 h-4 stroke-[3]" />
                   </div>
-                  <h3 className="text-sm font-bold text-white">Link Social Account</h3>
+                  <h3 className="text-sm font-bold text-white">{editingSocial ? "Edit linked account" : "Link social account"}</h3>
                 </div>
                 <button
                   type="button"
@@ -880,6 +919,8 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
               </div>
 
               <form onSubmit={handleAddSocial} className="space-y-4 text-xs">
+                {editingSocial?.isVerified && <p className="text-amber-300">Changing this handle requires verification again.</p>}
+                {modalVerifyMsg && <p role="alert" className="text-red-300">{modalVerifyMsg.text}</p>}
                 {/* Platform Selection */}
                 <div>
                   <label className="block text-neutral-300 font-bold mb-1.5">Select Social Platform</label>
@@ -898,7 +939,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                         <button
                           key={p.key}
                           type="button"
-                          onClick={() => setNewPlatform(p.key)}
+                          disabled={Boolean(editingSocial) || isSavingSocial} onClick={() => setNewPlatform(p.key)}
                           className={`p-2.5 rounded-xl border flex flex-col items-center gap-1.5 font-bold transition-all cursor-pointer ${
                             isSelected
                               ? "bg-white text-black border-white shadow-xs"
@@ -930,7 +971,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                     />
                   </div>
                   <p className="text-[10px] text-neutral-500 mt-1">
-                    Profile pictures will be pulled on demand and cached automatically.
+                    Changing a handle replaces the linked account and requires ownership verification again.
                   </p>
                 </div>
 
@@ -944,9 +985,10 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                   </button>
                   <button
                     type="submit"
+                    disabled={isSavingSocial || !socialsReady}
                     className="px-5 py-2 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold cursor-pointer shadow-lg shadow-[#c1121f]/25"
                   >
-                    Connect Link
+                    {isSavingSocial ? "Saving…" : editingSocial ? "Save changes" : "Connect Link"}
                   </button>
                 </div>
               </form>
@@ -1032,6 +1074,12 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                 </div>
               </div>
 
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span>Added the wrong account?</span>
+                <button type="button" disabled={isSavingSocial || isLiveScanning} onClick={() => editSocial(verifyingSocial)} className="text-neutral-300">Edit handle</button>
+                <button type="button" disabled={isSavingSocial || isLiveScanning} onClick={() => removeSocial(verifyingSocial)} className="text-red-300">Remove account</button>
+              </div>
+              {socialError && <p role="alert" className="text-red-300">{socialError}</p>}
               {/* Instruction Steps */}
               <div className="space-y-1 text-neutral-300 leading-relaxed text-[11px]">
                 <p>
@@ -1057,7 +1105,7 @@ export function CreatorProfileHeader({ creator, isEditable = true }: CreatorProf
                 <button
                   type="button"
                   onClick={executeLiveVerification}
-                  disabled={isLiveScanning}
+                  disabled={isLiveScanning || !verificationCode}
                   className="flex-1 py-2.5 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#c1121f]/25 disabled:opacity-50 transition-colors"
                 >
                   {isLiveScanning ? (

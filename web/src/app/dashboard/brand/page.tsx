@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { clearLocalAccountData } from "@/lib/local-data";
 import Link from "next/link";
 import {
   Sparkles,
@@ -20,6 +21,8 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { searchCreators } from "@/lib/api";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useTranslation } from "@/lib/i18n/language-context";
 
 
 interface CreatorCard {
@@ -29,7 +32,7 @@ interface CreatorCard {
   niche: string;
   rating: number;
   location: string;
-  starting_rate: number;
+  starting_rate: number | null;
   bio: string;
   verified: boolean;
 }
@@ -45,47 +48,14 @@ interface CampaignItem {
 }
 
 export default function BrandDashboardPage() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"discovery" | "campaigns" | "applications">("discovery");
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNiche, setSelectedNiche] = useState("All");
 
-  const [creators, setCreators] = useState<CreatorCard[]>([
-    {
-      id: "c-subu",
-      handle: "subu_creates",
-      display_name: "Subramanya Shenoy",
-      niche: "Technology & Hardware",
-      rating: 5.0,
-      location: "Bengaluru, Karnataka",
-      starting_rate: 10000,
-      bio: "Tech reviewer, consumer hardware specialist, and verified Flenzr creator.",
-      verified: true,
-    },
-    {
-      id: "c-rohan",
-      handle: "rohansharma_live",
-      display_name: "Rohan Sharma",
-      niche: "Software & Productivity",
-      rating: 4.9,
-      location: "Hyderabad, Telangana",
-      starting_rate: 35000,
-      bio: "Developer educator and SaaS reviewer covering modern engineering stacks.",
-      verified: true,
-    },
-    {
-      id: "c-sarah",
-      handle: "sarahmiller",
-      display_name: "Sarah Miller",
-      niche: "Technology & Gear",
-      rating: 5.0,
-      location: "Bengaluru, Karnataka",
-      starting_rate: 25000,
-      bio: "Tech reviewer, consumer audio enthusiast, and 4K workflow specialist.",
-      verified: true,
-    },
-  ]);
+  const [creators, setCreators] = useState<CreatorCard[]>([]);
 
   useEffect(() => {
     searchCreators().then((live) => {
@@ -96,10 +66,10 @@ export default function BrandDashboardPage() {
             handle: c.handle,
             display_name: c.display_name,
             niche: c.niche || "Content Creator",
-            rating: c.rating || 5.0,
-            location: c.location || "India",
-            starting_rate: 15000,
-            bio: c.bio || "Verified influencer on Flenzr.",
+            rating: c.rating ?? 0,
+            location: c.location || "Location not provided",
+            starting_rate: null,
+            bio: c.bio || "",
             verified: c.is_verified,
           }))
         );
@@ -109,32 +79,13 @@ export default function BrandDashboardPage() {
 
 
   // Campaigns state
-  const [campaigns, setCampaigns] = useState<CampaignItem[]>([
-    {
-      id: "camp-1",
-      title: "Noise-Canceling Wireless Earbuds Festival Launch",
-      target_niche: "Technology & Gear",
-      budget_dollars: 250000,
-      status: "active",
-      deliverables: "1x Dedicated 8-10 min YouTube review with unboxing & audio test",
-      applicants_count: 6,
-    },
-    {
-      id: "camp-2",
-      title: "Lumina Studio USB-C Audio Interface",
-      target_niche: "Software & Productivity",
-      budget_dollars: 8500,
-      status: "active",
-      deliverables: "60-second Instagram Reel + Story Link",
-      applicants_count: 4,
-    },
-  ]);
+  const [campaigns, setCampaigns] = useState<CampaignItem[]>([]);
 
   // Campaign Creation Modal
   const [showNewCampaign, setShowNewCampaign] = useState(false);
   const [newCampTitle, setNewCampTitle] = useState("");
   const [newCampNiche, setNewCampNiche] = useState("Technology & Gear");
-  const [newCampBudget, setNewCampBudget] = useState("10000");
+  const [newCampBudget, setNewCampBudget] = useState("");
   const [newCampDeliverables, setNewCampDeliverables] = useState("");
   const [newCampBrief, setNewCampBrief] = useState("");
 
@@ -145,7 +96,7 @@ export default function BrandDashboardPage() {
       id: `camp-${Date.now()}`,
       title: newCampTitle,
       target_niche: newCampNiche,
-      budget_dollars: Number(newCampBudget) || 5000,
+      budget_dollars: Number(newCampBudget) || 0,
       status: "active",
       deliverables: newCampDeliverables || "1x Dedicated Video",
       applicants_count: 0,
@@ -176,17 +127,24 @@ export default function BrandDashboardPage() {
               <Logo size={30} variant="duotone-dark" withWordmark={true} />
             </Link>
             <span className="h-6 px-3 rounded-full bg-neutral-900 text-neutral-200 font-semibold border border-neutral-800 text-xs inline-flex items-center justify-center leading-none">
-              Brand Portal • Lumina Audio
+              Brand Portal
             </span>
           </div>
 
           <div className="flex items-center gap-3 text-xs sm:text-sm">
+            <LanguageSwitcher variant="compact" />
+            <button type="button" onClick={async () => {
+              const res = await fetch("/api/auth/logout", { method: "POST" });
+              if (!res.ok) { alert("Could not sign out. Please retry."); return; }
+              clearLocalAccountData();
+              window.location.assign("/login");
+            }} className="h-9 px-3 rounded-xl border border-neutral-800 text-xs">Sign Out</button>
             <button
               onClick={() => setShowNewCampaign(true)}
               className="h-9 px-4 rounded-xl text-xs font-bold bg-[#c1121f] hover:bg-[#a50e1a] text-white transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-[#c1121f]/25 leading-none"
             >
               <Plus className="w-4 h-4" />
-              <span>Launch Campaign</span>
+              <span>{t("New Collab Proposal")}</span>
             </button>
           </div>
         </div>
@@ -288,6 +246,7 @@ export default function BrandDashboardPage() {
 
             {/* Creator Directory Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredCreators.length === 0 && <p className="col-span-full p-8 text-center text-sm text-neutral-400">No creators found. Creator profiles will appear here after signup.</p>}
               {filteredCreators.map((creator) => (
                 <div
                   key={creator.id}
@@ -314,7 +273,7 @@ export default function BrandDashboardPage() {
 
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-800 text-white border border-neutral-700">
                         <Star className="w-3.5 h-3.5 fill-[#c1121f] text-[#c1121f]" />
-                        {creator.rating.toFixed(1)}
+                        {creator.rating > 0 ? creator.rating.toFixed(1) : "No reviews yet"}
                       </span>
                     </div>
 
@@ -336,7 +295,7 @@ export default function BrandDashboardPage() {
                     <div>
                       <span className="text-[10px] text-neutral-400 block font-medium">Packages from</span>
                       <span className="text-base font-extrabold text-white">
-                        ₹{creator.starting_rate.toLocaleString("en-IN")}
+                        {creator.starting_rate === null ? "View media kit" : `₹${creator.starting_rate.toLocaleString("en-IN")}`}
                       </span>
                     </div>
 
@@ -368,6 +327,7 @@ export default function BrandDashboardPage() {
         {activeTab === "campaigns" && (
           <section className="space-y-6">
             <div className="grid grid-cols-1 gap-4">
+              {campaigns.length === 0 && <p className="p-8 text-center text-sm text-neutral-400">No campaigns yet. Create your first campaign to get started.</p>}
               {campaigns.map((camp) => (
                 <div
                   key={camp.id}
@@ -408,6 +368,8 @@ export default function BrandDashboardPage() {
             </div>
           </section>
         )}
+
+        {activeTab === "applications" && <p className="p-8 text-center text-sm text-neutral-400">No applications yet.</p>}
 
         {/* New Campaign Modal */}
         {showNewCampaign && (
