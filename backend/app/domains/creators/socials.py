@@ -99,6 +99,13 @@ def store_accounts(creator, accounts):
         extras.extend(a.model_dump() for a in matching[1:])
     links['_accounts'] = extras
     creator.social_links = links
+    handles = {a.handle for a in accounts if a.platform == 'instagram'}
+    credentials = dict(creator.social_credentials or {})
+    youtube_handles = {a.handle for a in accounts if a.platform == 'youtube'}
+    creator.social_credentials = {key: value for key, value in credentials.items()
+        if key in handles or (key == '_flow' and (not value.get('handle') or value.get('handle') in handles))
+        or (key.startswith('youtube:') and key[8:] in youtube_handles)
+        or (key == '_youtube_flow' and (not value.get('handle') or value.get('handle') in youtube_handles))}
     creator.is_verified = any(a.is_verified for a in accounts)
 
 

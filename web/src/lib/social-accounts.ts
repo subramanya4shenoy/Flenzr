@@ -31,3 +31,32 @@ export async function saveSocialAccount(platform: SocialPlatform, handle: string
 export async function deleteSocialAccount(platform: SocialPlatform, handle: string) {
   return checkedAccounts(await fetch(`/api/account/creators/me/social-accounts/${platform}?expected_handle=${encodeURIComponent(handle)}`, { method: "DELETE" }));
 }
+
+export async function connectYouTube(handle?: string) {
+  const response = await fetch("/api/account/creators/me/youtube/connect", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(handle ? { handle } : {}),
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error(data.error?.message || "Could not connect YouTube.");
+  if (data.callbackOrigin !== window.location.origin) throw Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting YouTube.`);
+  const url = new URL(data.url);
+  if (url.origin !== "https://accounts.google.com" || url.pathname !== "/o/oauth2/v2/auth") throw Error("Could not connect YouTube.");
+  window.location.assign(url.toString());
+}
+
+export async function connectInstagram(handle?: string, accountId?: string) {
+  const body: { handle?: string; account_id?: string } = {};
+  if (handle) body.handle = handle;
+  if (accountId) body.account_id = accountId;
+  const response = await fetch("/api/account/creators/me/instagram/connect", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error(data.error?.message || "Could not connect Instagram.");
+  if (data.callbackOrigin !== window.location.origin) throw Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting Instagram.`);
+  const url = new URL(data.url);
+  if (!((url.origin === "https://www.facebook.com" && url.pathname === "/dialog/oauth") || (url.origin === "https://www.instagram.com" && url.pathname === "/oauth/authorize"))) throw Error("Could not connect Instagram.");
+  window.location.assign(url.toString());
+}

@@ -31,6 +31,10 @@ All authorization decisions use a cryptographically verified Supabase user token
 
 FastAPI's development documentation and OpenAPI schema expose API structure, not business records. OpenAPI is regenerated in `contracts/openapi.json`. The route-policy test fails if a new documented business route lacks authentication outside the explicit public allowlist.
 
+## YouTube connection
+
+`POST /api/v1/creators/me/youtube/connect`, `POST /api/v1/creators/me/youtube/callback`, `GET /api/v1/creators/me/youtube/stats`, and `DELETE /api/v1/creators/me/youtube/connection` require the active creator and scope operations to their own linked channel. OAuth state, PKCE, channel-ID matching and encrypted credentials prevent a public handle from granting ownership. The web callback `/api/social/youtube/callback` requires the session cookie and forwards only code/state to the owner-scoped backend. See [YouTube connection setup](YOUTUBE_CONNECTION.md).
+
 ## Web
 
 | Routes | Policy |

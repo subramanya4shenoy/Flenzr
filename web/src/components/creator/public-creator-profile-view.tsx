@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { PublicCreatorProfile, RateCard } from "@/lib/api";
 import { Logo } from "@/components/ui/logo";
+import { useAuthSession } from "@/lib/use-auth-session";
 import {
   InstagramIcon,
   YoutubeIcon,
@@ -54,6 +55,7 @@ interface Props {
 
 export function PublicCreatorProfileView({ creator, rateCards }: Props) {
   const { t } = useTranslation();
+  const { profileHref, session } = useAuthSession();
   const [coverImage, setCoverImage] = useState<string>(CREATOR_COVER_IMAGES[0]);
 
   useEffect(() => {
@@ -101,8 +103,8 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
         <div className="flex flex-col items-center gap-6 w-full">
           {/* Official Flenzr Logo */}
           <Link
-            href="/"
-            title="Flenzr Home"
+            href={profileHref}
+            title={session ? (session.role === "brand" ? "Brand Portal" : "Creator Studio & Profile") : "Flenzr Home"}
             className="w-10 h-10 rounded-xl bg-[#121215] border border-[#27272a] hover:border-neutral-700 flex items-center justify-center transition-all hover:scale-105 group"
           >
             <Logo size={24} variant="duotone-dark" />
@@ -197,9 +199,9 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
         <header className="h-14 border-b border-[#27272a] bg-[#09090b]/90 backdrop-blur-md px-4 sm:px-5 lg:px-6 flex items-center justify-between sticky top-0 z-20">
           {/* Breadcrumb Path */}
           <div className="flex items-center gap-2 text-xs text-[#8c94a6]">
-            <Link href="/" className="hover:text-white transition-colors flex items-center gap-1.5">
+            <Link href={profileHref} className="hover:text-white transition-colors flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5" />
-              <span>Creators</span>
+              <span>{session ? (session.role === "brand" ? "Brand Portal" : "Studio") : "Creators"}</span>
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-[#525866]" />
             <span className="px-2.5 py-1 rounded-md bg-[#18181b] border border-[#27272a] text-white font-semibold">

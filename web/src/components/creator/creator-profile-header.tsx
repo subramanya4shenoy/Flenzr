@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { connectInstagram, connectYouTube } from "@/lib/social-accounts";
+
+import { useState, useEffect, useId, type ComponentProps } from "react";
 import { useTranslation } from "@/lib/i18n/language-context";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -15,6 +17,7 @@ import {
   Loader2,
   Copy,
   RefreshCw,
+  Trash2,
   Camera,
   AlertCircle,
   CheckCircle2,
@@ -24,6 +27,29 @@ import {
 } from "lucide-react";
 import { deleteSocialAccount, getSocialAccounts, saveSocialAccount, mergeSocialAccounts, mergeSocialAvatars, type SocialAccount } from "@/lib/social-accounts";
 import { PublicCreatorProfile } from "@/lib/api";
+
+function AccountActionButton({ label, children, ...props }: ComponentProps<"button"> & { label: string }) {
+  const tooltipId = useId();
+  return (
+    <span className="relative inline-flex group/account-action">
+      <button
+        {...props}
+        type="button"
+        aria-describedby={tooltipId}
+        className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-red-300 hover:bg-red-400/10 hover:text-red-200 focus-visible:outline-2 focus-visible:outline-red-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+      >
+        {children}
+      </button>
+      <span
+        id={tooltipId}
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full right-0 z-50 mb-2 whitespace-nowrap rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] font-medium text-white shadow-lg opacity-0 transition-opacity group-hover/account-action:opacity-100 group-focus-within/account-action:opacity-100"
+      >
+        {label}
+      </span>
+    </span>
+  );
+}
 
 // -------------------------------------------------------------
 // Vector Social Brand Icons
@@ -242,23 +268,9 @@ export function CreatorProfileHeader({
   const [socialError, setSocialError] = useState("");
   const [newPlatform, setNewPlatform] = useState<PlatformKey>("instagram");
   const [newHandle, setNewHandle] = useState("");
+  const [instagramAccountId, setInstagramAccountId] = useState("");
   const [isVerifyingInModal, setIsVerifyingInModal] = useState(false);
   const [modalVerifyMsg, setModalVerifyMsg] = useState<{ success: boolean; text: string } | null>(null);
-
-  // Verification drawer for existing unverified socials
-  const [verifyingSocial, setVerifyingSocial] = useState<LinkedSocialItem | null>(null);
-  const [verificationCode, setVerificationCode] = useState("");
-  const [copiedCode, setCopiedCode] = useState(false);
-  const [isLiveScanning, setIsLiveScanning] = useState(false);
-  const [liveScanResult, setLiveScanResult] = useState<{ success: boolean; text: string } | null>(null);
-
-  // Helper to generate secure codes
-  const generateCode = () => verificationCode;
-  useEffect(() => {
-    fetch("/api/account/creators/me").then(async (res) => {
-      if (res.ok) setVerificationCode((await res.json()).verification_code || "");
-    }).catch(() => {});
-  }, []);
 
   // 1. HYDRATE & CACHE FROM LOCALSTORAGE
   useEffect(() => {
@@ -353,20 +365,17 @@ export function CreatorProfileHeader({
     setEditingSocial(social);
     setNewPlatform(social.platform);
     setNewHandle(social.handle);
-    setVerifyingSocial(null);
     setModalVerifyMsg(null);
     setShowAddModal(true);
   };
   const removeSocial = async (social: LinkedSocialItem) => {
-    if (isSavingSocial || isLiveScanning) return;
+    if (isSavingSocial) return;
     if (social.isVerified && !window.confirm(`Remove @${social.handle} from ${social.platform}? You can add it again, but will need to verify it again.`)) return;
     setIsSavingSocial(true);
     setSocialError("");
     try {
       applyServerAccounts(await deleteSocialAccount(social.platform, social.handle));
-      setVerifyingSocial(null);
-      setLiveScanResult(null);
-    } catch (error) { setSocialError(error instanceof Error ? error.message : "Could not remove account"); }
+      } catch (error) { setSocialError(error instanceof Error ? error.message : "Could not remove account"); }
     finally { setIsSavingSocial(false); }
   };
 
@@ -488,11 +497,32 @@ export function CreatorProfileHeader({
 
   // 4. STRICT VERIFICATION CHECK:
   const allLinkedSocialsVerified = linkedSocials.some((s) => s.isVerified);
-  const unverifiedSocials = linkedSocials.filter((s) => !s.isVerified && (s.platform === "instagram" || s.platform === "youtube"));
 
-  // Adding or correcting a handle is saved independently of verification.
+  const startAccountConnection = async (platform: "youtube" | "instagram", existingHandle?: string, accountId?: string) => {
+    if (isSavingSocial || !socialsReady) return;
+    setIsSavingSocial(true);
+    setSocialError("");
+    setModalVerifyMsg(null);
+    try {
+      if (platform === "youtube") await connectYouTube(existingHandle);
+      else await connectInstagram(existingHandle, accountId);
+    }
+    catch (error) {
+      const text = error instanceof Error ? error.message : `Could not connect ${platform === "youtube" ? "YouTube" : "Instagram"}.`;
+      setModalVerifyMsg({ success: false, text });
+      setSocialError(text);
+      setIsSavingSocial(false);
+    }
+  };
+
+  // Other platforms retain their existing manual-link flow.
   const handleAddSocial = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newPlatform === "youtube" || newPlatform === "instagram") {
+      await startAccountConnection(newPlatform, editingSocial?.handle,
+        newPlatform === "instagram" ? instagramAccountId.trim() || undefined : undefined);
+      return;
+    }
     const clean = newHandle.trim().replace(/^@/, "").toLowerCase();
     if (!clean || isSavingSocial || !socialsReady) return;
     setIsSavingSocial(true);
@@ -500,65 +530,13 @@ export function CreatorProfileHeader({
     try {
       const existing = editingSocial;
       const accounts = await saveSocialAccount(newPlatform, clean, existing?.handle ?? "");
-      const next = applyServerAccounts(accounts);
-      const added = next.find((item) => item.platform === newPlatform && item.handle === clean)!;
+      applyServerAccounts(accounts);
       setNewHandle("");
       setShowAddModal(false);
       setEditingSocial(null);
-      if (!added.isVerified && ["instagram", "youtube"].includes(added.platform)) {
-        setVerifyingSocial(added);
-        setLiveScanResult(null);
-      }
+
     } catch (error) { setModalVerifyMsg({ success: false, text: error instanceof Error ? error.message : "Could not save account" }); }
     finally { setIsSavingSocial(false); }
-  };
-
-  // Live verification scan
-  const executeLiveVerification = async () => {
-    if (!verifyingSocial) return;
-    setIsLiveScanning(true);
-    setLiveScanResult(null);
-
-    try {
-      const res = await fetch("/api/social/verify-bio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          platform: verifyingSocial.platform,
-          handle: verifyingSocial.handle,
-          verificationCode,
-          creatorHandle: handle,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || data.error || data.detail?.[0]?.msg || "Verification request failed. Please sign in again and retry.");
-      if (data.verified) {
-        // Mark this social as verified
-        const updated = linkedSocials.map((s) =>
-          s.id === verifyingSocial.id ? { ...s, isVerified: true } : s
-        );
-        applyServerAccounts(await getSocialAccounts(), updated);
-
-        setLiveScanResult({
-          success: true,
-          text: data.message || `Successfully verified ownership of @${verifyingSocial.handle}!`,
-        });
-      } else {
-        setLiveScanResult({
-          success: false,
-          text:
-            data.message ||
-            `Code '${verificationCode}' was not found in @${verifyingSocial.handle}'s bio/description.`,
-        });
-      }
-    } catch (e) {
-      setLiveScanResult({
-        success: false,
-        text: e instanceof Error ? e.message : "Could not complete live scan. Please check your connection.",
-      });
-    } finally {
-      setIsLiveScanning(false);
-    }
   };
 
   const getPlatformIcon = (platform: PlatformKey) => {
@@ -815,9 +793,25 @@ export function CreatorProfileHeader({
                       <div className="text-[10px] text-neutral-400">{social.platform} · {social.isVerified ? "Verified" : "Not verified"}</div>
                     </div>
                     {isEditable && <div className="flex flex-wrap gap-1 shrink-0">
-                      {!social.isVerified && ["instagram", "youtube"].includes(social.platform) && <button type="button" disabled={isSavingSocial || !socialsReady} onClick={() => { setVerifyingSocial(social); setLiveScanResult(null); }} className="px-2 py-1 text-[10px] text-amber-300" aria-label={`Verify ${social.platform} @${social.handle}`}>Verify</button>}
-                      <button type="button" disabled={isSavingSocial || !socialsReady} onClick={() => editSocial(social)} className="px-2 py-1 text-[10px] text-neutral-300" aria-label={`Edit ${social.platform} @${social.handle}`}>Edit</button>
-                      <button type="button" disabled={isSavingSocial || !socialsReady} onClick={() => removeSocial(social)} className="px-2 py-1 text-[10px] text-red-300" aria-label={`Remove ${social.platform} @${social.handle}`}>Remove</button>
+                      {(social.platform === "youtube" || social.platform === "instagram") ? (
+                        <AccountActionButton
+                          label={isSavingSocial ? t("Connecting…") : social.isVerified ? t("Reconnect") : t("Connect")}
+                          disabled={isSavingSocial || !socialsReady}
+                          onClick={() => startAccountConnection(social.platform as "youtube" | "instagram", social.handle)}
+                          aria-label={`${social.isVerified ? "Reconnect" : "Connect"} ${social.platform === "youtube" ? "YouTube" : "Instagram"} @${social.handle}`}
+                          aria-busy={isSavingSocial}
+                        >
+                          {isSavingSocial ? <Loader2 aria-hidden="true" className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw aria-hidden="true" className="w-3.5 h-3.5" />}
+                        </AccountActionButton>
+                      ) : <button type="button" disabled={isSavingSocial || !socialsReady} onClick={() => editSocial(social)} className="px-2 py-1 text-[10px] text-neutral-300" aria-label={`Edit ${social.platform} @${social.handle}`}>Edit</button>}
+                      <AccountActionButton
+                        label={t("Remove")}
+                        disabled={isSavingSocial || !socialsReady}
+                        onClick={() => removeSocial(social)}
+                        aria-label={`Remove ${social.platform} @${social.handle}`}
+                      >
+                        <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
+                      </AccountActionButton>
                     </div>}
                   </div>
                 ))}
@@ -831,6 +825,7 @@ export function CreatorProfileHeader({
                     onClick={() => {
                       setEditingSocial(null);
                       setNewHandle("");
+                      setInstagramAccountId("");
                       setShowAddModal(true);
                       setModalVerifyMsg(null);
                     }}
@@ -841,40 +836,6 @@ export function CreatorProfileHeader({
                   </button>
                 )}
               </div>
-
-              {/* Direct Unverified Accounts Action Banner */}
-              {isEditable && unverifiedSocials.length > 0 && (
-                <div className="mt-3.5 p-3 rounded-2xl bg-amber-950/40 border border-amber-800/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
-                  <div className="flex items-center gap-2.5 text-amber-200">
-                    <div className="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-                      <ShieldAlert className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-[12px] leading-tight">
-                        {unverifiedSocials.length === 1
-                          ? `Verify your ${unverifiedSocials[0].platform.toUpperCase()} (@${unverifiedSocials[0].handle})`
-                          : `${unverifiedSocials.length} accounts pending bio verification`}
-                      </p>
-                      <p className="text-[10px] text-amber-300/80 mt-0.5">
-                        Add the verification code to your bio to earn your crimson red tick and activate your profile badge.
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVerifyingSocial(unverifiedSocials[0]);
-                      setVerificationCode(generateCode());
-                      setLiveScanResult(null);
-                    }}
-                    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-neutral-200 text-black font-bold text-[11px] inline-flex items-center gap-1.5 cursor-pointer shadow-xs transition-transform hover:scale-[1.02] active:scale-95 shrink-0"
-                  >
-                    <span>Verify {unverifiedSocials[0].platform.toUpperCase()} Now</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
 
               {/* Informational Subtext */}
               {linkedSocials.length > 0 && !allLinkedSocialsVerified && (
@@ -954,8 +915,31 @@ export function CreatorProfileHeader({
                   </div>
                 </div>
 
-                {/* Handle / Username */}
-                <div>
+                {newPlatform === "youtube" ? <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-2">
+                  <p className="font-semibold text-white">Connect your YouTube channel</p>
+                  <p className="text-neutral-400 leading-relaxed">Choose your channel on Google and allow read-only access. We’ll add your channel details and verify ownership automatically.</p>
+                  <p className="text-[11px] text-neutral-500">No username entry or bio verification code needed. Flenzr cannot upload, edit, or delete your videos with this access.</p>
+                </div> : newPlatform === "instagram" ? <div className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-4 space-y-3">
+                  <p className="font-semibold text-white">Connect your Instagram account</p>
+                  <p className="text-neutral-400 leading-relaxed">Sign in with Instagram or Facebook, select your business portfolio, and share your Creator or Business account. We’ll add your account details and verify ownership automatically.</p>
+                  <p className="text-[11px] text-neutral-500">No username entry or bio code needed. Meta also requests messaging access for this configuration; Flenzr currently does not read or send messages.</p>
+                  <p className="text-[11px] text-amber-300">Development mode: choose Continue with Facebook and use the Facebook account listed as an Administrator of the Meta app. Instagram Tester login is not supported by Unified Login.</p>
+                  <div className="border-t border-pink-500/15 pt-3">
+                    <label htmlFor="instagram-account-id" className="block text-neutral-300 font-bold mb-1">Meta Instagram account ID <span className="font-normal text-neutral-500">(optional)</span></label>
+                    <input
+                      id="instagram-account-id"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={32}
+                      placeholder="Use only if Meta does not return your selected account"
+                      value={instagramAccountId}
+                      onChange={(e) => setInstagramAccountId(e.target.value.replace(/\D/g, ""))}
+                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-pink-500/60"
+                    />
+                    <p className="text-[10px] text-neutral-500 mt-1.5">Find it in <a href="https://business.facebook.com/settings/" target="_blank" rel="noreferrer" className="text-pink-300 hover:text-pink-200 underline">Meta Business Settings</a> → Instagram accounts. Flenzr still verifies access through OAuth.</p>
+                  </div>
+                </div> : <div>
                   <label className="block text-neutral-300 font-bold mb-1">
                     Your {newPlatform.charAt(0).toUpperCase() + newPlatform.slice(1)} Handle
                   </label>
@@ -973,7 +957,7 @@ export function CreatorProfileHeader({
                   <p className="text-[10px] text-neutral-500 mt-1">
                     Changing a handle replaces the linked account and requires ownership verification again.
                   </p>
-                </div>
+                </div>}
 
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <button
@@ -988,157 +972,10 @@ export function CreatorProfileHeader({
                     disabled={isSavingSocial || !socialsReady}
                     className="px-5 py-2 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold cursor-pointer shadow-lg shadow-[#c1121f]/25"
                   >
-                    {isSavingSocial ? "Saving…" : editingSocial ? "Save changes" : "Connect Link"}
+                    {newPlatform === "youtube" || newPlatform === "instagram" ? (isSavingSocial ? "Connecting…" : newPlatform === "youtube" ? "Connect YouTube" : "Connect Instagram") : isSavingSocial ? "Saving…" : editingSocial ? "Save changes" : "Connect Link"}
                   </button>
                 </div>
               </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* ------------------------------------------------------------- */}
-      {/* MODAL: VERIFY SOCIAL BIO CODE (EARN RED TICK)                  */}
-      {/* ------------------------------------------------------------- */}
-      <AnimatePresence>
-        {verifyingSocial && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-md bg-[#141418] border border-neutral-800 rounded-2xl p-6 shadow-2xl space-y-4 text-xs text-white"
-            >
-              <div className="flex items-center justify-between pb-2 border-b border-neutral-800">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#c1121f]/20 text-[#c1121f] border border-[#c1121f]/30 flex items-center justify-center">
-                    <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white">
-                      Verify {verifyingSocial.platform.toUpperCase()} Ownership
-                    </h3>
-                    <p className="text-[10px] text-neutral-400">@{verifyingSocial.handle}</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setVerifyingSocial(null)}
-                  className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Code Box */}
-              <div className="p-3.5 rounded-xl bg-neutral-950 border border-neutral-800 flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-[10px] text-neutral-400 uppercase font-bold">
-                    Verification Code:
-                  </div>
-                  <code className="text-base font-black text-white tracking-wider">
-                    {verificationCode}
-                  </code>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVerificationCode(generateCode());
-                      setLiveScanResult(null);
-                    }}
-                    title="Generate New Code"
-                    className="p-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 transition-colors cursor-pointer"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard?.writeText(verificationCode);
-                      setCopiedCode(true);
-                      setTimeout(() => setCopiedCode(false), 2000);
-                    }}
-                    className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-neutral-200 text-black font-bold text-[11px] flex items-center gap-1 cursor-pointer"
-                  >
-                    {copiedCode ? (
-                      <>
-                        <Check className="w-3 h-3 stroke-[3]" /> Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3 h-3" /> Copy
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-2 text-xs">
-                <span>Added the wrong account?</span>
-                <button type="button" disabled={isSavingSocial || isLiveScanning} onClick={() => editSocial(verifyingSocial)} className="text-neutral-300">Edit handle</button>
-                <button type="button" disabled={isSavingSocial || isLiveScanning} onClick={() => removeSocial(verifyingSocial)} className="text-red-300">Remove account</button>
-              </div>
-              {socialError && <p role="alert" className="text-red-300">{socialError}</p>}
-              {/* Instruction Steps */}
-              <div className="space-y-1 text-neutral-300 leading-relaxed text-[11px]">
-                <p>
-                  1. Paste <code className="text-[#c1121f] font-bold">{verificationCode}</code> into your {verifyingSocial.platform} bio or About description.
-                </p>
-                <p>
-                  2. Save changes, then click <strong>Verify Bio Code</strong> below.
-                </p>
-                <p className="text-neutral-400 text-[10px]">
-                  Once confirmed, a <strong>red tick</strong> will appear on this social icon, and your verified badge will activate!
-                </p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setVerifyingSocial(null)}
-                  className="px-4 py-2.5 rounded-xl border border-neutral-800 hover:bg-neutral-800 text-neutral-300 font-bold text-xs cursor-pointer transition-colors"
-                >
-                  I&apos;ll do this later
-                </button>
-                <button
-                  type="button"
-                  onClick={executeLiveVerification}
-                  disabled={isLiveScanning || !verificationCode}
-                  className="flex-1 py-2.5 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#c1121f]/25 disabled:opacity-50 transition-colors"
-                >
-                  {isLiveScanning ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Scanning live profile...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Verify Bio Code</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Scan Feedback Message */}
-              {liveScanResult && (
-                <div
-                  className={`p-3 rounded-xl border text-[11px] flex items-start gap-2 ${
-                    liveScanResult.success
-                      ? "bg-emerald-950/40 border-emerald-800/80 text-emerald-300"
-                      : "bg-amber-950/40 border-amber-800/80 text-amber-300"
-                  }`}
-                >
-                  {liveScanResult.success ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  )}
-                  <span className="leading-relaxed">{liveScanResult.text}</span>
-                </div>
-              )}
             </motion.div>
           </div>
         )}

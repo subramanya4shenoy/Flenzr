@@ -94,7 +94,7 @@ export async function completeGoogle(request: Request) {
       // Both new sign-ins and signup clicks resume onboarding for an empty profile.
       if (!(await profile.json()).bio) destination = "/signup/creator";
     }
-    await saveSession(session.access_token, Number(session.expires_in) || 3600);
+    await saveSession(session.access_token, Number(session.expires_in) || 3600, session.refresh_token);
     const next = new URL("/auth/complete", origin);
     next.searchParams.set("next", destination);
     return NextResponse.redirect(next, 303);

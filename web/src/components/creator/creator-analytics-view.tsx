@@ -1,229 +1,234 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  TrendingUp,
-  ShieldCheck,
-  Globe,
-  Users,
-  Award,
-  Video,
-  Eye,
-  CheckCircle2,
-  ExternalLink,
-  Download,
-  Share2,
-  Lock,
-  AlertCircle,
-} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
+import { AlertCircle, ArrowUpRight, BarChart3, CheckCircle2, Link2, Loader2, RefreshCw, ShieldCheck, Users } from "lucide-react";
+import { getSocialAccounts, socialUrl, type SocialAccount, type SocialPlatform } from "@/lib/social-accounts";
 
-export function CreatorAnalyticsView() {
-  const [timeRange, setTimeRange] = useState<"30d" | "90d" | "all">("30d");
-  const [profile, setProfile] = useState<any>(null);
+const platforms: Record<SocialPlatform, { name: string; initials: string; accent: string }> = {
+  instagram: { name: "Instagram", initials: "IG", accent: "bg-pink-500/10 text-pink-400 border-pink-500/20" },
+  youtube: { name: "YouTube", initials: "YT", accent: "bg-red-500/10 text-red-400 border-red-500/20" },
+  x: { name: "X", initials: "X", accent: "bg-white/5 text-white border-white/15" },
+  tiktok: { name: "TikTok", initials: "TK", accent: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20" },
+  linkedin: { name: "LinkedIn", initials: "IN", accent: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+  twitch: { name: "Twitch", initials: "TW", accent: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
+};
+
+type AccountStats = {
+  platform: SocialPlatform;
+  handle: string;
+  isRealData: boolean;
+  avatarUrl?: string;
+  followersAvailable?: boolean;
+  following?: number | null;
+  postCount?: number | null;
+  connected?: boolean;
+  source?: string;
+  followers: number | null;
+  totalViews?: number | null;
+  videoCount?: number | null;
+  subscribersHidden?: boolean;
+  avgViews: number | null;
+  engagementRate: number | null;
+};
+
+function metric(value: number | null | undefined, suffix = "") {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? `${new Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(value)}${suffix}` : "—";
+}
+
+function AccountAvatar({ url, account }: { url?: string; account: SocialAccount }) {
+  const [failed, setFailed] = useState(false);
+  const platform = platforms[account.platform];
+  const hasImage = !failed && url?.startsWith("/api/proxy-image?");
+  return (
+    <div className="relative shrink-0">
+      <div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border text-sm font-black ${platform.accent}`}>
+        {hasImage ? <Image src={url!} alt={`@${account.handle} profile picture`} width={56} height={56} unoptimized className="h-full w-full object-cover" onError={() => setFailed(true)} /> : <span aria-label={`${platform.name} profile`}>{platform.initials}</span>}
+      </div>
+      {hasImage && <span aria-hidden="true" className={`absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#121215] bg-[#27272a] text-[8px] font-black ${platform.accent.split(" ").find((color) => color.startsWith("text-"))}`}>{platform.initials}</span>}
+    </div>
+  );
+}
+
+function AccountSection({ account }: { account: SocialAccount }) {
+  const platform = platforms[account.platform];
+  const canFetch = account.platform === "instagram" || account.platform === "youtube";
+  const [stats, setStats] = useState<AccountStats | null>(null);
+  const [loading, setLoading] = useState(canFetch);
+  const [error, setError] = useState("");
+  const [checkedAt, setCheckedAt] = useState<Date | null>(null);
+  const [refresh, setRefresh] = useState(0);
+  const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (!canFetch) return;
+    const controller = new AbortController();
+    const load = async () => {
+      setLoading(true);
+      setError("");
+      setStats(null);
+      try {
+        const response = await fetch("/api/social/enrich", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ platform: account.platform, handle: account.handle }),
+          signal: controller.signal,
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(typeof data.error === "string" ? data.error : "Could not fetch this account’s stats.");
+        if (data.platform !== account.platform || data.handle !== account.handle || !data.isRealData) {
+          throw new Error("Public stats are unavailable for this account right now. You can try again later.");
+        }
+        if (!controller.signal.aborted) {
+          setStats(data);
+          setCheckedAt(new Date());
+        }
+      } catch (cause) {
+        if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : "Could not fetch this account’s stats.");
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    };
+    void load();
+    return () => controller.abort();
+  }, [account.platform, account.handle, canFetch, refresh]);
+
+  const connectAccount = async () => {
+    setConnecting(true);
+    setError("");
     try {
-      const stored = localStorage.getItem("flenzr_creator_profile");
-      if (stored) setProfile(JSON.parse(stored));
-    } catch {}
+      const response = await fetch(`/api/account/creators/me/${account.platform}/connect`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ handle: account.handle }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || data.error || `Could not connect ${platform.name}.`);
+      if (data.callbackOrigin && data.callbackOrigin !== window.location.origin) throw new Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting ${platform.name}.`);
+      const url = new URL(data.url);
+      const allowed = account.platform === "youtube" ? url.origin === "https://accounts.google.com" && url.pathname === "/o/oauth2/v2/auth" : (url.origin === "https://www.facebook.com" && url.pathname === "/dialog/oauth") || (url.origin === "https://www.instagram.com" && url.pathname === "/oauth/authorize");
+      if (!allowed) throw new Error(`Could not connect ${platform.name}.`);
+      window.location.assign(url.toString());
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : `Could not connect ${platform.name}.`);
+      setConnecting(false);
+    }
+  };
+
+  const disconnectAccount = async () => {
+    if (!window.confirm(`Disconnect ${platform.name} access for @${account.handle}? The handle will stay linked.`)) return;
+    setConnecting(true);
+    try {
+      const response = await fetch(`/api/account/creators/me/${account.platform}/connection?handle=${encodeURIComponent(account.handle)}`, { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || `Could not disconnect ${platform.name}.`);
+      window.dispatchEvent(new Event("flenzr_socials_updated"));
+      setRefresh((value) => value + 1);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : `Could not disconnect ${platform.name}.`); }
+    finally { setConnecting(false); }
+  };
+
+  const metrics = account.platform === "youtube" ? [
+    { label: "Subscribers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: stats?.subscribersHidden ? "Hidden by the channel" : "Public count · rounded by YouTube" },
+    { label: "Total channel views", value: metric(stats?.totalViews), detail: "Channel lifetime views" },
+    { label: "Public videos", value: metric(stats?.videoCount), detail: "Publicly visible uploads" },
+  ] : account.platform === "instagram" ? [
+    { label: "Followers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: "Instagram audience count" },
+    { label: "Following", value: metric(stats?.following), detail: "Accounts followed" },
+    { label: "Posts", value: metric(stats?.postCount), detail: "Published media count" },
+  ] : [
+    { label: "Followers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: "Public audience count" },
+    { label: "Average views", value: metric(stats?.avgViews), detail: "Not available yet" },
+    { label: "Engagement rate", value: metric(stats?.engagementRate, "%"), detail: "Not available yet" },
+  ];
+
+  return (
+    <section aria-label={`${platform.name} @${account.handle} analytics`} className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#27272a] bg-[#121215]">
+      <div className="flex flex-col gap-4 border-b border-[#27272a] p-5">
+        <div className="flex min-w-0 items-center gap-3">
+          <AccountAvatar key={stats?.avatarUrl || "fallback"} url={stats?.avatarUrl} account={account} />
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-bold text-white">{platform.name}</h3>
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${account.is_verified ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400" : "border-amber-500/20 bg-amber-500/10 text-amber-300"}`}>
+                {account.is_verified && <CheckCircle2 className="h-3 w-3" />}
+                {account.is_verified ? "Ownership verified" : "Verification pending"}
+              </span>
+            </div>
+            <a href={socialUrl(account.platform, account.handle)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex max-w-full items-center gap-1 text-xs text-neutral-400 hover:text-white">
+              <span className="truncate">@{account.handle}</span><ArrowUpRight className="h-3 w-3 shrink-0" />
+            </a>
+          </div>
+        </div>
+        {account.platform === "instagram" && <p className="text-[11px] leading-relaxed text-neutral-400">Connect to verify this account and load its profile counts. Meta will ask you to select its business portfolio. This login configuration also requests messaging access; Flenzr currently does not read or send your messages.</p>}
+        {canFetch && <div className="flex flex-wrap gap-2">
+          <button type="button" disabled={connecting} onClick={connectAccount} className="rounded-lg border border-pink-500/25 bg-pink-500/10 px-3 py-2 text-xs font-semibold text-pink-300 hover:bg-pink-500/20 disabled:opacity-50">{connecting ? "Connecting…" : stats?.connected ? `Reconnect ${platform.name}` : `Connect ${platform.name}`}</button>
+          {stats?.connected && <button type="button" disabled={connecting} onClick={disconnectAccount} className="px-2 text-xs text-neutral-400 hover:text-white disabled:opacity-50">Disconnect</button>}
+        </div>}
+        {canFetch && <button type="button" disabled={loading} onClick={() => setRefresh((value) => value + 1)} aria-label={`Refresh ${platform.name} @${account.handle} stats`} className="inline-flex self-start items-center gap-2 rounded-lg border border-[#303036] px-3 py-2 text-xs font-semibold text-neutral-300 transition hover:bg-white/5 disabled:opacity-50">
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />{loading ? "Fetching stats" : "Refresh stats"}
+        </button>}
+      </div>
+      <div className="flex flex-1 flex-col gap-5 p-5" aria-busy={loading}>
+        <div className="flex flex-col gap-3">
+          {metrics.map((item) => <div key={item.label} className="rounded-xl border border-white/5 bg-[#18181b] p-4">
+            <p className="text-xs text-neutral-400">{item.label}</p>
+            <p className="mt-3 text-2xl font-bold tracking-tight text-white tabular-nums">{loading ? <span className="inline-block h-7 w-20 animate-pulse rounded bg-white/5" aria-label="Loading" /> : item.value}</p>
+            <p className="mt-2 text-[10px] text-neutral-500">{item.detail}</p>
+          </div>)}
+        </div>
+        <div className="mt-auto flex items-start gap-2 text-xs leading-relaxed text-neutral-500" role={error ? "status" : undefined}>
+          {error ? <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" /> : <BarChart3 className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
+          <p>{error || (!canFetch ? `${platform.name} stats are not available yet. Your linked account is saved.` : loading ? "Fetching the latest available public stats for this account." : account.platform === "youtube" ? `${stats?.connected ? "YouTube connected" : "YouTube public stats"} · Updates every 5 minutes${checkedAt ? ` · Checked at ${checkedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. Watch time and audience demographics require additional channel authorization.` : stats?.source === "instagram-api" ? "Connected to Instagram · Stats update every 5 minutes. Reach, engagement and demographics are not included." : `Public profile snapshot${checkedAt ? ` · Checked at ${checkedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. Views, engagement trends and audience demographics are not available yet.`)}</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function CreatorAnalyticsView() {
+  const [accounts, setAccounts] = useState<SocialAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [connectionNotice, setConnectionNotice] = useState("");
+  const load = useCallback(() => {
+    return getSocialAccounts().then((linked) => {
+      setAccounts(linked);
+      setError("");
+      const params = new URLSearchParams(window.location.search);
+      const youtubeResult = params.get("youtube");
+      const result = params.get("instagram");
+      const messages: Record<string, string> = { account_not_shared: "Meta did not return an assigned Instagram account. Reconnect, select the portfolio that owns your account, and explicitly share the account with Flenzr. Your account has not been linked yet.", account_not_authorized: "Meta denied access to the selected Instagram account. While the Meta app is unpublished, choose Continue with Facebook and use the Facebook account listed as an app Administrator.", business_required: "Meta did not return a business portfolio. Reconnect and select the portfolio that owns your Instagram account.", configuration_changed: "Instagram configuration changed during login. Please start Connect Instagram again.", connected: "Instagram connected. Your account stats are ready.", cancelled: "Instagram connection was cancelled. You can try again.", expired: "Instagram connection expired. Please try again.", session_expired: "Sign in again using the secure preview URL before connecting Instagram.", account_mismatch: "The connection expired or Instagram authorized a different handle. Start again and choose the matching account.", failed: "Instagram connection failed. Make sure your Creator or Business account is eligible and try again." };
+      const youtubeMessages: Record<string, string> = { connected: "YouTube connected. Channel ownership is verified.", cancelled: "YouTube connection was cancelled.", expired: "YouTube connection expired. Please start again.", session_expired: "Sign in again before connecting YouTube.", account_mismatch: "The connection expired or Google authorized a different channel. Start again and choose the matching channel.", failed: "YouTube connection failed. Check that you are a test user and have granted channel access." };
+      setConnectionNotice(youtubeResult ? youtubeMessages[youtubeResult] || "" : result ? messages[result] || "" : "");
+    }).catch((cause: unknown) => {
+      setError(cause instanceof Error ? cause.message : "Could not load linked accounts.");
+    }).finally(() => setLoading(false));
   }, []);
 
-  const hasYoutube = Boolean(profile?.youtubeChannel);
-  const isYoutubeVerified = Boolean(profile?.isYoutubeBioVerified);
-  const hasInstagram = Boolean(profile?.instagramHandle);
-  const isInstagramVerified = Boolean(profile?.isInstagramBioVerified);
-  const hasAnyConnected = (hasYoutube && isYoutubeVerified) || (hasInstagram && isInstagramVerified);
-
+  useEffect(() => {
+    void load();
+    window.addEventListener("flenzr_socials_updated", load);
+    return () => window.removeEventListener("flenzr_socials_updated", load);
+  }, [load]);
 
   return (
     <div className="space-y-6">
-      {/* Top Banner with Verification Badge */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#121215] border border-[#27272a] shadow-md">
+      <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
-          <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${hasAnyConnected ? "bg-emerald-400 animate-pulse" : "bg-neutral-500"}`} />
-            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
-              Verified Audience &amp; Performance Metrics
-            </h2>
-          </div>
-          <p className="text-xs text-[#8c94a6] mt-0.5">
-            Performance metrics will appear when connected platform analytics are available.
-          </p>
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Your social footprint</p>
+          <h2 className="text-2xl font-bold tracking-tight text-white">Account analytics</h2>
+          <p className="mt-2 max-w-xl text-xs leading-relaxed text-neutral-400">A separate view of every linked account. See your audience and available performance stats, one account at a time.</p>
         </div>
+        {!loading && !error && accounts.length > 0 && <div className="flex shrink-0 gap-4 text-xs text-neutral-400">
+          <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /><strong className="text-white">{accounts.length}</strong> linked</span>
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /><strong className="text-white">{accounts.filter((account) => account.is_verified).length}</strong> verified</span>
+        </div>}
+      </header>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center bg-[#18181b] p-1 rounded-xl border border-[#27272a] text-xs">
-            {(["30d", "90d", "all"] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setTimeRange(r)}
-                className={`px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
-                  timeRange === r
-                    ? "bg-white text-black font-bold shadow-sm"
-                    : "text-[#8c94a6] hover:text-white"
-                }`}
-              >
-                {r === "30d" ? "Last 30 Days" : r === "90d" ? "Quarterly" : "All Time"}
-              </button>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            disabled title="PDF export is not available yet"
-            className="h-8 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-xs flex items-center gap-1.5 border border-white/20 cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Export PDF</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Cross-Platform Performance Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* YouTube Card */}
-        <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center font-bold">
-                YT
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-white">
-                  {hasYoutube ? profile.youtubeChannel : "YouTube Channel"}
-                </h4>
-                <p className="text-[10px] text-[#7e8697]">
-                  {isYoutubeVerified
-                    ? "Ownership verified • Analytics unavailable"
-                    : hasYoutube
-                    ? "Channel Linked • Verification Pending"
-                    : "Not Connected • Connect in Profile"}
-                </p>
-              </div>
-            </div>
-            {isYoutubeVerified ? (
-              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-                Verified ✓
-              </span>
-            ) : (
-              <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-neutral-400 font-medium border border-white/10">
-                Not Connected
-              </span>
-            )}
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#27272a] text-center">
-            <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">{"--"}</div>
-              <div className="text-[10px] text-[#8c94a6]">Median Views</div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">{"--"}</div>
-              <div className="text-[10px] text-[#8c94a6]">Avg CTR</div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">{"--"}</div>
-              <div className="text-[10px] text-[#8c94a6]">Avg Retention</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Instagram Card */}
-        <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400 flex items-center justify-center font-bold">
-                IG
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-white">
-                  {hasInstagram ? `@${profile.instagramHandle}` : "Instagram Creator"}
-                </h4>
-                <p className="text-[10px] text-[#7e8697]">
-                  {isInstagramVerified
-                    ? "Ownership verified • Analytics unavailable"
-                    : hasInstagram
-                    ? "Handle Linked • Verification Pending"
-                    : "Not Connected • Connect in Profile"}
-                </p>
-              </div>
-            </div>
-            {isInstagramVerified ? (
-              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-                Verified ✓
-              </span>
-            ) : (
-              <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-neutral-400 font-medium border border-white/10">
-                Not Connected
-              </span>
-            )}
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#27272a] text-center">
-            <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">{"--"}</div>
-              <div className="text-[10px] text-[#8c94a6]">Avg Reel Plays</div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">{"--"}</div>
-              <div className="text-[10px] text-[#8c94a6]">Engagement Rate</div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-[#18181b]">
-              <div className="text-lg font-bold text-white">{"--"}</div>
-              <div className="text-[10px] text-[#8c94a6]">Story Reach</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Demographics: Geography + Age/Gender */}
-      <div className="p-8 rounded-2xl bg-[#121215] border border-dashed border-[#27272a] text-center space-y-2">
-        <h4 className="text-sm font-semibold text-white">Audience data is not available yet</h4>
-        <p className="text-xs text-[#7e8697]">Social ownership verification does not provide audience demographics or performance analytics.</p>
-      </div>
-
-      {/* Aspect Score Pillars Breakdown */}
-      <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="text-xs font-bold text-white">Aspect Trust Score Pillars</h4>
-            <p className="text-[10px] text-[#8c94a6]">Core trust benchmarks verified for prospective brand sponsors</p>
-          </div>
-          <span className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white font-bold border border-white/20">
-            {"Not rated yet"}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
-          <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1">
-            <span className="text-[10px] text-[#8c94a6] uppercase font-bold">Authenticity</span>
-            <div className="text-xl font-bold text-white">{"--"}</div>
-            <p className="text-[10px] text-neutral-400 font-semibold">
-              {"Authenticity data unavailable"}
-            </p>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1">
-            <span className="text-[10px] text-[#8c94a6] uppercase font-bold">On-Time Fulfillment</span>
-            <div className="text-xl font-bold text-white">--</div>
-            <p className="text-[10px] text-neutral-400">Unlocks after 1st completed deal</p>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1">
-            <span className="text-[10px] text-[#8c94a6] uppercase font-bold">Brand Retention</span>
-            <div className="text-xl font-bold text-white">--</div>
-            <p className="text-[10px] text-neutral-400">Unlocks after repeat sponsor</p>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1">
-            <span className="text-[10px] text-[#8c94a6] uppercase font-bold">Commercial CTR</span>
-            <div className="text-xl font-bold text-white">--</div>
-            <p className="text-[10px] text-neutral-400">Tracks via Smart Links</p>
-          </div>
-        </div>
-      </div>
+      {connectionNotice && <p role="status" className="rounded-xl border border-white/10 bg-white/5 p-4 text-xs text-neutral-300">{connectionNotice}</p>}
+      {loading ? <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#27272a] bg-[#121215] p-12 text-sm text-neutral-400" role="status"><Loader2 className="h-4 w-4 animate-spin" />Loading linked accounts…</div>
+        : error ? <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 text-sm text-amber-200" role="alert"><p>{error}</p><button type="button" onClick={() => { setLoading(true); void load(); }} className="mt-3 font-semibold underline underline-offset-4">Try again</button></div>
+        : accounts.length === 0 ? <div className="rounded-2xl border border-dashed border-[#303036] bg-[#121215] px-6 py-14 text-center"><Link2 className="mx-auto mb-4 h-7 w-7 text-neutral-500" /><h3 className="text-sm font-semibold text-white">Your accounts, all in one place</h3><p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-neutral-400">Link a social account from your Studio Overview to see its available stats here. You can link multiple accounts on the same platform.</p></div>
+        : <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">{accounts.map((account) => <AccountSection key={`${account.platform}:${account.handle}`} account={account} />)}</div>}
     </div>
   );
 }

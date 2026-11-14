@@ -34,6 +34,8 @@ import {
   Wand2,
   Bot,
   Sliders,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { CreatorProfileHeader } from "@/components/creator/creator-profile-header";
@@ -90,9 +92,29 @@ const TAB_TITLES: Record<CreatorDashboardTab, string> = {
   ai_pitcher: "AI Pitcher",
 };
 
+
+const MENU_LABELS: Record<CreatorDashboardTab, string> = {
+  overview: "Overview",
+  pipeline: "Collabs",
+  ratecards: "Rate Cards",
+  calendar: "Calendar",
+  analytics: "Analytics",
+  portfolio: "Portfolio",
+  links: "Links & QR",
+  wallet: "Wallet",
+  ai_pitcher: "AI Pitcher",
+};
+
 export default function CreatorDashboardPage() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<CreatorDashboardTab>("overview");
+  const [menuExpanded, setMenuExpanded] = useState(true);
+  useEffect(() => {
+    const restoreTab = () => { if (window.location.hash === "#analytics") setActiveTab("analytics"); };
+    window.addEventListener("hashchange", restoreTab);
+    const timer = window.setTimeout(restoreTab, 0);
+    return () => { window.clearTimeout(timer); window.removeEventListener("hashchange", restoreTab); };
+  }, []);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const [creatorName, setCreatorName] = useState("Creator");
@@ -144,6 +166,20 @@ export default function CreatorDashboardPage() {
         if (liveCreator.youtube_verified !== undefined) {
           setIsYoutubeBioVerified(liveCreator.youtube_verified);
         }
+
+        try {
+          const email = localStorage.getItem("flenzr_account_email") || "";
+          localStorage.setItem(
+            "flenzr_auth_session",
+            JSON.stringify({
+              email,
+              fullName: liveCreator.display_name || "Creator",
+              handle: liveCreator.handle || "",
+              role: "creator",
+              avatarUrl: liveCreator.avatar_url || null,
+            })
+          );
+        } catch {}
 
         const handleForRatecards = liveCreator.handle;
         try {
@@ -277,193 +313,84 @@ export default function CreatorDashboardPage() {
   return (
     <div className="min-h-screen bg-[#09090b] text-[#f1f3f7] antialiased flex selection:bg-[#c1121f] selection:text-white">
       {/* ========================================================= */}
-      {/* 1. SLIM LEFT NAVIGATION RAIL                              */}
+      {/* 1. EXPANDABLE LEFT NAVIGATION                              */}
       {/* ========================================================= */}
-      <aside className="hidden lg:flex w-12 shrink-0 bg-[#09090b] border-r border-[#27272a] flex-col items-center py-3 justify-between select-none z-30 sticky top-0 h-screen">
-        <div className="flex flex-col items-center gap-3 w-full">
-          {/* Logo */}
-          <Link
-            href="/"
-            title="Flenzr Home"
-            className="w-8 h-8 rounded-lg bg-[#121215] border border-[#27272a] hover:border-neutral-600 flex items-center justify-center transition-all hover:scale-105 group"
-          >
-            <Logo size={20} variant="duotone-dark" />
-          </Link>
-
-          {/* Navigation Items Grouped */}
-          <nav className="flex flex-col items-center gap-1 w-full px-1.5">
-            {/* 1. WORKSPACE GROUP */}
+      <aside className={`hidden lg:flex ${menuExpanded ? "w-52" : "w-12"} shrink-0 bg-[#09090b] border-r border-[#27272a] flex-col py-3 justify-between select-none z-30 sticky top-0 h-screen transition-[width] duration-200 motion-reduce:transition-none`}>
+        <div className="flex flex-col gap-3 min-h-0">
+          <div className={`flex items-center ${menuExpanded ? "justify-between px-3" : "flex-col gap-3"}`}>
             <button
+              type="button"
               onClick={() => setActiveTab("overview")}
-              title={t("Studio Overview")}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
-                activeTab === "overview"
-                  ? "text-white bg-white/[0.08] border border-white/20 shadow-sm"
-                  : "text-[#71717a] hover:text-white hover:bg-[#18181b] border border-transparent"
-              }`}
+              aria-label="Creator Studio & Profile"
+              className="flex items-center gap-2.5 text-sm font-semibold cursor-pointer"
             >
-              {activeTab === "overview" && (
-                <span className="absolute -left-1.5 w-[3px] h-3.5 bg-white rounded-r-full shadow-xs" />
-              )}
-              <LayoutDashboard className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              onClick={() => setActiveTab("pipeline")}
-              title={`${t("Collab Pipeline")} (3 Active)`}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
-                activeTab === "pipeline"
-                  ? "text-white bg-white/[0.08] border border-white/20 shadow-sm"
-                  : "text-[#71717a] hover:text-white hover:bg-[#18181b] border border-transparent"
-              }`}
-            >
-              {activeTab === "pipeline" && (
-                <span className="absolute -left-1.5 w-[3px] h-3.5 bg-white rounded-r-full shadow-xs" />
-              )}
-              <Briefcase className="w-3.5 h-3.5" />
-              {activeBrandCollabs.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#c1121f] text-white text-[8px] font-bold flex items-center justify-center border border-[#09090b]">
-                  {activeBrandCollabs.length}
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setActiveTab("ratecards")}
-              title={t("Rate Cards & Packages")}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
-                activeTab === "ratecards"
-                  ? "text-white bg-white/[0.08] border border-white/20 shadow-sm"
-                  : "text-[#71717a] hover:text-white hover:bg-[#18181b] border border-transparent"
-              }`}
-            >
-              {activeTab === "ratecards" && (
-                <span className="absolute -left-1.5 w-[3px] h-3.5 bg-white rounded-r-full shadow-xs" />
-              )}
-              <DollarSign className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              onClick={() => setActiveTab("calendar")}
-              title={
-                activeBrandCollabs.length > 0
-                  ? `${t("Shoot Calendar")} (${activeBrandCollabs.length} Due)`
-                  : t("Shoot Calendar")
-              }
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
-                activeTab === "calendar"
-                  ? "text-white bg-white/[0.08] border border-white/20 shadow-sm"
-                  : "text-[#71717a] hover:text-white hover:bg-[#18181b] border border-transparent"
-              }`}
-            >
-              {activeTab === "calendar" && (
-                <span className="absolute -left-1.5 w-[3px] h-3.5 bg-white rounded-r-full shadow-xs" />
-              )}
-              <Calendar className="w-3.5 h-3.5" />
-              {activeBrandCollabs.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500 text-black text-[8px] font-black flex items-center justify-center border border-[#09090b]">
-                  {activeBrandCollabs.length}
-                </span>
-              )}
-            </button>
-
-            {/* SEPARATOR */}
-            <div className="w-5 h-[1px] bg-[#27272a] my-0.5" />
-
-            {/* 2. GROWTH & PROOF GROUP */}
-            <button
-              onClick={() => setActiveTab("analytics")}
-              title={t("Analytics")}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
-                activeTab === "analytics"
-                  ? "text-white bg-white/[0.08] border border-white/20 shadow-sm"
-                  : "text-[#71717a] hover:text-white hover:bg-[#18181b] border border-transparent"
-              }`}
-            >
-              {activeTab === "analytics" && (
-                <span className="absolute -left-1.5 w-[3px] h-3.5 bg-white rounded-r-full shadow-xs" />
-              )}
-              <TrendingUp className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              onClick={() => setActiveTab("portfolio")}
-              title={t("Portfolio")}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
-                activeTab === "portfolio"
-                  ? "text-white bg-white/[0.08] border border-white/20 shadow-sm"
-                  : "text-[#71717a] hover:text-white hover:bg-[#18181b] border border-transparent"
-              }`}
-            >
-              {activeTab === "portfolio" && (
-                <span className="absolute -left-1.5 w-[3px] h-3.5 bg-white rounded-r-full shadow-xs" />
-              )}
-              <Award className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              onClick={() => setActiveTab("links")}
-              title={t("Smart Links & Dynamic QR")}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
-                activeTab === "links"
-                  ? "text-white bg-white/[0.08] border border-white/20 shadow-sm"
-                  : "text-[#71717a] hover:text-white hover:bg-[#18181b] border border-transparent"
-              }`}
-            >
-              {activeTab === "links" && (
-                <span className="absolute -left-1.5 w-[3px] h-3.5 bg-white rounded-r-full shadow-xs" />
-              )}
-              <Link2 className="w-3.5 h-3.5" />
-            </button>
-
-            {/* SEPARATOR */}
-            <div className="w-5 h-[1px] bg-[#27272a] my-0.5" />
-
-            {/* 3. TOOLS & FINANCES */}
-            <button
-              onClick={() => setActiveTab("wallet")}
-              title={t("Flenzr Vault")}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
-                activeTab === "wallet"
-                  ? "text-white bg-white/[0.08] border border-white/20 shadow-sm"
-                  : "text-[#71717a] hover:text-white hover:bg-[#18181b] border border-transparent"
-              }`}
-            >
-              {activeTab === "wallet" && (
-                <span className="absolute -left-1.5 w-[3px] h-3.5 bg-white rounded-r-full shadow-xs" />
-              )}
-              <Wallet className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              onClick={() => setActiveTab("ai_pitcher")}
-              title={t("AI Pitcher")}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
-                activeTab === "ai_pitcher"
-                  ? "text-white bg-white/[0.08] border border-white/20 shadow-sm"
-                  : "text-[#71717a] hover:text-white hover:bg-[#18181b] border border-transparent"
-              }`}
-            >
-              {activeTab === "ai_pitcher" && (
-                <span className="absolute -left-1.5 w-[3px] h-3.5 bg-white rounded-r-full shadow-xs" />
-              )}
-              <Wand2 className="w-3.5 h-3.5" />
-              <span className="absolute -top-1 -right-1 px-0.5 py-0 rounded bg-white text-black text-[7px] font-black tracking-tight border border-[#09090b]">
-                AI
+              <span className="w-8 h-8 shrink-0 rounded-lg bg-[#121215] border border-[#27272a] flex items-center justify-center">
+                <Logo size={20} variant="duotone-dark" />
               </span>
+              {menuExpanded && <span>{t("Studio")}</span>}
             </button>
+            <button
+              type="button"
+              onClick={() => setMenuExpanded((expanded) => !expanded)}
+              aria-label={menuExpanded ? "Collapse menu" : "Expand menu"}
+              title={menuExpanded ? "Collapse menu" : "Expand menu"}
+              aria-expanded={menuExpanded}
+              aria-controls="creator-navigation"
+              className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[#a1a1aa] hover:text-white hover:bg-[#18181b] focus-visible:outline-2 focus-visible:outline-white cursor-pointer"
+            >
+              {menuExpanded ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+            </button>
+          </div>
+
+          <nav id="creator-navigation" aria-label="Creator navigation" className="flex flex-col gap-1 px-1.5 overflow-y-auto">
+            {([
+              ["overview", LayoutDashboard],
+              ["pipeline", Briefcase],
+              ["ratecards", DollarSign],
+              ["calendar", Calendar],
+              ["analytics", TrendingUp],
+              ["portfolio", Award],
+              ["links", Link2],
+              ["wallet", Wallet],
+              ["ai_pitcher", Wand2],
+            ] as const).map(([tab, Icon]) => (
+              <div key={tab}>
+                {(tab === "analytics" || tab === "wallet") && <div className="h-px bg-[#27272a] my-2 mx-1" />}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  title={t(TAB_TITLES[tab])}
+                  aria-label={t(TAB_TITLES[tab])}
+                  aria-current={activeTab === tab ? "page" : undefined}
+                  className={`${menuExpanded ? "w-full px-3 gap-3 justify-start" : "w-8 justify-center"} min-h-9 rounded-lg flex items-center text-left transition-colors cursor-pointer relative border focus-visible:outline-2 focus-visible:outline-white ${
+                    activeTab === tab
+                      ? "text-white bg-white/[0.08] border-white/20 shadow-sm"
+                      : "text-[#a1a1aa] hover:text-white hover:bg-[#18181b] border-transparent"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  {menuExpanded && <span className="text-xs font-medium py-2">{t(MENU_LABELS[tab])}</span>}
+                  {(tab === "pipeline" || tab === "calendar") && activeBrandCollabs.length > 0 && (
+                    <span className={`${menuExpanded ? "ml-auto shrink-0" : "absolute -top-1 -right-1"} min-w-3.5 h-3.5 px-0.5 rounded-full bg-[#c1121f] text-white text-[8px] font-bold flex items-center justify-center`}>
+                      {activeBrandCollabs.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+            ))}
           </nav>
         </div>
 
-        {/* Bottom Public Link */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="px-1.5 pt-3">
           <Link
             href={`/${creatorHandle}`}
             target="_blank"
             title={t("View Public Media Kit")}
-            className="w-8 h-8 rounded-lg bg-[#121215] hover:bg-[#18181b] border border-[#27272a] text-[#a1a1aa] hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            aria-label={t("View Public Media Kit")}
+            className={`${menuExpanded ? "w-full px-3 gap-3 justify-start" : "w-8 justify-center"} min-h-9 rounded-lg bg-[#121215] hover:bg-[#18181b] border border-[#27272a] text-[#a1a1aa] hover:text-white flex items-center transition-colors cursor-pointer`}
           >
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+            {menuExpanded && <span className="text-xs font-medium py-2">{t("Media Kit")}</span>}
           </Link>
         </div>
       </aside>
@@ -475,10 +402,14 @@ export default function CreatorDashboardPage() {
         {/* Top Header Bar */}
         <header className="h-14 border-b border-[#27272a] bg-[#09090b]/90 backdrop-blur-md px-4 sm:px-5 lg:px-6 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-2 text-xs text-[#8c94a6]">
-            <Link href="/" className="hover:text-white transition-colors flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setActiveTab("overview")}
+              className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+            >
               <Users className="w-3.5 h-3.5" />
               <span>{t("Studio")}</span>
-            </Link>
+            </button>
             <ChevronRight className="w-3.5 h-3.5 text-[#525866]" />
             <button
               type="button"

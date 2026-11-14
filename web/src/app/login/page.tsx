@@ -10,6 +10,7 @@ import { ArrowRight, Check, Sparkles, Shield, User, Building2 } from "lucide-rea
 import { Logo } from "@/components/ui/logo";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useTranslation } from "@/lib/i18n/language-context";
+import { useAuthSession } from "@/lib/use-auth-session";
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -36,6 +37,7 @@ function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
 
 export default function LoginPage() {
   const { t } = useTranslation();
+  const { profileHref, session } = useAuthSession();
   const [role, setRole] = useState<"creator" | "brand">("creator");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,7 +62,18 @@ export default function LoginPage() {
       const data = await res.json();
       if (!res.ok) { alert(data.error || "Sign in failed"); return; }
       selectLocalAccount(data.identity.user.email);
-      // Local profile caches are UI preferences, never authentication.
+      try {
+        const isCreator = data.identity.active_roles?.includes("creator");
+        localStorage.setItem(
+          "flenzr_auth_session",
+          JSON.stringify({
+            email: data.identity.user.email,
+            fullName: data.identity.user.full_name || (isCreator ? "Creator" : "Brand"),
+            handle: "",
+            role: isCreator ? "creator" : "brand",
+          })
+        );
+      } catch {}
       window.location.assign(data.redirect);
     } catch { alert("Could not sign in. Please try again."); }
     finally { setIsLoading(false); }
@@ -76,7 +89,11 @@ export default function LoginPage() {
       {/* Top Header */}
       <header className="relative border-b border-neutral-800 bg-[#09090b]/85 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center shrink-0">
+          <Link
+            href={profileHref}
+            title={session ? (session.role === "brand" ? "Brand Portal" : "Creator Studio & Profile") : "Flenzr Home"}
+            className="flex items-center shrink-0"
+          >
             <Logo size={32} variant="duotone-dark" withWordmark={true} />
           </Link>
           <div className="flex items-center gap-3">

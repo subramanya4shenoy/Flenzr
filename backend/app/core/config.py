@@ -24,6 +24,19 @@ class Settings(BaseSettings):
     SUPABASE_JWT_AUDIENCE: str = "authenticated"
     SUPABASE_JWKS_URL: Union[str, None] = None
 
+    # Instagram Unified Login / legacy Instagram Login (server-only credentials)
+    INSTAGRAM_LOGIN_MODE: str = "unified"
+    INSTAGRAM_CONFIG_ID: str = ""
+    INSTAGRAM_APP_ID: str = ""
+    INSTAGRAM_APP_SECRET: str = ""
+    INSTAGRAM_REDIRECT_URI: str = ""
+    INSTAGRAM_API_VERSION: str = "v26.0"
+    SOCIAL_TOKEN_ENCRYPTION_KEY: str = ""
+
+    # YouTube OAuth (server-only downloaded Web client)
+    YOUTUBE_OAUTH_CLIENT_FILE: str = ".secrets/youtube-oauth-client.json"
+    YOUTUBE_REDIRECT_URI: str = "http://localhost:3210/api/social/youtube/callback"
+
     # CORS
     CORS_ORIGINS: List[str] = [
         "http://localhost:3210",

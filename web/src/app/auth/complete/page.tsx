@@ -15,6 +15,18 @@ export default function AuthComplete() {
         if (!active) return;
         migrateLocalData();
         selectLocalAccount(data.identity.user.email);
+        try {
+          const isCreator = data.identity.active_roles?.includes("creator");
+          localStorage.setItem(
+            "flenzr_auth_session",
+            JSON.stringify({
+              email: data.identity.user.email,
+              fullName: data.identity.user.full_name || (isCreator ? "Creator" : "Brand"),
+              handle: "",
+              role: isCreator ? "creator" : "brand",
+            })
+          );
+        } catch {}
         const next = new URLSearchParams(window.location.search).get("next");
         const allowed = ["/dashboard/creator", "/dashboard/brand", "/signup/creator"];
         window.location.replace(next && allowed.includes(next) ? next : "/dashboard/creator");

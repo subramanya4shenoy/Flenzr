@@ -18,3 +18,21 @@ Built with:
 
 Run `npm run dev` here and open `http://localhost:3210`. Production preview with `npm run start` also uses port 3210.
 Copy `.env.example` to `.env.local` for a new setup, then supply the existing Supabase project values. Local API requests target `http://127.0.0.1:8210/api/v1`.
+
+## YouTube public statistics
+
+Enable **YouTube Data API v3** in the Flenzr Google Cloud project. Under **APIs & Services → Credentials**, create an API key and restrict its API access to YouTube Data API v3. This is a separate credential from the Google sign-in OAuth client ID/secret.
+
+Add `YOUTUBE_API_KEY=your-key` to `web/.env.local`, then restart the web server. Keep this variable server-only; do not use a `NEXT_PUBLIC_` prefix or commit the key. When deploying with fixed outbound IP addresses, restrict the key to those server IPs as well; browser referrer restrictions are unsuitable for these server requests.
+
+The authenticated enrichment route resolves each handle using `channels.list(part=snippet,statistics, forHandle=...)`. Successful responses are cached for five minutes. Analytics shows public subscriber counts (rounded by YouTube), lifetime channel views, and public video count. Hidden/missing counts display as unavailable; real zeroes remain zero. Missing credentials, exhausted quota, and unavailable channels return explicit errors rather than fabricated values. Public statistics never grant ownership verification. Watch time, retention, revenue, and demographic reports are outside this integration.
+
+Reference: https://developers.google.com/youtube/data/reference/rest/v3/channels/list
+
+## Instagram account statistics
+
+Instagram cards support **Connect Instagram** using Meta Unified Login for eligible Creator/Business accounts and their business portfolio. OAuth grants and encrypted per-account tokens stay on the backend. Configure the Meta app and the HTTPS preview callback before live testing; see [Instagram connection setup](../docs/INSTAGRAM_CONNECTION.md). Local ports remain 3210 and 8210.
+
+## Connect YouTube
+
+Creators can authorize a linked channel from its Analytics card. Server-side OAuth uses a separate downloaded Google Web client, encrypted tokens and on-demand refresh. Register the exact callback before live testing; see [YouTube connection setup](../docs/YOUTUBE_CONNECTION.md).

@@ -49,9 +49,10 @@ test('account switches cannot inherit a previous creator’s local deals', () =>
   assert.equal(localStorage.getItem('flenzr_collab_pipeline_deals'), null);
 });
 
-function enrichment(fetch) {
-  return load('src/app/api/social/enrich/route.ts', { fetch, console: { warn() {}, error() {} } }, (name) => {
-    if (name === '@/lib/server/session') return { currentIdentity: async () => ({}), sameOrigin: () => true };
+function enrichment(fetch, connection = { ok: false, status: 409, json: async () => ({ error: { code: "INSTAGRAM_CONNECTION_REQUIRED" } }) }) {
+  return load('src/app/api/social/enrich/route.ts', { fetch: async (url, ...args) => String(url).startsWith('http://backend/') ? connection : fetch(url, ...args), AbortSignal, console: { warn() {}, error() {} } }, (name) => {
+    if (name === '@/lib/server/youtube-public') return {};
+    if (name === '@/lib/server/session') return { currentIdentity: async () => ({}), sameOrigin: () => true, accessToken: async () => 'token', API_URL: 'http://backend/api/v1' };
     assert.equal(name, 'next/server');
     return { NextResponse: { json: (data) => data } };
   });
@@ -73,4 +74,19 @@ test('live public follower count does not invent engagement or views', async () 
   assert.equal(result.engagementRate, null);
   assert.equal(result.avgViews, null);
   assert.equal(result.suggestedRates.length, 0);
+});
+
+test('connected Instagram stats use the owner API and the protected image proxy', async () => {
+  const api = enrichment(async () => { throw Error('Must not scrape a connected account'); }, {
+    ok: true, json: async () => ({ platform: 'instagram', handle: 'fresh', displayName: 'Fresh', followers: 0, following: 3, postCount: 7, source: 'instagram-api', connected: true, isRealData: true, thumbnailUrl: 'https://cdninstagram.com/avatar.jpg' }),
+  });
+  const result = await api.POST({ json: async () => ({ platform: 'instagram', handle: 'fresh' }) });
+  assert.equal(result.followers, 0);
+  assert.equal(result.following, 3);
+  assert.equal(result.postCount, 7);
+  assert.equal(result.source, 'instagram-api');
+  assert.equal(result.connected, true);
+  assert.equal(result.avatarUrl.startsWith('/api/proxy-image?'), true);
+  assert.equal(result.thumbnailUrl, undefined);
+  assert.equal(result.codeFoundInBio, false);
 });

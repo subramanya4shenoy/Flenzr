@@ -27,7 +27,7 @@ export async function passwordAuth(request: Request, signup = false) {
     if (!sync.ok) return NextResponse.json({ error: "Could not verify your application account" }, { status: sync.status === 403 ? 403 : 401 });
     const identity = await identityForToken(data.access_token);
     if (!identity || !hasRole(identity, role)) return NextResponse.json({ error: "Your account does not have access to this workspace" }, { status: 403 });
-    await saveSession(data.access_token, Number(data.expires_in) || 3600);
+    await saveSession(data.access_token, Number(data.expires_in) || 3600, data.refresh_token);
     return NextResponse.json({ identity, redirect: role === "creator" ? "/dashboard/creator" : "/dashboard/brand" }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({ error: "Authentication is temporarily unavailable" }, { status: 503 });

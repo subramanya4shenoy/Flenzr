@@ -1,11 +1,15 @@
 """Read public Instagram bios; never treat unavailable content as ownership proof."""
 import asyncio
+import logging
 from html.parser import HTMLParser
 import re
 from urllib.request import Request, build_opener, HTTPRedirectHandler
-from urllib.error import URLError
+from urllib.error import URLError, HTTPError
 from urllib.parse import urlparse
 import httpx
+
+
+logger = logging.getLogger(__name__)
 
 
 class ProfileMetadata(HTMLParser):
@@ -55,9 +59,16 @@ def fetch_public_profile(handle: str):
         with build_opener(NoRedirect).open(request, timeout=10) as response:
             content = response.read(2_000_001)
             if len(content) > 2_000_000:
+                logger.warning("Instagram public bio unavailable: response exceeds size limit")
                 return None
             return content.decode('utf-8', errors='replace')
-    except (URLError, TimeoutError, OSError):
+    except HTTPError as error:
+        location = urlparse(error.headers.get("Location", "")).path
+        reason = "login_redirect" if location.startswith("/accounts/login") else "http_error"
+        logger.warning("Instagram public bio unavailable: status=%s reason=%s", error.code, reason)
+        return None
+    except (URLError, TimeoutError, OSError) as error:
+        logger.warning("Instagram public bio unavailable: transport_error=%s", type(error).__name__)
         return None
 
 
@@ -78,9 +89,15 @@ async def read_instagram_bio(client: httpx.AsyncClient, handle: str):
             # username too when Instagram includes it in the response.
             if user.get('username', handle).lower() == handle.lower() and isinstance(user.get('biography'), str):
                 return user['biography']
-    except (httpx.HTTPError, ValueError, AttributeError, TypeError):
-        pass
+        redirected_to_login = any(urlparse(r.headers.get("Location", "")).path.startswith("/accounts/login") for r in [*response.history, response])
+        reason = "login_redirect" if redirected_to_login else "rate_limited" if response.status_code == 429 else "missing_biography" if response.status_code == 200 else "http_error"
+        logger.warning("Instagram profile API unavailable: status=%s reason=%s; trying public page", response.status_code, reason)
+    except (httpx.HTTPError, ValueError, AttributeError, TypeError) as error:
+        logger.warning("Instagram profile API unavailable: response_error=%s; trying public page", type(error).__name__)
     # Some business profiles fail the JSON endpoint with a deleted-category schema
     # error while their public page still exposes a complete biography.
     page = await asyncio.to_thread(fetch_public_profile, handle)
-    return public_bio(page, handle) if page is not None else None
+    bio = public_bio(page, handle) if page is not None else None
+    if page is not None and bio is None:
+        logger.warning("Instagram public bio unavailable: reason=missing_or_mismatched_profile_metadata")
+    return bio

@@ -1,27 +1,6 @@
 import { NextResponse } from "next/server";
-import { currentIdentity, sameOrigin } from "@/lib/server/session";
-
-function parseSubscriberText(text: string): number {
-  const clean = text.toLowerCase().replace(/subscribers?/g, "").trim();
-  if (clean.includes("million") || clean.endsWith("m")) {
-    const num = parseFloat(clean.replace("million", "").replace("m", "").trim());
-    return Math.round(num * 1000000);
-  }
-  if (clean.includes("lakh")) {
-    const num = parseFloat(clean.replace("lakh", "").trim());
-    return Math.round(num * 100000);
-  }
-  if (clean.includes("crore")) {
-    const num = parseFloat(clean.replace("crore", "").trim());
-    return Math.round(num * 10000000);
-  }
-  if (clean.includes("k") || clean.includes("thousand")) {
-    const num = parseFloat(clean.replace("thousand", "").replace("k", "").trim());
-    return Math.round(num * 1000);
-  }
-  const parsed = parseInt(clean.replace(/,/g, ""), 10);
-  return isNaN(parsed) ? 0 : parsed;
-}
+import { currentIdentity, sameOrigin, accessToken, API_URL } from "@/lib/server/session";
+import { getYouTubePublicChannel, YouTubePublicError } from "@/lib/server/youtube-public";
 
 function calculateTier(followers: number): "Nano" | "Micro" | "Mid-Tier" | "Macro" | "Mega" {
   if (followers >= 1000000) return "Mega";
@@ -101,6 +80,28 @@ export async function POST(request: Request) {
     // 1. LIVE INSTAGRAM SCRAPER & REAL-TIME BIO CODE DETECTOR
     // -------------------------------------------------------------
     if (platform === "instagram") {
+      // Official per-owner connection takes precedence over best-effort public data.
+      try {
+        const token = await accessToken();
+        const response = await fetch(`${API_URL}/creators/me/instagram/stats?handle=${encodeURIComponent(cleanHandle)}`, {
+          headers: { Authorization: `Bearer ${token}` }, cache: "no-store", signal: AbortSignal.timeout(20000),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          return NextResponse.json({
+            ...data, thumbnailUrl: undefined,
+            avatarUrl: data.thumbnailUrl ? `/api/proxy-image?url=${encodeURIComponent(data.thumbnailUrl)}&name=${encodeURIComponent(data.displayName)}` : `/api/proxy-image?name=${encodeURIComponent(data.displayName)}`,
+            followersFormatted: data.followers === null ? "--" : formatNumber(data.followers),
+            avgViewsFormatted: "--", suggestedRates: [],
+            apiVerified: false, canVerifyOfficialApi: false, codeFoundInBio: false,
+          }, { headers: { "Cache-Control": "no-store" } });
+        }
+        if (data.error?.code !== "INSTAGRAM_CONNECTION_REQUIRED") {
+          return NextResponse.json({ error: data.error?.message || "Instagram stats are temporarily unavailable.", code: data.error?.code }, { status: response.status });
+        }
+      } catch {
+        return NextResponse.json({ error: "Instagram stats are temporarily unavailable. Please retry." }, { status: 503 });
+      }
       try {
         const igUrl = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${cleanHandle}`;
         const igRes = await fetch(igUrl, {
@@ -144,6 +145,7 @@ export async function POST(request: Request) {
               avatarUrl,
               followers,
               followersFormatted: formatNumber(followers),
+              followersAvailable: typeof user?.edge_followed_by?.count === "number",
               engagementRate,
               avgViews,
               avgViewsFormatted: "--",
@@ -162,69 +164,45 @@ export async function POST(request: Request) {
       }
     }
 
-    // -------------------------------------------------------------
-    // 2. LIVE YOUTUBE SCRAPER & REAL-TIME DESCRIPTION CODE DETECTOR
-    // -------------------------------------------------------------
+    // Public YouTube metrics come from the supported Data API, not page scraping.
     if (platform === "youtube") {
       try {
-        const ytUrl = `https://www.youtube.com/@${cleanHandle}`;
-        const res = await fetch(ytUrl, {
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept-Language": "en-US,en;q=0.9",
-          },
-          next: { revalidate: 60 },
+        const token = await accessToken();
+        const response = await fetch(`${API_URL}/creators/me/youtube/stats?handle=${encodeURIComponent(cleanHandle)}`, {
+          headers: { Authorization: `Bearer ${token}` }, cache: "no-store", signal: AbortSignal.timeout(45000),
         });
-
-        if (res.ok) {
-          const html = await res.text();
-          const subMatch = html.match(
-            /"subscriberCountText":\{"accessibility":\{"accessibilityData":\{"label":"([^"]+)"/
-          );
-          const nameMatch = html.match(/<meta property="og:title" content="([^"]+)"/);
-          const avatarMatch = html.match(/<meta property="og:image" content="([^"]+)"/);
-
-          if (nameMatch || subMatch) {
-            const rawSubs = subMatch ? subMatch[1] : "";
-            const followers = parseSubscriberText(rawSubs);
-            const displayName = nameMatch ? nameMatch[1] : cleanHandle;
-            const rawPic = avatarMatch ? avatarMatch[1] : null;
-            const avatarUrl = rawPic
-              ? `/api/proxy-image?url=${encodeURIComponent(rawPic)}&name=${encodeURIComponent(displayName)}`
-              : `/api/proxy-image?name=${encodeURIComponent(displayName)}`;
-
-            // Check if code or universal link is in channel text
-            const codeFound = cleanCode
-              ? html.toUpperCase().includes(cleanCode) ||
-                html.toLowerCase().includes(`flenzr.com/@${cleanHandle}`)
-              : false;
-
-            const engagementRate = null;
-            const avgViews = null;
-
-            return NextResponse.json({
-              platform: "youtube",
-              handle: cleanHandle,
-              displayName,
-              avatarUrl,
-              followers,
-              followersFormatted: formatNumber(followers),
-              engagementRate,
-              avgViews,
-              avgViewsFormatted: "--",
-              tier: calculateTier(followers),
-              category: "Video Creator",
-              suggestedRates: followers > 0 ? generateSuggestedRates("youtube", followers) : [],
-              apiVerified: false,
-              canVerifyOfficialApi: false,
-              isRealData: true,
-              codeFoundInBio: codeFound,
-            });
-          }
+        const data = await response.json();
+        if (response.ok) {
+          return NextResponse.json({ ...data, thumbnailUrl: undefined,
+            avatarUrl: data.thumbnailUrl ? `/api/proxy-image?url=${encodeURIComponent(data.thumbnailUrl)}&name=${encodeURIComponent(data.displayName)}` : undefined,
+            followersFormatted: data.followers === null ? "--" : formatNumber(data.followers),
+            avgViewsFormatted: "--", suggestedRates: [], apiVerified: false, canVerifyOfficialApi: false, codeFoundInBio: false,
+          }, { headers: { "Cache-Control": "no-store" } });
         }
-      } catch (ytErr) {
-        console.warn("YouTube live scrape error:", ytErr);
+        if (data.error?.code !== "YOUTUBE_CONNECTION_REQUIRED" && response.status !== 403) {
+          return NextResponse.json({ error: data.error?.message || "YouTube connection needs attention.", code: data.error?.code }, { status: response.status });
+        }
+      } catch {
+        return NextResponse.json({ error: "YouTube stats are temporarily unavailable. Please retry." }, { status: 503 });
+      }
+      try {
+        const channel = await getYouTubePublicChannel(cleanHandle);
+        const avatarUrl = channel.thumbnailUrl
+          ? `/api/proxy-image?url=${encodeURIComponent(channel.thumbnailUrl)}&name=${encodeURIComponent(channel.displayName)}`
+          : `/api/proxy-image?name=${encodeURIComponent(channel.displayName)}`;
+        return NextResponse.json({
+          ...channel, thumbnailUrl: undefined, avatarUrl,
+          followersFormatted: channel.followers === null ? "--" : formatNumber(channel.followers),
+          avgViewsFormatted: "--",
+          tier: channel.followers === null ? null : calculateTier(channel.followers),
+          category: "Video Creator",
+          suggestedRates: channel.followers !== null && channel.followers > 0 ? generateSuggestedRates("youtube", channel.followers) : [],
+        }, { headers: { "Cache-Control": "no-store" } });
+      } catch (error) {
+        if (error instanceof YouTubePublicError) {
+          return NextResponse.json({ error: error.message, code: error.code }, { status: error.status, headers: { "Cache-Control": "no-store" } });
+        }
+        return NextResponse.json({ error: "YouTube public stats are temporarily unavailable." }, { status: 503 });
       }
     }
 
@@ -237,7 +215,7 @@ export async function POST(request: Request) {
     const displayName = cleanHandle.charAt(0).toUpperCase() + cleanHandle.slice(1).replace(/_/g, " ");
 
     return NextResponse.json({
-      platform: platform === "youtube" ? "youtube" : "instagram",
+      platform: "instagram",
       handle: cleanHandle,
       displayName,
       avatarUrl: `/api/proxy-image?name=${encodeURIComponent(displayName)}`,

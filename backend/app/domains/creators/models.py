@@ -46,5 +46,8 @@ class Creator(Base, TimestampMixin):
 
     social_links: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}", nullable=False)
 
+    # Never include in creator read schemas; provider tokens are encrypted at rest.
+    social_credentials: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}", nullable=False)
+
     # Relationship to user
     user = relationship("User", lazy="selectin")

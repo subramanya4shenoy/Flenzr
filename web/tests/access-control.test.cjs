@@ -61,6 +61,7 @@ for (const file of ['src/app/api/account/[...path]/route.ts', 'src/app/api/socia
     let calls = 0;
     const api = load(file, { fetch: async () => { calls++; throw Error('Must not fetch'); } }, {
       '@/lib/server/session': { accessToken: async () => undefined, currentIdentity: async () => null, sameOrigin: () => originAllowed },
+      '@/lib/server/youtube-public': { getYouTubePublicChannel: async () => { calls++; throw Error('Must not fetch'); } },
     });
     assert.equal((await api.POST(request(), { params: Promise.resolve({ path: ['creators', 'me'] }) })).status, 401);
     originAllowed = false;

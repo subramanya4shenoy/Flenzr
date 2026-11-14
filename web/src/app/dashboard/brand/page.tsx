@@ -58,6 +58,18 @@ export default function BrandDashboardPage() {
   const [creators, setCreators] = useState<CreatorCard[]>([]);
 
   useEffect(() => {
+    try {
+      const email = localStorage.getItem("flenzr_account_email") || "";
+      localStorage.setItem(
+        "flenzr_auth_session",
+        JSON.stringify({
+          email,
+          fullName: "Brand Portal",
+          handle: "",
+          role: "brand",
+        })
+      );
+    } catch {}
     searchCreators().then((live) => {
       if (Array.isArray(live) && live.length > 0) {
         setCreators(
@@ -123,7 +135,7 @@ export default function BrandDashboardPage() {
       <header className="border-b border-neutral-800 bg-[#09090b]/85 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/dashboard/brand" className="flex items-center gap-2" title="Brand Portal">
               <Logo size={30} variant="duotone-dark" withWordmark={true} />
             </Link>
             <span className="h-6 px-3 rounded-full bg-neutral-900 text-neutral-200 font-semibold border border-neutral-800 text-xs inline-flex items-center justify-center leading-none">
@@ -137,6 +149,7 @@ export default function BrandDashboardPage() {
               const res = await fetch("/api/auth/logout", { method: "POST" });
               if (!res.ok) { alert("Could not sign out. Please retry."); return; }
               clearLocalAccountData();
+              localStorage.removeItem("flenzr_auth_session");
               window.location.assign("/login");
             }} className="h-9 px-3 rounded-xl border border-neutral-800 text-xs">Sign Out</button>
             <button

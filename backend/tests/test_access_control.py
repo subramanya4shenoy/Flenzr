@@ -11,6 +11,8 @@ from app.domains.campaigns.models import Campaign, CampaignStatus
 
 
 PRIVATE_ROUTES = [
+    ('POST', '/creators/me/instagram/connect'), ('POST', '/creators/me/instagram/callback'),
+    ('GET', '/creators/me/instagram/stats?handle=example'), ('DELETE', '/creators/me/instagram/connection?handle=example'),
     ("GET", "/identity/me"), ("POST", "/identity/sync"),
     ("POST", "/creators/onboard"), ("POST", "/creators/verify-bio"),
     ("GET", "/creators/me/social-accounts"), ("PATCH", "/creators/me/social-accounts/instagram"), ("DELETE", "/creators/me/social-accounts/instagram"),

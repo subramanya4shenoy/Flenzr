@@ -523,7 +523,16 @@ export default function CreatorSignupPage() {
     };
     if (typeof window !== "undefined") {
       localStorage.setItem("flenzr_creator_profile", JSON.stringify(profileData));
-
+      localStorage.setItem(
+        "flenzr_auth_session",
+        JSON.stringify({
+          email: localStorage.getItem("flenzr_account_email") || "",
+          fullName: profileData.fullName || "Creator",
+          handle: profileData.handle || "",
+          role: "creator",
+          avatarUrl: null,
+        })
+      );
     }
     setIsFinishing(false);
     router.push("/dashboard/creator");
@@ -558,7 +567,11 @@ export default function CreatorSignupPage() {
       {/* Top Header */}
       <header className="relative border-b border-neutral-800 bg-[#09090b]/85 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center shrink-0">
+          <Link
+            href={isAccountConnected ? "/dashboard/creator" : "/"}
+            title={isAccountConnected ? "Creator Studio & Profile" : "Flenzr Home"}
+            className="flex items-center shrink-0"
+          >
             <Logo size={32} variant="duotone-dark" withWordmark={true} />
           </Link>
           <div className="flex items-center gap-3">

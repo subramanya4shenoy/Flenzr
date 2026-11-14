@@ -61,3 +61,6 @@ local.properties
 # OS
 .DS_Store
 Thumbs.db
+
+# Local OAuth credentials
+backend/.secrets/
