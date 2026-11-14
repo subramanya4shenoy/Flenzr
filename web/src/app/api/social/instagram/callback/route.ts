@@ -23,6 +23,7 @@ export async function GET(request: Request) {
     if (!response.ok) {
       const data = await response.json();
       const results: Record<string, string> = {
+        INSTAGRAM_AUTHORIZATION_FAILED: "authorization_failed",
         INSTAGRAM_ACCOUNT_NOT_SHARED: "account_not_shared",
         INSTAGRAM_ACCOUNT_NOT_AUTHORIZED: "account_not_authorized",
         INSTAGRAM_ACCOUNT_MISMATCH: "account_mismatch",

@@ -37,6 +37,16 @@ class Settings(BaseSettings):
     YOUTUBE_OAUTH_CLIENT_FILE: str = ".secrets/youtube-oauth-client.json"
     YOUTUBE_REDIRECT_URI: str = "http://localhost:3210/api/social/youtube/callback"
 
+    # LinkedIn member connection (OpenID Connect; server-only)
+    LINKEDIN_CLIENT_ID: str = ""
+    LINKEDIN_CLIENT_SECRET: str = ""
+    LINKEDIN_REDIRECT_URI: str = ""
+
+    # X OAuth 2.0 confidential Web client (not the OAuth 1.0 API key/secret)
+    X_CLIENT_ID: str = ""
+    X_CLIENT_SECRET: str = ""
+    X_REDIRECT_URI: str = ""
+
     # CORS
     CORS_ORIGINS: List[str] = [
         "http://localhost:3210",

@@ -70,11 +70,21 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!["instagram", "youtube"].includes(platform) || typeof handle !== "string" || !/^@?[a-zA-Z0-9_.-]{1,128}$/.test(handle)) {
+    if (!["instagram", "youtube", "linkedin", "x"].includes(platform) || typeof handle !== "string" || !/^@?[a-zA-Z0-9_.-]{1,128}$/.test(handle)) {
       return NextResponse.json({ error: "Invalid social account" }, { status: 400 });
     }
     const cleanHandle = handle.replace(/^@/, "").trim().toLowerCase();
     const cleanCode = (verificationCode || "").trim().toUpperCase();
+
+    if (platform === "linkedin" || platform === "x") {
+      const token = await accessToken();
+      const response = await fetch(`${API_URL}/creators/me/${platform}/stats?handle=${encodeURIComponent(cleanHandle)}`, {
+        headers: { Authorization: `Bearer ${token}` }, cache: "no-store", signal: AbortSignal.timeout(20000),
+      });
+      const data = await response.json();
+      if (!response.ok) return NextResponse.json({ error: data.error?.message || "Account profile is unavailable.", code: data.error?.code }, { status: response.status, headers: { "Cache-Control": "no-store" } });
+      return NextResponse.json(data, { headers: { "Cache-Control": "no-store" } });
+    }
 
     // -------------------------------------------------------------
     // 1. LIVE INSTAGRAM SCRAPER & REAL-TIME BIO CODE DETECTOR

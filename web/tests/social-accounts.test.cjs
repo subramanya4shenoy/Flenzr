@@ -100,3 +100,57 @@ test('Instagram connection rejects foreign authorization URLs', async () => {
   const api = load(async () => ({ ok: true, json: async () => ({ callbackOrigin: 'https://preview.test', url: 'https://attacker.example/dialog/oauth' }) }), { window: { location: { origin: 'https://preview.test', assign: () => { throw Error('Must not redirect'); } } } });
   await assert.rejects(api.connectInstagram(), /Could not connect Instagram/);
 });
+
+
+test('LinkedIn imports server profile metadata without inventing a public vanity URL', () => {
+  const api = load();
+  const [account] = api.mergeSocialAccounts([{
+    platform: 'linkedin', handle: 'li-opaque', is_verified: false,
+    display_name: 'Example Member', avatar_url: '/api/proxy-image?url=photo', connected: true,
+  }], []);
+  assert.equal(account.displayName, 'Example Member');
+  assert.equal(account.avatarUrl, '/api/proxy-image?url=photo');
+  assert.equal(account.url, '');
+  assert.equal(account.isConnected, true);
+  assert.equal(account.isVerified, false);
+  const [disconnected] = api.mergeSocialAccounts([{
+    platform: 'linkedin', handle: 'li-opaque', is_verified: false,
+    display_name: 'Example Member', connected: false,
+  }], [account]);
+  assert.equal(disconnected.isConnected, false);
+});
+
+test('LinkedIn connection validates the provider URL and browser callback origin', async () => {
+  for (const [url, callbackOrigin, expected] of [
+    ['https://www.linkedin.com/oauth/v2/authorization?state=nonce', 'https://preview.test', true],
+    ['https://attacker.test/oauth/v2/authorization', 'https://preview.test', false],
+    ['https://www.linkedin.com/other', 'https://preview.test', false],
+    ['https://www.linkedin.com/oauth/v2/authorization', 'https://other.test', false],
+  ]) {
+    let destination;
+    const api = load(async () => ({ ok: true, json: async () => ({ url, callbackOrigin }) }), {
+      window: { location: { origin: 'https://preview.test', assign: value => { destination = value; } } },
+    });
+    if (expected) { await api.connectLinkedIn(); assert.equal(destination, url); }
+    else { await assert.rejects(api.connectLinkedIn()); assert.equal(destination, undefined); }
+  }
+});
+
+
+test('X connect starts without manual username and validates callback origin and provider URL', async () => {
+  for (const [url, callbackOrigin, expected] of [
+    ['https://x.com/i/oauth2/authorize?state=nonce', 'https://preview.test', true],
+    ['https://attacker.test/i/oauth2/authorize', 'https://preview.test', false],
+    ['https://x.com/other', 'https://preview.test', false],
+    ['https://x.com/i/oauth2/authorize', 'https://other.test', false],
+  ]) {
+    let destination, body;
+    const connected = load(async (requestUrl, options) => {
+      assert.equal(requestUrl, '/api/account/creators/me/x/connect');
+      body = JSON.parse(options.body);
+      return { ok: true, json: async () => ({ url, callbackOrigin }) };
+    }, { window: { location: { origin: 'https://preview.test', assign: value => { destination = value; } } } });
+    if (expected) { await connected.connectX(); assert.deepEqual(body, {}); assert.equal(destination, url); }
+    else { await assert.rejects(connected.connectX()); assert.equal(destination, undefined); }
+  }
+});

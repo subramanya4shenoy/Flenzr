@@ -1,5 +1,5 @@
 // Public avatars are intentionally public; this is not a general-purpose URL proxy.
-const IMAGE_HOSTS = ["cdninstagram.com", "fbcdn.net", "ytimg.com", "ggpht.com", "googleusercontent.com"];
+const IMAGE_HOSTS = ["cdninstagram.com", "fbcdn.net", "ytimg.com", "ggpht.com", "googleusercontent.com", "licdn.com", "licdn-ei.com", "pbs.twimg.com"];
 function allowed(url: URL) {
   return url.protocol === "https:" && !url.username && !url.password && (!url.port || url.port === "443") &&
     IMAGE_HOSTS.some((host) => url.hostname === host || url.hostname.endsWith(`.${host}`));

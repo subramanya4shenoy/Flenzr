@@ -78,8 +78,17 @@ async def provider_json(client, method, url, **kwargs):
         error = data.get('error') if isinstance(data, dict) else None
         if response.status_code == 429 or (isinstance(error, dict) and error.get('code') in (4, 17, 32, 613)):
             fail('INSTAGRAM_RATE_LIMITED', 'Instagram’s request limit has been reached. Please try again later.')
-        # Never expose provider error text, tokens, or request URLs.
-        fail('INSTAGRAM_AUTHORIZATION_FAILED', 'Instagram authorization could not be confirmed. Please reconnect your Creator or Business account.', 409)
+        # Store only fixed stages and numeric codes; provider text can contain secrets.
+        path = urlparse(url).path
+        stage = 'token_exchange' if path.endswith('/oauth/access_token') else 'account_access'
+        diagnostic = {'stage': stage}
+        if isinstance(error, dict):
+            for field in ('code', 'error_subcode'):
+                if type(error.get(field)) is int:
+                    diagnostic[f'provider_{field}'] = error[field]
+        raise FlenzrException('INSTAGRAM_AUTHORIZATION_FAILED',
+            'Instagram authorization could not be confirmed. Please reconnect your Creator or Business account.',
+            409, details=[diagnostic])
     if not isinstance(data, dict):
         fail('INSTAGRAM_UNAVAILABLE', 'Instagram returned an unreadable response.')
     return data
@@ -373,7 +382,7 @@ async def complete(body: CompleteRequest, user: User = Depends(creator_role), db
                 current_credentials = dict(creator.social_credentials or {})
                 current = current_credentials.get('_flow', {})
                 if current.get('hash') == flow['hash'] and current.get('status') == 'exchanging':
-                    current_credentials['_flow'] = {**current, 'status': 'failed', 'error_code': error.code, 'diagnostic': error.details if error.code == 'INSTAGRAM_ACCOUNT_NOT_SHARED' else []}
+                    current_credentials['_flow'] = {**current, 'status': 'failed', 'error_code': error.code, 'diagnostic': error.details}
                     creator.social_credentials = current_credentials
                     await db.commit()
                 raise

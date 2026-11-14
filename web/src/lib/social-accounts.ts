@@ -1,6 +1,6 @@
 export type SocialPlatform = "instagram" | "youtube" | "x" | "tiktok" | "linkedin" | "twitch";
-export interface SocialAccount { platform: SocialPlatform; handle: string; is_verified: boolean }
-export interface SocialLink { id: string; platform: SocialPlatform; handle: string; url: string; isVerified: boolean; avatarUrl?: string; createdAt?: number }
+export interface SocialAccount { platform: SocialPlatform; handle: string; is_verified: boolean; display_name?: string; avatar_url?: string; connected?: boolean }
+export interface SocialLink { id: string; platform: SocialPlatform; handle: string; url: string; isVerified: boolean; avatarUrl?: string; createdAt?: number; displayName?: string; isConnected?: boolean }
 export function socialUrl(platform: SocialPlatform, handle: string) {
   const prefix = { instagram: "https://instagram.com/", youtube: "https://youtube.com/@", x: "https://x.com/", tiktok: "https://tiktok.com/@", linkedin: "https://linkedin.com/in/", twitch: "https://twitch.tv/" };
   return prefix[platform] + encodeURIComponent(handle);
@@ -8,7 +8,7 @@ export function socialUrl(platform: SocialPlatform, handle: string) {
 export function mergeSocialAccounts(accounts: SocialAccount[], previous: SocialLink[]): SocialLink[] {
   return accounts.map((account, index) => {
     const cached = previous.find((item) => item.platform === account.platform && item.handle.toLowerCase() === account.handle.toLowerCase());
-    return { id: `soc-${account.platform}-${account.handle}`, platform: account.platform, handle: account.handle, url: socialUrl(account.platform, account.handle), isVerified: account.is_verified, avatarUrl: cached?.avatarUrl, createdAt: cached?.createdAt ?? Date.now() + index };
+    return { id: `soc-${account.platform}-${account.handle}`, platform: account.platform, handle: account.handle, url: account.platform === "linkedin" && account.display_name ? "" : socialUrl(account.platform, account.handle), isVerified: account.is_verified, avatarUrl: account.avatar_url || cached?.avatarUrl, displayName: account.display_name, isConnected: account.connected, createdAt: cached?.createdAt ?? Date.now() + index };
   }).sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0));
 }
 export function mergeSocialAvatars(current: SocialLink[], updates: SocialLink[]) {
@@ -58,5 +58,31 @@ export async function connectInstagram(handle?: string, accountId?: string) {
   if (data.callbackOrigin !== window.location.origin) throw Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting Instagram.`);
   const url = new URL(data.url);
   if (!((url.origin === "https://www.facebook.com" && url.pathname === "/dialog/oauth") || (url.origin === "https://www.instagram.com" && url.pathname === "/oauth/authorize"))) throw Error("Could not connect Instagram.");
+  window.location.assign(url.toString());
+}
+
+export async function connectLinkedIn(handle?: string) {
+  const response = await fetch("/api/account/creators/me/linkedin/connect", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(handle ? { handle } : {}),
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error(data.error?.message || "Could not connect LinkedIn.");
+  if (data.callbackOrigin !== window.location.origin) throw Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting LinkedIn.`);
+  const url = new URL(data.url);
+  if (url.origin !== "https://www.linkedin.com" || url.pathname !== "/oauth/v2/authorization") throw Error("Could not connect LinkedIn.");
+  window.location.assign(url.toString());
+}
+
+export async function connectX(handle?: string) {
+  const response = await fetch("/api/account/creators/me/x/connect", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(handle ? { handle } : {}),
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error(data.error?.message || "Could not connect X.");
+  if (data.callbackOrigin !== window.location.origin) throw Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting X.`);
+  const url = new URL(data.url);
+  if (url.origin !== "https://x.com" || url.pathname !== "/i/oauth2/authorize") throw Error("Could not connect X.");
   window.location.assign(url.toString());
 }

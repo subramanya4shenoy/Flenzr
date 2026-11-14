@@ -36,3 +36,17 @@ Instagram cards support **Connect Instagram** using Meta Unified Login for eligi
 ## Connect YouTube
 
 Creators can authorize a linked channel from its Analytics card. Server-side OAuth uses a separate downloaded Google Web client, encrypted tokens and on-demand refresh. Register the exact callback before live testing; see [YouTube connection setup](../docs/YOUTUBE_CONNECTION.md).
+
+## Connect LinkedIn
+
+Creators can connect their LinkedIn member account to import their name and profile photo.
+This uses `openid profile` permissions without email or posting access. It does not provide
+follower analytics, a public vanity URL, or real-world identity verification.
+See [LinkedIn connection setup](../docs/LINKEDIN_CONNECTION.md) for app credentials and the callback.
+
+## Connect X
+
+Creators can connect X with OAuth 2.0 to import their username, profile photo, and available
+follower/following/post counts. Read-only access renews while authorized, with profile snapshots
+cached for fifteen minutes. See [X connection setup](../docs/X_CONNECTION.md) for OAuth credentials,
+callback registration, and developer billing requirements.

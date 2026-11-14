@@ -19,6 +19,7 @@ type AccountStats = {
   handle: string;
   isRealData: boolean;
   avatarUrl?: string;
+  displayName?: string;
   followersAvailable?: boolean;
   following?: number | null;
   postCount?: number | null;
@@ -53,7 +54,7 @@ function AccountAvatar({ url, account }: { url?: string; account: SocialAccount 
 
 function AccountSection({ account }: { account: SocialAccount }) {
   const platform = platforms[account.platform];
-  const canFetch = account.platform === "instagram" || account.platform === "youtube";
+  const canFetch = account.platform === "instagram" || account.platform === "youtube" || account.platform === "linkedin" || account.platform === "x";
   const [stats, setStats] = useState<AccountStats | null>(null);
   const [loading, setLoading] = useState(canFetch);
   const [error, setError] = useState("");
@@ -104,7 +105,7 @@ function AccountSection({ account }: { account: SocialAccount }) {
       if (!response.ok) throw new Error(data.error?.message || data.error || `Could not connect ${platform.name}.`);
       if (data.callbackOrigin && data.callbackOrigin !== window.location.origin) throw new Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting ${platform.name}.`);
       const url = new URL(data.url);
-      const allowed = account.platform === "youtube" ? url.origin === "https://accounts.google.com" && url.pathname === "/o/oauth2/v2/auth" : (url.origin === "https://www.facebook.com" && url.pathname === "/dialog/oauth") || (url.origin === "https://www.instagram.com" && url.pathname === "/oauth/authorize");
+      const allowed = account.platform === "x" ? url.origin === "https://x.com" && url.pathname === "/i/oauth2/authorize" : account.platform === "linkedin" ? url.origin === "https://www.linkedin.com" && url.pathname === "/oauth/v2/authorization" : account.platform === "youtube" ? url.origin === "https://accounts.google.com" && url.pathname === "/o/oauth2/v2/auth" : (url.origin === "https://www.facebook.com" && url.pathname === "/dialog/oauth") || (url.origin === "https://www.instagram.com" && url.pathname === "/oauth/authorize");
       if (!allowed) throw new Error(`Could not connect ${platform.name}.`);
       window.location.assign(url.toString());
     } catch (cause) {
@@ -114,7 +115,7 @@ function AccountSection({ account }: { account: SocialAccount }) {
   };
 
   const disconnectAccount = async () => {
-    if (!window.confirm(`Disconnect ${platform.name} access for @${account.handle}? The handle will stay linked.`)) return;
+    if (!window.confirm(`Disconnect ${platform.name} access for ${account.display_name || "@" + account.handle}? The account will stay listed.`)) return;
     setConnecting(true);
     try {
       const response = await fetch(`/api/account/creators/me/${account.platform}/connection?handle=${encodeURIComponent(account.handle)}`, { method: "DELETE" });
@@ -126,14 +127,14 @@ function AccountSection({ account }: { account: SocialAccount }) {
     finally { setConnecting(false); }
   };
 
-  const metrics = account.platform === "youtube" ? [
+  const metrics = account.platform === "linkedin" ? [] : account.platform === "youtube" ? [
     { label: "Subscribers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: stats?.subscribersHidden ? "Hidden by the channel" : "Public count · rounded by YouTube" },
     { label: "Total channel views", value: metric(stats?.totalViews), detail: "Channel lifetime views" },
     { label: "Public videos", value: metric(stats?.videoCount), detail: "Publicly visible uploads" },
-  ] : account.platform === "instagram" ? [
-    { label: "Followers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: "Instagram audience count" },
+  ] : account.platform === "instagram" || account.platform === "x" ? [
+    { label: "Followers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: account.platform === "x" ? "X audience count" : "Instagram audience count" },
     { label: "Following", value: metric(stats?.following), detail: "Accounts followed" },
-    { label: "Posts", value: metric(stats?.postCount), detail: "Published media count" },
+    { label: "Posts", value: metric(stats?.postCount), detail: account.platform === "x" ? "Published post count" : "Published media count" },
   ] : [
     { label: "Followers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: "Public audience count" },
     { label: "Average views", value: metric(stats?.avgViews), detail: "Not available yet" },
@@ -141,33 +142,38 @@ function AccountSection({ account }: { account: SocialAccount }) {
   ];
 
   return (
-    <section aria-label={`${platform.name} @${account.handle} analytics`} className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#27272a] bg-[#121215]">
+    <section aria-label={`${platform.name} ${account.display_name || "@" + account.handle} analytics`} className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#27272a] bg-[#121215]">
       <div className="flex flex-col gap-4 border-b border-[#27272a] p-5">
         <div className="flex min-w-0 items-center gap-3">
-          <AccountAvatar key={stats?.avatarUrl || "fallback"} url={stats?.avatarUrl} account={account} />
+          <AccountAvatar key={stats?.avatarUrl || account.avatar_url || "fallback"} url={stats?.avatarUrl || account.avatar_url} account={account} />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-sm font-bold text-white">{platform.name}</h3>
-              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${account.is_verified ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400" : "border-amber-500/20 bg-amber-500/10 text-amber-300"}`}>
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${(account.is_verified || account.connected) ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400" : "border-amber-500/20 bg-amber-500/10 text-amber-300"}`}>
                 {account.is_verified && <CheckCircle2 className="h-3 w-3" />}
-                {account.is_verified ? "Ownership verified" : "Verification pending"}
+                {account.platform === "linkedin" ? account.connected ? "Account connected" : "Not connected" : account.is_verified ? "Ownership verified" : "Verification pending"}
               </span>
             </div>
-            <a href={socialUrl(account.platform, account.handle)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex max-w-full items-center gap-1 text-xs text-neutral-400 hover:text-white">
+            {account.platform === "linkedin" && account.display_name ? (
+              <p className="mt-1 truncate text-xs text-neutral-300">{stats?.displayName || account.display_name}</p>
+            ) : <a href={socialUrl(account.platform, account.handle)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex max-w-full items-center gap-1 text-xs text-neutral-400 hover:text-white">
               <span className="truncate">@{account.handle}</span><ArrowUpRight className="h-3 w-3 shrink-0" />
-            </a>
+            </a>}
           </div>
         </div>
         {account.platform === "instagram" && <p className="text-[11px] leading-relaxed text-neutral-400">Connect to verify this account and load its profile counts. Meta will ask you to select its business portfolio. This login configuration also requests messaging access; Flenzr currently does not read or send your messages.</p>}
         {canFetch && <div className="flex flex-wrap gap-2">
-          <button type="button" disabled={connecting} onClick={connectAccount} className="rounded-lg border border-pink-500/25 bg-pink-500/10 px-3 py-2 text-xs font-semibold text-pink-300 hover:bg-pink-500/20 disabled:opacity-50">{connecting ? "Connecting…" : stats?.connected ? `Reconnect ${platform.name}` : `Connect ${platform.name}`}</button>
-          {stats?.connected && <button type="button" disabled={connecting} onClick={disconnectAccount} className="px-2 text-xs text-neutral-400 hover:text-white disabled:opacity-50">Disconnect</button>}
+          <button type="button" disabled={connecting} onClick={connectAccount} className="rounded-lg border border-pink-500/25 bg-pink-500/10 px-3 py-2 text-xs font-semibold text-pink-300 hover:bg-pink-500/20 disabled:opacity-50">{connecting ? "Connecting…" : (stats?.connected || account.connected) ? `Reconnect ${platform.name}` : `Connect ${platform.name}`}</button>
+          {(stats?.connected || account.connected) && <button type="button" disabled={connecting} onClick={disconnectAccount} className="px-2 text-xs text-neutral-400 hover:text-white disabled:opacity-50">Disconnect</button>}
         </div>}
-        {canFetch && <button type="button" disabled={loading} onClick={() => setRefresh((value) => value + 1)} aria-label={`Refresh ${platform.name} @${account.handle} stats`} className="inline-flex self-start items-center gap-2 rounded-lg border border-[#303036] px-3 py-2 text-xs font-semibold text-neutral-300 transition hover:bg-white/5 disabled:opacity-50">
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />{loading ? "Fetching stats" : "Refresh stats"}
+        {canFetch && <button type="button" disabled={loading} onClick={() => setRefresh((value) => value + 1)} aria-label={`Refresh ${platform.name} ${account.display_name || "@" + account.handle} ${account.platform === "linkedin" ? "profile" : "stats"}`} className="inline-flex self-start items-center gap-2 rounded-lg border border-[#303036] px-3 py-2 text-xs font-semibold text-neutral-300 transition hover:bg-white/5 disabled:opacity-50">
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />{loading ? "Refreshing…" : account.platform === "linkedin" ? "Refresh profile" : "Refresh stats"}
         </button>}
       </div>
       <div className="flex flex-1 flex-col gap-5 p-5" aria-busy={loading}>
+        {account.platform === "linkedin" && <div className="rounded-xl border border-blue-500/15 bg-blue-500/5 p-4 text-xs leading-relaxed text-neutral-300">
+          LinkedIn shares your name and profile photo with this connection. Follower counts, post analytics, and public profile URLs are not included. Account connection does not verify your real-world identity.
+        </div>}
         <div className="flex flex-col gap-3">
           {metrics.map((item) => <div key={item.label} className="rounded-xl border border-white/5 bg-[#18181b] p-4">
             <p className="text-xs text-neutral-400">{item.label}</p>
@@ -177,7 +183,7 @@ function AccountSection({ account }: { account: SocialAccount }) {
         </div>
         <div className="mt-auto flex items-start gap-2 text-xs leading-relaxed text-neutral-500" role={error ? "status" : undefined}>
           {error ? <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" /> : <BarChart3 className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
-          <p>{error || (!canFetch ? `${platform.name} stats are not available yet. Your linked account is saved.` : loading ? "Fetching the latest available public stats for this account." : account.platform === "youtube" ? `${stats?.connected ? "YouTube connected" : "YouTube public stats"} · Updates every 5 minutes${checkedAt ? ` · Checked at ${checkedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. Watch time and audience demographics require additional channel authorization.` : stats?.source === "instagram-api" ? "Connected to Instagram · Stats update every 5 minutes. Reach, engagement and demographics are not included." : `Public profile snapshot${checkedAt ? ` · Checked at ${checkedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. Views, engagement trends and audience demographics are not available yet.`)}</p>
+          <p>{error || (account.platform === "x" ? loading ? "Loading X profile and counts…" : "Connected to X · Counts update at most every 15 minutes. Views and engagement analytics are not included." : account.platform === "linkedin" ? loading ? "Loading LinkedIn profile…" : "LinkedIn profile connection · Profile updates every 5 minutes. Reconnect when access expires." : !canFetch ? `${platform.name} stats are not available yet. Your linked account is saved.` : loading ? "Fetching the latest available public stats for this account." : account.platform === "youtube" ? `${stats?.connected ? "YouTube connected" : "YouTube public stats"} · Updates every 5 minutes${checkedAt ? ` · Checked at ${checkedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. Watch time and audience demographics require additional channel authorization.` : stats?.source === "instagram-api" ? "Connected to Instagram · Stats update every 5 minutes. Reach, engagement and demographics are not included." : `Public profile snapshot${checkedAt ? ` · Checked at ${checkedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. Views, engagement trends and audience demographics are not available yet.`)}</p>
         </div>
       </div>
     </section>
@@ -195,10 +201,38 @@ export function CreatorAnalyticsView() {
       setError("");
       const params = new URLSearchParams(window.location.search);
       const youtubeResult = params.get("youtube");
+      const linkedinResult = params.get("linkedin");
+      const xResult = params.get("x");
       const result = params.get("instagram");
-      const messages: Record<string, string> = { account_not_shared: "Meta did not return an assigned Instagram account. Reconnect, select the portfolio that owns your account, and explicitly share the account with Flenzr. Your account has not been linked yet.", account_not_authorized: "Meta denied access to the selected Instagram account. While the Meta app is unpublished, choose Continue with Facebook and use the Facebook account listed as an app Administrator.", business_required: "Meta did not return a business portfolio. Reconnect and select the portfolio that owns your Instagram account.", configuration_changed: "Instagram configuration changed during login. Please start Connect Instagram again.", connected: "Instagram connected. Your account stats are ready.", cancelled: "Instagram connection was cancelled. You can try again.", expired: "Instagram connection expired. Please try again.", session_expired: "Sign in again using the secure preview URL before connecting Instagram.", account_mismatch: "The connection expired or Instagram authorized a different handle. Start again and choose the matching account.", failed: "Instagram connection failed. Make sure your Creator or Business account is eligible and try again." };
+      const messages: Record<string, string> = { authorization_failed: "Instagram was not linked because Meta could not confirm access. Try connecting again and approve access to your Creator or Business account. If this keeps happening, contact Flenzr support.", account_not_shared: "Meta did not return an assigned Instagram account. Reconnect, select the portfolio that owns your account, and explicitly share the account with Flenzr. Your account has not been linked yet.", account_not_authorized: "Meta denied access to the selected Instagram account. While the Meta app is unpublished, choose Continue with Facebook and use the Facebook account listed as an app Administrator.", business_required: "Meta did not return a business portfolio. Reconnect and select the portfolio that owns your Instagram account.", configuration_changed: "Instagram configuration changed during login. Please start Connect Instagram again.", connected: "Instagram connected. Your account stats are ready.", cancelled: "Instagram connection was cancelled. You can try again.", expired: "Instagram connection expired. Please try again.", session_expired: "Sign in again using the secure preview URL before connecting Instagram.", account_mismatch: "The connection expired or Instagram authorized a different handle. Start again and choose the matching account.", failed: "Instagram connection failed. Make sure your Creator or Business account is eligible and try again." };
       const youtubeMessages: Record<string, string> = { connected: "YouTube connected. Channel ownership is verified.", cancelled: "YouTube connection was cancelled.", expired: "YouTube connection expired. Please start again.", session_expired: "Sign in again before connecting YouTube.", account_mismatch: "The connection expired or Google authorized a different channel. Start again and choose the matching channel.", failed: "YouTube connection failed. Check that you are a test user and have granted channel access." };
-      setConnectionNotice(youtubeResult ? youtubeMessages[youtubeResult] || "" : result ? messages[result] || "" : "");
+      const linkedinMessages: Record<string, string> = {
+        permissions_unavailable: "LinkedIn connection is not ready: Flenzr’s LinkedIn app needs profile access enabled. Please contact Flenzr support.",
+        connected: "LinkedIn connected. Your name and profile photo have been imported.",
+        cancelled: "LinkedIn connection was cancelled. You can try again.",
+        expired: "LinkedIn connection expired. Please start Connect LinkedIn again.",
+        session_expired: "Sign in again before connecting LinkedIn.",
+        not_configured: "LinkedIn connection has not been configured yet.",
+        authorization_failed: "LinkedIn did not grant profile access. Please connect again and approve profile access.",
+        account_mismatch: "LinkedIn authorized a different member. Please choose the matching account.",
+        failed: "Could not connect LinkedIn. Please try again.",
+      };
+      const xMessages: Record<string, string> = {
+        client_configuration: "X connection needs a Flenzr application configuration update. Please contact Flenzr support.",
+        api_access_required: "X did not allow Flenzr to read your profile. Please contact Flenzr support.",
+        connected: "X connected. Your profile and available audience counts have been imported.",
+        cancelled: "X connection was cancelled. You can try again.",
+        expired: "X connection expired. Please start Connect X again.",
+        session_expired: "Sign in again before connecting X.",
+        not_configured: "X connection has not been configured yet.",
+        permissions_unavailable: "X could not grant the required read access. Please contact Flenzr support if this continues.",
+        authorization_failed: "X access could not be confirmed. Please connect again.",
+        account_mismatch: "X authorized a different account. Please choose the matching account.",
+        service_unavailable: "X connection is temporarily unavailable. Please contact Flenzr support.",
+        rate_limited: "X’s request limit has been reached. Please try again later.",
+        failed: "Could not connect X. Please try again.",
+      };
+      setConnectionNotice(xResult ? xMessages[xResult] || "" : linkedinResult ? linkedinMessages[linkedinResult] || "" : youtubeResult ? youtubeMessages[youtubeResult] || "" : result ? messages[result] || "" : "");
     }).catch((cause: unknown) => {
       setError(cause instanceof Error ? cause.message : "Could not load linked accounts.");
     }).finally(() => setLoading(false));

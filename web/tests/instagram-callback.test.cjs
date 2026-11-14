@@ -44,6 +44,7 @@ test('backend authorization failures redirect with a safe fixed message', async 
 });
 test('account discovery failures show a specific safe result rather than generic mismatch', async () => {
   for (const [code, expected] of [
+    ['INSTAGRAM_AUTHORIZATION_FAILED', 'authorization_failed'],
     ['INSTAGRAM_ACCOUNT_NOT_SHARED', 'account_not_shared'],
     ['INSTAGRAM_BUSINESS_REQUIRED', 'business_required'],
     ['INSTAGRAM_FLOW_EXPIRED', 'expired'],

@@ -270,3 +270,20 @@ async def test_assigned_account_without_username_is_resolved_by_authorized_id(cl
     assert response.json()['handles'] == ['example']
     accounts = (await client.get(SOCIALS, headers=headers)).json()
     assert accounts == [{'platform': 'instagram', 'handle': 'example', 'is_verified': True}]
+
+
+@pytest.mark.asyncio
+async def test_authorization_failure_records_safe_diagnostics(client, auth_headers, db_session, unified, monkeypatch):
+    headers = auth_headers()
+    response = await client.post(BASE + '/connect', headers=headers, json={})
+    state = parse_qs(urlparse(response.json()['url']).query)['state'][0]
+    provider(monkeypatch, 'revoked')
+    response = await client.post(BASE + '/callback', headers=headers, json={'code': 'code', 'state': state})
+    assert response.status_code == 409
+    creator = await db_session.get(Creator, (await client.get('/api/v1/creators/me', headers=headers)).json()['id'])
+    flow = creator.social_credentials['_flow']
+    assert flow['status'] == 'failed'
+    assert flow['diagnostic'] == [{'stage': 'token_exchange'}]
+    assert 'private-app-secret' not in response.text + str(flow)
+    assert 'suat-token' not in response.text + str(flow)
+    assert (await client.get(SOCIALS, headers=headers)).json() == []

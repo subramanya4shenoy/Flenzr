@@ -1,6 +1,6 @@
 "use client";
 
-import { connectInstagram, connectYouTube } from "@/lib/social-accounts";
+import { connectInstagram, connectYouTube, connectLinkedIn, connectX } from "@/lib/social-accounts";
 
 import { useState, useEffect, useId, type ComponentProps } from "react";
 import { useTranslation } from "@/lib/i18n/language-context";
@@ -112,6 +112,8 @@ export interface LinkedSocialItem {
   handle: string;
   url: string;
   isVerified: boolean;
+  displayName?: string;
+  isConnected?: boolean;
   avatarUrl?: string;
   createdAt?: number;
 }
@@ -383,6 +385,8 @@ export function CreatorProfileHeader({
   // 2. ENRICH MISSING AVATARS FOR CONNECTED SOCIALS
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Restore cached URLs and reconcile accounts before fetching missing images.
+    if (isEditable && !socialsReady) return;
 
     const enrichMissingAvatars = async () => {
       let hasUpdates = false;
@@ -425,7 +429,7 @@ export function CreatorProfileHeader({
     };
 
     enrichMissingAvatars();
-  }, [socialIdentity, handle]);
+  }, [socialIdentity, handle, isEditable, socialsReady]);
 
   // 3. COMPUTE AVAILABLE AVATARS IN CHRONOLOGICAL ORDER (Earliest account first)
   const earliestSocialWithAvatar = linkedSocials.find((s) => Boolean(s.avatarUrl));
@@ -498,17 +502,19 @@ export function CreatorProfileHeader({
   // 4. STRICT VERIFICATION CHECK:
   const allLinkedSocialsVerified = linkedSocials.some((s) => s.isVerified);
 
-  const startAccountConnection = async (platform: "youtube" | "instagram", existingHandle?: string, accountId?: string) => {
+  const startAccountConnection = async (platform: "youtube" | "instagram" | "linkedin" | "x", existingHandle?: string, accountId?: string) => {
     if (isSavingSocial || !socialsReady) return;
     setIsSavingSocial(true);
     setSocialError("");
     setModalVerifyMsg(null);
     try {
       if (platform === "youtube") await connectYouTube(existingHandle);
+      else if (platform === "linkedin") await connectLinkedIn(existingHandle);
+      else if (platform === "x") await connectX(existingHandle);
       else await connectInstagram(existingHandle, accountId);
     }
     catch (error) {
-      const text = error instanceof Error ? error.message : `Could not connect ${platform === "youtube" ? "YouTube" : "Instagram"}.`;
+      const text = error instanceof Error ? error.message : `Could not connect ${platform === "youtube" ? "YouTube" : platform === "linkedin" ? "LinkedIn" : platform === "x" ? "X" : "Instagram"}.`;
       setModalVerifyMsg({ success: false, text });
       setSocialError(text);
       setIsSavingSocial(false);
@@ -518,7 +524,7 @@ export function CreatorProfileHeader({
   // Other platforms retain their existing manual-link flow.
   const handleAddSocial = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPlatform === "youtube" || newPlatform === "instagram") {
+    if (newPlatform === "youtube" || newPlatform === "instagram" || newPlatform === "linkedin" || newPlatform === "x") {
       await startAccountConnection(newPlatform, editingSocial?.handle,
         newPlatform === "instagram" ? instagramAccountId.trim() || undefined : undefined);
       return;
@@ -597,7 +603,7 @@ export function CreatorProfileHeader({
           {/* 1. CREATOR AVATAR (Pulled from connected socials, cached in UI) */}
           <div className="relative group shrink-0 -mt-11 mb-2 inline-block">
             <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden border-4 border-[#121215] bg-[#18181b] shadow-xl relative">
-              {isLoadingAvatar ? (
+              {isLoadingAvatar && !activeAvatar ? (
                 <Loader2 className="w-6 h-6 animate-spin text-neutral-400" />
               ) : activeAvatar ? (
                 <img
@@ -785,20 +791,20 @@ export function CreatorProfileHeader({
               <div className="flex flex-wrap items-center gap-2">
                 {linkedSocials.map((social) => (
                   <div key={social.id} className="w-full flex items-center gap-2 p-2 rounded-xl bg-neutral-900 border border-neutral-800">
-                    <a href={social.url} target="_blank" rel="noopener noreferrer" className="w-9 h-9 shrink-0 flex items-center justify-center" aria-label={`Visit ${social.platform} @${social.handle}`}>
+                    {social.url ? <a href={social.url} target="_blank" rel="noopener noreferrer" className="w-9 h-9 shrink-0 flex items-center justify-center" aria-label={`Visit ${social.platform} @${social.handle}`}>
                       {getPlatformIcon(social.platform)}
-                    </a>
+                    </a> : <span className="w-9 h-9 shrink-0 flex items-center justify-center" aria-label="LinkedIn account">{getPlatformIcon(social.platform)}</span>}
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold text-white truncate">@{social.handle}</div>
-                      <div className="text-[10px] text-neutral-400">{social.platform} · {social.isVerified ? "Verified" : "Not verified"}</div>
+                      <div className="text-xs font-semibold text-white truncate">{social.platform === "linkedin" && social.displayName ? social.displayName : "@" + social.handle}</div>
+                      <div className="text-[10px] text-neutral-400">{social.platform} · {social.isConnected ? "Connected" : social.platform === "linkedin" && social.displayName ? "Reconnect needed" : social.isVerified ? "Verified" : "Not verified"}</div>
                     </div>
                     {isEditable && <div className="flex flex-wrap gap-1 shrink-0">
-                      {(social.platform === "youtube" || social.platform === "instagram") ? (
+                      {(social.platform === "youtube" || social.platform === "instagram" || social.platform === "linkedin" || social.platform === "x") ? (
                         <AccountActionButton
-                          label={isSavingSocial ? t("Connecting…") : social.isVerified ? t("Reconnect") : t("Connect")}
+                          label={isSavingSocial ? t("Connecting…") : (social.isVerified || social.isConnected) ? t("Reconnect") : t("Connect")}
                           disabled={isSavingSocial || !socialsReady}
-                          onClick={() => startAccountConnection(social.platform as "youtube" | "instagram", social.handle)}
-                          aria-label={`${social.isVerified ? "Reconnect" : "Connect"} ${social.platform === "youtube" ? "YouTube" : "Instagram"} @${social.handle}`}
+                          onClick={() => startAccountConnection(social.platform as "youtube" | "instagram" | "linkedin" | "x", social.handle)}
+                          aria-label={`${social.isVerified || social.isConnected ? "Reconnect" : "Connect"} ${social.platform === "youtube" ? "YouTube" : social.platform === "linkedin" ? "LinkedIn" : social.platform === "x" ? "X" : "Instagram"} ${social.displayName || "@" + social.handle}`}
                           aria-busy={isSavingSocial}
                         >
                           {isSavingSocial ? <Loader2 aria-hidden="true" className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw aria-hidden="true" className="w-3.5 h-3.5" />}
@@ -808,7 +814,7 @@ export function CreatorProfileHeader({
                         label={t("Remove")}
                         disabled={isSavingSocial || !socialsReady}
                         onClick={() => removeSocial(social)}
-                        aria-label={`Remove ${social.platform} @${social.handle}`}
+                        aria-label={`Remove ${social.platform} ${social.displayName || "@" + social.handle}`}
                       >
                         <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
                       </AccountActionButton>
@@ -817,6 +823,61 @@ export function CreatorProfileHeader({
                 ))}
                 {!linkedSocials.length && <p className="text-xs text-neutral-500">No accounts linked yet.</p>}
                 {socialError && <p role="alert" className="text-xs text-red-300">{socialError}</p>}
+
+                {isEditable && !linkedSocials.some((social) => social.platform === "instagram") && (
+                  <button
+                    type="button"
+                    disabled={isSavingSocial || !socialsReady}
+                    onClick={() => {
+                      setEditingSocial(null);
+                      setNewPlatform("instagram");
+                      setNewHandle("");
+                      setInstagramAccountId("");
+                      setModalVerifyMsg(null);
+                      setShowAddModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl border border-pink-500/25 bg-pink-500/10 px-3 py-2.5 text-xs font-semibold text-pink-200 hover:bg-pink-500/20 disabled:opacity-40 cursor-pointer"
+                  >
+                    <InstagramIcon className="w-4 h-4" />
+                    Connect Instagram
+                  </button>
+                )}
+
+                {isEditable && !linkedSocials.some((social) => social.platform === "linkedin" && social.isConnected) && (
+                  <button
+                    type="button"
+                    disabled={isSavingSocial || !socialsReady}
+                    onClick={() => {
+                      setEditingSocial(null);
+                      setNewPlatform("linkedin");
+                      setNewHandle("");
+                      setModalVerifyMsg(null);
+                      setShowAddModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl border border-blue-500/25 bg-blue-500/10 px-3 py-2.5 text-xs font-semibold text-blue-200 hover:bg-blue-500/20 disabled:opacity-40 cursor-pointer"
+                  >
+                    <LinkedInIcon className="w-4 h-4" />
+                    Connect LinkedIn
+                  </button>
+                )}
+
+                {isEditable && !linkedSocials.some((social) => social.platform === "x" && social.isConnected) && (
+                  <button
+                    type="button"
+                    disabled={isSavingSocial || !socialsReady}
+                    onClick={() => {
+                      setEditingSocial(null);
+                      setNewPlatform("x");
+                      setNewHandle("");
+                      setModalVerifyMsg(null);
+                      setShowAddModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 py-2.5 text-xs font-semibold text-neutral-200 hover:bg-white/10 disabled:opacity-40 cursor-pointer"
+                  >
+                    <XTwitterIcon className="w-4 h-4" />
+                    Connect X
+                  </button>
+                )}
 
                 {/* THE '+' BUTTON TO ADD MORE SOCIAL LINKS */}
                 {isEditable && (
@@ -915,16 +976,31 @@ export function CreatorProfileHeader({
                   </div>
                 </div>
 
-                {newPlatform === "youtube" ? <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-2">
+                {newPlatform === "x" ? <div className="rounded-xl border border-white/15 bg-white/5 p-4 space-y-2">
+                  <p className="font-semibold text-white">Connect your X account</p>
+                  <p className="text-neutral-400 leading-relaxed">Sign in on X and approve read access. We’ll import your username, photo, and available follower, following, and post counts automatically.</p>
+                  <p className="text-[11px] text-neutral-400">Access renews automatically while authorized. Flenzr cannot post, send messages, or follow accounts with these permissions.</p>
+                </div> : newPlatform === "linkedin" ? <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 space-y-2">
+                  <p className="font-semibold text-white">Connect your LinkedIn account</p>
+                  <p className="text-neutral-400 leading-relaxed">Sign in on LinkedIn and allow profile access. We’ll import your name and photo automatically.</p>
+                  <p className="text-[11px] text-neutral-400">This connects your LinkedIn member account. It does not verify your real-world identity or provide follower and post analytics. No email or posting permission is requested.</p>
+                </div> : newPlatform === "youtube" ? <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-2">
                   <p className="font-semibold text-white">Connect your YouTube channel</p>
                   <p className="text-neutral-400 leading-relaxed">Choose your channel on Google and allow read-only access. We’ll add your channel details and verify ownership automatically.</p>
                   <p className="text-[11px] text-neutral-500">No username entry or bio verification code needed. Flenzr cannot upload, edit, or delete your videos with this access.</p>
                 </div> : newPlatform === "instagram" ? <div className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-4 space-y-3">
                   <p className="font-semibold text-white">Connect your Instagram account</p>
-                  <p className="text-neutral-400 leading-relaxed">Sign in with Instagram or Facebook, select your business portfolio, and share your Creator or Business account. We’ll add your account details and verify ownership automatically.</p>
-                  <p className="text-[11px] text-neutral-500">No username entry or bio code needed. Meta also requests messaging access for this configuration; Flenzr currently does not read or send messages.</p>
-                  <p className="text-[11px] text-amber-300">Development mode: choose Continue with Facebook and use the Facebook account listed as an Administrator of the Meta app. Instagram Tester login is not supported by Unified Login.</p>
-                  <div className="border-t border-pink-500/15 pt-3">
+                  <p className="text-neutral-400 leading-relaxed">Use a Creator or Business account. Flenzr will import your profile photo and available account counts, and verify ownership.</p>
+                  <ol className="list-decimal pl-4 space-y-1.5 text-neutral-300 leading-relaxed">
+                    <li>Continue to Meta and sign in with Instagram or Facebook.</li>
+                    <li>Select the business portfolio that owns your account, then share your Instagram account with Flenzr.</li>
+                    <li>Approve access. You’ll return here with your account linked.</li>
+                  </ol>
+                  <p className="text-[11px] text-neutral-400">Your username is filled in automatically. No bio code needed.</p>
+                  <p className="text-[11px] text-neutral-400">Meta also requests messaging access. Flenzr currently does not read or send messages.</p>
+                  <details className="border-t border-pink-500/15 pt-3">
+                    <summary className="cursor-pointer text-neutral-300 font-semibold">Account not appearing?</summary>
+                    <p className="text-[11px] text-neutral-400 mt-2 mb-3">Check that you selected the portfolio that owns your Instagram account and allowed it to be shared. If support has given you an account ID, enter it below.</p>
                     <label htmlFor="instagram-account-id" className="block text-neutral-300 font-bold mb-1">Meta Instagram account ID <span className="font-normal text-neutral-500">(optional)</span></label>
                     <input
                       id="instagram-account-id"
@@ -938,7 +1014,7 @@ export function CreatorProfileHeader({
                       className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-pink-500/60"
                     />
                     <p className="text-[10px] text-neutral-500 mt-1.5">Find it in <a href="https://business.facebook.com/settings/" target="_blank" rel="noreferrer" className="text-pink-300 hover:text-pink-200 underline">Meta Business Settings</a> → Instagram accounts. Flenzr still verifies access through OAuth.</p>
-                  </div>
+                  </details>
                 </div> : <div>
                   <label className="block text-neutral-300 font-bold mb-1">
                     Your {newPlatform.charAt(0).toUpperCase() + newPlatform.slice(1)} Handle
@@ -972,7 +1048,7 @@ export function CreatorProfileHeader({
                     disabled={isSavingSocial || !socialsReady}
                     className="px-5 py-2 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold cursor-pointer shadow-lg shadow-[#c1121f]/25"
                   >
-                    {newPlatform === "youtube" || newPlatform === "instagram" ? (isSavingSocial ? "Connecting…" : newPlatform === "youtube" ? "Connect YouTube" : "Connect Instagram") : isSavingSocial ? "Saving…" : editingSocial ? "Save changes" : "Connect Link"}
+                    {newPlatform === "youtube" || newPlatform === "instagram" || newPlatform === "linkedin" || newPlatform === "x" ? (isSavingSocial ? "Connecting…" : newPlatform === "youtube" ? "Connect YouTube" : newPlatform === "linkedin" ? "Connect LinkedIn" : newPlatform === "x" ? "Connect X" : "Connect Instagram") : isSavingSocial ? "Saving…" : editingSocial ? "Save changes" : "Connect Link"}
                   </button>
                 </div>
               </form>

@@ -1,5 +1,6 @@
 """Owner-scoped social account management, independent of ownership verification."""
 from typing import Literal, Optional
+import time
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import select
@@ -18,6 +19,9 @@ class SocialAccountRead(BaseModel):
     platform: SocialPlatform
     handle: str
     is_verified: bool
+    display_name: str | None = None
+    avatar_url: str | None = None
+    connected: bool | None = None
 
 
 class SocialAccountWrite(BaseModel):
@@ -48,6 +52,17 @@ def social_accounts(creator: Creator):
             accounts.append(SocialAccountRead(platform=platform, handle=handle, is_verified=verified))
     for account in (creator.social_links or {}).get("_accounts", []):
         accounts.append(SocialAccountRead(**account))
+    for account in accounts:
+        if account.platform == 'x':
+            credential = (creator.social_credentials or {}).get('x:' + account.handle, {})
+            if credential:
+                account.connected = bool(credential.get('encrypted_refresh_token') or credential.get('expires_at', 0) > time.time())
+                account.is_verified = True
+        if account.platform == 'linkedin':
+            credential = (creator.social_credentials or {}).get('linkedin:' + account.handle, {})
+            account.connected = bool(credential and credential.get('expires_at', 0) > time.time())
+            # OIDC confirms account access, not the person's real-world identity.
+            account.is_verified = False
     return accounts
 
 
@@ -94,30 +109,36 @@ def store_accounts(creator, accounts):
         elif platform == 'youtube':
             creator.youtube_channel = primary.handle if primary else None
             creator.youtube_verified = primary.is_verified if primary else False
-        elif primary:
+        elif primary and platform not in ('linkedin', 'x'):
             links[platform] = primary.handle
-        extras.extend(a.model_dump() for a in matching[1:])
+        extras.extend(a.model_dump(exclude_none=True) for a in (matching if platform in ('linkedin', 'x') else matching[1:]))
     links['_accounts'] = extras
     creator.social_links = links
     handles = {a.handle for a in accounts if a.platform == 'instagram'}
     credentials = dict(creator.social_credentials or {})
     youtube_handles = {a.handle for a in accounts if a.platform == 'youtube'}
+    linkedin_handles = {a.handle for a in accounts if a.platform == 'linkedin'}
+    x_handles = {a.handle for a in accounts if a.platform == 'x'}
     creator.social_credentials = {key: value for key, value in credentials.items()
         if key in handles or (key == '_flow' and (not value.get('handle') or value.get('handle') in handles))
         or (key.startswith('youtube:') and key[8:] in youtube_handles)
-        or (key == '_youtube_flow' and (not value.get('handle') or value.get('handle') in youtube_handles))}
+        or (key == '_youtube_flow' and (not value.get('handle') or value.get('handle') in youtube_handles))
+        or (key.startswith('linkedin:') and key[9:] in linkedin_handles)
+        or (key == '_linkedin_flow' and (not value.get('handle') or value.get('handle') in linkedin_handles))
+        or (key.startswith('x:') and key[2:] in x_handles)
+        or (key == '_x_flow' and (not value.get('handle') or value.get('handle') in x_handles))}
     creator.is_verified = any(a.is_verified for a in accounts)
 
 
 router = APIRouter(prefix='/creators/me/social-accounts', tags=['Creator social accounts'])
 
 
-@router.get('', response_model=list[SocialAccountRead])
+@router.get('', response_model=list[SocialAccountRead], response_model_exclude_none=True)
 async def list_social_accounts(user: User = Depends(require_role([SystemRole.CREATOR, SystemRole.ADMIN])), db: AsyncSession = Depends(get_db)):
     return social_accounts(await owned_creator(db, user))
 
 
-@router.patch('/{platform}', response_model=list[SocialAccountRead])
+@router.patch('/{platform}', response_model=list[SocialAccountRead], response_model_exclude_none=True)
 async def save_social_account(platform: SocialPlatform, body: SocialAccountWrite,
                               user: User = Depends(require_role([SystemRole.CREATOR, SystemRole.ADMIN])), db: AsyncSession = Depends(get_db)):
     creator = await owned_creator(db, user)
@@ -144,7 +165,7 @@ async def save_social_account(platform: SocialPlatform, body: SocialAccountWrite
     return social_accounts(creator)
 
 
-@router.delete('/{platform}', response_model=list[SocialAccountRead])
+@router.delete('/{platform}', response_model=list[SocialAccountRead], response_model_exclude_none=True)
 async def remove_social_account(platform: SocialPlatform, expected_handle: Optional[str] = None,
                                 user: User = Depends(require_role([SystemRole.CREATOR, SystemRole.ADMIN])), db: AsyncSession = Depends(get_db)):
     creator = await owned_creator(db, user)
