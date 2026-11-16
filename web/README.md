@@ -50,3 +50,7 @@ Creators can connect X with OAuth 2.0 to import their username, profile photo, a
 follower/following/post counts. Read-only access renews while authorized, with profile snapshots
 cached for fifteen minutes. See [X connection setup](../docs/X_CONNECTION.md) for OAuth credentials,
 callback registration, and developer billing requirements.
+
+### Facebook Pages
+
+Studio supports Facebook Pages with OAuth discovery, a chooser for multiple Pages and cached Page audience cards. Configure the separate Pages configuration on the backend; see [Facebook Pages setup](../docs/FACEBOOK_CONNECTION.md). The integration remains unavailable until `FACEBOOK_CONFIG_ID` and its matching Meta redirect are configured. It shares the existing Meta app credentials by default and does not change the Instagram configuration.

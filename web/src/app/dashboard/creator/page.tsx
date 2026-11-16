@@ -29,22 +29,18 @@ import {
   ArrowUpRight,
   FileText,
   CheckCircle2,
-  LayoutDashboard,
   Calendar,
-  Wand2,
   Bot,
   Sliders,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from "lucide-react";
-import { Logo } from "@/components/ui/logo";
+import { CreatorSidebar, type CreatorDashboardTab } from "@/components/creator/creator-sidebar";
 import { CreatorProfileHeader } from "@/components/creator/creator-profile-header";
 import { CreatorScheduleCalendar } from "@/components/creator/creator-schedule-calendar";
 import {
-  CreatorCollabPipeline,
   getInitialDealsForProfile,
   PipelineDeal,
 } from "@/components/creator/creator-collab-pipeline";
+import { EnquiryInbox } from "@/components/enquiries/enquiry-inbox";
 import { CreatorAnalyticsView } from "@/components/creator/creator-analytics-view";
 import { CreatorPortfolioView } from "@/components/creator/creator-portfolio-view";
 import { CreatorWalletView } from "@/components/creator/creator-wallet-view";
@@ -52,16 +48,7 @@ import { CreatorAiPitcher } from "@/components/creator/creator-ai-pitcher";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useTranslation } from "@/lib/i18n/language-context";
 
-export type CreatorDashboardTab =
-  | "overview"
-  | "pipeline"
-  | "ratecards"
-  | "calendar"
-  | "analytics"
-  | "portfolio"
-  | "links"
-  | "wallet"
-  | "ai_pitcher";
+export type { CreatorDashboardTab } from "@/components/creator/creator-sidebar";
 
 interface RateCardItem {
   id: string;
@@ -93,24 +80,14 @@ const TAB_TITLES: Record<CreatorDashboardTab, string> = {
 };
 
 
-const MENU_LABELS: Record<CreatorDashboardTab, string> = {
-  overview: "Overview",
-  pipeline: "Collabs",
-  ratecards: "Rate Cards",
-  calendar: "Calendar",
-  analytics: "Analytics",
-  portfolio: "Portfolio",
-  links: "Links & QR",
-  wallet: "Wallet",
-  ai_pitcher: "AI Pitcher",
-};
-
 export default function CreatorDashboardPage() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<CreatorDashboardTab>("overview");
-  const [menuExpanded, setMenuExpanded] = useState(true);
   useEffect(() => {
-    const restoreTab = () => { if (window.location.hash === "#analytics") setActiveTab("analytics"); };
+    const restoreTab = () => {
+      if (window.location.hash === "#analytics") setActiveTab("analytics");
+      if (window.location.hash === "#pipeline") setActiveTab("pipeline");
+    };
     window.addEventListener("hashchange", restoreTab);
     const timer = window.setTimeout(restoreTab, 0);
     return () => { window.clearTimeout(timer); window.removeEventListener("hashchange", restoreTab); };
@@ -312,88 +289,16 @@ export default function CreatorDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-[#f1f3f7] antialiased flex selection:bg-[#c1121f] selection:text-white">
-      {/* ========================================================= */}
-      {/* 1. EXPANDABLE LEFT NAVIGATION                              */}
-      {/* ========================================================= */}
-      <aside className={`hidden lg:flex ${menuExpanded ? "w-52" : "w-12"} shrink-0 bg-[#09090b] border-r border-[#27272a] flex-col py-3 justify-between select-none z-30 sticky top-0 h-screen transition-[width] duration-200 motion-reduce:transition-none`}>
-        <div className="flex flex-col gap-3 min-h-0">
-          <div className={`flex items-center ${menuExpanded ? "justify-between px-3" : "flex-col gap-3"}`}>
-            <button
-              type="button"
-              onClick={() => setActiveTab("overview")}
-              aria-label="Creator Studio & Profile"
-              className="flex items-center gap-2.5 text-sm font-semibold cursor-pointer"
-            >
-              <span className="w-8 h-8 shrink-0 rounded-lg bg-[#121215] border border-[#27272a] flex items-center justify-center">
-                <Logo size={20} variant="duotone-dark" />
-              </span>
-              {menuExpanded && <span>{t("Studio")}</span>}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMenuExpanded((expanded) => !expanded)}
-              aria-label={menuExpanded ? "Collapse menu" : "Expand menu"}
-              title={menuExpanded ? "Collapse menu" : "Expand menu"}
-              aria-expanded={menuExpanded}
-              aria-controls="creator-navigation"
-              className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[#a1a1aa] hover:text-white hover:bg-[#18181b] focus-visible:outline-2 focus-visible:outline-white cursor-pointer"
-            >
-              {menuExpanded ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
-            </button>
-          </div>
-
-          <nav id="creator-navigation" aria-label="Creator navigation" className="flex flex-col gap-1 px-1.5 overflow-y-auto">
-            {([
-              ["overview", LayoutDashboard],
-              ["pipeline", Briefcase],
-              ["ratecards", DollarSign],
-              ["calendar", Calendar],
-              ["analytics", TrendingUp],
-              ["portfolio", Award],
-              ["links", Link2],
-              ["wallet", Wallet],
-              ["ai_pitcher", Wand2],
-            ] as const).map(([tab, Icon]) => (
-              <div key={tab}>
-                {(tab === "analytics" || tab === "wallet") && <div className="h-px bg-[#27272a] my-2 mx-1" />}
-                <button
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  title={t(TAB_TITLES[tab])}
-                  aria-label={t(TAB_TITLES[tab])}
-                  aria-current={activeTab === tab ? "page" : undefined}
-                  className={`${menuExpanded ? "w-full px-3 gap-3 justify-start" : "w-8 justify-center"} min-h-9 rounded-lg flex items-center text-left transition-colors cursor-pointer relative border focus-visible:outline-2 focus-visible:outline-white ${
-                    activeTab === tab
-                      ? "text-white bg-white/[0.08] border-white/20 shadow-sm"
-                      : "text-[#a1a1aa] hover:text-white hover:bg-[#18181b] border-transparent"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5 shrink-0" />
-                  {menuExpanded && <span className="text-xs font-medium py-2">{t(MENU_LABELS[tab])}</span>}
-                  {(tab === "pipeline" || tab === "calendar") && activeBrandCollabs.length > 0 && (
-                    <span className={`${menuExpanded ? "ml-auto shrink-0" : "absolute -top-1 -right-1"} min-w-3.5 h-3.5 px-0.5 rounded-full bg-[#c1121f] text-white text-[8px] font-bold flex items-center justify-center`}>
-                      {activeBrandCollabs.length}
-                    </span>
-                  )}
-                </button>
-              </div>
-            ))}
-          </nav>
-        </div>
-
-        <div className="px-1.5 pt-3">
-          <Link
-            href={`/${creatorHandle}`}
-            target="_blank"
-            title={t("View Public Media Kit")}
-            aria-label={t("View Public Media Kit")}
-            className={`${menuExpanded ? "w-full px-3 gap-3 justify-start" : "w-8 justify-center"} min-h-9 rounded-lg bg-[#121215] hover:bg-[#18181b] border border-[#27272a] text-[#a1a1aa] hover:text-white flex items-center transition-colors cursor-pointer`}
-          >
-            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-            {menuExpanded && <span className="text-xs font-medium py-2">{t("Media Kit")}</span>}
-          </Link>
-        </div>
-      </aside>
+      <CreatorSidebar
+        activeTab={activeTab}
+        onSelect={(tab) => {
+          setActiveTab(tab);
+          const hash = tab === "pipeline" ? "#pipeline" : tab === "analytics" ? "#analytics" : "";
+          window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
+        }}
+        creatorHandle={creatorHandle}
+        activeCollabCount={activeBrandCollabs.length}
+      />
 
       {/* ========================================================= */}
       {/* 2. MAIN CREATOR DASHBOARD WORKSPACE                       */}
@@ -719,14 +624,7 @@ export default function CreatorDashboardPage() {
 
           {/* TAB 2: COLLAB PIPELINE */}
           {activeTab === "pipeline" && (
-            <CreatorCollabPipeline
-              onNavigateToAI={(brand, offer) => {
-                setAiPitchBrand(brand);
-                setAiPitchOffer(offer);
-                setActiveTab("ai_pitcher");
-              }}
-              onNavigateToVault={() => setActiveTab("wallet")}
-            />
+            <EnquiryInbox />
           )}
 
           {/* TAB 3: RATE CARDS & PACKAGES */}

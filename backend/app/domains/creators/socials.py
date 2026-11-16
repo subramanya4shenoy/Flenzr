@@ -12,7 +12,7 @@ from app.core.exceptions import EntityNotFoundError, FlenzrException
 from app.domains.creators.models import Creator
 from app.domains.identity.models import User, SystemRole
 
-SocialPlatform = Literal['instagram', 'youtube', 'x', 'tiktok', 'linkedin', 'twitch']
+SocialPlatform = Literal['instagram', 'youtube', 'x', 'tiktok', 'linkedin', 'twitch', 'facebook']
 
 
 class SocialAccountRead(BaseModel):
@@ -45,7 +45,7 @@ def account_handle(creator: Creator, platform: str):
 
 def social_accounts(creator: Creator):
     accounts = []
-    for platform in ('instagram', 'youtube', 'x', 'tiktok', 'linkedin', 'twitch'):
+    for platform in ('instagram', 'youtube', 'x', 'tiktok', 'linkedin', 'twitch', 'facebook'):
         handle = account_handle(creator, platform)
         if handle:
             verified = creator.instagram_verified if platform == 'instagram' else creator.youtube_verified if platform == 'youtube' else False
@@ -53,6 +53,10 @@ def social_accounts(creator: Creator):
     for account in (creator.social_links or {}).get("_accounts", []):
         accounts.append(SocialAccountRead(**account))
     for account in accounts:
+        if account.platform == 'facebook':
+            credential = (creator.social_credentials or {}).get('facebook:' + account.handle, {})
+            account.connected = bool(credential and credential.get('expires_at', 0) > time.time())
+            account.is_verified = bool(credential)
         if account.platform == 'x':
             credential = (creator.social_credentials or {}).get('x:' + account.handle, {})
             if credential:
@@ -100,7 +104,7 @@ def store_accounts(creator, accounts):
     """Keep legacy primary fields compatible; persist all additional accounts atomically."""
     links = {}
     extras = []
-    for platform in ('instagram', 'youtube', 'x', 'tiktok', 'linkedin', 'twitch'):
+    for platform in ('instagram', 'youtube', 'x', 'tiktok', 'linkedin', 'twitch', 'facebook'):
         matching = [a for a in accounts if a.platform == platform]
         primary = matching[0] if matching else None
         if platform == 'instagram':
@@ -109,9 +113,9 @@ def store_accounts(creator, accounts):
         elif platform == 'youtube':
             creator.youtube_channel = primary.handle if primary else None
             creator.youtube_verified = primary.is_verified if primary else False
-        elif primary and platform not in ('linkedin', 'x'):
+        elif primary and platform not in ('linkedin', 'x', 'facebook'):
             links[platform] = primary.handle
-        extras.extend(a.model_dump(exclude_none=True) for a in (matching if platform in ('linkedin', 'x') else matching[1:]))
+        extras.extend(a.model_dump(exclude_none=True) for a in (matching if platform in ('linkedin', 'x', 'facebook') else matching[1:]))
     links['_accounts'] = extras
     creator.social_links = links
     handles = {a.handle for a in accounts if a.platform == 'instagram'}
@@ -119,6 +123,7 @@ def store_accounts(creator, accounts):
     youtube_handles = {a.handle for a in accounts if a.platform == 'youtube'}
     linkedin_handles = {a.handle for a in accounts if a.platform == 'linkedin'}
     x_handles = {a.handle for a in accounts if a.platform == 'x'}
+    facebook_handles = {a.handle for a in accounts if a.platform == 'facebook'}
     creator.social_credentials = {key: value for key, value in credentials.items()
         if key in handles or (key == '_flow' and (not value.get('handle') or value.get('handle') in handles))
         or (key.startswith('youtube:') and key[8:] in youtube_handles)
@@ -126,7 +131,9 @@ def store_accounts(creator, accounts):
         or (key.startswith('linkedin:') and key[9:] in linkedin_handles)
         or (key == '_linkedin_flow' and (not value.get('handle') or value.get('handle') in linkedin_handles))
         or (key.startswith('x:') and key[2:] in x_handles)
-        or (key == '_x_flow' and (not value.get('handle') or value.get('handle') in x_handles))}
+        or (key == '_x_flow' and (not value.get('handle') or value.get('handle') in x_handles))
+        or (key.startswith('facebook:') and key[9:] in facebook_handles)
+        or (key == '_facebook_flow' and (not value.get('handle') or value.get('handle') in facebook_handles))}
     creator.is_verified = any(a.is_verified for a in accounts)
 
 

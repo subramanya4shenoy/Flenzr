@@ -1,0 +1,50 @@
+.recent-engagement { min-width: 0; padding: 20px; border: 1px solid #26352d; border-radius: 20px; background: radial-gradient(ellipse at 70% 20%, #10251b55, transparent 60%), #0d100f; box-shadow: 0 12px 40px #0002; }
+.recent-engagement > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.recent-engagement-eyebrow { color: #7d9488; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; }
+.recent-engagement h3 { margin-top: 6px; color: #eaf2ed; font-size: 14px; font-weight: 600; line-height: 20px; }
+.recent-engagement-spark { flex-shrink: 0; color: #8ce8b6; }
+.recent-engagement-headline { margin-top: 22px; }
+.recent-engagement-headline > strong { display: block; color: #f0faf4; font-size: 32px; font-weight: 600; line-height: 39px; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.recent-engagement-headline > span { display: block; margin-top: 3px; color: #809389; font-size: 10px; }
+.recent-engagement-orbit { position: relative; margin: 0 -5px; }
+.recent-engagement-orbit > svg { display: block; width: 100%; max-height: 250px; }
+.recent-engagement-orbit-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.recent-engagement-orbit-center > strong { color: #b5edcb; font-size: 23px; font-weight: 500; line-height: 29px; }
+.recent-engagement-orbit-center > span { margin-top: 2px; color: #789181; font-size: 9px; }
+.recent-engagement-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding-bottom: 16px; border-bottom: 1px solid #27302b; }
+.recent-engagement-metrics > div { display: grid; grid-template-columns: 14px minmax(0, 1fr); align-items: center; column-gap: 3px; }
+.recent-engagement-metrics svg { color: #80cba2; }
+.recent-engagement-metrics span { color: #8b9c92; font-size: 8px; line-height: 14px; }
+.recent-engagement-metrics strong { grid-column: 2; color: #e2efe7; font-size: 17px; font-weight: 500; line-height: 24px; }
+.recent-engagement-networks { margin-top: 7px; }
+.recent-engagement-networks details { border-bottom: 1px solid #202923; }
+.recent-engagement-networks summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 38px; padding: 8px 0; list-style: none; cursor: pointer; }
+.recent-engagement-networks summary::-webkit-details-marker { display: none; }
+.recent-engagement-network-name { display: flex; align-items: center; gap: 7px; color: #849b8d; font-size: 10px; }
+.recent-engagement-networks summary > strong { color: #d8e7dd; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.recent-engagement-account-details { padding: 0 0 10px; }
+.recent-engagement-account + .recent-engagement-account { margin-top: 8px; }
+.recent-engagement-account-details b { display: block; overflow-wrap: anywhere; color: #b0c6b9; font-size: 10px; font-weight: 500; }
+.recent-engagement-account-details span { display: block; margin-top: 2px; color: #869b8e; font-size: 9px; line-height: 15px; }
+.recent-engagement footer { margin-top: 14px; color: #718578; font-size: 9px; line-height: 15px; }
+.recent-engagement footer > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 7px; }
+.recent-engagement footer button { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 7px; color: #8fb19c; cursor: pointer; }
+.recent-engagement footer button:hover { background: #1a2d22; color: #bcf4d1; }
+.recent-engagement footer button:disabled { opacity: .5; cursor: default; }
+.recent-engagement button:focus-visible, .recent-engagement summary:focus-visible { outline: 2px solid #83cca1; outline-offset: 3px; border-radius: 4px; }
+@media (max-width: 780px) { .recent-engagement { width: 100%; max-width: 420px; justify-self: center; } }
+
+.recent-engagement-headline > small { display: block; margin-top: 6px; color: #88a492; font-size: 9px; }
+.recent-engagement-method { margin-top: 7px; }
+.recent-engagement-method summary { width: fit-content; color: #94b6a1; cursor: pointer; }
+.recent-engagement-method p { margin-top: 6px; }
+
+.recent-engagement-account time { display: block; margin-top: 3px; color: #7d9d89; font-size: 9px; line-height: 15px; }
+.recent-engagement-account button { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; padding: 4px 7px; border: 1px solid #2d4435; border-radius: 5px; color: #add3bb; font-size: 9px; cursor: pointer; }
+.recent-engagement-account button:hover { background: #192b20; }
+.recent-engagement-account button:disabled { opacity: .5; cursor: default; }
+.recent-engagement-updated { margin-bottom: 7px; color: #a4c8b2; }
+.recent-engagement footer > div button { width: auto; height: 28px; gap: 5px; padding: 0 7px; border: 1px solid #2d4435; font-size: 9px; }
+
+.recent-engagement-account-details .recent-engagement-public-source { color: #c8b888; }
+.recent-engagement-source-badge { padding: 1px 4px; border: 1px solid #514832; border-radius: 4px; color: #c8b888; font-size: 8px; line-height: 13px; }

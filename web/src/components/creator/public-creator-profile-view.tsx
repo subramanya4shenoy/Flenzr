@@ -37,6 +37,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { PublicCreatorProfile, RateCard } from "@/lib/api";
+import { EnquiryComposer } from "@/components/enquiries/enquiry-composer";
 import { Logo } from "@/components/ui/logo";
 import { useAuthSession } from "@/lib/use-auth-session";
 import {
@@ -68,7 +69,6 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
   const [copiedLink, setCopiedLink] = useState(false);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedRateCard, setSelectedRateCard] = useState<RateCard | null>(null);
-  const [bookingSubmitted, setBookingSubmitted] = useState(false);
   const [showAllCollabs, setShowAllCollabs] = useState(false);
   const [activeRateCardFilter, setActiveRateCardFilter] = useState<"all" | "new" | "vault">("new");
   // Public profiles must never display another signed-in creator's local deals.
@@ -89,8 +89,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
   };
 
   const handleOpenBooking = (card?: RateCard) => {
-    setSelectedRateCard(card || (rateCards.length > 0 ? rateCards[0] : null));
-    setBookingSubmitted(false);
+    setSelectedRateCard(card || null);
     setBookingModalOpen(true);
   };
 
@@ -379,7 +378,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                           No completed brand partnerships yet
                         </p>
                         <p className="text-[10px] text-[#71717a]">
-                          Lock milestone bookings via Flenzr Vault with upfront payment escrow.
+                          Send a collaboration enquiry to discuss your campaign.
                         </p>
                       </div>
                     )}
@@ -574,7 +573,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                       Available Sponsorship Packages
                     </h3>
                     <p className="text-xs text-[#8c94a6] mt-0.5">
-                      Select a deliverable to book instantly through Flenzr Vault
+                      Select a package to send an enquiry and discuss the scope
                     </p>
                   </div>
 
@@ -689,7 +688,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
                             onClick={() => handleOpenBooking(card)}
                             className="h-9 px-4 rounded-lg bg-white hover:bg-neutral-200 text-black font-bold text-xs transition-all shadow-sm hover:scale-[1.02] cursor-pointer"
                           >
-                            Book Now
+                            Send enquiry
                           </button>
                         </div>
                       </div>
@@ -706,110 +705,7 @@ export function PublicCreatorProfileView({ creator, rateCards }: Props) {
       {/* 3. INTERACTIVE BOOKING MODAL                             */}
       {/* ========================================================= */}
       <AnimatePresence>
-        {bookingModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="w-full max-w-lg rounded-2xl bg-[#121215] border border-[#27272a] shadow-2xl p-6 sm:p-7 relative overflow-hidden"
-            >
-              <button
-                onClick={() => setBookingModalOpen(false)}
-                className="absolute top-5 right-5 p-2 rounded-lg bg-[#18181b] hover:bg-[#222226] text-[#8c94a6] hover:text-white transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              {bookingSubmitted ? (
-                <div className="py-8 text-center space-y-4">
-                  <div className="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white">Collab Inquiry Sent!</h3>
-                  <p className="text-xs text-[#8c94a6] max-w-sm mx-auto leading-relaxed">
-                    {creator.display_name} has received your brief. You will receive a Flenzr Vault payment link and campaign timeline shortly.
-                  </p>
-                  <button
-                    onClick={() => setBookingModalOpen(false)}
-                    className="h-10 px-6 rounded-lg bg-white hover:bg-neutral-200 text-black font-bold text-xs shadow-md transition-colors cursor-pointer"
-                  >
-                    Done
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-5">
-                  <div className="space-y-1">
-                    <span className="px-2.5 py-0.5 rounded bg-white/10 border border-white/20 text-white text-[10px] font-bold">
-                      FLENZR VAULT BOOKING
-                    </span>
-                    <h3 className="text-xl font-bold text-white">
-                      Book Deliverable with {creator.display_name}
-                    </h3>
-                    <p className="text-xs text-[#8c94a6]">
-                      Your payment is safely held in Flenzr Vault until you approve the draft video.
-                    </p>
-                  </div>
-
-                  {selectedRateCard && (
-                    <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between text-xs">
-                      <div>
-                        <div className="font-bold text-white">{selectedRateCard.title}</div>
-                        <div className="text-[11px] text-[#7e8697]">{selectedRateCard.turnaround_days} Days Delivery</div>
-                      </div>
-                      <div className="text-base font-bold text-white">
-                        ₹{(selectedRateCard.base_price_cents / 100).toLocaleString("en-IN")}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-3 text-xs">
-                    <div>
-                      <label className="block text-[#a1a1aa] font-medium mb-1">Brand Name</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. BoAt, Swiggy, Nykaa"
-                        className="w-full h-10 px-3.5 rounded-lg bg-[#09090b] border border-[#27272a] text-white placeholder-[#525866] focus:outline-hidden focus:border-white focus:ring-1 focus:ring-white/30"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[#a1a1aa] font-medium mb-1">Work Email</label>
-                      <input
-                        type="email"
-                        placeholder="brand@company.com"
-                        className="w-full h-10 px-3.5 rounded-lg bg-[#09090b] border border-[#27272a] text-white placeholder-[#525866] focus:outline-hidden focus:border-white focus:ring-1 focus:ring-white/30"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[#a1a1aa] font-medium mb-1">Campaign Goal / Brief Notes</label>
-                      <textarea
-                        rows={3}
-                        placeholder="Describe the product, key message, and campaign timeline..."
-                        className="w-full p-3 rounded-lg bg-[#09090b] border border-[#27272a] text-white placeholder-[#525866] focus:outline-hidden focus:border-white focus:ring-1 focus:ring-white/30"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="pt-2 flex items-center justify-between">
-                    <div className="text-[11px] text-[#8c94a6] flex items-center gap-1">
-                      <Lock className="w-3 h-3 text-emerald-400" />
-                      <span>Zero upfront release to creator</span>
-                    </div>
-
-                    <button
-                      disabled title="Booking submission is not connected yet"
-                      className="h-10 px-6 rounded-lg bg-white hover:bg-neutral-200 text-black font-bold text-xs shadow-md transition-all cursor-pointer"
-                    >
-                      Booking unavailable
-                    </button>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
+        {bookingModalOpen && <EnquiryComposer creator={creator} rateCard={selectedRateCard} onClose={() => setBookingModalOpen(false)} />}
       </AnimatePresence>
     </div>
   );

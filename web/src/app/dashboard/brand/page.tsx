@@ -144,6 +144,7 @@ export default function BrandDashboardPage() {
           </div>
 
           <div className="flex items-center gap-3 text-xs sm:text-sm">
+            <Link href="/dashboard/brand/enquiries" className="h-9 px-3 rounded-xl border border-neutral-800 text-xs inline-flex items-center">Enquiries</Link>
             <LanguageSwitcher variant="compact" />
             <button type="button" onClick={async () => {
               const res = await fetch("/api/auth/logout", { method: "POST" });

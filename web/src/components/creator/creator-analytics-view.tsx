@@ -1,11 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AlertCircle, ArrowUpRight, BarChart3, CheckCircle2, Link2, Loader2, RefreshCw, ShieldCheck, Users } from "lucide-react";
+import { AlertCircle, ArrowUpRight, ChevronDown, Link2, Loader2, MoreHorizontal, RefreshCw, ShieldCheck, Unplug, Users } from "lucide-react";
+import { AnalyticsFetchError, invalidateAnalytics, loadAnalytics, readAnalyticsSnapshot, type AccountStats } from "@/lib/analytics-cache";
+import { useCreatorAccountId } from "./creator-account-context";
+import { InstagramIcon, YoutubeIcon, XTwitterIcon, LinkedInIcon, FacebookIcon, TikTokIcon, TwitchIcon } from "./creator-profile-header";
+import "./creator-analytics.css";
+import { RecentEngagementPanel } from "./recent-engagement-panel";
+import { invalidateRecentEngagement } from "@/lib/recent-engagement";
+import { FacebookPageSelection } from "./facebook-page-selection";
 import { getSocialAccounts, socialUrl, type SocialAccount, type SocialPlatform } from "@/lib/social-accounts";
 
 const platforms: Record<SocialPlatform, { name: string; initials: string; accent: string }> = {
+  facebook: { name: "Facebook", initials: "FB", accent: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
   instagram: { name: "Instagram", initials: "IG", accent: "bg-pink-500/10 text-pink-400 border-pink-500/20" },
   youtube: { name: "YouTube", initials: "YT", accent: "bg-red-500/10 text-red-400 border-red-500/20" },
   x: { name: "X", initials: "X", accent: "bg-white/5 text-white border-white/15" },
@@ -14,85 +22,65 @@ const platforms: Record<SocialPlatform, { name: string; initials: string; accent
   twitch: { name: "Twitch", initials: "TW", accent: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
 };
 
-type AccountStats = {
-  platform: SocialPlatform;
-  handle: string;
-  isRealData: boolean;
-  avatarUrl?: string;
-  displayName?: string;
-  followersAvailable?: boolean;
-  following?: number | null;
-  postCount?: number | null;
-  connected?: boolean;
-  source?: string;
-  followers: number | null;
-  totalViews?: number | null;
-  videoCount?: number | null;
-  subscribersHidden?: boolean;
-  avgViews: number | null;
-  engagementRate: number | null;
-};
 
 function metric(value: number | null | undefined, suffix = "") {
   return typeof value === "number" && Number.isFinite(value) && value >= 0
-    ? `${new Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(value)}${suffix}` : "—";
+    ? `${new Intl.NumberFormat("en", { notation: value >= 10000 ? "compact" : "standard", maximumFractionDigits: 1 }).format(value)}${suffix}` : "—";
 }
+
+const platformIcons = { facebook: FacebookIcon, instagram: InstagramIcon, youtube: YoutubeIcon, x: XTwitterIcon, linkedin: LinkedInIcon, tiktok: TikTokIcon, twitch: TwitchIcon };
 
 function AccountAvatar({ url, account }: { url?: string; account: SocialAccount }) {
   const [failed, setFailed] = useState(false);
-  const platform = platforms[account.platform];
+  const Icon = platformIcons[account.platform];
   const hasImage = !failed && url?.startsWith("/api/proxy-image?");
   return (
-    <div className="relative shrink-0">
-      <div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border text-sm font-black ${platform.accent}`}>
-        {hasImage ? <Image src={url!} alt={`@${account.handle} profile picture`} width={56} height={56} unoptimized className="h-full w-full object-cover" onError={() => setFailed(true)} /> : <span aria-label={`${platform.name} profile`}>{platform.initials}</span>}
-      </div>
-      {hasImage && <span aria-hidden="true" className={`absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#121215] bg-[#27272a] text-[8px] font-black ${platform.accent.split(" ").find((color) => color.startsWith("text-"))}`}>{platform.initials}</span>}
+    <div className="analytics-card-avatar">
+      {hasImage ? <Image src={url!} alt={`${account.display_name || "@" + account.handle} profile picture`} width={48} height={48} unoptimized onError={() => setFailed(true)} /> : <Icon className="h-5 w-5" />}
     </div>
   );
 }
 
 function AccountSection({ account }: { account: SocialAccount }) {
+  const ownerId = useCreatorAccountId();
   const platform = platforms[account.platform];
-  const canFetch = account.platform === "instagram" || account.platform === "youtube" || account.platform === "linkedin" || account.platform === "x";
-  const [stats, setStats] = useState<AccountStats | null>(null);
+  const canFetch = account.platform === "instagram" || account.platform === "youtube" || account.platform === "linkedin" || account.platform === "x" || account.platform === "facebook";
+  const [initialSnapshot] = useState(() => readAnalyticsSnapshot(ownerId, account));
+  const [stats, setStats] = useState<AccountStats | null>(initialSnapshot?.data ?? null);
   const [loading, setLoading] = useState(canFetch);
   const [error, setError] = useState("");
-  const [checkedAt, setCheckedAt] = useState<Date | null>(null);
+  const [checkedAt, setCheckedAt] = useState<Date | null>(initialSnapshot ? new Date(initialSnapshot.checkedAt) : null);
   const [refresh, setRefresh] = useState(0);
+  const lastRefresh = useRef(0);
   const [connecting, setConnecting] = useState(false);
+
 
   useEffect(() => {
     if (!canFetch) return;
-    const controller = new AbortController();
+    let active = true;
+    const force = refresh !== lastRefresh.current;
+    lastRefresh.current = refresh;
     const load = async () => {
       setLoading(true);
       setError("");
-      setStats(null);
       try {
-        const response = await fetch("/api/social/enrich", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ platform: account.platform, handle: account.handle }),
-          signal: controller.signal,
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(typeof data.error === "string" ? data.error : "Could not fetch this account’s stats.");
-        if (data.platform !== account.platform || data.handle !== account.handle || !data.isRealData) {
-          throw new Error("Public stats are unavailable for this account right now. You can try again later.");
-        }
-        if (!controller.signal.aborted) {
-          setStats(data);
-          setCheckedAt(new Date());
+        const snapshot = await loadAnalytics(ownerId, account, force);
+        if (active) {
+          setStats(snapshot.data);
+          setCheckedAt(new Date(snapshot.checkedAt));
         }
       } catch (cause) {
-        if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : "Could not fetch this account’s stats.");
+        if (active) {
+          if (cause instanceof AnalyticsFetchError && cause.discardCached) setStats(null);
+          setError(cause instanceof Error ? cause.message : "Could not fetch this account’s stats.");
+        }
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        if (active) setLoading(false);
       }
     };
     void load();
-    return () => controller.abort();
-  }, [account.platform, account.handle, canFetch, refresh]);
+    return () => { active = false; };
+  }, [account, ownerId, canFetch, refresh]);
 
   const connectAccount = async () => {
     setConnecting(true);
@@ -105,7 +93,7 @@ function AccountSection({ account }: { account: SocialAccount }) {
       if (!response.ok) throw new Error(data.error?.message || data.error || `Could not connect ${platform.name}.`);
       if (data.callbackOrigin && data.callbackOrigin !== window.location.origin) throw new Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting ${platform.name}.`);
       const url = new URL(data.url);
-      const allowed = account.platform === "x" ? url.origin === "https://x.com" && url.pathname === "/i/oauth2/authorize" : account.platform === "linkedin" ? url.origin === "https://www.linkedin.com" && url.pathname === "/oauth/v2/authorization" : account.platform === "youtube" ? url.origin === "https://accounts.google.com" && url.pathname === "/o/oauth2/v2/auth" : (url.origin === "https://www.facebook.com" && url.pathname === "/dialog/oauth") || (url.origin === "https://www.instagram.com" && url.pathname === "/oauth/authorize");
+      const allowed = account.platform === "x" ? url.origin === "https://x.com" && url.pathname === "/i/oauth2/authorize" : account.platform === "linkedin" ? url.origin === "https://www.linkedin.com" && url.pathname === "/oauth/v2/authorization" : account.platform === "youtube" ? url.origin === "https://accounts.google.com" && url.pathname === "/o/oauth2/v2/auth" : account.platform === "facebook" ? url.origin === "https://www.facebook.com" && url.pathname === "/dialog/oauth" : (url.origin === "https://www.facebook.com" && url.pathname === "/dialog/oauth") || (url.origin === "https://www.instagram.com" && url.pathname === "/oauth/authorize");
       if (!allowed) throw new Error(`Could not connect ${platform.name}.`);
       window.location.assign(url.toString());
     } catch (cause) {
@@ -121,69 +109,115 @@ function AccountSection({ account }: { account: SocialAccount }) {
       const response = await fetch(`/api/account/creators/me/${account.platform}/connection?handle=${encodeURIComponent(account.handle)}`, { method: "DELETE" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error?.message || `Could not disconnect ${platform.name}.`);
+      invalidateAnalytics(ownerId, account.platform, account.handle);
+      invalidateRecentEngagement(ownerId, account.platform);
+      setStats(null);
       window.dispatchEvent(new Event("flenzr_socials_updated"));
       setRefresh((value) => value + 1);
     } catch (cause) { setError(cause instanceof Error ? cause.message : `Could not disconnect ${platform.name}.`); }
     finally { setConnecting(false); }
   };
 
-  const metrics = account.platform === "linkedin" ? [] : account.platform === "youtube" ? [
-    { label: "Subscribers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: stats?.subscribersHidden ? "Hidden by the channel" : "Public count · rounded by YouTube" },
-    { label: "Total channel views", value: metric(stats?.totalViews), detail: "Channel lifetime views" },
-    { label: "Public videos", value: metric(stats?.videoCount), detail: "Publicly visible uploads" },
+  const connected = Boolean(stats?.connected || account.connected);
+  const Icon = platformIcons[account.platform];
+  const name = stats?.displayName || account.display_name || `@${account.handle}`;
+  const metrics = account.platform === "facebook" ? [
+    { label: "Followers", value: stats?.followersAvailable === false ? null : stats?.followers, detail: "Page followers" },
+    { label: "Likes", value: stats?.likesAvailable === false ? null : stats?.likes, detail: "Page likes · unavailable on New Pages Experience" },
+  ] : account.platform === "linkedin" ? [] : account.platform === "youtube" ? [
+    { label: "Subscribers", value: stats?.followersAvailable === false ? null : stats?.followers, detail: stats?.subscribersHidden ? "Hidden by the channel" : "Public subscriber count · rounded by YouTube" },
+    { label: "Views", value: stats?.totalViews, detail: "Total channel views" },
+    { label: "Videos", value: stats?.videoCount, detail: "Publicly visible uploads" },
   ] : account.platform === "instagram" || account.platform === "x" ? [
-    { label: "Followers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: account.platform === "x" ? "X audience count" : "Instagram audience count" },
-    { label: "Following", value: metric(stats?.following), detail: "Accounts followed" },
-    { label: "Posts", value: metric(stats?.postCount), detail: account.platform === "x" ? "Published post count" : "Published media count" },
+    { label: "Followers", value: stats?.followersAvailable === false ? null : stats?.followers, detail: "Audience count" },
+    { label: "Following", value: stats?.following, detail: "Accounts followed" },
+    { label: "Posts", value: stats?.postCount, detail: "Published post count" },
   ] : [
-    { label: "Followers", value: metric(stats?.followersAvailable === false ? null : stats?.followers), detail: "Public audience count" },
-    { label: "Average views", value: metric(stats?.avgViews), detail: "Not available yet" },
-    { label: "Engagement rate", value: metric(stats?.engagementRate, "%"), detail: "Not available yet" },
+    { label: "Followers", value: stats?.followersAvailable === false ? null : stats?.followers, detail: "Audience count" },
+    { label: "Avg. views", value: stats?.avgViews, detail: "Not available yet" },
+    { label: "Engagement", value: stats?.engagementRate, detail: "Not available yet", suffix: "%" },
   ];
+  const status = connecting ? "Connecting…" : connected ? "Connected" : account.is_verified ? "Verified" : canFetch ? "Not connected" : "Linked";
+  const cadence = account.platform === "x" ? "Updates every 15 min" : canFetch ? "Updates every 5 min" : "Stats unavailable";
+  const checkedLabel = checkedAt ? `Checked at ${checkedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : cadence;
+  const connectionDetails = account.platform === "facebook"
+    ? "Facebook Page access only. Likes are unavailable on New Pages Experience. Post insights, reach and audience demographics are not included."
+    : account.platform === "instagram"
+    ? "Creator or Business account required. Meta asks you to share your account and grants messaging access. Flenzr does not read or send messages. Reach, saves and demographics are not included."
+    : account.platform === "linkedin"
+    ? "LinkedIn shares your name and photo. Follower counts, post analytics and public profile URLs are not included. Connecting does not verify your real-world identity."
+    : account.platform === "youtube"
+    ? "Public subscriber counts may be rounded or hidden by YouTube. Views are channel lifetime totals. Watch time and audience demographics are not included."
+    : account.platform === "x"
+    ? "Profile counts update at most every 15 minutes. Views and audience demographics are not included."
+    : "Your profile link is saved. Account statistics are not available for this network yet.";
 
   return (
-    <section aria-label={`${platform.name} ${account.display_name || "@" + account.handle} analytics`} className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#27272a] bg-[#121215]">
-      <div className="flex flex-col gap-4 border-b border-[#27272a] p-5">
-        <div className="flex min-w-0 items-center gap-3">
-          <AccountAvatar key={stats?.avatarUrl || account.avatar_url || "fallback"} url={stats?.avatarUrl || account.avatar_url} account={account} />
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-bold text-white">{platform.name}</h3>
-              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${(account.is_verified || account.connected) ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400" : "border-amber-500/20 bg-amber-500/10 text-amber-300"}`}>
-                {account.is_verified && <CheckCircle2 className="h-3 w-3" />}
-                {account.platform === "linkedin" ? account.connected ? "Account connected" : "Not connected" : account.is_verified ? "Ownership verified" : "Verification pending"}
-              </span>
-            </div>
-            {account.platform === "linkedin" && account.display_name ? (
-              <p className="mt-1 truncate text-xs text-neutral-300">{stats?.displayName || account.display_name}</p>
-            ) : <a href={socialUrl(account.platform, account.handle)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex max-w-full items-center gap-1 text-xs text-neutral-400 hover:text-white">
-              <span className="truncate">@{account.handle}</span><ArrowUpRight className="h-3 w-3 shrink-0" />
-            </a>}
-          </div>
-        </div>
-        {account.platform === "instagram" && <p className="text-[11px] leading-relaxed text-neutral-400">Connect to verify this account and load its profile counts. Meta will ask you to select its business portfolio. This login configuration also requests messaging access; Flenzr currently does not read or send your messages.</p>}
-        {canFetch && <div className="flex flex-wrap gap-2">
-          <button type="button" disabled={connecting} onClick={connectAccount} className="rounded-lg border border-pink-500/25 bg-pink-500/10 px-3 py-2 text-xs font-semibold text-pink-300 hover:bg-pink-500/20 disabled:opacity-50">{connecting ? "Connecting…" : (stats?.connected || account.connected) ? `Reconnect ${platform.name}` : `Connect ${platform.name}`}</button>
-          {(stats?.connected || account.connected) && <button type="button" disabled={connecting} onClick={disconnectAccount} className="px-2 text-xs text-neutral-400 hover:text-white disabled:opacity-50">Disconnect</button>}
-        </div>}
-        {canFetch && <button type="button" disabled={loading} onClick={() => setRefresh((value) => value + 1)} aria-label={`Refresh ${platform.name} ${account.display_name || "@" + account.handle} ${account.platform === "linkedin" ? "profile" : "stats"}`} className="inline-flex self-start items-center gap-2 rounded-lg border border-[#303036] px-3 py-2 text-xs font-semibold text-neutral-300 transition hover:bg-white/5 disabled:opacity-50">
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />{loading ? "Refreshing…" : account.platform === "linkedin" ? "Refresh profile" : "Refresh stats"}
-        </button>}
+    <section aria-label={`${platform.name} ${account.display_name || "@" + account.handle} analytics`} className="analytics-card" data-platform={account.platform}>
+      <div className="analytics-card-cover" aria-hidden="true">
+        <span className="analytics-card-platform"><Icon className="h-3 w-3" />{platform.name}</span>
       </div>
-      <div className="flex flex-1 flex-col gap-5 p-5" aria-busy={loading}>
-        {account.platform === "linkedin" && <div className="rounded-xl border border-blue-500/15 bg-blue-500/5 p-4 text-xs leading-relaxed text-neutral-300">
-          LinkedIn shares your name and profile photo with this connection. Follower counts, post analytics, and public profile URLs are not included. Account connection does not verify your real-world identity.
-        </div>}
-        <div className="flex flex-col gap-3">
-          {metrics.map((item) => <div key={item.label} className="rounded-xl border border-white/5 bg-[#18181b] p-4">
-            <p className="text-xs text-neutral-400">{item.label}</p>
-            <p className="mt-3 text-2xl font-bold tracking-tight text-white tabular-nums">{loading ? <span className="inline-block h-7 w-20 animate-pulse rounded bg-white/5" aria-label="Loading" /> : item.value}</p>
-            <p className="mt-2 text-[10px] text-neutral-500">{item.detail}</p>
-          </div>)}
+      <div className="analytics-card-content">
+        <div className="analytics-card-topline">
+          <AccountAvatar key={stats?.avatarUrl || account.avatar_url || "fallback"} url={stats?.avatarUrl || account.avatar_url} account={account} />
+          <span className="analytics-card-status" data-connected={connected || account.is_verified}>
+            <span aria-hidden="true" />{status}
+          </span>
         </div>
-        <div className="mt-auto flex items-start gap-2 text-xs leading-relaxed text-neutral-500" role={error ? "status" : undefined}>
-          {error ? <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" /> : <BarChart3 className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
-          <p>{error || (account.platform === "x" ? loading ? "Loading X profile and counts…" : "Connected to X · Counts update at most every 15 minutes. Views and engagement analytics are not included." : account.platform === "linkedin" ? loading ? "Loading LinkedIn profile…" : "LinkedIn profile connection · Profile updates every 5 minutes. Reconnect when access expires." : !canFetch ? `${platform.name} stats are not available yet. Your linked account is saved.` : loading ? "Fetching the latest available public stats for this account." : account.platform === "youtube" ? `${stats?.connected ? "YouTube connected" : "YouTube public stats"} · Updates every 5 minutes${checkedAt ? ` · Checked at ${checkedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. Watch time and audience demographics require additional channel authorization.` : stats?.source === "instagram-api" ? "Connected to Instagram · Stats update every 5 minutes. Reach, engagement and demographics are not included." : `Public profile snapshot${checkedAt ? ` · Checked at ${checkedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. Views, engagement trends and audience demographics are not available yet.`)}</p>
+        <div className="analytics-card-identity">
+          <div className="analytics-card-name" title={name}>{name}</div>
+          {account.platform === "linkedin" && account.display_name ? <p className="analytics-card-handle">LinkedIn member</p> : (
+            <a href={socialUrl(account.platform, account.handle)} target="_blank" rel="noopener noreferrer" className="analytics-card-handle" title={`Open ${account.platform === "facebook" ? name : "@" + account.handle} on ${platform.name}`}>
+              <span>{account.platform === "facebook" ? stats?.category || "Facebook Page" : "@" + account.handle}</span><ArrowUpRight size={11} aria-hidden="true" />
+            </a>
+          )}
+          {canFetch && <details className="analytics-card-actions" onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.removeAttribute("open");
+          }} onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.currentTarget.removeAttribute("open");
+              event.currentTarget.querySelector("summary")?.focus();
+            }
+          }}>
+            <summary aria-label={`Manage ${platform.name} ${account.display_name || "@" + account.handle}`} title="Manage account"><MoreHorizontal size={16} aria-hidden="true" /></summary>
+            <div className="analytics-card-action-menu">
+              <button type="button" disabled={connecting} onClick={(event) => { event.currentTarget.closest("details")?.removeAttribute("open"); void connectAccount(); }}>
+                <RefreshCw size={12} aria-hidden="true" />{connected ? "Reconnect" : "Connect"} {platform.name}
+              </button>
+              {connected && <button type="button" disabled={connecting} onClick={(event) => { event.currentTarget.closest("details")?.removeAttribute("open"); void disconnectAccount(); }}>
+                <Unplug size={12} aria-hidden="true" />Disconnect
+              </button>}
+            </div>
+          </details>}
+        </div>
+
+        {metrics.length > 0 ? <dl className="analytics-card-metrics" aria-busy={loading && !stats}>
+          {metrics.map((item) => <div key={item.label} title={`${item.detail}: ${typeof item.value === "number" ? new Intl.NumberFormat("en").format(item.value) + ("suffix" in item ? item.suffix || "" : "") : "Unavailable"}`}>
+            <dd>{loading && !stats ? <span className="analytics-card-skeleton" aria-label="Loading" /> : metric(item.value, "suffix" in item ? item.suffix : undefined)}</dd>
+            <dt>{item.label}</dt>
+          </div>)}
+        </dl> : <div className="analytics-card-profile-only">
+          <LinkedInIcon className="h-4 w-4 shrink-0" />
+          <div><p>Member profile</p><span>Name & photo access</span></div>
+        </div>}
+
+        {canFetch && !connected && !loading && <div className="analytics-card-connect">
+          {account.platform === "instagram" && <p>Meta requests profile and messaging access. Flenzr does not read or send messages.</p>}
+          <button type="button" disabled={connecting} onClick={connectAccount}>{connecting ? <Loader2 size={12} className="animate-spin" /> : <Icon className="h-3 w-3" />}{connecting ? "Connecting…" : `Connect ${platform.name}`}</button>
+        </div>}
+
+        {error && <p className="analytics-card-error" role="status"><AlertCircle size={12} aria-hidden="true" />{error}{stats ? " Showing saved data." : ""}</p>}
+        <div className="analytics-card-footer">
+          <details className="analytics-card-info">
+            <summary title="Connection details" aria-label={`Connection details for ${platform.name}. ${checkedLabel}`}>{loading ? stats ? "Updating…" : "Loading…" : checkedLabel}<ChevronDown size={9} aria-hidden="true" /></summary>
+            <p>{cadence}. {connectionDetails}</p>
+          </details>
+          {canFetch && <span className="analytics-card-refresh">
+            <button type="button" disabled={loading} onClick={() => setRefresh((value) => value + 1)} aria-label={`Refresh ${platform.name} ${account.display_name || "@" + account.handle} ${account.platform === "linkedin" ? "profile" : "stats"}`}>
+              <RefreshCw size={12} className={loading ? "animate-spin" : ""} aria-hidden="true" />
+            </button>
+            <span role="tooltip">{account.platform === "linkedin" ? "Refresh profile" : "Refresh stats"}</span>
+          </span>}
         </div>
       </div>
     </section>
@@ -191,19 +225,34 @@ function AccountSection({ account }: { account: SocialAccount }) {
 }
 
 export function CreatorAnalyticsView() {
+  const ownerId = useCreatorAccountId();
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [connectionNotice, setConnectionNotice] = useState("");
+  const [facebookSelection, setFacebookSelection] = useState(false);
   const load = useCallback(() => {
     return getSocialAccounts().then((linked) => {
-      setAccounts(linked);
       setError("");
       const params = new URLSearchParams(window.location.search);
       const youtubeResult = params.get("youtube");
       const linkedinResult = params.get("linkedin");
       const xResult = params.get("x");
+      const facebookResult = params.get("facebook");
+      if (facebookResult === "select_pages") setFacebookSelection(true);
       const result = params.get("instagram");
+      for (const network of ["instagram", "youtube", "linkedin", "x", "facebook"] as const) {
+        if (params.has(network)) { invalidateAnalytics(ownerId, network); invalidateRecentEngagement(ownerId, network); }
+      }
+      setAccounts(linked);
+      // Consume callback outcomes once so later visits can reuse the refreshed cache.
+      if (["instagram", "youtube", "linkedin", "x", "facebook"].some((network) => params.has(network))) {
+        const clean = new URL(window.location.href);
+        for (const network of ["instagram", "youtube", "linkedin", "x", "facebook"]) {
+          if (network !== "facebook" || facebookResult !== "select_pages") clean.searchParams.delete(network);
+        }
+        window.history.replaceState(window.history.state, "", clean);
+      }
       const messages: Record<string, string> = { authorization_failed: "Instagram was not linked because Meta could not confirm access. Try connecting again and approve access to your Creator or Business account. If this keeps happening, contact Flenzr support.", account_not_shared: "Meta did not return an assigned Instagram account. Reconnect, select the portfolio that owns your account, and explicitly share the account with Flenzr. Your account has not been linked yet.", account_not_authorized: "Meta denied access to the selected Instagram account. While the Meta app is unpublished, choose Continue with Facebook and use the Facebook account listed as an app Administrator.", business_required: "Meta did not return a business portfolio. Reconnect and select the portfolio that owns your Instagram account.", configuration_changed: "Instagram configuration changed during login. Please start Connect Instagram again.", connected: "Instagram connected. Your account stats are ready.", cancelled: "Instagram connection was cancelled. You can try again.", expired: "Instagram connection expired. Please try again.", session_expired: "Sign in again using the secure preview URL before connecting Instagram.", account_mismatch: "The connection expired or Instagram authorized a different handle. Start again and choose the matching account.", failed: "Instagram connection failed. Make sure your Creator or Business account is eligible and try again." };
       const youtubeMessages: Record<string, string> = { connected: "YouTube connected. Channel ownership is verified.", cancelled: "YouTube connection was cancelled.", expired: "YouTube connection expired. Please start again.", session_expired: "Sign in again before connecting YouTube.", account_mismatch: "The connection expired or Google authorized a different channel. Start again and choose the matching channel.", failed: "YouTube connection failed. Check that you are a test user and have granted channel access." };
       const linkedinMessages: Record<string, string> = {
@@ -232,11 +281,27 @@ export function CreatorAnalyticsView() {
         rate_limited: "X’s request limit has been reached. Please try again later.",
         failed: "Could not connect X. Please try again.",
       };
-      setConnectionNotice(xResult ? xMessages[xResult] || "" : linkedinResult ? linkedinMessages[linkedinResult] || "" : youtubeResult ? youtubeMessages[youtubeResult] || "" : result ? messages[result] || "" : "");
+      const facebookMessages: Record<string, string> = {
+        connected: "Facebook Pages connected. Available audience counts have been imported.",
+        cancelled: "Facebook Pages connection was cancelled.",
+        expired: "Facebook Pages connection expired. Please start again.",
+        session_expired: "Sign in again before connecting Facebook Pages.",
+        not_configured: "Facebook Pages connection has not been configured yet.",
+        configuration_required: "Facebook Pages needs a configuration update. Please contact Flenzr support.",
+        permissions_required: "Approve Page-list and Page-read access, then reconnect.",
+        no_pages: "No accessible Pages were shared. Use an account with Page access and select your Pages during Facebook login.",
+        too_many_pages: "Share up to 100 Pages during Facebook login, then select up to 20 to import at a time.",
+        rate_limited: "Facebook’s request limit has been reached. Please try again later.",
+        page_mismatch: "Facebook did not share the matching Page. Reconnect and select it.",
+        authorization_failed: "Facebook Page access could not be confirmed. Please reconnect and approve Page access.",
+        failed: "Could not connect Facebook Pages. Please try again.",
+      };
+      const notice = facebookResult ? facebookMessages[facebookResult] || "" : xResult ? xMessages[xResult] || "" : linkedinResult ? linkedinMessages[linkedinResult] || "" : youtubeResult ? youtubeMessages[youtubeResult] || "" : result ? messages[result] || "" : "";
+      if (notice) setConnectionNotice(notice);
     }).catch((cause: unknown) => {
       setError(cause instanceof Error ? cause.message : "Could not load linked accounts.");
     }).finally(() => setLoading(false));
-  }, []);
+  }, [ownerId]);
 
   useEffect(() => {
     void load();
@@ -244,13 +309,27 @@ export function CreatorAnalyticsView() {
     return () => window.removeEventListener("flenzr_socials_updated", load);
   }, [load]);
 
+  const closeFacebookSelection = () => {
+    setFacebookSelection(false);
+    const clean = new URL(window.location.href);
+    clean.searchParams.delete("facebook");
+    window.history.replaceState(window.history.state, "", clean);
+  };
+
   return (
     <div className="space-y-6">
+      {facebookSelection && <FacebookPageSelection onCancel={closeFacebookSelection} onConnected={() => {
+        closeFacebookSelection();
+        invalidateAnalytics(ownerId, "facebook");
+        invalidateRecentEngagement(ownerId, "facebook");
+        setConnectionNotice("Facebook Pages connected. Available audience counts have been imported.");
+        window.dispatchEvent(new Event("flenzr_socials_updated"));
+      }} />}
       <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
           <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Your social footprint</p>
           <h2 className="text-2xl font-bold tracking-tight text-white">Account analytics</h2>
-          <p className="mt-2 max-w-xl text-xs leading-relaxed text-neutral-400">A separate view of every linked account. See your audience and available performance stats, one account at a time.</p>
+          <p className="mt-2 max-w-xl text-xs leading-relaxed text-neutral-400">Your connected profiles and audience, at a glance.</p>
         </div>
         {!loading && !error && accounts.length > 0 && <div className="flex shrink-0 gap-4 text-xs text-neutral-400">
           <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /><strong className="text-white">{accounts.length}</strong> linked</span>
@@ -262,7 +341,7 @@ export function CreatorAnalyticsView() {
       {loading ? <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#27272a] bg-[#121215] p-12 text-sm text-neutral-400" role="status"><Loader2 className="h-4 w-4 animate-spin" />Loading linked accounts…</div>
         : error ? <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 text-sm text-amber-200" role="alert"><p>{error}</p><button type="button" onClick={() => { setLoading(true); void load(); }} className="mt-3 font-semibold underline underline-offset-4">Try again</button></div>
         : accounts.length === 0 ? <div className="rounded-2xl border border-dashed border-[#303036] bg-[#121215] px-6 py-14 text-center"><Link2 className="mx-auto mb-4 h-7 w-7 text-neutral-500" /><h3 className="text-sm font-semibold text-white">Your accounts, all in one place</h3><p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-neutral-400">Link a social account from your Studio Overview to see its available stats here. You can link multiple accounts on the same platform.</p></div>
-        : <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">{accounts.map((account) => <AccountSection key={`${account.platform}:${account.handle}`} account={account} />)}</div>}
+        : <div className="analytics-workspace"><div className="analytics-account-grid">{accounts.map((account) => <AccountSection key={`${ownerId}:${account.platform}:${account.handle}:${account.is_verified}:${account.connected}`} account={account} />)}</div><RecentEngagementPanel accounts={accounts} /></div>}
     </div>
   );
 }

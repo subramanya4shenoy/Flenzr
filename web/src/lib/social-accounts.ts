@@ -1,8 +1,8 @@
-export type SocialPlatform = "instagram" | "youtube" | "x" | "tiktok" | "linkedin" | "twitch";
+export type SocialPlatform = "instagram" | "youtube" | "x" | "tiktok" | "linkedin" | "twitch" | "facebook";
 export interface SocialAccount { platform: SocialPlatform; handle: string; is_verified: boolean; display_name?: string; avatar_url?: string; connected?: boolean }
 export interface SocialLink { id: string; platform: SocialPlatform; handle: string; url: string; isVerified: boolean; avatarUrl?: string; createdAt?: number; displayName?: string; isConnected?: boolean }
 export function socialUrl(platform: SocialPlatform, handle: string) {
-  const prefix = { instagram: "https://instagram.com/", youtube: "https://youtube.com/@", x: "https://x.com/", tiktok: "https://tiktok.com/@", linkedin: "https://linkedin.com/in/", twitch: "https://twitch.tv/" };
+  const prefix = { instagram: "https://instagram.com/", youtube: "https://youtube.com/@", x: "https://x.com/", tiktok: "https://tiktok.com/@", linkedin: "https://linkedin.com/in/", twitch: "https://twitch.tv/", facebook: "https://www.facebook.com/" };
   return prefix[platform] + encodeURIComponent(handle);
 }
 export function mergeSocialAccounts(accounts: SocialAccount[], previous: SocialLink[]): SocialLink[] {
@@ -84,5 +84,18 @@ export async function connectX(handle?: string) {
   if (data.callbackOrigin !== window.location.origin) throw Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting X.`);
   const url = new URL(data.url);
   if (url.origin !== "https://x.com" || url.pathname !== "/i/oauth2/authorize") throw Error("Could not connect X.");
+  window.location.assign(url.toString());
+}
+
+export async function connectFacebook(handle?: string) {
+  const response = await fetch("/api/account/creators/me/facebook/connect", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(handle ? { handle } : {}),
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error(data.error?.message || "Could not connect Facebook Pages.");
+  if (data.callbackOrigin !== window.location.origin) throw Error(`Open Flenzr at ${data.callbackOrigin} and sign in there before connecting Facebook Pages.`);
+  const url = new URL(data.url);
+  if (url.origin !== "https://www.facebook.com" || url.pathname !== "/dialog/oauth") throw Error("Could not connect Facebook Pages.");
   window.location.assign(url.toString());
 }

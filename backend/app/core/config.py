@@ -47,6 +47,14 @@ class Settings(BaseSettings):
     X_CLIENT_SECRET: str = ""
     X_REDIRECT_URI: str = ""
 
+    # Facebook Pages uses its own User-token configuration; reuse the Meta app
+    # credentials above unless an explicit separate pair is supplied.
+    FACEBOOK_APP_ID: str = ""
+    FACEBOOK_APP_SECRET: str = ""
+    FACEBOOK_CONFIG_ID: str = ""
+    FACEBOOK_REDIRECT_URI: str = ""
+    FACEBOOK_API_VERSION: str = "v26.0"
+
     # CORS
     CORS_ORIGINS: List[str] = [
         "http://localhost:3210",

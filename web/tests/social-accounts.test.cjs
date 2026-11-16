@@ -154,3 +154,24 @@ test('X connect starts without manual username and validates callback origin and
     else { await assert.rejects(connected.connectX()); assert.equal(destination, undefined); }
   }
 });
+
+
+test('Facebook Pages connection discovers Pages without a manual handle and pins the OAuth destination', async () => {
+  let request, destination;
+  let data = { callbackOrigin: 'https://preview.test', url: 'https://www.facebook.com/dialog/oauth?config_id=123' };
+  const api = load(async (url, options) => {
+    request = { url, options };
+    return { ok: true, json: async () => data };
+  }, { window: { location: { origin: 'https://preview.test', assign: value => { destination = value; } } } });
+  await api.connectFacebook();
+  assert.equal(request.url, '/api/account/creators/me/facebook/connect');
+  assert.deepEqual(JSON.parse(request.options.body), {});
+  assert.equal(new URL(destination).hostname, 'www.facebook.com');
+  await api.connectFacebook('101');
+  assert.deepEqual(JSON.parse(request.options.body), { handle: '101' });
+  assert.equal(api.socialUrl('facebook', '101'), 'https://www.facebook.com/101');
+  data = { ...data, url: 'https://attacker.example/dialog/oauth' };
+  await assert.rejects(api.connectFacebook(), /Could not connect Facebook Pages/);
+  data = { ...data, callbackOrigin: 'https://another.test' };
+  await assert.rejects(api.connectFacebook(), /Open Flenzr/);
+});

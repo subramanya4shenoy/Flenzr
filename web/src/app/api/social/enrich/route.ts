@@ -70,13 +70,13 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!["instagram", "youtube", "linkedin", "x"].includes(platform) || typeof handle !== "string" || !/^@?[a-zA-Z0-9_.-]{1,128}$/.test(handle)) {
+    if (!["instagram", "youtube", "linkedin", "x", "facebook"].includes(platform) || typeof handle !== "string" || !/^@?[a-zA-Z0-9_.-]{1,128}$/.test(handle)) {
       return NextResponse.json({ error: "Invalid social account" }, { status: 400 });
     }
     const cleanHandle = handle.replace(/^@/, "").trim().toLowerCase();
     const cleanCode = (verificationCode || "").trim().toUpperCase();
 
-    if (platform === "linkedin" || platform === "x") {
+    if (platform === "linkedin" || platform === "x" || platform === "facebook") {
       const token = await accessToken();
       const response = await fetch(`${API_URL}/creators/me/${platform}/stats?handle=${encodeURIComponent(cleanHandle)}`, {
         headers: { Authorization: `Bearer ${token}` }, cache: "no-store", signal: AbortSignal.timeout(20000),

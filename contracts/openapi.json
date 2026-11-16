@@ -632,6 +632,405 @@
         }
       }
     },
+    "/api/v1/creators/me/facebook/connect": {
+      "post": {
+        "tags": [
+          "Facebook Pages connection"
+        ],
+        "summary": "Connect",
+        "operationId": "connect_api_v1_creators_me_facebook_connect_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__domains__creators__facebook_connection__ConnectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/creators/me/facebook/callback": {
+      "post": {
+        "tags": [
+          "Facebook Pages connection"
+        ],
+        "summary": "Complete",
+        "operationId": "complete_api_v1_creators_me_facebook_callback_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/creators/me/facebook/pending-pages": {
+      "get": {
+        "tags": [
+          "Facebook Pages connection"
+        ],
+        "summary": "Pending Pages",
+        "operationId": "pending_pages_api_v1_creators_me_facebook_pending_pages_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Facebook Pages connection"
+        ],
+        "summary": "Cancel Selection",
+        "operationId": "cancel_selection_api_v1_creators_me_facebook_pending_pages_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/creators/me/facebook/select": {
+      "post": {
+        "tags": [
+          "Facebook Pages connection"
+        ],
+        "summary": "Select Pages",
+        "operationId": "select_pages_api_v1_creators_me_facebook_select_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/creators/me/facebook/stats": {
+      "get": {
+        "tags": [
+          "Facebook Pages connection"
+        ],
+        "summary": "Stats",
+        "operationId": "stats_api_v1_creators_me_facebook_stats_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/creators/me/facebook/connection": {
+      "delete": {
+        "tags": [
+          "Facebook Pages connection"
+        ],
+        "summary": "Disconnect",
+        "operationId": "disconnect_api_v1_creators_me_facebook_connection_delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/creators/me/recent-engagement": {
+      "get": {
+        "tags": [
+          "Recent engagement"
+        ],
+        "summary": "Recent Engagement",
+        "description": "Read the last saved snapshot only. Never contact a social provider on page load.",
+        "operationId": "recent_engagement_api_v1_creators_me_recent_engagement_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "instagram",
+                "youtube",
+                "x",
+                "tiktok",
+                "linkedin",
+                "twitch",
+                "facebook"
+              ],
+              "type": "string",
+              "title": "Platform"
+            }
+          },
+          {
+            "name": "handle",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-zA-Z0-9_.-]+$",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Recent engagement"
+        ],
+        "summary": "Refresh Recent Engagement",
+        "operationId": "refresh_recent_engagement_api_v1_creators_me_recent_engagement_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "instagram",
+                "youtube",
+                "x",
+                "tiktok",
+                "linkedin",
+                "twitch",
+                "facebook"
+              ],
+              "type": "string",
+              "title": "Platform"
+            }
+          },
+          {
+            "name": "handle",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-zA-Z0-9_.-]+$",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/creators/me/instagram/connect": {
       "post": {
         "tags": [
@@ -864,7 +1263,8 @@
                 "x",
                 "tiktok",
                 "linkedin",
-                "twitch"
+                "twitch",
+                "facebook"
               ],
               "type": "string",
               "title": "Platform"
@@ -931,7 +1331,8 @@
                 "x",
                 "tiktok",
                 "linkedin",
-                "twitch"
+                "twitch",
+                "facebook"
               ],
               "type": "string",
               "title": "Platform"
@@ -2215,6 +2616,185 @@
         }
       }
     },
+    "/api/v1/enquiries": {
+      "post": {
+        "tags": [
+          "Enquiries"
+        ],
+        "summary": "Create Enquiry",
+        "operationId": "create_enquiry_api_v1_enquiries_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnquiryCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnquiryRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/enquiries/me": {
+      "get": {
+        "tags": [
+          "Enquiries"
+        ],
+        "summary": "My Enquiries",
+        "operationId": "my_enquiries_api_v1_enquiries_me_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "view",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(received|sent)$",
+              "default": "received",
+              "title": "View"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 30,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EnquiryRead"
+                  },
+                  "title": "Response My Enquiries Api V1 Enquiries Me Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/enquiries/{enquiry_id}/respond": {
+      "post": {
+        "tags": [
+          "Enquiries"
+        ],
+        "summary": "Respond To Enquiry",
+        "operationId": "respond_to_enquiry_api_v1_enquiries__enquiry_id__respond_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "enquiry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enquiry Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnquiryRespond"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnquiryRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/r/{short_code}": {
       "get": {
         "tags": [
@@ -3125,6 +3705,242 @@
         ],
         "title": "DeliverableType"
       },
+      "EnquiryCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "creator_handle": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Creator Handle"
+          },
+          "brand_name": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 2,
+            "title": "Brand Name"
+          },
+          "brief": {
+            "type": "string",
+            "maxLength": 5000,
+            "minLength": 20,
+            "title": "Brief"
+          },
+          "rate_card_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Card Id"
+          },
+          "deliverable": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Deliverable",
+            "default": "Custom collaboration"
+          },
+          "amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000000.0,
+                "minimum": 100.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Cents"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "INR",
+              "USD",
+              "EUR",
+              "GBP",
+              "AED",
+              "CAD",
+              "AUD",
+              "SGD"
+            ],
+            "title": "Currency",
+            "default": "INR"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "creator_handle",
+          "brand_name",
+          "brief"
+        ],
+        "title": "EnquiryCreate"
+      },
+      "EnquiryRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "creator_handle": {
+            "type": "string",
+            "title": "Creator Handle"
+          },
+          "creator_name": {
+            "type": "string",
+            "title": "Creator Name"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "sender_email": {
+            "type": "string",
+            "title": "Sender Email"
+          },
+          "brief": {
+            "type": "string",
+            "title": "Brief"
+          },
+          "deliverable": {
+            "type": "string",
+            "title": "Deliverable"
+          },
+          "rate_card_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Card Id"
+          },
+          "amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Cents"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "declined",
+              "countered"
+            ],
+            "title": "Status"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "history": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "creator_handle",
+          "creator_name",
+          "brand_name",
+          "sender_email",
+          "brief",
+          "deliverable",
+          "rate_card_id",
+          "amount_cents",
+          "currency",
+          "status",
+          "revision",
+          "history",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "EnquiryRead"
+      },
+      "EnquiryRespond": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "accept",
+              "decline",
+              "counter"
+            ],
+            "title": "Action"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Note",
+            "default": ""
+          },
+          "amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000000.0,
+                "minimum": 100.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Cents"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "expected_revision"
+        ],
+        "title": "EnquiryRespond"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -3770,6 +4586,32 @@
         "type": "object",
         "title": "RateCardUpdate"
       },
+      "SelectRequest": {
+        "properties": {
+          "selection_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 32,
+            "title": "Selection Id"
+          },
+          "page_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Page Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "selection_id",
+          "page_ids"
+        ],
+        "title": "SelectRequest"
+      },
       "SocialAccountRead": {
         "properties": {
           "platform": {
@@ -3780,7 +4622,8 @@
               "x",
               "tiktok",
               "linkedin",
-              "twitch"
+              "twitch",
+              "facebook"
             ],
             "title": "Platform"
           },
@@ -4366,6 +5209,27 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "app__domains__creators__facebook_connection__ConnectRequest": {
+        "properties": {
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32,
+                "minLength": 1,
+                "pattern": "^\\d+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ConnectRequest"
       },
       "app__domains__creators__instagram_connection__ConnectRequest": {
         "properties": {

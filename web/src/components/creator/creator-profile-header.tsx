@@ -1,6 +1,6 @@
 "use client";
 
-import { connectInstagram, connectYouTube, connectLinkedIn, connectX } from "@/lib/social-accounts";
+import { connectInstagram, connectYouTube, connectLinkedIn, connectX, connectFacebook } from "@/lib/social-accounts";
 
 import { useState, useEffect, useId, type ComponentProps } from "react";
 import { useTranslation } from "@/lib/i18n/language-context";
@@ -54,6 +54,10 @@ function AccountActionButton({ label, children, ...props }: ComponentProps<"butt
 // -------------------------------------------------------------
 // Vector Social Brand Icons
 // -------------------------------------------------------------
+export function FacebookIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.095 10.125 24v-8.437H7.078v-3.49h3.047v-2.66c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.972h-1.513c-1.49 0-1.956.93-1.956 1.885v2.264h3.328l-.532 3.49h-2.796V24C19.612 23.095 24 18.1 24 12.073Z" /></svg>;
+}
+
 export function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -104,7 +108,7 @@ export function TwitchIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-export type PlatformKey = "instagram" | "youtube" | "x" | "tiktok" | "linkedin" | "twitch";
+export type PlatformKey = "instagram" | "youtube" | "x" | "tiktok" | "linkedin" | "twitch" | "facebook";
 
 export interface LinkedSocialItem {
   id: string;
@@ -347,7 +351,7 @@ export function CreatorProfileHeader({
         if (!localStorage.getItem(marker) && Array.isArray(cached)) {
           for (const item of cached) {
             if (!active) return;
-            if (["instagram", "youtube", "x", "tiktok", "linkedin", "twitch"].includes(item.platform) && /^[a-zA-Z0-9_.-]{1,128}$/.test(item.handle) && !accounts.some((account) => account.platform === item.platform)) {
+            if (["instagram", "youtube", "x", "tiktok", "linkedin", "twitch", "facebook"].includes(item.platform) && /^[a-zA-Z0-9_.-]{1,128}$/.test(item.handle) && !accounts.some((account) => account.platform === item.platform)) {
               accounts = await saveSocialAccount(item.platform, item.handle, "");
             }
           }
@@ -502,7 +506,7 @@ export function CreatorProfileHeader({
   // 4. STRICT VERIFICATION CHECK:
   const allLinkedSocialsVerified = linkedSocials.some((s) => s.isVerified);
 
-  const startAccountConnection = async (platform: "youtube" | "instagram" | "linkedin" | "x", existingHandle?: string, accountId?: string) => {
+  const startAccountConnection = async (platform: "youtube" | "instagram" | "linkedin" | "x" | "facebook", existingHandle?: string, accountId?: string) => {
     if (isSavingSocial || !socialsReady) return;
     setIsSavingSocial(true);
     setSocialError("");
@@ -511,10 +515,11 @@ export function CreatorProfileHeader({
       if (platform === "youtube") await connectYouTube(existingHandle);
       else if (platform === "linkedin") await connectLinkedIn(existingHandle);
       else if (platform === "x") await connectX(existingHandle);
+      else if (platform === "facebook") await connectFacebook(existingHandle);
       else await connectInstagram(existingHandle, accountId);
     }
     catch (error) {
-      const text = error instanceof Error ? error.message : `Could not connect ${platform === "youtube" ? "YouTube" : platform === "linkedin" ? "LinkedIn" : platform === "x" ? "X" : "Instagram"}.`;
+      const text = error instanceof Error ? error.message : `Could not connect ${platform === "youtube" ? "YouTube" : platform === "linkedin" ? "LinkedIn" : platform === "x" ? "X" : platform === "facebook" ? "Facebook Pages" : "Instagram"}.`;
       setModalVerifyMsg({ success: false, text });
       setSocialError(text);
       setIsSavingSocial(false);
@@ -524,7 +529,7 @@ export function CreatorProfileHeader({
   // Other platforms retain their existing manual-link flow.
   const handleAddSocial = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPlatform === "youtube" || newPlatform === "instagram" || newPlatform === "linkedin" || newPlatform === "x") {
+    if (newPlatform === "youtube" || newPlatform === "instagram" || newPlatform === "linkedin" || newPlatform === "x" || newPlatform === "facebook") {
       await startAccountConnection(newPlatform, editingSocial?.handle,
         newPlatform === "instagram" ? instagramAccountId.trim() || undefined : undefined);
       return;
@@ -547,6 +552,8 @@ export function CreatorProfileHeader({
 
   const getPlatformIcon = (platform: PlatformKey) => {
     switch (platform) {
+      case "facebook":
+        return <FacebookIcon className="w-4 h-4 text-[#5890ff]" />;
       case "instagram":
         return <InstagramIcon className="w-4 h-4 text-[#E1306C]" />;
       case "youtube":
@@ -795,16 +802,16 @@ export function CreatorProfileHeader({
                       {getPlatformIcon(social.platform)}
                     </a> : <span className="w-9 h-9 shrink-0 flex items-center justify-center" aria-label="LinkedIn account">{getPlatformIcon(social.platform)}</span>}
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold text-white truncate">{social.platform === "linkedin" && social.displayName ? social.displayName : "@" + social.handle}</div>
+                      <div className="text-xs font-semibold text-white truncate">{(social.platform === "linkedin" || social.platform === "facebook") && social.displayName ? social.displayName : "@" + social.handle}</div>
                       <div className="text-[10px] text-neutral-400">{social.platform} · {social.isConnected ? "Connected" : social.platform === "linkedin" && social.displayName ? "Reconnect needed" : social.isVerified ? "Verified" : "Not verified"}</div>
                     </div>
                     {isEditable && <div className="flex flex-wrap gap-1 shrink-0">
-                      {(social.platform === "youtube" || social.platform === "instagram" || social.platform === "linkedin" || social.platform === "x") ? (
+                      {(social.platform === "youtube" || social.platform === "instagram" || social.platform === "linkedin" || social.platform === "x" || social.platform === "facebook") ? (
                         <AccountActionButton
                           label={isSavingSocial ? t("Connecting…") : (social.isVerified || social.isConnected) ? t("Reconnect") : t("Connect")}
                           disabled={isSavingSocial || !socialsReady}
-                          onClick={() => startAccountConnection(social.platform as "youtube" | "instagram" | "linkedin" | "x", social.handle)}
-                          aria-label={`${social.isVerified || social.isConnected ? "Reconnect" : "Connect"} ${social.platform === "youtube" ? "YouTube" : social.platform === "linkedin" ? "LinkedIn" : social.platform === "x" ? "X" : "Instagram"} ${social.displayName || "@" + social.handle}`}
+                          onClick={() => startAccountConnection(social.platform as "youtube" | "instagram" | "linkedin" | "x" | "facebook", social.handle)}
+                          aria-label={`${social.isVerified || social.isConnected ? "Reconnect" : "Connect"} ${social.platform === "youtube" ? "YouTube" : social.platform === "linkedin" ? "LinkedIn" : social.platform === "x" ? "X" : social.platform === "facebook" ? "Facebook Page" : "Instagram"} ${social.displayName || "@" + social.handle}`}
                           aria-busy={isSavingSocial}
                         >
                           {isSavingSocial ? <Loader2 aria-hidden="true" className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw aria-hidden="true" className="w-3.5 h-3.5" />}
@@ -879,6 +886,24 @@ export function CreatorProfileHeader({
                   </button>
                 )}
 
+                {isEditable && (
+                  <button
+                    type="button"
+                    disabled={isSavingSocial || !socialsReady}
+                    onClick={() => {
+                      setEditingSocial(null);
+                      setNewPlatform("facebook");
+                      setNewHandle("");
+                      setModalVerifyMsg(null);
+                      setShowAddModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl border border-blue-500/25 bg-blue-500/10 px-3 py-2.5 text-xs font-semibold text-blue-200 hover:bg-blue-500/20 disabled:opacity-40 cursor-pointer"
+                  >
+                    <FacebookIcon className="w-4 h-4" />
+                    {linkedSocials.some((social) => social.platform === "facebook") ? "Add Facebook Pages" : "Connect Facebook Pages"}
+                  </button>
+                )}
+
                 {/* THE '+' BUTTON TO ADD MORE SOCIAL LINKS */}
                 {isEditable && (
                   <button
@@ -949,6 +974,7 @@ export function CreatorProfileHeader({
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { key: "instagram" as PlatformKey, label: "Instagram", icon: InstagramIcon },
+                      { key: "facebook" as PlatformKey, label: "Facebook Pages", icon: FacebookIcon },
                       { key: "youtube" as PlatformKey, label: "YouTube", icon: YoutubeIcon },
                       { key: "x" as PlatformKey, label: "X (Twitter)", icon: XTwitterIcon },
                       { key: "tiktok" as PlatformKey, label: "TikTok", icon: TikTokIcon },
@@ -976,7 +1002,11 @@ export function CreatorProfileHeader({
                   </div>
                 </div>
 
-                {newPlatform === "x" ? <div className="rounded-xl border border-white/15 bg-white/5 p-4 space-y-2">
+                {newPlatform === "facebook" ? <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 space-y-2">
+                  <p className="font-semibold text-white">Connect your Facebook Pages</p>
+                  <p className="text-neutral-400 leading-relaxed">Sign in with the Facebook account you use to manage your Pages and approve Page read access. If you manage several Pages, you’ll choose which ones to add after returning to Flenzr.</p>
+                  <p className="text-[11px] text-neutral-400">We import Page names, photos, and available audience counts. Flenzr does not publish posts or send messages through this connection. Personal Facebook profiles are not linked.</p>
+                </div> : newPlatform === "x" ? <div className="rounded-xl border border-white/15 bg-white/5 p-4 space-y-2">
                   <p className="font-semibold text-white">Connect your X account</p>
                   <p className="text-neutral-400 leading-relaxed">Sign in on X and approve read access. We’ll import your username, photo, and available follower, following, and post counts automatically.</p>
                   <p className="text-[11px] text-neutral-400">Access renews automatically while authorized. Flenzr cannot post, send messages, or follow accounts with these permissions.</p>
@@ -1048,7 +1078,7 @@ export function CreatorProfileHeader({
                     disabled={isSavingSocial || !socialsReady}
                     className="px-5 py-2 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold cursor-pointer shadow-lg shadow-[#c1121f]/25"
                   >
-                    {newPlatform === "youtube" || newPlatform === "instagram" || newPlatform === "linkedin" || newPlatform === "x" ? (isSavingSocial ? "Connecting…" : newPlatform === "youtube" ? "Connect YouTube" : newPlatform === "linkedin" ? "Connect LinkedIn" : newPlatform === "x" ? "Connect X" : "Connect Instagram") : isSavingSocial ? "Saving…" : editingSocial ? "Save changes" : "Connect Link"}
+                    {newPlatform === "youtube" || newPlatform === "instagram" || newPlatform === "linkedin" || newPlatform === "x" || newPlatform === "facebook" ? (isSavingSocial ? "Connecting…" : newPlatform === "youtube" ? "Connect YouTube" : newPlatform === "linkedin" ? "Connect LinkedIn" : newPlatform === "x" ? "Connect X" : newPlatform === "facebook" ? "Connect Facebook Pages" : "Connect Instagram") : isSavingSocial ? "Saving…" : editingSocial ? "Save changes" : "Connect Link"}
                   </button>
                 </div>
               </form>

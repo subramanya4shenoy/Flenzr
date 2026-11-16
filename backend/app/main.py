@@ -14,7 +14,10 @@ from app.domains.creators.instagram_connection import router as instagram_connec
 from app.domains.creators.youtube_connection import router as youtube_connection_router
 from app.domains.creators.linkedin_connection import router as linkedin_connection_router
 from app.domains.creators.x_connection import router as x_connection_router
+from app.domains.creators.facebook_connection import router as facebook_connection_router
+from app.domains.creators.recent_engagement import router as recent_engagement_router
 from app.domains.discovery.router import router as discovery_router
+from app.domains.enquiries.router import router as enquiries_router
 from app.domains.identity.router import router as identity_router
 from app.domains.links.router import redirect_router
 from app.domains.links.router import router as links_router
@@ -82,6 +85,8 @@ def create_application() -> FastAPI:
     app.include_router(youtube_connection_router, prefix=settings.API_V1_PREFIX)
     app.include_router(linkedin_connection_router, prefix=settings.API_V1_PREFIX)
     app.include_router(x_connection_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(facebook_connection_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(recent_engagement_router, prefix=settings.API_V1_PREFIX)
     app.include_router(instagram_connection_router, prefix=settings.API_V1_PREFIX)
     app.include_router(social_accounts_router, prefix=settings.API_V1_PREFIX)
     app.include_router(creators_router, prefix=settings.API_V1_PREFIX)
@@ -91,6 +96,7 @@ def create_application() -> FastAPI:
     app.include_router(brands_router, prefix=settings.API_V1_PREFIX)
     app.include_router(campaigns_router, prefix=settings.API_V1_PREFIX)
     app.include_router(discovery_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(enquiries_router, prefix=settings.API_V1_PREFIX)
 
     # Mount Root Redirect Router
     app.include_router(redirect_router)

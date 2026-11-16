@@ -12,6 +12,8 @@ function load(file, globals = {}, mocks = {}) {
     if (name in mocks) return mocks[name];
     if (name === 'next/server') return { NextResponse: { json } };
     if (name === 'react/jsx-runtime') return { jsx: (type, props) => ({ type, props }) };
+    if (name === 'node:crypto') return require('node:crypto');
+    if (name === '@/lib/server/public-image-cache') return load('src/lib/server/public-image-cache.ts');
     throw Error(`Unexpected dependency ${name}`);
   }, URL, Request, Response, AbortSignal, Uint8Array, process: { env: {} }, console, ...globals });
   return exports;
@@ -25,12 +27,17 @@ for (const [workspace, allowedRole] of [['creator', 'creator'], ['brand', 'brand
     const layout = load(`src/app/dashboard/${workspace}/layout.tsx`, {}, {
       'next/navigation': { redirect: (path) => { throw Error(path); } },
       '@/lib/server/session': { currentIdentity: async () => current, hasRole: (i, role) => i.active_roles.includes(role) },
+      '@/components/creator/creator-account-context': { CreatorAccountProvider: 'CreatorAccountProvider' },
     }).default;
     await assert.rejects(layout({ children: 'private' }), /\/login/);
     current = { ...identity, active_roles: ['unrelated'] };
     await assert.rejects(layout({ children: 'private' }), /access-denied/);
     current.active_roles = [allowedRole];
-    assert.equal(await layout({ children: 'private' }), 'private');
+    const rendered = await layout({ children: 'private' });
+    if (workspace === 'creator') {
+      assert.equal(rendered.props.ownerId, identity.user.id);
+      assert.equal(rendered.props.children, 'private');
+    } else assert.equal(rendered, 'private');
   });
 }
 
