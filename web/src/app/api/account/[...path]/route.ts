@@ -6,7 +6,7 @@ async function forward(request: Request, context: { params: Promise<{ path: stri
   const token = await accessToken();
   if (!token) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   const { path } = await context.params;
-  if (!path.length || path.some((part) => !/^[a-zA-Z0-9_-]+$/.test(part)) || !["creators", "identity", "ratecards", "links", "qrcodes", "organizations", "campaigns", "enquiries"].includes(path[0])) {
+  if (!path.length || path.some((part) => !/^[a-zA-Z0-9_-]+$/.test(part)) || !["creators", "identity", "ratecards", "links", "qrcodes", "organizations", "campaigns", "shortlists", "collaborations", "enquiries", "notifications"].includes(path[0])) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   try {
@@ -18,12 +18,16 @@ async function forward(request: Request, context: { params: Promise<{ path: stri
     const data = await upstream.json();
     // The access token stays exclusively in the HttpOnly cookie.
     if (path.join("/") === "creators/onboard" && data.access_token) delete data.access_token;
-    return NextResponse.json(data, { status: upstream.status, headers: { "Cache-Control": "no-store" } });
+    const retryAfter = upstream.headers?.get("Retry-After");
+    return NextResponse.json(data, { status: upstream.status, headers: {
+      "Cache-Control": "no-store", ...(retryAfter ? { "Retry-After": retryAfter } : {}),
+    } });
   } catch {
     return NextResponse.json({ error: "Service temporarily unavailable" }, { status: 503 });
   }
 }
 export const GET = forward;
 export const POST = forward;
+export const PUT = forward;
 export const PATCH = forward;
 export const DELETE = forward;

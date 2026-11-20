@@ -103,3 +103,57 @@ async def test_creator_discovery_search(client: AsyncClient, auth_headers):
     results = search_res.json()
     assert len(results) >= 1
     assert any("Audiophile" in (r["niche"] or "") for r in results)
+
+
+@pytest.mark.asyncio
+async def test_brand_profile_persists_and_isolates_owners(client: AsyncClient, auth_headers):
+    owner = auth_headers(sub="profile-owner", email="owner@example.com")
+    other = auth_headers(sub="profile-other", email="other@example.com")
+    outsider = auth_headers(sub="profile-outsider", email="outsider@example.com")
+    for headers, name in [(owner, "First Brand"), (other, "Other Brand")]:
+        response = await client.post("/api/v1/organizations", headers=headers,
+                                     json={"name": name, "billing_email": "billing@example.com"})
+        assert response.status_code == 201, response.text
+    original = (await client.get("/api/v1/organizations/me", headers=owner)).json()
+    patch = {"name": " Updated Brand ", "company_name": "Updated Ltd", "billing_email": "new@example.com",
+             "industry": " Design ", "website": "https://example.com/brand", "description": "A real brand."}
+    response = await client.patch("/api/v1/organizations/me", headers=owner, json=patch)
+    assert response.status_code == 200, response.text
+    saved = response.json()
+    assert saved["name"] == "Updated Brand"
+    assert saved["billing_email"] == "new@example.com"
+    assert saved["brand_profile"]["company_name"] == "Updated Ltd"
+    assert saved["brand_profile"]["industry"] == "Design"
+    assert saved["brand_profile"]["website"] == patch["website"]
+    assert saved["brand_profile"]["description"] == patch["description"]
+    assert saved["slug"] == original["slug"]
+    assert saved["owner_id"] == original["owner_id"]
+    assert saved["brand_profile"]["is_verified"] is False
+    assert (await client.get("/api/v1/organizations/me", headers=owner)).json() == saved
+    assert (await client.get("/api/v1/organizations/me", headers=other)).json()["name"] == "Other Brand"
+    assert (await client.patch("/api/v1/organizations/me", headers=outsider, json={"name": "Intruder"})).status_code == 403
+    assert (await client.patch("/api/v1/organizations/me", json={"name": "Intruder"})).status_code == 401
+    assert (await client.patch(f"/api/v1/organizations/{original['id']}", headers=other, json={"name": "Intruder"})).status_code in (404, 405)
+    # Partial updates preserve omitted fields; optional fields can be explicitly cleared.
+    cleared = await client.patch("/api/v1/organizations/me", headers=owner, json={"industry": "", "website": None, "description": "  "})
+    assert cleared.status_code == 200
+    assert cleared.json()["name"] == "Updated Brand"
+    assert cleared.json()["brand_profile"]["company_name"] == "Updated Ltd"
+    assert all(cleared.json()["brand_profile"][key] is None for key in ("industry", "website", "description"))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("payload", [
+    {"name": "  "}, {"company_name": None}, {"billing_email": "invalid"},
+    {"website": "javascript:alert(1)"}, {"website": "https://user:password@example.com"},
+    {"industry": "a" * 129}, {"description": "a" * 5001},
+    {"owner_id": "someone-else"}, {"slug": "changed"}, {"is_verified": True}, {"billing_status": "paid"},
+])
+async def test_brand_profile_rejects_invalid_or_privileged_changes(client: AsyncClient, auth_headers, payload):
+    headers = auth_headers(sub="profile-validation", email="owner@example.com")
+    created = await client.post("/api/v1/organizations", headers=headers,
+                                json={"name": "Original Brand", "billing_email": "billing@example.com"})
+    assert created.status_code == 201
+    result = await client.patch("/api/v1/organizations/me", headers=headers, json=payload)
+    assert result.status_code == 422, result.text
+    assert (await client.get("/api/v1/organizations/me", headers=headers)).json()["name"] == "Original Brand"

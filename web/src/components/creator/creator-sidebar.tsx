@@ -3,18 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Award, Briefcase, Calendar, DollarSign, ExternalLink, LayoutDashboard,
+  Award, Briefcase, Calendar, Compass, DollarSign, ExternalLink, LayoutDashboard,
   Link2, PanelLeftClose, TrendingUp, Wallet, Wand2,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { useTranslation } from "@/lib/i18n/language-context";
+import { EnquiryUnreadBadge, useEnquiryActivity } from "@/components/enquiries/enquiry-activity";
 import "./creator-sidebar.css";
 
 const ITEMS = [
   { id: "overview", label: "Overview", title: "Studio Overview", icon: LayoutDashboard, group: 0 },
   { id: "pipeline", label: "Collabs", title: "Collab Pipeline", icon: Briefcase, group: 0 },
+  { id: "opportunities", label: "Opportunities", title: "Campaign Opportunities", icon: Compass, group: 0 },
   { id: "ratecards", label: "Rate Cards", title: "Rate Cards & Packages", icon: DollarSign, group: 0 },
-  { id: "calendar", label: "Calendar", title: "Shoot Calendar", icon: Calendar, group: 0 },
+  { id: "calendar", label: "Calendar", title: "Collaboration Calendar", icon: Calendar, group: 0 },
   { id: "analytics", label: "Analytics", title: "Analytics", icon: TrendingUp, group: 1 },
   { id: "portfolio", label: "Portfolio", title: "Portfolio", icon: Award, group: 1 },
   { id: "links", label: "Links & QR", title: "Smart Links & Dynamic QR", icon: Link2, group: 1 },
@@ -28,11 +30,11 @@ interface CreatorSidebarProps {
   activeTab: CreatorDashboardTab;
   onSelect: (tab: CreatorDashboardTab) => void;
   creatorHandle: string;
-  activeCollabCount: number;
 }
 
-export function CreatorSidebar({ activeTab, onSelect, creatorHandle, activeCollabCount }: CreatorSidebarProps) {
+export function CreatorSidebar({ activeTab, onSelect, creatorHandle }: CreatorSidebarProps) {
   const { t } = useTranslation();
+  const enquiryActivity = useEnquiryActivity();
   const [expanded, setExpanded] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
@@ -75,7 +77,8 @@ export function CreatorSidebar({ activeTab, onSelect, creatorHandle, activeColla
             <span className="creator-sidebar-highlight" style={{ transform: `translate3d(0, ${highlightTop}px, 0)` }} aria-hidden="true" />
             {ITEMS.map((item, index) => {
               const Icon = item.icon;
-              const showCount = (item.id === "pipeline" || item.id === "calendar") && activeCollabCount > 0;
+              const unread = item.id === "pipeline" ? enquiryActivity?.counts?.received || 0 : 0;
+              const itemLabel = t(item.title) + (unread ? ` · ${unread} unread enquiries` : "");
               return (
                 <div key={item.id} className="creator-sidebar-itemGroup">
                   {index > 0 && ITEMS[index - 1].group !== item.group && <div className="creator-sidebar-divider" aria-hidden="true" />}
@@ -85,13 +88,13 @@ export function CreatorSidebar({ activeTab, onSelect, creatorHandle, activeColla
                     onClick={() => onSelect(item.id)}
                     onPointerEnter={(event) => { if (event.pointerType !== "touch") setHoveredIndex(index); }}
                     onFocus={() => setFocusedIndex(index)}
-                    title={expanded ? undefined : t(item.title)}
-                    aria-label={t(item.title)}
+                    title={expanded ? undefined : itemLabel}
+                    aria-label={itemLabel}
                     aria-current={activeTab === item.id ? "page" : undefined}
                   >
                     <span className="creator-sidebar-icon"><Icon size={14} aria-hidden="true" /></span>
                     <span className="creator-sidebar-label" aria-hidden="true">{t(item.label)}</span>
-                    {showCount && <span className="creator-sidebar-count">{activeCollabCount}</span>}
+                    {item.id === "pipeline" && <EnquiryUnreadBadge view="received" className="creator-sidebar-count" />}
                   </button>
                 </div>
               );

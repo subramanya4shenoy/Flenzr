@@ -64,3 +64,6 @@ Thumbs.db
 
 # Local OAuth credentials
 backend/.secrets/
+
+# Development notification emails (contain private account information)
+backend/.mail-sink/

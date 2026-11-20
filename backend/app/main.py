@@ -6,6 +6,8 @@ from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.core.database import Base, engine
 from app.core.exceptions import FlenzrException
+from app.domains.collaborations.router import router as collaborations_router
+from app.domains.shortlists.router import router as shortlists_router
 from app.domains.brands.router import router as brands_router
 from app.domains.campaigns.router import router as campaigns_router
 from app.domains.creators.router import router as creators_router
@@ -18,6 +20,7 @@ from app.domains.creators.facebook_connection import router as facebook_connecti
 from app.domains.creators.recent_engagement import router as recent_engagement_router
 from app.domains.discovery.router import router as discovery_router
 from app.domains.enquiries.router import router as enquiries_router
+from app.domains.notifications.router import router as notifications_router
 from app.domains.identity.router import router as identity_router
 from app.domains.links.router import redirect_router
 from app.domains.links.router import router as links_router
@@ -60,6 +63,7 @@ def create_application() -> FastAPI:
     async def flenzr_exception_handler(request: Request, exc: FlenzrException):
         return JSONResponse(
             status_code=exc.status_code,
+            headers=exc.headers,
             content={
                 "success": False,
                 "data": None,
@@ -81,6 +85,7 @@ def create_application() -> FastAPI:
         }
 
     # Mount Domain Routers
+    app.include_router(collaborations_router, prefix=settings.API_V1_PREFIX)
     app.include_router(identity_router, prefix=settings.API_V1_PREFIX)
     app.include_router(youtube_connection_router, prefix=settings.API_V1_PREFIX)
     app.include_router(linkedin_connection_router, prefix=settings.API_V1_PREFIX)
@@ -94,9 +99,11 @@ def create_application() -> FastAPI:
     app.include_router(links_router, prefix=settings.API_V1_PREFIX)
     app.include_router(qrcodes_router, prefix=settings.API_V1_PREFIX)
     app.include_router(brands_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(shortlists_router, prefix=settings.API_V1_PREFIX)
     app.include_router(campaigns_router, prefix=settings.API_V1_PREFIX)
     app.include_router(discovery_router, prefix=settings.API_V1_PREFIX)
     app.include_router(enquiries_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(notifications_router, prefix=settings.API_V1_PREFIX)
 
     # Mount Root Redirect Router
     app.include_router(redirect_router)

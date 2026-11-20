@@ -155,19 +155,33 @@
 
 .creator-sidebar-count {
   position: absolute;
-  top: 2px;
-  right: 3px;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #c1121f;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: top 200ms var(--sidebar-ease), right 200ms var(--sidebar-ease), transform 200ms var(--sidebar-ease);
+}
+
+.creator-sidebar[data-expanded="false"] .creator-sidebar-count {
+  top: 2px;
+  right: 0;
+  transform: none;
   min-width: 12px;
   height: 12px;
   padding: 0 3px;
-  border-radius: 7px;
-  background: #c1121f;
-  color: white;
   font-size: 7px;
-  font-weight: 700;
 }
 
 .creator-sidebar-footer { flex: 0 0 auto; padding-top: 12px; }
@@ -178,6 +192,6 @@
 @media (min-width: 1024px) { .creator-sidebar { display: flex; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .creator-sidebar, .creator-sidebar-header, .creator-sidebar-toggle, .creator-sidebar-toggleIcon, .creator-sidebar-item, .creator-sidebar-highlight, .creator-sidebar-label, .creator-sidebar-publicLink,
+  .creator-sidebar, .creator-sidebar-header, .creator-sidebar-toggle, .creator-sidebar-toggleIcon, .creator-sidebar-item, .creator-sidebar-highlight, .creator-sidebar-label, .creator-sidebar-publicLink, .creator-sidebar-count,
   .creator-sidebar[data-expanded="false"] .creator-sidebar-label { transition: none; }
 }

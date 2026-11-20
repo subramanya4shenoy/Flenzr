@@ -24,6 +24,979 @@
         }
       }
     },
+    "/api/v1/collaborations": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Create Collaboration",
+        "operationId": "create_collaboration_api_v1_collaborations_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollaborationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollaborationRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "List Collaborations",
+        "operationId": "list_collaborations_api_v1_collaborations_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollaborationPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/calendar": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Calendar",
+        "operationId": "calendar_api_v1_collaborations_calendar_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 7,
+              "title": "Month"
+            }
+          },
+          {
+            "name": "day",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 31,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Day"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Read Collaboration",
+        "operationId": "read_collaboration_api_v1_collaborations__record_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollaborationRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/proposals": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Proposal Workspace",
+        "operationId": "proposal_workspace_api_v1_collaborations__record_id__proposals_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalWorkspace"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/proposals/draft": {
+      "put": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Save Proposal Draft",
+        "operationId": "save_proposal_draft_api_v1_collaborations__record_id__proposals_draft_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalDraftSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalDraftRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/proposals/send": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Send Proposal",
+        "operationId": "send_proposal_api_v1_collaborations__record_id__proposals_send_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalSend"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalRevisionRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/proposals/accept": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Accept Proposal",
+        "operationId": "accept_proposal_api_v1_collaborations__record_id__proposals_accept_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalAccept"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgreementStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/agreement": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Read Agreement",
+        "operationId": "read_agreement_api_v1_collaborations__record_id__agreement_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgreementRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/deliveries": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Delivery Workspace",
+        "operationId": "delivery_workspace_api_v1_collaborations__record_id__deliveries_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryWorkspace"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Submit Delivery",
+        "operationId": "submit_delivery_api_v1_collaborations__record_id__deliveries_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/deliveries/{delivery_id}/review": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Review Delivery",
+        "operationId": "review_delivery_api_v1_collaborations__record_id__deliveries__delivery_id__review_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "delivery_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Delivery Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryReviewCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryReviewRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/complete": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Complete Collaboration",
+        "operationId": "complete_collaboration_api_v1_collaborations__record_id__complete_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompletionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompletionRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/publishing-proof": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Publishing Proof",
+        "operationId": "publishing_proof_api_v1_collaborations__record_id__publishing_proof_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingProofWorkspace"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Save Publishing Proof",
+        "operationId": "save_publishing_proof_api_v1_collaborations__record_id__publishing_proof_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishingProofCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingProofRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/publishing-proof/{proof_id}/confirm": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Confirm Publishing Proof",
+        "operationId": "confirm_publishing_proof_api_v1_collaborations__record_id__publishing_proof__proof_id__confirm_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "proof_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Proof Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProofConfirmationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProofConfirmationRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/identity/me": {
       "get": {
         "tags": [
@@ -2197,6 +3170,497 @@
             "HTTPBearer": []
           }
         ]
+      },
+      "patch": {
+        "tags": [
+          "Organizations & Brands"
+        ],
+        "summary": "Update My Organization",
+        "description": "Update only the organization owned by the signed-in brand owner.",
+        "operationId": "update_my_organization_api_v1_organizations_me_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/shortlists": {
+      "get": {
+        "tags": [
+          "Private brand shortlists"
+        ],
+        "summary": "Groups",
+        "operationId": "groups_api_v1_shortlists_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortlistPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Private brand shortlists"
+        ],
+        "summary": "Create",
+        "operationId": "create_api_v1_shortlists_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShortlistCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortlistRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shortlists/{id}": {
+      "get": {
+        "tags": [
+          "Private brand shortlists"
+        ],
+        "summary": "Read",
+        "operationId": "read_api_v1_shortlists__id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortlistRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Private brand shortlists"
+        ],
+        "summary": "Delete Group",
+        "operationId": "delete_group_api_v1_shortlists__id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shortlists/{id}/members": {
+      "get": {
+        "tags": [
+          "Private brand shortlists"
+        ],
+        "summary": "Members",
+        "operationId": "members_api_v1_shortlists__id__members_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortlistMemberPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shortlists/{id}/creators/{handle}": {
+      "get": {
+        "tags": [
+          "Private brand shortlists"
+        ],
+        "summary": "Lookup",
+        "operationId": "lookup_api_v1_shortlists__id__creators__handle__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ShortlistMemberRead"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Lookup Api V1 Shortlists  Id  Creators  Handle  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Private brand shortlists"
+        ],
+        "summary": "Save",
+        "operationId": "save_api_v1_shortlists__id__creators__handle__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortlistMemberRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shortlists/{id}/members/{member_id}": {
+      "delete": {
+        "tags": [
+          "Private brand shortlists"
+        ],
+        "summary": "Remove",
+        "operationId": "remove_api_v1_shortlists__id__members__member_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/campaigns/me": {
@@ -2230,13 +3694,972 @@
         ]
       }
     },
+    "/api/v1/campaigns/me/summary": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Brand Pipeline Summary",
+        "operationId": "brand_pipeline_summary_api_v1_campaigns_me_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignPipelineSummary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/campaigns/me/applications": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "List Brand Applications",
+        "operationId": "list_brand_applications_api_v1_campaigns_me_applications_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 36
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Campaign Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/me/invitations": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "List Brand Invitations",
+        "operationId": "list_brand_invitations_api_v1_campaigns_me_invitations_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 36
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Campaign Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/creator/applications": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "List Creator Applications",
+        "operationId": "list_creator_applications_api_v1_campaigns_creator_applications_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 36
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Campaign Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/creator/invitations": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "List Creator Invitations",
+        "operationId": "list_creator_invitations_api_v1_campaigns_creator_invitations_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 36
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Campaign Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/me/applications/{record_id}": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Read Brand Applications Record",
+        "operationId": "read_brand_applications_record_api_v1_campaigns_me_applications__record_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/me/applications/{record_id}/respond": {
+      "post": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Respond Brand Applications",
+        "operationId": "respond_brand_applications_api_v1_campaigns_me_applications__record_id__respond_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignApplicationResponse"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/me/invitations/{record_id}": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Read Brand Invitations Record",
+        "operationId": "read_brand_invitations_record_api_v1_campaigns_me_invitations__record_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/creator/applications/{record_id}": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Read Creator Applications Record",
+        "operationId": "read_creator_applications_record_api_v1_campaigns_creator_applications__record_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/creator/applications/{record_id}/respond": {
+      "post": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Respond Creator Applications",
+        "operationId": "respond_creator_applications_api_v1_campaigns_creator_applications__record_id__respond_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignApplicationWithdrawal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/creator/invitations/{record_id}": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Read Creator Invitations Record",
+        "operationId": "read_creator_invitations_record_api_v1_campaigns_creator_invitations__record_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/creator/invitations/{record_id}/respond": {
+      "post": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Respond Creator Invitations",
+        "operationId": "respond_creator_invitations_api_v1_campaigns_creator_invitations__record_id__respond_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignInvitationResponse"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignActivityRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/invitation-recipient/{handle}": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Resolve Invitation Recipient",
+        "operationId": "resolve_invitation_recipient_api_v1_campaigns_invitation_recipient__handle__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignInvitationRecipient"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{campaign_id}/invitation/{creator_id}": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Read Existing Invitation",
+        "operationId": "read_existing_invitation_api_v1_campaigns__campaign_id__invitation__creator_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Campaign Id"
+            }
+          },
+          {
+            "name": "creator_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Creator Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CampaignInvitationRead"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Read Existing Invitation Api V1 Campaigns  Campaign Id  Invitation  Creator Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/opportunities": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "List Creator Opportunities",
+        "operationId": "list_creator_opportunities_api_v1_campaigns_opportunities_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "niche",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Niche"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 12,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignOpportunityPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/opportunities/{campaign_id}": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Read Creator Opportunity",
+        "operationId": "read_creator_opportunity_api_v1_campaigns_opportunities__campaign_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Campaign Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignOpportunityRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/campaigns": {
       "post": {
         "tags": [
           "Campaigns & Opportunities"
         ],
         "summary": "Create Campaign",
-        "description": "Creates a new campaign brief for the current brand organization.",
+        "description": "Explicitly creates and publishes a complete campaign for the current brand organization.",
         "operationId": "create_campaign_api_v1_campaigns_post",
         "requestBody": {
           "content": {
@@ -2275,6 +4698,167 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/api/v1/campaigns/drafts": {
+      "post": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Create Campaign Draft",
+        "operationId": "create_campaign_draft_api_v1_campaigns_drafts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignDraftCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/campaigns/{campaign_id}/draft": {
+      "patch": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Edit Campaign Draft",
+        "operationId": "edit_campaign_draft_api_v1_campaigns__campaign_id__draft_patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Campaign Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignDraftUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{campaign_id}/transition": {
+      "post": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Transition Campaign",
+        "description": "Explicit owner-confirmed publish, pause, resume, close or cancel action.",
+        "operationId": "transition_campaign_api_v1_campaigns__campaign_id__transition_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Campaign Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignTransition"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/campaigns/explore": {
@@ -2500,7 +5084,7 @@
           "Creator Discovery & Search"
         ],
         "summary": "Search Creators",
-        "description": "Search and filter verified creators for brand partnerships and sponsorships.",
+        "description": "Search and filter active creators for brand partnerships and sponsorships.",
         "operationId": "search_creators_api_v1_discovery_creators_get",
         "parameters": [
           {
@@ -2510,7 +5094,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 255
                 },
                 {
                   "type": "null"
@@ -2528,7 +5113,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 128
                 },
                 {
                   "type": "null"
@@ -2546,7 +5132,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 128
                 },
                 {
                   "type": "null"
@@ -2564,7 +5151,9 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "maximum": 5,
+                  "minimum": 0
                 },
                 {
                   "type": "null"
@@ -2616,6 +5205,210 @@
         }
       }
     },
+    "/api/v1/discovery/creators/page": {
+      "get": {
+        "tags": [
+          "Creator Discovery & Search"
+        ],
+        "summary": "Search Creator Page",
+        "description": "Paginated public creator directory with filtered totals and stable ordering.",
+        "operationId": "search_creator_page_api_v1_discovery_creators_page_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "niche",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Niche"
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Location"
+            }
+          },
+          {
+            "name": "min_rating",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 5,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Rating"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 12,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "network",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "instagram",
+                    "youtube",
+                    "facebook",
+                    "x",
+                    "linkedin"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by saved authorized network connection",
+              "title": "Network"
+            },
+            "description": "Filter by saved authorized network connection"
+          },
+          {
+            "name": "min_audience",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000000000000,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Audience"
+            }
+          },
+          {
+            "name": "max_audience",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000000000000,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Audience"
+            }
+          },
+          {
+            "name": "updated_within_days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/AudienceWindow"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Updated Within Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatorDiscoveryPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/enquiries": {
       "post": {
         "tags": [
@@ -2640,6 +5433,18 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EnquiryRead"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Submission limit reached; successful idempotent retries remain allowed.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds before a new submission can be retried.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1.0
                 }
               }
             }
@@ -2738,6 +5543,89 @@
         }
       }
     },
+    "/api/v1/enquiries/unread-counts": {
+      "get": {
+        "tags": [
+          "Enquiries"
+        ],
+        "summary": "Unread Counts",
+        "operationId": "unread_counts_api_v1_enquiries_unread_counts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnquiryUnreadCounts"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/enquiries/{enquiry_id}/read": {
+      "post": {
+        "tags": [
+          "Enquiries"
+        ],
+        "summary": "Mark Enquiry Read",
+        "operationId": "mark_enquiry_read_api_v1_enquiries__enquiry_id__read_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "enquiry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enquiry Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnquiryMarkRead"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnquiryRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/enquiries/{enquiry_id}/respond": {
       "post": {
         "tags": [
@@ -2795,6 +5683,249 @@
         }
       }
     },
+    "/api/v1/enquiries/{enquiry_id}/withdraw": {
+      "post": {
+        "tags": [
+          "Enquiries"
+        ],
+        "summary": "Withdraw Enquiry",
+        "operationId": "withdraw_enquiry_api_v1_enquiries__enquiry_id__withdraw_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "enquiry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enquiry Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnquiryWithdraw"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnquiryRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/enquiries/{enquiry_id}": {
+      "get": {
+        "tags": [
+          "Enquiries"
+        ],
+        "summary": "Enquiry Detail",
+        "operationId": "enquiry_detail_api_v1_enquiries__enquiry_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "enquiry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Enquiry Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnquiryRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Count",
+        "operationId": "count_api_v1_notifications_unread_count_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "title": "Response Count Api V1 Notifications Unread Count Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Listing",
+        "operationId": "listing_api_v1_notifications_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 30,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationRead"
+                  },
+                  "title": "Response Listing Api V1 Notifications Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{notification_id}/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mark Read",
+        "operationId": "mark_read_api_v1_notifications__notification_id__read_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "notification_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Notification Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/r/{short_code}": {
       "get": {
         "tags": [
@@ -2833,6 +5964,152 @@
   },
   "components": {
     "schemas": {
+      "AgreementRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/AgreementSnapshot"
+          },
+          "snapshot_hash": {
+            "type": "string",
+            "title": "Snapshot Hash"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "snapshot",
+          "snapshot_hash",
+          "created_at"
+        ],
+        "title": "AgreementRead"
+      },
+      "AgreementSnapshot": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version"
+          },
+          "collaboration_id": {
+            "type": "string",
+            "title": "Collaboration Id"
+          },
+          "proposal_id": {
+            "type": "string",
+            "title": "Proposal Id"
+          },
+          "proposal_version": {
+            "type": "integer",
+            "title": "Proposal Version"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "creator_name": {
+            "type": "string",
+            "title": "Creator Name"
+          },
+          "source_kind": {
+            "type": "string",
+            "title": "Source Kind"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/ProposalTerms"
+          },
+          "proposal_sent_at": {
+            "type": "string",
+            "title": "Proposal Sent At"
+          },
+          "brand_accepted_at": {
+            "type": "string",
+            "title": "Brand Accepted At"
+          },
+          "creator_accepted_at": {
+            "type": "string",
+            "title": "Creator Accepted At"
+          },
+          "agreed_at": {
+            "type": "string",
+            "title": "Agreed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "schema_version",
+          "collaboration_id",
+          "proposal_id",
+          "proposal_version",
+          "title",
+          "brand_name",
+          "creator_name",
+          "source_kind",
+          "source_id",
+          "terms",
+          "proposal_sent_at",
+          "brand_accepted_at",
+          "creator_accepted_at",
+          "agreed_at"
+        ],
+        "title": "AgreementSnapshot"
+      },
+      "AgreementStatus": {
+        "properties": {
+          "acceptance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProposalAcceptanceState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "agreement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgreementRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "collaboration_status": {
+            "type": "string",
+            "enum": [
+              "discussion",
+              "agreed",
+              "completed"
+            ],
+            "title": "Collaboration Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "acceptance",
+          "agreement",
+          "collaboration_status"
+        ],
+        "title": "AgreementStatus"
+      },
       "ApplicationStatus": {
         "type": "string",
         "enum": [
@@ -2842,6 +6119,15 @@
           "withdrawn"
         ],
         "title": "ApplicationStatus"
+      },
+      "AudienceWindow": {
+        "type": "integer",
+        "enum": [
+          7,
+          30,
+          90
+        ],
+        "title": "AudienceWindow"
       },
       "BioVerifyRequest": {
         "properties": {
@@ -2987,12 +6273,324 @@
         ],
         "title": "BrandProfileRead"
       },
+      "CalendarDayCount": {
+        "properties": {
+          "delivery_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Delivery Date"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "delivery_date",
+          "total"
+        ],
+        "title": "CalendarDayCount"
+      },
+      "CalendarItem": {
+        "properties": {
+          "delivery_state": {
+            "type": "string",
+            "enum": [
+              "not_submitted",
+              "awaiting_review",
+              "revisions_requested",
+              "approved",
+              "completed"
+            ],
+            "title": "Delivery State"
+          },
+          "latest_delivery_version": {
+            "type": "integer",
+            "title": "Latest Delivery Version"
+          },
+          "collaboration_id": {
+            "type": "string",
+            "title": "Collaboration Id"
+          },
+          "agreement_id": {
+            "type": "string",
+            "title": "Agreement Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "creator_name": {
+            "type": "string",
+            "title": "Creator Name"
+          },
+          "delivery_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Delivery Date"
+          },
+          "deliverables": {
+            "type": "string",
+            "title": "Deliverables"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "agreed",
+              "completed"
+            ],
+            "title": "Status"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "delivery_state",
+          "latest_delivery_version",
+          "collaboration_id",
+          "agreement_id",
+          "title",
+          "brand_name",
+          "creator_name",
+          "delivery_date",
+          "deliverables",
+          "status",
+          "completed_at"
+        ],
+        "title": "CalendarItem"
+      },
+      "CalendarPage": {
+        "properties": {
+          "outstanding_counts": {
+            "items": {
+              "$ref": "#/components/schemas/CalendarDayCount"
+            },
+            "type": "array",
+            "title": "Outstanding Counts"
+          },
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "day": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CalendarItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "day_counts": {
+            "items": {
+              "$ref": "#/components/schemas/CalendarDayCount"
+            },
+            "type": "array",
+            "title": "Day Counts"
+          },
+          "month_total": {
+            "type": "integer",
+            "title": "Month Total"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "outstanding_counts",
+          "month",
+          "day",
+          "items",
+          "day_counts",
+          "month_total",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "CalendarPage"
+      },
+      "CampaignActivityPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignActivityRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "CampaignActivityPage"
+      },
+      "CampaignActivityRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "campaign_id": {
+            "type": "string",
+            "title": "Campaign Id"
+          },
+          "campaign_title": {
+            "type": "string",
+            "title": "Campaign Title"
+          },
+          "campaign_status": {
+            "$ref": "#/components/schemas/CampaignStatus"
+          },
+          "campaign_revision": {
+            "type": "integer",
+            "title": "Campaign Revision"
+          },
+          "campaign_end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Campaign End Date"
+          },
+          "organization_name": {
+            "type": "string",
+            "title": "Organization Name"
+          },
+          "creator_id": {
+            "type": "string",
+            "title": "Creator Id"
+          },
+          "creator_name": {
+            "type": "string",
+            "title": "Creator Name"
+          },
+          "creator_handle": {
+            "type": "string",
+            "title": "Creator Handle"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "rate_cents": {
+            "type": "integer",
+            "title": "Rate Cents"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "rejected",
+              "withdrawn",
+              "invited",
+              "declined"
+            ],
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "campaign_id",
+          "campaign_title",
+          "campaign_status",
+          "campaign_revision",
+          "organization_name",
+          "creator_id",
+          "creator_name",
+          "creator_handle",
+          "currency",
+          "rate_cents",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CampaignActivityRead"
+      },
       "CampaignApplicationCreate": {
         "properties": {
           "pitch_message": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 5000
               },
               {
                 "type": "null"
@@ -3002,10 +6600,24 @@
           },
           "proposed_rate_cents": {
             "type": "integer",
+            "maximum": 2000000000.0,
             "minimum": 100.0,
             "title": "Proposed Rate Cents"
+          },
+          "expected_campaign_revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Campaign Revision"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "proposed_rate_cents"
@@ -3061,6 +6673,120 @@
         ],
         "title": "CampaignApplicationRead"
       },
+      "CampaignApplicationResponse": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "accept",
+              "reject"
+            ],
+            "title": "Action"
+          },
+          "expected_status": {
+            "type": "string",
+            "const": "pending",
+            "title": "Expected Status"
+          },
+          "expected_campaign_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Campaign Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "expected_status",
+          "expected_campaign_revision"
+        ],
+        "title": "CampaignApplicationResponse"
+      },
+      "CampaignApplicationTotals": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "pending": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Pending"
+          },
+          "accepted": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Accepted"
+          },
+          "rejected": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Rejected"
+          },
+          "withdrawn": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Withdrawn"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "pending",
+          "accepted",
+          "rejected",
+          "withdrawn"
+        ],
+        "title": "CampaignApplicationTotals"
+      },
+      "CampaignApplicationWithdrawal": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "const": "withdraw",
+            "title": "Action"
+          },
+          "expected_status": {
+            "type": "string",
+            "const": "pending",
+            "title": "Expected Status"
+          },
+          "expected_campaign_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Campaign Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "expected_status",
+          "expected_campaign_revision"
+        ],
+        "title": "CampaignApplicationWithdrawal"
+      },
+      "CampaignBudgetTotal": {
+        "properties": {
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "cents": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Cents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "currency",
+          "cents"
+        ],
+        "title": "CampaignBudgetTotal"
+      },
       "CampaignCreate": {
         "properties": {
           "title": {
@@ -3071,42 +6797,31 @@
           },
           "brief": {
             "type": "string",
+            "maxLength": 20000,
             "minLength": 10,
             "title": "Brief"
           },
           "target_niche": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 128
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
             "title": "Target Niche"
           },
           "deliverable_summary": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 512
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
             "title": "Deliverable Summary"
           },
           "budget_total_cents": {
             "type": "integer",
+            "maximum": 2000000000.0,
             "minimum": 1000.0,
             "title": "Budget Total Cents"
           },
           "currency": {
             "type": "string",
-            "maxLength": 3,
-            "minLength": 3,
+            "pattern": "^[A-Z]{3}$",
             "title": "Currency",
             "default": "USD"
           },
@@ -3135,37 +6850,260 @@
             "title": "End Date"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "title",
           "brief",
+          "target_niche",
+          "deliverable_summary",
           "budget_total_cents"
         ],
-        "title": "CampaignCreate"
+        "title": "CampaignCreate",
+        "description": "Legacy create-and-publish path uses the same readiness rules as publishing a draft."
+      },
+      "CampaignDraftCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "brief": {
+            "type": "string",
+            "maxLength": 20000,
+            "title": "Brief",
+            "default": ""
+          },
+          "target_niche": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Niche"
+          },
+          "deliverable_summary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deliverable Summary"
+          },
+          "budget_total_cents": {
+            "type": "integer",
+            "maximum": 2000000000.0,
+            "minimum": 0.0,
+            "title": "Budget Total Cents",
+            "default": 0
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "default": "INR"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "request_id"
+        ],
+        "title": "CampaignDraftCreate"
+      },
+      "CampaignDraftUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "brief": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brief"
+          },
+          "target_niche": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Niche"
+          },
+          "deliverable_summary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deliverable Summary"
+          },
+          "budget_total_cents": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2000000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Total Cents"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision"
+        ],
+        "title": "CampaignDraftUpdate"
       },
       "CampaignInvitationCreate": {
         "properties": {
           "creator_id": {
             "type": "string",
+            "maxLength": 36,
+            "minLength": 1,
             "title": "Creator Id"
           },
           "offered_rate_cents": {
             "type": "integer",
+            "maximum": 2000000000.0,
             "minimum": 100.0,
             "title": "Offered Rate Cents"
           },
           "message": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 5000
               },
               {
                 "type": "null"
               }
             ],
             "title": "Message"
+          },
+          "expected_campaign_revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Campaign Revision"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "creator_id",
@@ -3222,24 +7160,144 @@
         ],
         "title": "CampaignInvitationRead"
       },
-      "CampaignRead": {
+      "CampaignInvitationRecipient": {
         "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "handle",
+          "display_name"
+        ],
+        "title": "CampaignInvitationRecipient"
+      },
+      "CampaignInvitationResponse": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "accept",
+              "decline"
+            ],
+            "title": "Action"
+          },
+          "expected_status": {
+            "type": "string",
+            "const": "invited",
+            "title": "Expected Status"
+          },
+          "expected_campaign_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Campaign Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "expected_status",
+          "expected_campaign_revision"
+        ],
+        "title": "CampaignInvitationResponse"
+      },
+      "CampaignInvitationTotals": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "invited": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Invited"
+          },
+          "accepted": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Accepted"
+          },
+          "declined": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Declined"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "invited",
+          "accepted",
+          "declined"
+        ],
+        "title": "CampaignInvitationTotals"
+      },
+      "CampaignOpportunityPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignOpportunityRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "CampaignOpportunityPage"
+      },
+      "CampaignOpportunityRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
           "title": {
             "type": "string",
-            "maxLength": 255,
-            "minLength": 3,
             "title": "Title"
           },
           "brief": {
             "type": "string",
-            "minLength": 10,
             "title": "Brief"
+          },
+          "organization_name": {
+            "type": "string",
+            "title": "Organization Name"
           },
           "target_niche": {
             "anyOf": [
               {
-                "type": "string",
-                "maxLength": 128
+                "type": "string"
               },
               {
                 "type": "null"
@@ -3250,8 +7308,7 @@
           "deliverable_summary": {
             "anyOf": [
               {
-                "type": "string",
-                "maxLength": 512
+                "type": "string"
               },
               {
                 "type": "null"
@@ -3261,15 +7318,18 @@
           },
           "budget_total_cents": {
             "type": "integer",
-            "minimum": 1000.0,
             "title": "Budget Total Cents"
           },
           "currency": {
             "type": "string",
-            "maxLength": 3,
-            "minLength": 3,
-            "title": "Currency",
-            "default": "USD"
+            "title": "Currency"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CampaignStatus"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
           },
           "start_date": {
             "anyOf": [
@@ -3295,6 +7355,74 @@
             ],
             "title": "End Date"
           },
+          "application": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CampaignApplicationRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "brief",
+          "organization_name",
+          "budget_total_cents",
+          "currency",
+          "status",
+          "revision"
+        ],
+        "title": "CampaignOpportunityRead"
+      },
+      "CampaignPipelineSummary": {
+        "properties": {
+          "campaign_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Campaign Count"
+          },
+          "active_campaign_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Active Campaign Count"
+          },
+          "planned_budgets": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignBudgetTotal"
+            },
+            "type": "array",
+            "title": "Planned Budgets"
+          },
+          "applications": {
+            "$ref": "#/components/schemas/CampaignApplicationTotals"
+          },
+          "invitations": {
+            "$ref": "#/components/schemas/CampaignInvitationTotals"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "campaign_count",
+          "active_campaign_count",
+          "planned_budgets",
+          "applications",
+          "invitations",
+          "updated_at"
+        ],
+        "title": "CampaignPipelineSummary"
+      },
+      "CampaignRead": {
+        "properties": {
           "id": {
             "type": "string",
             "title": "Id"
@@ -3303,8 +7431,79 @@
             "type": "string",
             "title": "Organization Id"
           },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "brief": {
+            "type": "string",
+            "title": "Brief"
+          },
+          "target_niche": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Niche"
+          },
+          "deliverable_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deliverable Summary"
+          },
+          "budget_total_cents": {
+            "type": "integer",
+            "title": "Budget Total Cents"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
           "status": {
             "$ref": "#/components/schemas/CampaignStatus"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "applicants_count": {
+            "type": "integer",
+            "title": "Applicants Count",
+            "default": 0
           },
           "created_at": {
             "type": "string",
@@ -3319,12 +7518,14 @@
         },
         "type": "object",
         "required": [
+          "id",
+          "organization_id",
           "title",
           "brief",
           "budget_total_cents",
-          "id",
-          "organization_id",
+          "currency",
           "status",
+          "revision",
           "created_at",
           "updated_at"
         ],
@@ -3340,6 +7541,199 @@
           "cancelled"
         ],
         "title": "CampaignStatus"
+      },
+      "CampaignTransition": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "publish",
+              "pause",
+              "resume",
+              "close",
+              "cancel"
+            ],
+            "title": "Action"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          },
+          "expected_status": {
+            "$ref": "#/components/schemas/CampaignStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "expected_revision",
+          "expected_status"
+        ],
+        "title": "CampaignTransition"
+      },
+      "CollaborationCreate": {
+        "properties": {
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "application",
+              "invitation",
+              "enquiry"
+            ],
+            "title": "Source Kind"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_kind",
+          "source_id"
+        ],
+        "title": "CollaborationCreate"
+      },
+      "CollaborationPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CollaborationRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "CollaborationPage"
+      },
+      "CollaborationRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "application",
+              "invitation",
+              "enquiry"
+            ],
+            "title": "Source Kind"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "creator_name": {
+            "type": "string",
+            "title": "Creator Name"
+          },
+          "brief": {
+            "type": "string",
+            "title": "Brief"
+          },
+          "deliverable": {
+            "type": "string",
+            "title": "Deliverable"
+          },
+          "quoted_amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quoted Amount Cents"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "requested_delivery_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Delivery Date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "discussion",
+              "agreed",
+              "completed"
+            ],
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_kind",
+          "source_id",
+          "title",
+          "brand_name",
+          "creator_name",
+          "brief",
+          "deliverable",
+          "quoted_amount_cents",
+          "currency",
+          "requested_delivery_date",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CollaborationRead"
       },
       "CompleteRequest": {
         "properties": {
@@ -3363,6 +7757,113 @@
           "state"
         ],
         "title": "CompleteRequest"
+      },
+      "CompletionCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "delivery_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Delivery Id"
+          },
+          "review_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Review Id"
+          },
+          "expected_latest_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Latest Version"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "delivery_id",
+          "review_id",
+          "expected_latest_version",
+          "confirmed"
+        ],
+        "title": "CompletionCreate"
+      },
+      "CompletionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "agreement_id": {
+            "type": "string",
+            "title": "Agreement Id"
+          },
+          "delivery_id": {
+            "type": "string",
+            "title": "Delivery Id"
+          },
+          "review_id": {
+            "type": "string",
+            "title": "Review Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "completed_at": {
+            "type": "string",
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "agreement_id",
+          "delivery_id",
+          "review_id",
+          "version",
+          "completed_at"
+        ],
+        "title": "CompletionRead"
+      },
+      "CreatorDiscoveryPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryCreator"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "CreatorDiscoveryPage"
       },
       "CreatorOnboardRequest": {
         "properties": {
@@ -3705,6 +8206,516 @@
         ],
         "title": "DeliverableType"
       },
+      "DeliveryCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "agreement_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Agreement Id"
+          },
+          "expected_latest_version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Latest Version"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Notes",
+            "default": ""
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryLink"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Links"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "agreement_id",
+          "expected_latest_version",
+          "title",
+          "links"
+        ],
+        "title": "DeliveryCreate"
+      },
+      "DeliveryLink": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Url"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "url"
+        ],
+        "title": "DeliveryLink"
+      },
+      "DeliveryRead": {
+        "properties": {
+          "review": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryReviewRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "agreement_id": {
+            "type": "string",
+            "title": "Agreement Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryLink"
+            },
+            "type": "array",
+            "title": "Links"
+          },
+          "submitted_at": {
+            "type": "string",
+            "title": "Submitted At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "agreement_id",
+          "version",
+          "title",
+          "notes",
+          "links",
+          "submitted_at"
+        ],
+        "title": "DeliveryRead"
+      },
+      "DeliveryReviewCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "expected_latest_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Latest Version"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "request_revision"
+            ],
+            "title": "Action"
+          },
+          "feedback": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Feedback",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "expected_latest_version",
+          "action"
+        ],
+        "title": "DeliveryReviewCreate"
+      },
+      "DeliveryReviewRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "delivery_id": {
+            "type": "string",
+            "title": "Delivery Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "revisions_requested"
+            ],
+            "title": "Decision"
+          },
+          "feedback": {
+            "type": "string",
+            "title": "Feedback"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "title": "Reviewed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "delivery_id",
+          "version",
+          "decision",
+          "feedback",
+          "reviewed_at"
+        ],
+        "title": "DeliveryReviewRead"
+      },
+      "DeliveryWorkspace": {
+        "properties": {
+          "revision_allowance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RevisionAllowance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_request_revision": {
+            "type": "boolean",
+            "title": "Can Request Revision"
+          },
+          "collaboration_status": {
+            "type": "string",
+            "enum": [
+              "discussion",
+              "agreed",
+              "completed"
+            ],
+            "title": "Collaboration Status"
+          },
+          "completion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompletionRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_complete": {
+            "type": "boolean",
+            "title": "Can Complete"
+          },
+          "can_review": {
+            "type": "boolean",
+            "title": "Can Review"
+          },
+          "latest_version": {
+            "type": "integer",
+            "title": "Latest Version"
+          },
+          "agreement_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Id"
+          },
+          "can_submit": {
+            "type": "boolean",
+            "title": "Can Submit"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "revision_allowance",
+          "can_request_revision",
+          "collaboration_status",
+          "completion",
+          "can_complete",
+          "can_review",
+          "latest_version",
+          "agreement_id",
+          "can_submit",
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "DeliveryWorkspace"
+      },
+      "DiscoveryAudience": {
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "youtube",
+              "facebook",
+              "x",
+              "linkedin"
+            ],
+            "title": "Network"
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count"
+          },
+          "metric": {
+            "type": "string",
+            "enum": [
+              "followers",
+              "subscribers"
+            ],
+            "title": "Metric"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "basis": {
+            "type": "string",
+            "const": "largest_connected_account",
+            "title": "Basis"
+          }
+        },
+        "type": "object",
+        "required": [
+          "network",
+          "count",
+          "metric",
+          "source",
+          "updated_at",
+          "basis"
+        ],
+        "title": "DiscoveryAudience"
+      },
+      "DiscoveryCreator": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "niche": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Niche"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified"
+          },
+          "rating": {
+            "type": "number",
+            "title": "Rating"
+          },
+          "profile_theme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Theme",
+            "default": "default"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "instagram_handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram Handle"
+          },
+          "instagram_verified": {
+            "type": "boolean",
+            "title": "Instagram Verified",
+            "default": false
+          },
+          "youtube_channel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Youtube Channel"
+          },
+          "youtube_verified": {
+            "type": "boolean",
+            "title": "Youtube Verified",
+            "default": false
+          },
+          "connected_networks": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "instagram",
+                "youtube",
+                "facebook",
+                "x",
+                "linkedin"
+              ]
+            },
+            "type": "array",
+            "title": "Connected Networks"
+          },
+          "audiences": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryAudience"
+            },
+            "type": "array",
+            "title": "Audiences"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "display_name",
+          "is_verified",
+          "rating"
+        ],
+        "title": "DiscoveryCreator"
+      },
       "EnquiryCreate": {
         "properties": {
           "request_id": {
@@ -3776,6 +8787,18 @@
             ],
             "title": "Currency",
             "default": "INR"
+          },
+          "preferred_delivery_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Delivery Date"
           }
         },
         "additionalProperties": false,
@@ -3788,8 +8811,31 @@
         ],
         "title": "EnquiryCreate"
       },
+      "EnquiryMarkRead": {
+        "properties": {
+          "seen_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Seen Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seen_revision"
+        ],
+        "title": "EnquiryMarkRead"
+      },
       "EnquiryRead": {
         "properties": {
+          "viewer_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Viewer Role"
+          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -3844,19 +8890,40 @@
             "type": "string",
             "title": "Currency"
           },
+          "preferred_delivery_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Delivery Date"
+          },
           "status": {
             "type": "string",
             "enum": [
               "pending",
               "accepted",
               "declined",
-              "countered"
+              "countered",
+              "withdrawn"
             ],
             "title": "Status"
           },
           "revision": {
             "type": "integer",
             "title": "Revision"
+          },
+          "read_revision": {
+            "type": "integer",
+            "title": "Read Revision"
+          },
+          "is_unread": {
+            "type": "boolean",
+            "title": "Is Unread"
           },
           "history": {
             "items": {
@@ -3879,6 +8946,7 @@
         },
         "type": "object",
         "required": [
+          "viewer_role",
           "id",
           "creator_handle",
           "creator_name",
@@ -3889,8 +8957,11 @@
           "rate_card_id",
           "amount_cents",
           "currency",
+          "preferred_delivery_date",
           "status",
           "revision",
+          "read_revision",
+          "is_unread",
           "history",
           "created_at",
           "updated_at"
@@ -3940,6 +9011,45 @@
           "expected_revision"
         ],
         "title": "EnquiryRespond"
+      },
+      "EnquiryUnreadCounts": {
+        "properties": {
+          "received": {
+            "type": "integer",
+            "title": "Received"
+          },
+          "sent": {
+            "type": "integer",
+            "title": "Sent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "received",
+          "sent"
+        ],
+        "title": "EnquiryUnreadCounts"
+      },
+      "EnquiryWithdraw": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision"
+        ],
+        "title": "EnquiryWithdraw"
       },
       "HTTPValidationError": {
         "properties": {
@@ -4038,6 +9148,54 @@
         ],
         "title": "LinkClickSummary"
       },
+      "NotificationRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "enquiry_id": {
+            "type": "string",
+            "title": "Enquiry Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "href": {
+            "type": "string",
+            "title": "Href"
+          },
+          "is_unread": {
+            "type": "boolean",
+            "title": "Is Unread"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "enquiry_id",
+          "kind",
+          "title",
+          "message",
+          "href",
+          "is_unread",
+          "created_at"
+        ],
+        "title": "NotificationRead"
+      },
       "OrganizationCreate": {
         "properties": {
           "name": {
@@ -4048,7 +9206,58 @@
           },
           "billing_email": {
             "type": "string",
+            "maxLength": 255,
+            "format": "email",
             "title": "Billing Email"
+          },
+          "company_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Name"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
           },
           "slug": {
             "anyOf": [
@@ -4063,52 +9272,9 @@
               }
             ],
             "title": "Slug"
-          },
-          "company_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Company Name"
-          },
-          "industry": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Industry"
-          },
-          "website": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Website"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "name",
@@ -4189,6 +9355,89 @@
         ],
         "title": "OrganizationRead"
       },
+      "OrganizationUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "billing_email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Billing Email"
+          },
+          "company_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Name"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "OrganizationUpdate",
+        "description": "Only owner-editable fields; identity, verification and billing state stay server-owned."
+      },
       "PlatformType": {
         "type": "string",
         "enum": [
@@ -4201,6 +9450,427 @@
           "newsletter"
         ],
         "title": "PlatformType"
+      },
+      "ProofConfirmationCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "expected_proof_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Proof Version"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "expected_proof_version",
+          "confirmed"
+        ],
+        "title": "ProofConfirmationCreate"
+      },
+      "ProofConfirmationRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "proof_id": {
+            "type": "string",
+            "title": "Proof Id"
+          },
+          "proof_version": {
+            "type": "integer",
+            "title": "Proof Version"
+          },
+          "delivery_id": {
+            "type": "string",
+            "title": "Delivery Id"
+          },
+          "delivery_version": {
+            "type": "integer",
+            "title": "Delivery Version"
+          },
+          "confirmed_at": {
+            "type": "string",
+            "title": "Confirmed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "proof_id",
+          "proof_version",
+          "delivery_id",
+          "delivery_version",
+          "confirmed_at"
+        ],
+        "title": "ProofConfirmationRead"
+      },
+      "ProposalAccept": {
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Proposal Id"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "proposal_id",
+          "expected_version",
+          "confirmed"
+        ],
+        "title": "ProposalAccept"
+      },
+      "ProposalAcceptanceState": {
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "title": "Proposal Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "brand_accepted_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Accepted At"
+          },
+          "creator_accepted_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Accepted At"
+          },
+          "you_accepted": {
+            "type": "boolean",
+            "title": "You Accepted"
+          },
+          "can_accept": {
+            "type": "boolean",
+            "title": "Can Accept"
+          }
+        },
+        "type": "object",
+        "required": [
+          "proposal_id",
+          "version",
+          "brand_accepted_at",
+          "creator_accepted_at",
+          "you_accepted",
+          "can_accept"
+        ],
+        "title": "ProposalAcceptanceState"
+      },
+      "ProposalDraftRead": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "base_version": {
+            "type": "integer",
+            "title": "Base Version"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/ProposalTerms"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "revision",
+          "base_version",
+          "terms",
+          "updated_at"
+        ],
+        "title": "ProposalDraftRead"
+      },
+      "ProposalDraftSave": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "expected_latest_version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Latest Version"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/ProposalTerms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "expected_latest_version",
+          "terms"
+        ],
+        "title": "ProposalDraftSave"
+      },
+      "ProposalRevisionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "author_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Author Role"
+          },
+          "is_mine": {
+            "type": "boolean",
+            "title": "Is Mine"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/ProposalTerms"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "author_role",
+          "is_mine",
+          "terms",
+          "created_at"
+        ],
+        "title": "ProposalRevisionRead"
+      },
+      "ProposalSend": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "expected_draft_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Draft Revision"
+          },
+          "expected_latest_version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Latest Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "expected_draft_revision",
+          "expected_latest_version"
+        ],
+        "title": "ProposalSend"
+      },
+      "ProposalTerms": {
+        "properties": {
+          "amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000000.0,
+                "minimum": 100.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Cents"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "INR",
+              "USD",
+              "EUR",
+              "GBP",
+              "AED",
+              "CAD",
+              "AUD",
+              "SGD"
+            ],
+            "title": "Currency",
+            "default": "INR"
+          },
+          "deliverables": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Deliverables",
+            "default": ""
+          },
+          "delivery_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Date"
+          },
+          "usage_rights": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Usage Rights",
+            "default": ""
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Note",
+            "default": ""
+          },
+          "revision_limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision Limit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ProposalTerms"
+      },
+      "ProposalWorkspace": {
+        "properties": {
+          "acceptance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProposalAcceptanceState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "agreement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgreementRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "collaboration_status": {
+            "type": "string",
+            "enum": [
+              "discussion",
+              "agreed",
+              "completed"
+            ],
+            "title": "Collaboration Status"
+          },
+          "latest_version": {
+            "type": "integer",
+            "title": "Latest Version"
+          },
+          "draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProposalDraftRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProposalRevisionRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "acceptance",
+          "agreement",
+          "collaboration_status",
+          "latest_version",
+          "draft",
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "ProposalWorkspace"
       },
       "PublicCreatorProfile": {
         "properties": {
@@ -4317,6 +9987,184 @@
           "rating"
         ],
         "title": "PublicCreatorProfile"
+      },
+      "PublishingProofCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "delivery_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Delivery Id"
+          },
+          "review_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Review Id"
+          },
+          "expected_delivery_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Delivery Version"
+          },
+          "expected_latest_proof_version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Latest Proof Version"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Notes",
+            "default": ""
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryLink"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Links"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "delivery_id",
+          "review_id",
+          "expected_delivery_version",
+          "expected_latest_proof_version",
+          "links"
+        ],
+        "title": "PublishingProofCreate"
+      },
+      "PublishingProofRead": {
+        "properties": {
+          "confirmation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProofConfirmationRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "agreement_id": {
+            "type": "string",
+            "title": "Agreement Id"
+          },
+          "delivery_id": {
+            "type": "string",
+            "title": "Delivery Id"
+          },
+          "delivery_version": {
+            "type": "integer",
+            "title": "Delivery Version"
+          },
+          "review_id": {
+            "type": "string",
+            "title": "Review Id"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryLink"
+            },
+            "type": "array",
+            "title": "Links"
+          },
+          "saved_at": {
+            "type": "string",
+            "title": "Saved At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "agreement_id",
+          "delivery_id",
+          "delivery_version",
+          "review_id",
+          "notes",
+          "links",
+          "saved_at"
+        ],
+        "title": "PublishingProofRead"
+      },
+      "PublishingProofWorkspace": {
+        "properties": {
+          "can_confirm": {
+            "type": "boolean",
+            "title": "Can Confirm"
+          },
+          "can_publish": {
+            "type": "boolean",
+            "title": "Can Publish"
+          },
+          "eligible_delivery": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latest_proof_version": {
+            "type": "integer",
+            "title": "Latest Proof Version"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PublishingProofRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "can_confirm",
+          "can_publish",
+          "eligible_delivery",
+          "latest_proof_version",
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "PublishingProofWorkspace"
       },
       "QRCodeRequest": {
         "properties": {
@@ -4586,6 +10434,43 @@
         "type": "object",
         "title": "RateCardUpdate"
       },
+      "RevisionAllowance": {
+        "properties": {
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "used": {
+            "type": "integer",
+            "title": "Used"
+          },
+          "remaining": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining"
+          }
+        },
+        "type": "object",
+        "required": [
+          "limit",
+          "used",
+          "remaining"
+        ],
+        "title": "RevisionAllowance"
+      },
       "SelectRequest": {
         "properties": {
           "selection_id": {
@@ -4611,6 +10496,219 @@
           "page_ids"
         ],
         "title": "SelectRequest"
+      },
+      "ShortlistCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "name"
+        ],
+        "title": "ShortlistCreate"
+      },
+      "ShortlistCreator": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "niche": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Niche"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified"
+          },
+          "rating": {
+            "type": "number",
+            "title": "Rating"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "display_name",
+          "is_verified",
+          "rating"
+        ],
+        "title": "ShortlistCreator"
+      },
+      "ShortlistMemberPage": {
+        "properties": {
+          "shortlist": {
+            "$ref": "#/components/schemas/ShortlistRead"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ShortlistMemberRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "shortlist",
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "ShortlistMemberPage"
+      },
+      "ShortlistMemberRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "saved_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Saved At"
+          },
+          "creator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShortlistCreator"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "saved_at"
+        ],
+        "title": "ShortlistMemberRead"
+      },
+      "ShortlistPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ShortlistRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "ShortlistPage"
+      },
+      "ShortlistRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "members_count": {
+            "type": "integer",
+            "title": "Members Count"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "members_count",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ShortlistRead"
       },
       "SocialAccountRead": {
         "properties": {

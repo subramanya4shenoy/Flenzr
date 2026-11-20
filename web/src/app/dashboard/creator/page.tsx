@@ -40,11 +40,14 @@ import {
   getInitialDealsForProfile,
   PipelineDeal,
 } from "@/components/creator/creator-collab-pipeline";
+import { CampaignOpportunities } from "@/components/campaigns/campaign-opportunities";
+import { CampaignActivity } from "@/components/campaigns/campaign-activity";
 import { EnquiryInbox } from "@/components/enquiries/enquiry-inbox";
 import { CreatorAnalyticsView } from "@/components/creator/creator-analytics-view";
 import { CreatorPortfolioView } from "@/components/creator/creator-portfolio-view";
 import { CreatorWalletView } from "@/components/creator/creator-wallet-view";
 import { CreatorAiPitcher } from "@/components/creator/creator-ai-pitcher";
+import { NotificationBell } from "@/components/notifications/notification-center";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useTranslation } from "@/lib/i18n/language-context";
 
@@ -70,6 +73,7 @@ interface TrackedLinkItem {
 const TAB_TITLES: Record<CreatorDashboardTab, string> = {
   overview: "Studio Overview",
   pipeline: "Collab Pipeline",
+  opportunities: "Campaign Opportunities",
   ratecards: "Rate Cards & Packages",
   calendar: "Shoot Calendar",
   analytics: "Analytics",
@@ -87,6 +91,7 @@ export default function CreatorDashboardPage() {
     const restoreTab = () => {
       if (window.location.hash === "#analytics") setActiveTab("analytics");
       if (window.location.hash === "#pipeline") setActiveTab("pipeline");
+      if (window.location.hash === "#opportunities") setActiveTab("opportunities");
     };
     window.addEventListener("hashchange", restoreTab);
     const timer = window.setTimeout(restoreTab, 0);
@@ -293,11 +298,10 @@ export default function CreatorDashboardPage() {
         activeTab={activeTab}
         onSelect={(tab) => {
           setActiveTab(tab);
-          const hash = tab === "pipeline" ? "#pipeline" : tab === "analytics" ? "#analytics" : "";
+          const hash = tab === "pipeline" ? "#pipeline" : tab === "analytics" ? "#analytics" : tab === "opportunities" ? "#opportunities" : "";
           window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
         }}
         creatorHandle={creatorHandle}
-        activeCollabCount={activeBrandCollabs.length}
       />
 
       {/* ========================================================= */}
@@ -328,7 +332,7 @@ export default function CreatorDashboardPage() {
           </div>
 
           <div className="flex items-center gap-2.5 text-xs">
-            <LanguageSwitcher variant="compact" />
+            <NotificationBell /><LanguageSwitcher variant="compact" />
             <Link
               href={`/${creatorHandle}`}
               target="_blank"
@@ -577,7 +581,7 @@ export default function CreatorDashboardPage() {
 
               {/* Right Column: Calendar & Wallet */}
               <div className="w-full xl:w-[320px] 2xl:w-[340px] shrink-0 space-y-5">
-                <CreatorScheduleCalendar deals={pipelineDeals} />
+                <CreatorScheduleCalendar compact />
 
                 {/* Quick Wallet Snippet */}
                 <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] shadow-md space-y-4">
@@ -624,8 +628,13 @@ export default function CreatorDashboardPage() {
 
           {/* TAB 2: COLLAB PIPELINE */}
           {activeTab === "pipeline" && (
-            <EnquiryInbox />
+            <div className="space-y-6"><EnquiryInbox /><CampaignActivity audience="creator" /></div>
           )}
+
+          {activeTab === "opportunities" && <CampaignOpportunities onViewApplications={() => {
+            setActiveTab("pipeline");
+            window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#pipeline`);
+          }} />}
 
           {/* TAB 3: RATE CARDS & PACKAGES */}
           {activeTab === "ratecards" && (
@@ -809,7 +818,7 @@ export default function CreatorDashboardPage() {
                   Collab &amp; Shoot Schedule
                 </h2>
                 <p className="text-xs text-[#8c94a6] mt-0.5">
-                  Full production calendar with draft deadlines, brand review rounds, and payout release dates.
+                  Agreed delivery deadlines shared with your collaborators.
                 </p>
               </div>
 

@@ -20,7 +20,7 @@ PRIVATE_ROUTES = [
     ("GET", "/ratecards/me"), ("POST", "/ratecards"), ("PATCH", "/ratecards/other"), ("DELETE", "/ratecards/other"),
     ("GET", "/links"), ("POST", "/links"), ("GET", "/links/other/stats"), ("PATCH", "/links/other"), ("DELETE", "/links/other"),
     ("POST", "/qrcodes/generate"), ("POST", "/organizations"), ("GET", "/organizations/me"),
-    ("GET", "/campaigns/me"), ("POST", "/campaigns"), ("GET", "/campaigns/other"),
+    ("GET", "/campaigns/me"), ("POST", "/campaigns"), ("POST", "/campaigns/drafts"), ("PATCH", "/campaigns/other/draft"), ("POST", "/campaigns/other/transition"), ("GET", "/campaigns/other"),
     ("POST", "/campaigns/other/apply"), ("POST", "/campaigns/other/invite"),
 ]
 
@@ -100,7 +100,7 @@ async def test_brands_cannot_read_private_campaigns_or_invite_for_other_brands(c
         assert (await client.post('/api/v1/identity/sync', headers=headers, json={'role': 'brand_owner'})).status_code == 200
         res = await client.post('/api/v1/organizations', headers=headers, json={'name': name, 'billing_email': 'billing@example.com'})
         assert res.status_code == 201
-    created = await client.post('/api/v1/campaigns', headers=owner, json={'title': 'Private brief', 'brief': 'Confidential campaign brief', 'budget_total_cents': 10000})
+    created = await client.post('/api/v1/campaigns', headers=owner, json={'title': 'Private brief', 'brief': 'Confidential campaign brief', 'budget_total_cents': 10000, 'target_niche': 'Technology', 'deliverable_summary': 'One dedicated video'})
     assert created.status_code == 201
     campaign_id = created.json()['id']
     c = (await client.get('/api/v1/creators/me', headers=creator)).json()
@@ -147,6 +147,7 @@ def test_all_documented_routes_have_an_explicit_access_policy():
     public = {
         ('get', '/health'), ('get', '/api/v1/creators/public/{handle}'),
         ('get', '/api/v1/ratecards/creator/{handle}'), ('get', '/api/v1/discovery/creators'),
+        ('get', '/api/v1/discovery/creators/page'),
         ('get', '/api/v1/campaigns/explore'), ('get', '/r/{short_code}'),
     }
     for path, operations in app.openapi()['paths'].items():

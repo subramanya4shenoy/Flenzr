@@ -43,6 +43,7 @@ class Campaign(Base, TimestampMixin):
         nullable=False,
         index=True,
     )
+    revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     brief: Mapped[str] = mapped_column(Text, nullable=False)
     target_niche: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)

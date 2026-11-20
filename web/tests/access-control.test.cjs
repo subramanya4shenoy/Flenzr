@@ -11,7 +11,7 @@ function load(file, globals = {}, mocks = {}) {
   vm.runInNewContext(code, { exports, require: (name) => {
     if (name in mocks) return mocks[name];
     if (name === 'next/server') return { NextResponse: { json } };
-    if (name === 'react/jsx-runtime') return { jsx: (type, props) => ({ type, props }) };
+    if (name === 'react/jsx-runtime') return { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) };
     if (name === 'node:crypto') return require('node:crypto');
     if (name === '@/lib/server/public-image-cache') return load('src/lib/server/public-image-cache.ts');
     throw Error(`Unexpected dependency ${name}`);
@@ -28,6 +28,7 @@ for (const [workspace, allowedRole] of [['creator', 'creator'], ['brand', 'brand
       'next/navigation': { redirect: (path) => { throw Error(path); } },
       '@/lib/server/session': { currentIdentity: async () => current, hasRole: (i, role) => i.active_roles.includes(role) },
       '@/components/creator/creator-account-context': { CreatorAccountProvider: 'CreatorAccountProvider' },
+      '@/components/enquiries/enquiry-activity': { EnquiryActivityProvider: 'EnquiryActivityProvider' },
     }).default;
     await assert.rejects(layout({ children: 'private' }), /\/login/);
     current = { ...identity, active_roles: ['unrelated'] };
@@ -37,7 +38,10 @@ for (const [workspace, allowedRole] of [['creator', 'creator'], ['brand', 'brand
     if (workspace === 'creator') {
       assert.equal(rendered.props.ownerId, identity.user.id);
       assert.equal(rendered.props.children, 'private');
-    } else assert.equal(rendered, 'private');
+    } else {
+      assert.equal(rendered.props.ownerId, identity.user.id);
+      assert.equal(rendered.props.children, 'private');
+    }
   });
 }
 
@@ -123,4 +127,96 @@ test('public avatar proxy rejects internal URLs, redirects, and executable respo
   response = { ok: true, headers: new Headers({ 'content-type': 'text/html' }) };
   result = await api.GET(new Request('https://flenzr.test/api/proxy-image?url=https://i.ytimg.com/avatar'));
   assert.equal(result.headers.get('content-type'), 'image/svg+xml');
+});
+
+test('live enquiry bridge rejects cross-site and invalid sessions without opening sockets', async () => {
+  let sockets = 0, current = null;
+  const api = load('src/app/api/enquiries/live/route.ts', {}, {
+    '@supabase/realtime-js': { RealtimeClient: class { constructor() { sockets++; } } },
+    '@/lib/server/session': { currentIdentity: async () => current, accessToken: async () => undefined, requestOrigin: () => 'https://flenzr.test' },
+  });
+  assert.equal((await api.GET(new Request('https://flenzr.test/api/enquiries/live', { headers: { Origin: 'https://attacker.test' } }))).status, 403);
+  assert.equal((await api.GET(new Request('https://flenzr.test/api/enquiries/live'))).status, 401);
+  current = identity;
+  assert.equal((await api.GET(new Request('https://flenzr.test/api/enquiries/live'))).status, 401);
+  assert.equal(sockets, 0);
+});
+
+test('live bridge uses the verified account channel, sends only signals and releases sockets', async () => {
+  let topic, config, listener, status, removed = 0, disconnected = 0, credential;
+  const callbacks = new Map();
+  class RealtimeClient {
+    constructor(_url, options) { credential = options.accessToken(); }
+    channel(name, options) { topic = name; config = options; return this; }
+    on(_kind, _event, callback) { listener = callback; return this; }
+    subscribe(callback) { status = callback; return this; }
+    async removeAllChannels() { removed++; }
+    async disconnect() { disconnected++; }
+  }
+  const api = load('src/app/api/enquiries/live/route.ts', {
+    TextEncoder, ReadableStream,
+    process: { env: { NEXT_PUBLIC_SUPABASE_URL: 'https://project.supabase.co', NEXT_PUBLIC_SUPABASE_ANON_KEY: 'public-key' } },
+    setTimeout: f => { callbacks.set('lifetime', f); return 1; }, clearTimeout: () => callbacks.delete('lifetime'),
+    setInterval: f => { callbacks.set('heartbeat', f); return 2; }, clearInterval: () => callbacks.delete('heartbeat'),
+  }, {
+    '@supabase/realtime-js': { RealtimeClient },
+    '@/lib/server/session': { currentIdentity: async () => identity, accessToken: async () => 'http-only-session-token', requestOrigin: () => 'https://flenzr.test' },
+  });
+  const response = await api.GET(new Request('https://flenzr.test/api/enquiries/live?user=attacker'));
+  assert.equal(response.headers.get('content-type'), 'text/event-stream');
+  assert.equal(response.headers.get('cache-control'), 'no-store, no-transform');
+  assert.equal(topic, 'enquiries:owner'); assert.equal(config.config.private, true);
+  assert.equal(await credential, 'http-only-session-token');
+  const reader = response.body.getReader(), decoder = new TextDecoder();
+  assert.match(decoder.decode((await reader.read()).value), /retry:/);
+  status('SUBSCRIBED'); assert.equal(decoder.decode((await reader.read()).value), 'event: ready\ndata: {}\n\n');
+  listener({ payload: { email: 'private@example.com', token: 'secret' } });
+  assert.equal(decoder.decode((await reader.read()).value), 'event: changed\ndata: {}\n\n');
+  await reader.cancel(); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(removed, 1); assert.equal(disconnected, 1); assert.equal(callbacks.size, 0);
+});
+
+test('notification center and enquiry links require verified sessions; detail ownership stays with API', async () => {
+  let current = null, status = 404, calls = 0;
+  const apiSession = { currentIdentity: async () => current, accessToken: async () => 'server-token', API_URL: 'http://backend/api/v1' };
+  const mocks = {
+    'next/navigation': { redirect: path => { throw Error(path); }, notFound: () => { throw Error('not-found'); } },
+    'next/link': 'Link', '@/lib/server/session': apiSession,
+    '@/components/enquiries/enquiry-activity': { EnquiryActivityProvider: 'Activity' },
+    '@/components/enquiries/enquiry-inbox': { EnquiryInbox: 'Inbox' },
+    '@/components/notifications/notification-center': { NotificationCenter: 'Center', NotificationBell: 'Bell' },
+  };
+  const notifications = load('src/app/dashboard/notifications/page.tsx', {}, mocks).default;
+  await assert.rejects(notifications(), /\/login\?next=/);
+  const detail = load('src/app/dashboard/enquiries/[id]/page.tsx', {
+    fetch: async (url, options) => {
+      calls++; assert.equal(options.headers.Authorization, 'Bearer server-token');
+      assert.equal(options.cache, 'no-store');
+      return { status, ok: status === 200, json: async () => ({ viewer_role: 'brand' }) };
+    },
+  }, mocks).default;
+  const params = { params: Promise.resolve({ id: '12345678-1234-1234-1234-123456789abc' }) };
+  await assert.rejects(detail(params), /\/login\?next=/); assert.equal(calls, 0);
+  current = identity;
+  await assert.rejects(detail(params), /not-found/);
+  status = 200;
+  const page = await detail(params);
+  function find(element, type) {
+    if (!element || typeof element !== 'object') return;
+    if (element.type === type) return element;
+    const children = element.props?.children;
+    for (const child of Array.isArray(children) ? children : [children]) { const found = find(child, type); if (found) return found; }
+  }
+  assert.equal(find(page, 'Inbox').props.enquiryId, '12345678-1234-1234-1234-123456789abc');
+  assert.equal(find(page, 'Inbox').props.view, 'sent');
+  await assert.rejects(detail({ params: Promise.resolve({ id: '../identity' }) }), /not-found/);
+});
+
+test('account gateway preserves backend Retry-After without exposing credentials', async () => {
+  const api = load('src/app/api/account/[...path]/route.ts', {
+    fetch: async () => ({ status: 429, headers: new Headers({ 'Retry-After': '30' }), json: async () => ({ error: { message: 'Please wait.' } }) }),
+  }, { '@/lib/server/session': { accessToken: async () => 'private', sameOrigin: () => true, API_URL: 'http://backend/api/v1' } });
+  const response = await api.POST(request(), { params: Promise.resolve({ path: ['enquiries'] }) });
+  assert.equal(response.status, 429); assert.equal(response.headers['Retry-After'], '30');
+  assert.equal(response.headers['Cache-Control'], 'no-store');
 });

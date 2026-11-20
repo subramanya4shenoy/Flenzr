@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_role
 from app.core.exceptions import EntityNotFoundError
-from app.domains.brands.schemas import OrganizationCreate, OrganizationRead
+from app.domains.brands.schemas import OrganizationCreate, OrganizationRead, OrganizationUpdate
 from app.domains.brands.services import BrandService
-from app.domains.identity.models import User
+from app.domains.identity.models import SystemRole, User
 
 router = APIRouter(prefix="/organizations", tags=["Organizations & Brands"])
 
@@ -35,3 +35,13 @@ async def get_my_organization(
     if not org:
         raise EntityNotFoundError("Organization", current_user.id)
     return org
+
+
+@router.patch("/me", response_model=OrganizationRead)
+async def update_my_organization(
+    body: OrganizationUpdate,
+    current_user: User = Depends(require_role([SystemRole.BRAND_OWNER])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update only the organization owned by the signed-in brand owner."""
+    return await BrandService.update_organization(db, current_user, body)

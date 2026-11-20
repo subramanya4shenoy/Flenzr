@@ -31,3 +31,59 @@ test('enquiry calls stay same-origin, uncached and surface useful errors', async
   status = 200;
   assert.equal((await api.enquiryRequest('/me?view=sent')).id, 'saved');
 });
+
+test('delivery dates stay on the same calendar day across timezones', () => {
+  const api = load();
+  for (const timezone of ['America/Los_Angeles', 'Pacific/Kiritimati', 'Asia/Kolkata']) {
+    const prior = process.env.TZ;
+    try {
+      process.env.TZ = timezone;
+      assert.equal(api.enquiryDeliveryDate('2028-02-29'), '29 Feb 2028');
+    } finally { if (prior === undefined) delete process.env.TZ; else process.env.TZ = prior; }
+  }
+  assert.equal(api.enquiryDeliveryDate(null), 'To discuss');
+  assert.equal(api.enquiryDeliveryDate(undefined), 'To discuss');
+});
+
+test('preferred delivery date is optional, valid and today or later', () => {
+  const api = load();
+  const today = '2026-11-16';
+  assert.equal(api.validateEnquiryDeliveryDate('', today), null);
+  assert.equal(api.validateEnquiryDeliveryDate(today, today), today);
+  assert.equal(api.validateEnquiryDeliveryDate('2028-02-29', today), '2028-02-29');
+  assert.throws(() => api.validateEnquiryDeliveryDate('2026-11-15', today), /today or a later/);
+  for (const value of ['2026-02-30', '2026-11-16T00:00:00Z', '20261116', '2026-1-1', '2027-02-29']) assert.throws(() => api.validateEnquiryDeliveryDate(value, today), /valid preferred delivery date/);
+});
+
+test('late read acknowledgements never replace newer replies or roll back read state', () => {
+  const api = load();
+  const old = { id: 'one', revision: 1, read_revision: 0, is_unread: true, brief: 'Original' };
+  const acknowledged = { ...old, read_revision: 1, is_unread: false };
+  assert.equal(api.mergeEnquiryRead(old, acknowledged).is_unread, false);
+  const newer = { ...old, revision: 2, brief: 'New reply' };
+  const merged = api.mergeEnquiryRead(newer, acknowledged);
+  assert.equal(merged.revision, 2);
+  assert.equal(merged.read_revision, 1);
+  assert.equal(merged.is_unread, true);
+  assert.equal(merged.brief, 'New reply');
+  assert.equal(api.mergeEnquiryRead({ ...newer, read_revision: 2, is_unread: false }, acknowledged).is_unread, false);
+  assert.equal(api.mergeEnquiryRead(old, { ...old, id: 'another' }), old);
+});
+
+test('rate limits carry a bounded retry countdown through headers or JSON details', async () => {
+  let header = '30';
+  const api = load(async () => ({ ok: false, status: 429, headers: { get: () => header }, json: async () => ({ error: {
+    message: 'Please leave a short gap.', details: [{ retry_after_seconds: 60 }],
+  } }) }));
+  await assert.rejects(api.enquiryRequest('', { method: 'POST' }), error => {
+    assert.equal(error.retryAfterSeconds, 30); assert.equal(error.message, 'Please leave a short gap.'); return true;
+  });
+  header = null;
+  await assert.rejects(api.enquiryRequest(''), error => { assert.equal(error.retryAfterSeconds, 60); return true; });
+  header = 'Infinity';
+  await assert.rejects(api.enquiryRequest(''), error => { assert.equal(error.retryAfterSeconds, undefined); return true; });
+  assert.equal(api.enquiryRetryLabel(29.2), '30s');
+  assert.equal(api.enquiryRetryLabel(90), '1m 30s');
+  assert.equal(api.enquiryRetryLabel(3661), '1h 1m');
+  assert.equal(api.enquiryRetryLabel(-1), '0s');
+});

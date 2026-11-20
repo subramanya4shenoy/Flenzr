@@ -9,11 +9,13 @@ class FlenzrException(Exception):
         message: str,
         status_code: int = status.HTTP_400_BAD_REQUEST,
         details: Optional[List[Dict[str, Any]]] = None,
+        headers: Optional[Dict[str, str]] = None,
     ):
         self.code = code
         self.message = message
         self.status_code = status_code
         self.details = details or []
+        self.headers = headers or {}
         super().__init__(message)
 
 

@@ -43,7 +43,7 @@ function harness() {
     throw Error('Unexpected request');
   };
   vm.runInNewContext(code, { exports, require: (name) => { assert.ok(name in mocks, name); return mocks[name]; }, Buffer, URL, AbortSignal, fetch, Date, process: { env: { NODE_ENV: 'production', NEXT_PUBLIC_SUPABASE_URL: 'https://project.supabase.co', NEXT_PUBLIC_SUPABASE_ANON_KEY: 'public-key' } } });
-  const begin = (role = 'creator', signup = false) => exports.beginGoogle(new Request('https://app.test/api/auth/google', { method: 'POST', headers: { Origin: 'https://app.test', 'Content-Type': 'application/json' }, body: JSON.stringify({ role, signup }) }));
+  const begin = (role = 'creator', signup = false, returnTo = undefined) => exports.beginGoogle(new Request('https://app.test/api/auth/google', { method: 'POST', headers: { Origin: 'https://app.test', 'Content-Type': 'application/json' }, body: JSON.stringify({ role, signup, returnTo }) }));
   const callback = async (start, stateOverride) => {
     const auth = new URL(start.data.url);
     const url = new URL(auth.searchParams.get('redirect_to'));
@@ -128,5 +128,16 @@ for (const [role, bio, next] of [['creator', '', '/signup/creator'], ['creator',
     assert.equal(JSON.parse(exchange.options.body).code_verifier, flow.verifier);
     assert.equal(h.jar.size, 0);
     assert.match((await h.callback(start)).location, /auth_error=/);
+  });
+}
+
+
+for (const target of ['/dashboard/notifications', '/dashboard/enquiries/12345678-1234-1234-1234-123456789abc', 'https://attacker.test', '//attacker.test', '/dashboard/enquiries/../brand']) {
+  test(`Google return destination is restricted: ${target}`, async () => {
+    const h = harness();
+    h.control.bio = 'Existing profile';
+    const result = await h.callback(await h.begin('creator', false, target));
+    const safe = target === '/dashboard/notifications' || target.includes('12345678');
+    assert.equal(new URL(result.location).searchParams.get('next'), safe ? target : '/dashboard/creator');
   });
 }

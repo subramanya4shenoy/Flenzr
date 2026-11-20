@@ -65,3 +65,12 @@ def auth_headers():
         return {"Authorization": f"Bearer {token}"}
 
     return _create_headers
+
+
+@pytest.fixture(autouse=True)
+def enquiry_workflow_limits(monkeypatch):
+    # Workflow tests can exercise multiple transitions without time travel.
+    # Dedicated abuse tests restore and verify the production guards explicitly.
+    monkeypatch.setattr(settings, "ENQUIRY_SEND_COOLDOWN_SECONDS", 0)
+    monkeypatch.setattr(settings, "ENQUIRY_CREATOR_DAILY_LIMIT", 30)
+    monkeypatch.setattr(settings, "ENQUIRY_BLOCK_DUPLICATES", False)

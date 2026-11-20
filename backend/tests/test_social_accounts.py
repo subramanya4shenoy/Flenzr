@@ -12,7 +12,10 @@ async def test_add_correct_and_remove_unverified_account(client, auth_headers, p
     headers = auth_headers()
     first = await client.patch(f'{BASE}/{platform}', headers=headers, json={'handle': '@Mistake'})
     assert first.status_code == 200
-    assert first.json() == [{'platform': platform, 'handle': 'mistake', 'is_verified': False}]
+    expected = {'platform': platform, 'handle': 'mistake', 'is_verified': False}
+    if platform == 'linkedin':
+        expected['connected'] = False  # A saved handle is not an OAuth connection.
+    assert first.json() == [expected]
     # A new read, rather than only trusting the mutation's response, must reflect persistence.
     assert (await client.get(BASE, headers=headers)).json() == first.json()
     edited = await client.patch(f'{BASE}/{platform}', headers=headers, json={'handle': 'correct', 'expected_handle': 'mistake'})

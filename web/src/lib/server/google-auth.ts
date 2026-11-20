@@ -12,6 +12,7 @@ interface GoogleFlow {
   signup: boolean;
   origin: string;
   expiresAt: number;
+  returnTo?: string;
 }
 function equal(a: string, b: string) {
   const left = Buffer.from(a);
@@ -38,6 +39,7 @@ export async function beginGoogle(request: Request) {
     const state = randomBytes(32).toString("base64url");
     const origin = requestOrigin(request);
     const flow: GoogleFlow = { verifier, state, role: body.role === "brand" ? "brand_owner" : "creator", signup: body.signup, origin, expiresAt: Date.now() + 600000 };
+    if (typeof body.returnTo === "string" && /^\/dashboard\/(?:notifications|enquiries\/[0-9a-f-]{36})$/i.test(body.returnTo)) flow.returnTo = body.returnTo;
     const callback = new URL("/api/auth/google/callback", origin);
     callback.searchParams.set("app_state", state);
     const authorize = new URL(`${base}/auth/v1/authorize`);
@@ -94,6 +96,7 @@ export async function completeGoogle(request: Request) {
       // Both new sign-ins and signup clicks resume onboarding for an empty profile.
       if (!(await profile.json()).bio) destination = "/signup/creator";
     }
+    if (destination !== "/signup/creator" && flow.returnTo && /^\/dashboard\/(?:notifications|enquiries\/[0-9a-f-]{36})$/i.test(flow.returnTo)) destination = flow.returnTo;
     await saveSession(session.access_token, Number(session.expires_in) || 3600, session.refresh_token);
     const next = new URL("/auth/complete", origin);
     next.searchParams.set("next", destination);

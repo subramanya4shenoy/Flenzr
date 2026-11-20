@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import EntityNotFoundError
 from app.domains.brands.models import BrandProfile, Organization
-from app.domains.brands.schemas import OrganizationCreate
+from app.domains.brands.schemas import OrganizationCreate, OrganizationUpdate
 from app.domains.identity.models import SystemRole, User, UserRole
 
 
@@ -54,6 +54,29 @@ class BrandService:
             description=payload.description,
         )
         db.add(brand_profile)
+        await db.commit()
+        await db.refresh(org)
+        return org
+
+
+    @staticmethod
+    async def update_organization(
+        db: AsyncSession, user: User, payload: OrganizationUpdate
+    ) -> Organization:
+        org = await BrandService.get_organization_by_owner(db, user.id)
+        if org is None:
+            raise EntityNotFoundError("Organization", user.id)
+        values = payload.model_dump(exclude_unset=True)
+        profile_values = {key: value for key, value in values.items()
+                          if key not in {"name", "billing_email"}}
+        for key in ("name", "billing_email"):
+            if key in values:
+                setattr(org, key, values[key])
+        if profile_values:
+            if org.brand_profile is None:
+                org.brand_profile = BrandProfile(company_name=org.name)
+            for key, value in profile_values.items():
+                setattr(org.brand_profile, key, value)
         await db.commit()
         await db.refresh(org)
         return org

@@ -29,7 +29,7 @@ export default function AuthComplete() {
         } catch {}
         const next = new URLSearchParams(window.location.search).get("next");
         const allowed = ["/dashboard/creator", "/dashboard/brand", "/signup/creator"];
-        window.location.replace(next && allowed.includes(next) ? next : "/dashboard/creator");
+        window.location.replace(next && (allowed.includes(next) || /^\/dashboard\/(?:notifications|enquiries\/[0-9a-f-]{36})$/i.test(next)) ? next : "/dashboard/creator");
       } catch { if (active) setError("Could not finish sign-in. Please return to login and retry."); }
     };
     finish();

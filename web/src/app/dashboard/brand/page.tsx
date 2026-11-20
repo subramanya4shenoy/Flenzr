@@ -4,58 +4,27 @@ import { useState, useEffect } from "react";
 import { clearLocalAccountData } from "@/lib/local-data";
 import Link from "next/link";
 import {
-  Sparkles,
   Search,
   Plus,
-  Filter,
-  DollarSign,
-  Users,
-  Star,
-  Tag,
-  MapPin,
-  ExternalLink,
-  Send,
-  CheckCircle,
-  Clock,
   Briefcase,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
-import { searchCreators } from "@/lib/api";
+import { CampaignList, CampaignDraftDialog, useBrandCampaigns } from "@/components/brand/campaign-drafts";
+import { CampaignActivity } from "@/components/campaigns/campaign-activity";
+import { CampaignLifecycleDialog } from "@/components/brand/campaign-lifecycle";
+import { campaignActionInfo, type CampaignAction } from "@/lib/campaign-lifecycle";
+import { CampaignPipeline } from "@/components/brand/campaign-pipeline";
+import { BrandShortlists } from "@/components/brand/shortlists";
+import { CreatorDiscovery } from "@/components/brand/creator-discovery";
+import { NotificationBell } from "@/components/notifications/notification-center";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { EnquiryUnreadBadge } from "@/components/enquiries/enquiry-activity";
 import { useTranslation } from "@/lib/i18n/language-context";
 
 
-interface CreatorCard {
-  id: string;
-  handle: string;
-  display_name: string;
-  niche: string;
-  rating: number;
-  location: string;
-  starting_rate: number | null;
-  bio: string;
-  verified: boolean;
-}
-
-interface CampaignItem {
-  id: string;
-  title: string;
-  target_niche: string;
-  budget_dollars: number;
-  status: "active" | "draft" | "completed";
-  deliverables: string;
-  applicants_count: number;
-}
-
 export default function BrandDashboardPage() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<"discovery" | "campaigns" | "applications">("discovery");
-
-  // Search & Filter state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedNiche, setSelectedNiche] = useState("All");
-
-  const [creators, setCreators] = useState<CreatorCard[]>([]);
+  const [activeTab, setActiveTab] = useState<"discovery" | "campaigns" | "shortlists">("discovery");
 
   useEffect(() => {
     try {
@@ -70,70 +39,24 @@ export default function BrandDashboardPage() {
         })
       );
     } catch {}
-    searchCreators().then((live) => {
-      if (Array.isArray(live) && live.length > 0) {
-        setCreators(
-          live.map((c, idx) => ({
-            id: `c-live-${idx}`,
-            handle: c.handle,
-            display_name: c.display_name,
-            niche: c.niche || "Content Creator",
-            rating: c.rating ?? 0,
-            location: c.location || "Location not provided",
-            starting_rate: null,
-            bio: c.bio || "",
-            verified: c.is_verified,
-          }))
-        );
-      }
-    }).catch(() => {});
   }, []);
 
 
-  // Campaigns state
-  const [campaigns, setCampaigns] = useState<CampaignItem[]>([]);
-
-  // Campaign Creation Modal
-  const [showNewCampaign, setShowNewCampaign] = useState(false);
-  const [newCampTitle, setNewCampTitle] = useState("");
-  const [newCampNiche, setNewCampNiche] = useState("Technology & Gear");
-  const [newCampBudget, setNewCampBudget] = useState("");
-  const [newCampDeliverables, setNewCampDeliverables] = useState("");
-  const [newCampBrief, setNewCampBrief] = useState("");
-
-  const handleCreateCampaign = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCampTitle) return;
-    const item: CampaignItem = {
-      id: `camp-${Date.now()}`,
-      title: newCampTitle,
-      target_niche: newCampNiche,
-      budget_dollars: Number(newCampBudget) || 0,
-      status: "active",
-      deliverables: newCampDeliverables || "1x Dedicated Video",
-      applicants_count: 0,
-    };
-    setCampaigns([item, ...campaigns]);
-    setNewCampTitle("");
-    setNewCampDeliverables("");
-    setNewCampBrief("");
-    setShowNewCampaign(false);
-  };
-
-  const filteredCreators = creators.filter((c) => {
-    const matchesQuery =
-      c.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.handle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.bio.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesNiche = selectedNiche === "All" || c.niche.includes(selectedNiche);
-    return matchesQuery && matchesNiche;
-  });
+  const campaignState = useBrandCampaigns();
+  const campaigns = campaignState.campaigns;
+  const [editor, setEditor] = useState<{ id: string | null } | null>(null);
+  const [action, setAction] = useState<{ id: string; action: CampaignAction } | null>(null);
+  const [shortlistId, setShortlistId] = useState<string | undefined>(undefined);
+  const [activity, setActivity] = useState<{ id: string; title: string; kind?: "applications" | "invitations" } | null>(null);
+  const [campaignNotice, setCampaignNotice] = useState("");
+  const [summaryRevision, setSummaryRevision] = useState(0);
+  const metricsReady = !campaignState.loading && !campaignState.error && campaigns !== null;
 
   return (
     <div className="min-h-screen bg-[#09090b] text-neutral-100 selection:bg-[#c1121f] selection:text-white">
       {/* Top Header */}
       <header className="border-b border-neutral-800 bg-[#09090b]/85 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-3 flex flex-wrap gap-3 items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/dashboard/brand" className="flex items-center gap-2" title="Brand Portal">
               <Logo size={30} variant="duotone-dark" withWordmark={true} />
@@ -143,9 +66,12 @@ export default function BrandDashboardPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-xs sm:text-sm">
-            <Link href="/dashboard/brand/enquiries" className="h-9 px-3 rounded-xl border border-neutral-800 text-xs inline-flex items-center">Enquiries</Link>
-            <LanguageSwitcher variant="compact" />
+          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+            <Link href="/dashboard/brand/enquiries" className="h-9 px-3 rounded-xl border border-neutral-800 text-xs inline-flex items-center gap-2">Enquiries <EnquiryUnreadBadge view="sent" /></Link>
+            <Link href="/dashboard/brand/profile" className="h-9 px-3 rounded-xl border border-neutral-800 text-xs inline-flex items-center">Brand profile</Link>
+            <Link href="/dashboard/calendar" className="h-9 px-3 rounded-xl border border-neutral-800 text-xs inline-flex items-center">Calendar</Link>
+            <Link href="/dashboard/collaborations" className="h-9 px-3 rounded-xl border border-neutral-800 text-xs inline-flex items-center">Collaborations</Link>
+            <NotificationBell /><LanguageSwitcher variant="compact" />
             <button type="button" onClick={async () => {
               const res = await fetch("/api/auth/logout", { method: "POST" });
               if (!res.ok) { alert("Could not sign out. Please retry."); return; }
@@ -154,11 +80,13 @@ export default function BrandDashboardPage() {
               window.location.assign("/login");
             }} className="h-9 px-3 rounded-xl border border-neutral-800 text-xs">Sign Out</button>
             <button
-              onClick={() => setShowNewCampaign(true)}
+              onClick={() => { setCampaignNotice(""); setActivity(null); setActiveTab("campaigns"); setEditor({ id: null }); }}
+              disabled={campaignState.missingOrganization}
+              title={campaignState.missingOrganization ? "Set up your brand profile first" : undefined}
               className="h-9 px-4 rounded-xl text-xs font-bold bg-[#c1121f] hover:bg-[#a50e1a] text-white transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-[#c1121f]/25 leading-none"
             >
               <Plus className="w-4 h-4" />
-              <span>{t("New Collab Proposal")}</span>
+              <span>{t("New campaign")}</span>
             </button>
           </div>
         </div>
@@ -166,41 +94,12 @@ export default function BrandDashboardPage() {
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Brand Metric Overview */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-5 shadow-xl">
-            <div className="flex items-center justify-between text-xs text-neutral-400 mb-2 font-medium">
-              <span>Active Campaigns</span>
-              <Briefcase className="w-4 h-4 text-[#c1121f]" />
-            </div>
-            <div className="text-2xl font-black text-white">{campaigns.length}</div>
-          </div>
-
-          <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-5 shadow-xl">
-            <div className="flex items-center justify-between text-xs text-neutral-400 mb-2 font-medium">
-              <span>Allocated Budget</span>
-              <DollarSign className="w-4 h-4 text-[#c1121f]" />
-            </div>
-            <div className="text-2xl font-black text-white">
-              ₹{campaigns.reduce((a, c) => a + c.budget_dollars, 0).toLocaleString("en-IN")}
-            </div>
-          </div>
-
-          <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-5 shadow-xl">
-            <div className="flex items-center justify-between text-xs text-neutral-400 mb-2 font-medium">
-              <span>Total Creator Applicants</span>
-              <Users className="w-4 h-4 text-[#c1121f]" />
-            </div>
-            <div className="text-2xl font-black text-[#c1121f]">
-              {campaigns.reduce((a, c) => a + c.applicants_count, 0)}
-            </div>
-          </div>
-        </div>
+        <CampaignPipeline revision={summaryRevision} />
 
         {/* Dashboard Tabs */}
-        <div className="flex border-b border-neutral-800 gap-2">
+        <div className="flex flex-wrap border-b border-neutral-800 gap-2">
           <button
-            onClick={() => setActiveTab("discovery")}
+            onClick={() => { setCampaignNotice(""); setActiveTab("discovery"); }}
             className={`pb-3 px-4 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
               activeTab === "discovery"
                 ? "border-[#c1121f] text-white font-bold"
@@ -220,264 +119,19 @@ export default function BrandDashboardPage() {
             }`}
           >
             <Briefcase className="w-4 h-4 text-[#c1121f]" />
-            <span>Campaigns ({campaigns.length})</span>
+            <span>Campaigns ({metricsReady ? campaigns.length : "—"})</span>
           </button>
+          <button type="button" onClick={() => { setShortlistId(undefined); setCampaignNotice(""); setActiveTab("shortlists"); }} className={`pb-3 px-4 text-sm font-semibold border-b-2 ${activeTab === "shortlists" ? "border-[#c1121f] text-white" : "border-transparent text-neutral-400"}`}>Shortlists</button>
         </div>
 
-        {/* TAB 1: CREATOR DISCOVERY */}
-        {activeTab === "discovery" && (
-          <section className="space-y-6">
-            {/* Search & Filter Bar */}
-            <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-4 flex flex-col sm:flex-row gap-3 shadow-md">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Search creators by name, handle, or keywords..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#c1121f]"
-                />
-              </div>
+        {activeTab === "shortlists" && <BrandShortlists key={shortlistId || "groups"} initialId={shortlistId} onManageCampaigns={() => { setActivity(null); setActiveTab("campaigns"); }} onViewCampaign={campaign => { setActivity({ id: campaign.id, title: campaign.title, kind: "invitations" }); setActiveTab("campaigns"); }} />}
+        {activeTab === "discovery" && <CreatorDiscovery onViewShortlist={group => { setShortlistId(group.id); setActiveTab("shortlists"); }} onManageCampaigns={() => { setActivity(null); setActiveTab("campaigns"); }} onViewCampaign={campaign => { setActivity({ id: campaign.id, title: campaign.title, kind: "invitations" }); setActiveTab("campaigns"); }} />}
 
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-[#c1121f]" />
-                {["All", "Technology", "Software", "Health", "Travel"].map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setSelectedNiche(n)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                      selectedNiche === n
-                        ? "bg-[#c1121f] text-white font-bold"
-                        : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800 border border-neutral-800"
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Creator Directory Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredCreators.length === 0 && <p className="col-span-full p-8 text-center text-sm text-neutral-400">No creators found. Creator profiles will appear here after signup.</p>}
-              {filteredCreators.map((creator) => (
-                <div
-                  key={creator.id}
-                  className="bg-[#121215] border border-neutral-800 rounded-2xl p-6 flex flex-col justify-between hover:border-[#c1121f]/50 hover:shadow-xl transition-all shadow-md"
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#c1121f] to-neutral-700 p-0.5">
-                          <div className="w-full h-full rounded-[10px] bg-neutral-950 flex items-center justify-center font-bold text-white">
-                            {creator.display_name.charAt(0)}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <h3 className="font-bold text-white text-base">{creator.display_name}</h3>
-                            {creator.verified && (
-                              <CheckCircle className="w-4 h-4 fill-[#c1121f] text-white" />
-                            )}
-                          </div>
-                          <p className="text-xs text-neutral-400">@{creator.handle}</p>
-                        </div>
-                      </div>
-
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-800 text-white border border-neutral-700">
-                        <Star className="w-3.5 h-3.5 fill-[#c1121f] text-[#c1121f]" />
-                        {creator.rating > 0 ? creator.rating.toFixed(1) : "No reviews yet"}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-neutral-400 leading-relaxed">{creator.bio}</p>
-
-                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-300">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800 font-medium">
-                        <Tag className="w-3 h-3 text-[#c1121f]" />
-                        {creator.niche}
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800 font-medium">
-                        <MapPin className="w-3 h-3 text-[#c1121f]" />
-                        {creator.location}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-neutral-800 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-neutral-400 block font-medium">Packages from</span>
-                      <span className="text-base font-extrabold text-white">
-                        {creator.starting_rate === null ? "View media kit" : `₹${creator.starting_rate.toLocaleString("en-IN")}`}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/${creator.handle}`}
-                        target="_blank"
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-white transition-colors flex items-center gap-1 shadow-sm border border-neutral-700"
-                      >
-                        <span>Media Kit</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </Link>
-                      <button
-                        onClick={() => alert(`Invite sent to @${creator.handle}!`)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#c1121f] hover:bg-[#a50e1a] text-white transition-colors flex items-center gap-1 cursor-pointer shadow-md shadow-[#c1121f]/25"
-                      >
-                        <Send className="w-3 h-3" />
-                        <span>Invite</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* TAB 2: CAMPAIGN MANAGER */}
-        {activeTab === "campaigns" && (
-          <section className="space-y-6">
-            <div className="grid grid-cols-1 gap-4">
-              {campaigns.length === 0 && <p className="p-8 text-center text-sm text-neutral-400">No campaigns yet. Create your first campaign to get started.</p>}
-              {campaigns.map((camp) => (
-                <div
-                  key={camp.id}
-                  className="bg-[#121215] border border-neutral-800 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#c1121f]/50 hover:shadow-xl transition-all shadow-md"
-                >
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#c1121f]/20 text-[#c1121f] border border-[#c1121f]/30">
-                        {camp.status}
-                      </span>
-                      <span className="text-xs text-neutral-400 font-medium">{camp.target_niche}</span>
-                    </div>
-                    <h3 className="text-base font-bold text-white">{camp.title}</h3>
-                    <p className="text-xs text-neutral-400">{camp.deliverables}</p>
-                  </div>
-
-                  <div className="flex items-center gap-8 text-center sm:text-right">
-                    <div>
-                      <span className="text-xs text-neutral-400 block font-medium">Budget</span>
-                      <span className="text-lg font-black text-white">
-                        ₹{camp.budget_dollars.toLocaleString("en-IN")}
-                      </span>
-                    </div>
-
-                    <div>
-                      <span className="text-xs text-neutral-400 block font-medium">Applicants</span>
-                      <span className="text-lg font-black text-[#c1121f]">
-                        {camp.applicants_count}
-                      </span>
-                    </div>
-
-                    <button className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700 transition-colors cursor-pointer shadow-sm">
-                      Review Offers
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {activeTab === "applications" && <p className="p-8 text-center text-sm text-neutral-400">No applications yet.</p>}
-
-        {/* New Campaign Modal */}
-        {showNewCampaign && (
-          <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <form
-              onSubmit={handleCreateCampaign}
-              className="bg-[#141418] border border-neutral-800 rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-4 shadow-2xl text-white"
-            >
-              <h3 className="text-lg font-bold text-white">Launch New Campaign Brief</h3>
-              <p className="text-xs text-neutral-400">
-                Creators in the discovery directory can browse and submit applications.
-              </p>
-
-              <div className="space-y-3 text-xs">
-                <div>
-                  <label className="block text-neutral-300 mb-1 font-medium">Campaign Title</label>
-                  <input
-                    type="text"
-                    value={newCampTitle}
-                    onChange={(e) => setNewCampTitle(e.target.value)}
-                    placeholder="e.g. Q4 Wireless Headphone Launch"
-                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-neutral-300 mb-1 font-medium">Target Niche</label>
-                    <select
-                      value={newCampNiche}
-                      onChange={(e) => setNewCampNiche(e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
-                    >
-                      <option>Technology & Gear</option>
-                      <option>Software & Productivity</option>
-                      <option>Health & Nutrition</option>
-                      <option>Travel & Lifestyle</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-neutral-300 mb-1 font-medium">Total Budget (INR ₹)</label>
-                    <input
-                      type="number"
-                      value={newCampBudget}
-                      onChange={(e) => setNewCampBudget(e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
-                      placeholder="100000"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-neutral-300 mb-1 font-medium">Deliverable Requirements</label>
-                  <input
-                    type="text"
-                    value={newCampDeliverables}
-                    onChange={(e) => setNewCampDeliverables(e.target.value)}
-                    placeholder="e.g. 1x Dedicated 8-10 min YouTube review + Instagram Reel"
-                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-neutral-300 mb-1 font-medium">Brief Description</label>
-                  <textarea
-                    rows={3}
-                    value={newCampBrief}
-                    onChange={(e) => setNewCampBrief(e.target.value)}
-                    placeholder="Describe the product, key talking points, and guidelines..."
-                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-[#c1121f]"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowNewCampaign(false)}
-                  className="px-4 py-2 rounded-xl text-xs bg-neutral-800 text-neutral-300 hover:bg-neutral-700 cursor-pointer font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-[#c1121f] text-white hover:bg-[#a50e1a] cursor-pointer shadow-lg shadow-[#c1121f]/25"
-                >
-                  Publish Campaign
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+        {campaignNotice && <p className="fl-campaign-notice" role="status">{campaignNotice}</p>}
+        {activeTab === "campaigns" && activity && <CampaignActivity key={`${activity.id}:${activity.kind || "applications"}`} initialKind={activity.kind} audience="brand" campaignId={activity.id} campaignTitle={activity.title} onBack={() => { setActivity(null); setSummaryRevision(value => value + 1); }} />}
+        {activeTab === "campaigns" && !activity && <CampaignList {...campaignState} onActivity={(campaign) => setActivity({ id: campaign.id, title: campaign.title })} onOpen={(id) => { setCampaignNotice(""); setEditor({ id }); }} onAction={(campaign, nextAction) => { setCampaignNotice(""); setAction({ id: campaign.id, action: nextAction }); }} />}
+        {action && <CampaignLifecycleDialog key={`${action.id}:${action.action}`} campaignId={action.id} action={action.action} onClose={() => setAction(null)} onReloaded={campaignState.retry} onEdit={(id) => { setAction(null); setEditor({ id }); }} onSaved={(campaign) => { campaignState.saved(campaign); setSummaryRevision(value => value + 1); setCampaignNotice(campaignActionInfo[action.action].done); }} />}
+        {editor && <CampaignDraftDialog key={editor.id || "new"} campaignId={editor.id} onReloaded={campaignState.retry} onClose={() => setEditor(null)} onSaved={(campaign) => { campaignState.saved(campaign); setSummaryRevision(value => value + 1); setCampaignNotice("Draft saved."); setActiveTab("campaigns"); setEditor(null); }} />}
       </main>
     </div>
   );

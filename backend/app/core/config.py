@@ -1,5 +1,5 @@
 from typing import List, Union
-from pydantic import AnyHttpUrl, field_validator
+from pydantic import AnyHttpUrl, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -54,6 +54,22 @@ class Settings(BaseSettings):
     FACEBOOK_CONFIG_ID: str = ""
     FACEBOOK_REDIRECT_URI: str = ""
     FACEBOOK_API_VERSION: str = "v26.0"
+
+    # New enquiry submissions; successful idempotent retries are exempt.
+    ENQUIRY_SEND_COOLDOWN_SECONDS: int = Field(default=30, ge=0, le=3600)
+    ENQUIRY_CREATOR_DAILY_LIMIT: int = Field(default=3, ge=1, le=30)
+    ENQUIRY_BLOCK_DUPLICATES: bool = True
+
+    # Notification delivery: development captures mail locally; SMTP is explicit.
+    NOTIFICATION_EMAIL_TRANSPORT: str = "sink"
+    NOTIFICATION_MAIL_SINK: str = ".mail-sink"
+    NOTIFICATION_APP_ORIGIN: str = "http://localhost:3210"
+    NOTIFICATION_EMAIL_FROM: str = "Flenzr <notifications@flenzr.test>"
+    NOTIFICATION_SMTP_HOST: str = ""
+    NOTIFICATION_SMTP_PORT: int = 587
+    NOTIFICATION_SMTP_USERNAME: str = ""
+    NOTIFICATION_SMTP_PASSWORD: str = ""
+    NOTIFICATION_SMTP_STARTTLS: bool = True
 
     # CORS
     CORS_ORIGINS: List[str] = [
