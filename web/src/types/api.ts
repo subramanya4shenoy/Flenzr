@@ -21,6 +21,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/offers/{offer_id}/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public Offer */
+        get: operations["public_offer_api_v1_offers__offer_id__public_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/offers/{offer_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Workspace */
+        get: operations["workspace_api_v1_offers__offer_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/offers/{offer_id}/applications/{application_id}/negotiate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Negotiate */
+        post: operations["negotiate_api_v1_offers__offer_id__applications__application_id__negotiate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/collaborations": {
         parameters: {
             query?: never;
@@ -1962,6 +2013,36 @@ export interface components {
              */
             collaboration_status: "discussion" | "agreed" | "completed";
         };
+        /** Application */
+        Application: {
+            /** Id */
+            id: string;
+            /** Creator Name */
+            creator_name: string;
+            /** Creator Handle */
+            creator_handle: string;
+            /** Amount Cents */
+            amount_cents: number;
+            /** Pitch */
+            pitch: string | null;
+            /** Status */
+            status: string;
+            /** Revision */
+            revision: number;
+            /** Proposed By */
+            proposed_by: string;
+            /** History */
+            history: {
+                [key: string]: unknown;
+            }[];
+            /** Collaboration Id */
+            collaboration_id?: string | null;
+            /**
+             * Claimed
+             * @default false
+             */
+            claimed: boolean;
+        };
         /**
          * ApplicationStatus
          * @enum {string}
@@ -2173,6 +2254,8 @@ export interface components {
         };
         /** CampaignApplicationResponse */
         CampaignApplicationResponse: {
+            /** Expected Application Revision */
+            expected_application_revision?: number | null;
             /**
              * Action
              * @enum {string}
@@ -2226,6 +2309,12 @@ export interface components {
          * @description Legacy create-and-publish path uses the same readiness rules as publishing a draft.
          */
         CampaignCreate: {
+            /**
+             * Visibility
+             * @default public
+             * @enum {string}
+             */
+            visibility: "public" | "invited";
             /** Title */
             title: string;
             /** Brief */
@@ -2248,6 +2337,12 @@ export interface components {
         };
         /** CampaignDraftCreate */
         CampaignDraftCreate: {
+            /**
+             * Visibility
+             * @default public
+             * @enum {string}
+             */
+            visibility: "public" | "invited";
             /** Title */
             title: string;
             /**
@@ -2281,6 +2376,12 @@ export interface components {
         };
         /** CampaignDraftUpdate */
         CampaignDraftUpdate: {
+            /**
+             * Visibility
+             * @default public
+             * @enum {string}
+             */
+            visibility: "public" | "invited";
             /** Title */
             title?: string | null;
             /** Brief */
@@ -2421,6 +2522,12 @@ export interface components {
         };
         /** CampaignRead */
         CampaignRead: {
+            /**
+             * Visibility
+             * @default public
+             * @enum {string}
+             */
+            visibility: "public" | "invited";
             /** Id */
             id: string;
             /** Organization Id */
@@ -3246,6 +3353,30 @@ export interface components {
             /** Sent At */
             sent_at: string;
         };
+        /** Negotiate */
+        Negotiate: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "counter" | "accept" | "reject" | "withdraw";
+            /**
+             * Request Id
+             * Format: uuid
+             */
+            request_id: string;
+            /** Expected Revision */
+            expected_revision: number;
+            /** Expected Offer Revision */
+            expected_offer_revision: number;
+            /** Amount Cents */
+            amount_cents?: number | null;
+            /**
+             * Message
+             * @default
+             */
+            message: string;
+        };
         /** NotificationRead */
         NotificationRead: {
             /** Id */
@@ -3264,6 +3395,50 @@ export interface components {
             is_unread: boolean;
             /** Created At */
             created_at: string;
+        };
+        /** OfferWorkspace */
+        OfferWorkspace: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Brief */
+            brief: string;
+            /** Brand Name */
+            brand_name: string;
+            /** Deliverables */
+            deliverables: string | null;
+            /** Niche */
+            niche: string | null;
+            /** Budget Cents */
+            budget_cents: number;
+            /** Currency */
+            currency: string;
+            /** Starts At */
+            starts_at: string | null;
+            /** Ends At */
+            ends_at: string | null;
+            /** Status */
+            status: string;
+            /** Visibility */
+            visibility: string;
+            /** Revision */
+            revision: number;
+            /** Accepting */
+            accepting: boolean;
+            /**
+             * Viewer Role
+             * @enum {string}
+             */
+            viewer_role: "brand" | "creator";
+            /** Applications */
+            applications: components["schemas"]["Application"][];
+            /** Total Applications */
+            total_applications: number;
+            /** Page */
+            page: number;
+            /** Invited */
+            invited: boolean;
         };
         /** OrganizationCreate */
         OrganizationCreate: {
@@ -3531,6 +3706,37 @@ export interface components {
              * @default false
              */
             youtube_verified: boolean;
+        };
+        /** PublicOffer */
+        PublicOffer: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Brief */
+            brief: string;
+            /** Brand Name */
+            brand_name: string;
+            /** Deliverables */
+            deliverables: string | null;
+            /** Niche */
+            niche: string | null;
+            /** Budget Cents */
+            budget_cents: number;
+            /** Currency */
+            currency: string;
+            /** Starts At */
+            starts_at: string | null;
+            /** Ends At */
+            ends_at: string | null;
+            /** Status */
+            status: string;
+            /** Visibility */
+            visibility: string;
+            /** Revision */
+            revision: number;
+            /** Accepting */
+            accepting: boolean;
         };
         /** PublishingProofCreate */
         PublishingProofCreate: {
@@ -4045,6 +4251,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    public_offer_api_v1_offers__offer_id__public_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicOffer"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    workspace_api_v1_offers__offer_id__get: {
+        parameters: {
+            query?: {
+                page?: number;
+            };
+            header?: never;
+            path: {
+                offer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfferWorkspace"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    negotiate_api_v1_offers__offer_id__applications__application_id__negotiate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offer_id: string;
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Negotiate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

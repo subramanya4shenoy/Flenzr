@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -10,7 +11,7 @@ import "./creator-analytics.css";
 import { RecentEngagementPanel } from "./recent-engagement-panel";
 import { invalidateRecentEngagement } from "@/lib/recent-engagement";
 import { FacebookPageSelection } from "./facebook-page-selection";
-import { getSocialAccounts, socialUrl, type SocialAccount, type SocialPlatform } from "@/lib/social-accounts";
+import { readConnectedAccounts, writeConnectedAccounts, getSocialAccounts, socialUrl, type SocialAccount, type SocialPlatform } from "@/lib/social-accounts";
 
 const platforms: Record<SocialPlatform, { name: string; initials: string; accent: string }> = {
   facebook: { name: "Facebook", initials: "FB", accent: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
@@ -226,8 +227,9 @@ function AccountSection({ account }: { account: SocialAccount }) {
 
 export function CreatorAnalyticsView() {
   const ownerId = useCreatorAccountId();
-  const [accounts, setAccounts] = useState<SocialAccount[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [cachedAccounts] = useState(() => readConnectedAccounts(ownerId));
+  const [accounts, setAccounts] = useState<SocialAccount[]>(cachedAccounts ?? []);
+  const [loading, setLoading] = useState(cachedAccounts === null);
   const [error, setError] = useState("");
   const [connectionNotice, setConnectionNotice] = useState("");
   const [facebookSelection, setFacebookSelection] = useState(false);
@@ -244,6 +246,7 @@ export function CreatorAnalyticsView() {
       for (const network of ["instagram", "youtube", "linkedin", "x", "facebook"] as const) {
         if (params.has(network)) { invalidateAnalytics(ownerId, network); invalidateRecentEngagement(ownerId, network); }
       }
+      writeConnectedAccounts(ownerId, linked);
       setAccounts(linked);
       // Consume callback outcomes once so later visits can reuse the refreshed cache.
       if (["instagram", "youtube", "linkedin", "x", "facebook"].some((network) => params.has(network))) {
@@ -338,7 +341,7 @@ export function CreatorAnalyticsView() {
       </header>
 
       {connectionNotice && <p role="status" className="rounded-xl border border-white/10 bg-white/5 p-4 text-xs text-neutral-300">{connectionNotice}</p>}
-      {loading ? <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#27272a] bg-[#121215] p-12 text-sm text-neutral-400" role="status"><Loader2 className="h-4 w-4 animate-spin" />Loading linked accounts…</div>
+      {loading ? <WorkspaceLoader label="Loading linked accounts…" />
         : error ? <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 text-sm text-amber-200" role="alert"><p>{error}</p><button type="button" onClick={() => { setLoading(true); void load(); }} className="mt-3 font-semibold underline underline-offset-4">Try again</button></div>
         : accounts.length === 0 ? <div className="rounded-2xl border border-dashed border-[#303036] bg-[#121215] px-6 py-14 text-center"><Link2 className="mx-auto mb-4 h-7 w-7 text-neutral-500" /><h3 className="text-sm font-semibold text-white">Your accounts, all in one place</h3><p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-neutral-400">Link a social account from your Studio Overview to see its available stats here. You can link multiple accounts on the same platform.</p></div>
         : <div className="analytics-workspace"><div className="analytics-account-grid">{accounts.map((account) => <AccountSection key={`${ownerId}:${account.platform}:${account.handle}:${account.is_verified}:${account.connected}`} account={account} />)}</div><RecentEngagementPanel accounts={accounts} /></div>}

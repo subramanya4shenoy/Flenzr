@@ -7,6 +7,7 @@ from app.domains.campaigns.models import ApplicationStatus, CampaignStatus, Invi
 
 
 class CampaignBase(BaseModel):
+    visibility: Literal["public", "invited"] = "public"
     title: str = Field(..., min_length=3, max_length=255)
     brief: str = Field(..., min_length=10)
     target_niche: Optional[str] = Field(None, max_length=128)
@@ -28,6 +29,7 @@ class CampaignUpdate(BaseModel):
 
 class CampaignDraftFields(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    visibility: Literal["public", "invited"] = "public"
     title: str = Field(min_length=3, max_length=255)
     brief: str = Field(default="", max_length=20000)
     target_niche: Optional[str] = Field(None, max_length=128)
@@ -108,6 +110,7 @@ class CampaignDraftUpdate(CampaignDraftFields):
 
 
 class CampaignRead(BaseModel):
+    visibility: Literal["public", "invited"] = "public"
     id: str
     organization_id: str
     title: str
@@ -203,6 +206,7 @@ class CampaignActivityPage(BaseModel):
 
 
 class CampaignApplicationResponse(BaseModel):
+    expected_application_revision: Optional[int] = Field(None, ge=0)
     model_config = ConfigDict(extra="forbid")
     action: Literal["accept", "reject"]
     expected_status: Literal["pending"]

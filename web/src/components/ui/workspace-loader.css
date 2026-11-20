@@ -1,0 +1,15 @@
+.fl-workspace-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:280px;width:100%;padding:32px 16px;color:#a1a1aa;animation:fl-workspace-loader-appear .18s ease .12s both}
+.fl-workspace-loader-mark{position:relative;display:flex;align-items:center;justify-content:center;width:76px;height:76px;flex:none;border-radius:22px;background:#121215;border:1px solid #27272a}
+.fl-workspace-loader-mark::before{content:"";position:absolute;inset:-7px;border:1px solid #c1121f30;border-radius:27px;animation:fl-workspace-loader-halo 1.8s ease-in-out infinite}
+.fl-workspace-loader-mark svg{overflow:visible}
+.fl-workspace-loader-mark path{transform-box:fill-box;transform-origin:center;animation:fl-workspace-loader-wing 1.8s ease-in-out infinite}
+.fl-workspace-loader-mark path:last-child{animation-name:fl-workspace-loader-stem;animation-delay:.1s}
+.fl-workspace-loader-label{font-size:12px;line-height:1.6;text-align:center}
+.fl-workspace-loader[data-compact=true]{flex-direction:row;justify-content:flex-start;min-height:82px;gap:14px;padding:16px 4px}
+.fl-workspace-loader[data-compact=true] .fl-workspace-loader-mark{width:46px;height:46px;border-radius:13px}
+.fl-workspace-loader[data-compact=true] .fl-workspace-loader-mark::before{inset:-4px;border-radius:17px}
+@keyframes fl-workspace-loader-appear{from{opacity:0}to{opacity:1}}
+@keyframes fl-workspace-loader-wing{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(-3px);opacity:.65}}
+@keyframes fl-workspace-loader-stem{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(2px);opacity:.7}}
+@keyframes fl-workspace-loader-halo{0%,100%{transform:scale(.98);opacity:.3}50%{transform:scale(1.04);opacity:1}}
+@media(prefers-reduced-motion:reduce){.fl-workspace-loader,.fl-workspace-loader-mark::before,.fl-workspace-loader-mark path{animation:none}}

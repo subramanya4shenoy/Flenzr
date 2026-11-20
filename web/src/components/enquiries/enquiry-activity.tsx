@@ -18,7 +18,9 @@ interface EnquiryActivity {
 const ActivityContext = createContext<EnquiryActivity | null>(null);
 
 export function EnquiryActivityProvider({ ownerId, children }: { ownerId: string; children: React.ReactNode }) {
+  const parent = useContext(ActivityContext);
   const [client] = useState(() => new QueryClient());
+  if (parent?.ownerId === ownerId) return children;
   return <QueryClientProvider client={client}><ActivityScope key={ownerId} ownerId={ownerId}>{children}</ActivityScope></QueryClientProvider>;
 }
 

@@ -1,17 +1,19 @@
 export interface CampaignDraftFields {
+  visibility?: "public" | "invited";
   title: string; brief: string; target_niche: string; deliverable_summary: string;
   budget: string; currency: string; start_date: string; end_date: string;
 }
 export interface SavedCampaign {
+  visibility?: "public" | "invited";
   id: string; organization_id: string; title: string; brief: string;
   target_niche: string | null; deliverable_summary: string | null;
   budget_total_cents: number; currency: string; start_date: string | null; end_date: string | null;
   status: "draft" | "active" | "paused" | "completed" | "cancelled";
   revision: number; applicants_count: number; created_at: string; updated_at: string;
 }
-export const emptyCampaignDraft: CampaignDraftFields = { title: "", brief: "", target_niche: "", deliverable_summary: "", budget: "", currency: "INR", start_date: "", end_date: "" };
+export const emptyCampaignDraft: CampaignDraftFields = { visibility: "invited", title: "", brief: "", target_niche: "", deliverable_summary: "", budget: "", currency: "INR", start_date: "", end_date: "" };
 export function campaignDraftFields(campaign: SavedCampaign): CampaignDraftFields {
-  return { title: campaign.title, brief: campaign.brief, target_niche: campaign.target_niche || "",
+  return { visibility: campaign.visibility || "public", title: campaign.title, brief: campaign.brief, target_niche: campaign.target_niche || "",
     deliverable_summary: campaign.deliverable_summary || "", budget: campaign.budget_total_cents ? (campaign.budget_total_cents / 100).toFixed(2) : "",
     currency: campaign.currency, start_date: campaign.start_date?.slice(0, 10) || "", end_date: campaign.end_date?.slice(0, 10) || "" };
 }
@@ -34,7 +36,7 @@ export function campaignDraftPayload(fields: CampaignDraftFields) {
   }
   const start_date = date(fields.start_date), end_date = date(fields.end_date);
   if (start_date && end_date && end_date < start_date) throw new Error("End date must be on or after start date.");
-  return { title: fields.title.trim(), brief: fields.brief.trim(), target_niche: fields.target_niche.trim() || null,
+  return { ...(fields.visibility ? { visibility: fields.visibility } : {}), title: fields.title.trim(), brief: fields.brief.trim(), target_niche: fields.target_niche.trim() || null,
     deliverable_summary: fields.deliverable_summary.trim() || null, budget_total_cents: draftBudgetCents(fields.budget),
     currency: fields.currency, start_date, end_date };
 }

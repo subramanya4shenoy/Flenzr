@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,10 +9,12 @@ import { useEnquiryActivity } from "@/components/enquiries/enquiry-activity";
 import { NotificationItem, notificationRequest } from "@/lib/notifications";
 import "./notifications.css";
 
-export function NotificationBell() {
+export function NotificationBell({ href = "/dashboard/notifications", onOpen }: { href?: string; onOpen?: () => void } = {}) {
   const activity = useEnquiryActivity();
   const count = activity?.notificationCount;
-  return <Link href="/dashboard/notifications" className="fl-notification-bell" aria-label={count ? `Notifications, ${count} unread` : "Notifications"} title="Notifications">
+  return <Link href={href} onClick={event => {
+    if (onOpen && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onOpen(); }
+  }} className="fl-notification-bell" aria-label={count ? `Notifications, ${count} unread` : "Notifications"} title="Notifications">
     <Bell size={17} aria-hidden="true" />{Boolean(count) && <span>{count! > 99 ? "99+" : count}</span>}
   </Link>;
 }
@@ -44,7 +47,7 @@ export function NotificationCenter() {
   return <section className="fl-notifications" aria-label="Notifications">
     <header><div><h1>Notifications</h1><p>{activity?.notificationCount === undefined ? "Your enquiry updates" : `${activity.notificationCount} unread updates`}</p></div><button onClick={() => void client.invalidateQueries({ queryKey: ["notifications", activity?.ownerId] })} disabled={query.isFetching}>Refresh</button></header>
     {(error || query.isError) && <p role="alert">{error || query.error?.message}</p>}
-    {query.isPending && <p role="status">Loading notifications…</p>}
+    {query.isPending && <WorkspaceLoader label="Loading notifications…" />}
     {!query.isPending && !query.isError && !items.length && <p>No notifications yet. New enquiries and replies will appear here.</p>}
     <ul>{items.map(item => <li key={item.id} data-unread={item.is_unread}>
       <div><h2>{item.title} {item.is_unread && <span>Unread</span>}</h2><p>{item.message}</p><time dateTime={item.created_at}>{new Date(item.created_at).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</time></div>

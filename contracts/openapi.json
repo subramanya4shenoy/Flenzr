@@ -24,6 +24,177 @@
         }
       }
     },
+    "/api/v1/offers/{offer_id}/public": {
+      "get": {
+        "tags": [
+          "Offers"
+        ],
+        "summary": "Public Offer",
+        "operationId": "public_offer_api_v1_offers__offer_id__public_get",
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Offer Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicOffer"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/offers/{offer_id}": {
+      "get": {
+        "tags": [
+          "Offers"
+        ],
+        "summary": "Workspace",
+        "operationId": "workspace_api_v1_offers__offer_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Offer Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferWorkspace"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/offers/{offer_id}/applications/{application_id}/negotiate": {
+      "post": {
+        "tags": [
+          "Offers"
+        ],
+        "summary": "Negotiate",
+        "operationId": "negotiate_api_v1_offers__offer_id__applications__application_id__negotiate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Offer Id"
+            }
+          },
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Negotiate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/collaborations": {
       "post": {
         "tags": [
@@ -6663,6 +6834,86 @@
         ],
         "title": "AgreementStatus"
       },
+      "Application": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "creator_name": {
+            "type": "string",
+            "title": "Creator Name"
+          },
+          "creator_handle": {
+            "type": "string",
+            "title": "Creator Handle"
+          },
+          "amount_cents": {
+            "type": "integer",
+            "title": "Amount Cents"
+          },
+          "pitch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pitch"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "proposed_by": {
+            "type": "string",
+            "title": "Proposed By"
+          },
+          "history": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "collaboration_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collaboration Id"
+          },
+          "claimed": {
+            "type": "boolean",
+            "title": "Claimed",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "creator_name",
+          "creator_handle",
+          "amount_cents",
+          "pitch",
+          "status",
+          "revision",
+          "proposed_by",
+          "history"
+        ],
+        "title": "Application"
+      },
       "ApplicationStatus": {
         "type": "string",
         "enum": [
@@ -7228,6 +7479,18 @@
       },
       "CampaignApplicationResponse": {
         "properties": {
+          "expected_application_revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Application Revision"
+          },
           "action": {
             "type": "string",
             "enum": [
@@ -7342,6 +7605,15 @@
       },
       "CampaignCreate": {
         "properties": {
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "public",
+              "invited"
+            ],
+            "title": "Visibility",
+            "default": "public"
+          },
           "title": {
             "type": "string",
             "maxLength": 255,
@@ -7417,6 +7689,15 @@
       },
       "CampaignDraftCreate": {
         "properties": {
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "public",
+              "invited"
+            ],
+            "title": "Visibility",
+            "default": "public"
+          },
           "title": {
             "type": "string",
             "maxLength": 255,
@@ -7506,6 +7787,15 @@
       },
       "CampaignDraftUpdate": {
         "properties": {
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "public",
+              "invited"
+            ],
+            "title": "Visibility",
+            "default": "public"
+          },
           "title": {
             "anyOf": [
               {
@@ -7976,6 +8266,15 @@
       },
       "CampaignRead": {
         "properties": {
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "public",
+              "invited"
+            ],
+            "title": "Visibility",
+            "default": "public"
+          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -10139,6 +10438,63 @@
         ],
         "title": "MessageRead"
       },
+      "Negotiate": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "counter",
+              "accept",
+              "reject",
+              "withdraw"
+            ],
+            "title": "Action"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "expected_offer_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Offer Revision"
+          },
+          "amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2000000000.0,
+                "minimum": 100.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Cents"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Message",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "request_id",
+          "expected_revision",
+          "expected_offer_revision"
+        ],
+        "title": "Negotiate"
+      },
       "NotificationRead": {
         "properties": {
           "id": {
@@ -10186,6 +10542,146 @@
           "created_at"
         ],
         "title": "NotificationRead"
+      },
+      "OfferWorkspace": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "brief": {
+            "type": "string",
+            "title": "Brief"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "deliverables": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deliverables"
+          },
+          "niche": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Niche"
+          },
+          "budget_cents": {
+            "type": "integer",
+            "title": "Budget Cents"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "visibility": {
+            "type": "string",
+            "title": "Visibility"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "accepting": {
+            "type": "boolean",
+            "title": "Accepting"
+          },
+          "viewer_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Viewer Role"
+          },
+          "applications": {
+            "items": {
+              "$ref": "#/components/schemas/Application"
+            },
+            "type": "array",
+            "title": "Applications"
+          },
+          "total_applications": {
+            "type": "integer",
+            "title": "Total Applications"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "invited": {
+            "type": "boolean",
+            "title": "Invited"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "brief",
+          "brand_name",
+          "deliverables",
+          "niche",
+          "budget_cents",
+          "currency",
+          "starts_at",
+          "ends_at",
+          "status",
+          "visibility",
+          "revision",
+          "accepting",
+          "viewer_role",
+          "applications",
+          "total_applications",
+          "page",
+          "invited"
+        ],
+        "title": "OfferWorkspace"
       },
       "OrganizationCreate": {
         "properties": {
@@ -10978,6 +11474,114 @@
           "rating"
         ],
         "title": "PublicCreatorProfile"
+      },
+      "PublicOffer": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "brief": {
+            "type": "string",
+            "title": "Brief"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "deliverables": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deliverables"
+          },
+          "niche": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Niche"
+          },
+          "budget_cents": {
+            "type": "integer",
+            "title": "Budget Cents"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "visibility": {
+            "type": "string",
+            "title": "Visibility"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "accepting": {
+            "type": "boolean",
+            "title": "Accepting"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "brief",
+          "brand_name",
+          "deliverables",
+          "niche",
+          "budget_cents",
+          "currency",
+          "starts_at",
+          "ends_at",
+          "status",
+          "visibility",
+          "revision",
+          "accepting"
+        ],
+        "title": "PublicOffer"
       },
       "PublishingProofCreate": {
         "properties": {

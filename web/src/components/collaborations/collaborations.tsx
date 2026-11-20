@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { collaborationRequest, type Collaboration, type CollaborationPage } from "@/lib/collaborations";
@@ -26,7 +27,7 @@ export function SharedCollaborations({ id }: { id?: string }) {
   }, [id, page, key]);
   return <section className="fl-shared" aria-label="Shared collaborations" aria-busy={loading}>
     <header><div><h1>{id ? "Collaboration" : "Collaborations"}</h1><p>Shared records for you and your collaborator.</p></div>{!id && <button type="button" disabled={loading} onClick={() => setAttempt(value => value + 1)}>Refresh</button>}</header>
-    {loading ? <p role="status">Loading collaborations…</p> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Retry</button></div> : state?.row ? <Detail row={state.row} /> : state?.data && <>
+    {loading ? <WorkspaceLoader label="Loading collaborations…" /> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Retry</button></div> : state?.row ? <Detail row={state.row} /> : state?.data && <>
       <p>{state.data.total} saved collaborations</p>
       {!state.data.items.length && <p>No collaborations here yet. Start one from an accepted enquiry, application or invitation.</p>}
       <div className="fl-shared-list">{state.data.items.map(row => <article key={row.id}><span className="fl-shared-status">{row.status === "completed" ? "Completed" : row.status === "agreed" ? "Agreed" : "Discussion"}</span><h2>{row.title}</h2><p>{row.brand_name} · {row.creator_name}</p><p>Source: {row.source_kind}</p><Link href={`/dashboard/collaborations/${row.id}`}>Open collaboration →</Link></article>)}</div>

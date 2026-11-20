@@ -149,6 +149,7 @@ def test_all_documented_routes_have_an_explicit_access_policy():
         ('get', '/api/v1/ratecards/creator/{handle}'), ('get', '/api/v1/discovery/creators'),
         ('get', '/api/v1/discovery/creators/page'),
         ('get', '/api/v1/campaigns/explore'), ('get', '/r/{short_code}'),
+        ('get', '/api/v1/offers/{offer_id}/public'),
     }
     for path, operations in app.openapi()['paths'].items():
         for method, operation in operations.items():

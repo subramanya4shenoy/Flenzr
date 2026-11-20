@@ -6,7 +6,7 @@ async function forward(request: Request, context: { params: Promise<{ path: stri
   const token = await accessToken();
   if (!token) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   const { path } = await context.params;
-  if (!path.length || path.some((part) => !/^[a-zA-Z0-9_-]+$/.test(part)) || !["creators", "identity", "ratecards", "links", "qrcodes", "organizations", "campaigns", "shortlists", "collaborations", "enquiries", "notifications"].includes(path[0])) {
+  if (!path.length || path.some((part) => !/^[a-zA-Z0-9_-]+$/.test(part)) || !["offers", "creators", "identity", "ratecards", "links", "qrcodes", "organizations", "campaigns", "shortlists", "collaborations", "enquiries", "notifications"].includes(path[0])) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   try {

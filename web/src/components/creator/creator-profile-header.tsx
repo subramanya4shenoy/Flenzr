@@ -25,7 +25,8 @@ import {
   ArrowRight,
   Briefcase,
 } from "lucide-react";
-import { deleteSocialAccount, getSocialAccounts, saveSocialAccount, mergeSocialAccounts, mergeSocialAvatars, type SocialAccount } from "@/lib/social-accounts";
+import { useCreatorAccountId } from "./creator-account-context";
+import { readConnectedAccounts, writeConnectedAccounts, deleteSocialAccount, getSocialAccounts, saveSocialAccount, mergeSocialAccounts, mergeSocialAvatars, type SocialAccount } from "@/lib/social-accounts";
 import { PublicCreatorProfile } from "@/lib/api";
 
 function AccountActionButton({ label, children, ...props }: ComponentProps<"button"> & { label: string }) {
@@ -158,6 +159,7 @@ export function CreatorProfileHeader({
   rateCards,
   completedDeals,
 }: CreatorProfileHeaderProps) {
+  const ownerId = useCreatorAccountId();
   const { t } = useTranslation();
   const [creatorName, setCreatorName] = useState(creator.display_name);
   const [handle, setHandle] = useState(creator.handle);
@@ -224,6 +226,8 @@ export function CreatorProfileHeader({
 
   // Socials list with chronological ordering
   const [linkedSocials, setLinkedSocials] = useState<LinkedSocialItem[]>(() => {
+    const snapshot = isEditable ? readConnectedAccounts(ownerId) : null;
+    if (snapshot) return mergeSocialAccounts(snapshot, []);
     const list: LinkedSocialItem[] = [];
     let order = 1;
     if (creator.instagram_handle) {
@@ -313,6 +317,7 @@ export function CreatorProfileHeader({
   };
 
   const applyServerAccounts = (accounts: SocialAccount[], metadata = linkedSocials) => {
+    writeConnectedAccounts(ownerId, accounts);
     const next = mergeSocialAccounts(accounts, metadata);
     const removed = linkedSocials.filter((old) => !next.some((item) => item.platform === old.platform && item.handle === old.handle));
     persistSocials(next);
@@ -358,6 +363,7 @@ export function CreatorProfileHeader({
           localStorage.setItem(marker, "true");
         }
         if (!active) return;
+        writeConnectedAccounts(ownerId, accounts);
         const next = mergeSocialAccounts(accounts, Array.isArray(cached) ? cached : []);
         persistSocials(next);
         setSocialsReady(true);
@@ -365,7 +371,7 @@ export function CreatorProfileHeader({
     };
     load();
     return () => { active = false; };
-  }, [handle, isEditable]);
+  }, [handle, isEditable, ownerId]);
 
   const editSocial = (social: LinkedSocialItem) => {
     setEditingSocial(social);

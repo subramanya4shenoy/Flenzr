@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 
 export const SESSION_COOKIE = "flenzr_access";
@@ -46,7 +47,9 @@ export async function identityForToken(token: string): Promise<Identity | null> 
     return null;
   }
 }
-export async function currentIdentity() {
+// Deduplicate layout/page session checks only within this server render.
+// Never persist an identity across requests or accounts.
+export const currentIdentity = cache(async function currentIdentity() {
   const token = await accessToken();
   if (token) {
     const identity = await identityForToken(token);
@@ -74,7 +77,8 @@ export async function currentIdentity() {
     }
   }
   return null;
-}
+});
+
 export function hasRole(identity: Identity, role: "creator" | "brand_owner") {
   return identity.user.is_superadmin || identity.active_roles.includes(role);
 }

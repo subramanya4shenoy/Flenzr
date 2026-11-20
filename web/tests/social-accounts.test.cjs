@@ -175,3 +175,35 @@ test('Facebook Pages connection discovers Pages without a manual handle and pins
   data = { ...data, callbackOrigin: 'https://another.test' };
   await assert.rejects(api.connectFacebook(), /Open Flenzr/);
 });
+
+test('connected account snapshots isolate owners, omit secrets and expire', () => {
+  const data = new Map();
+  const localStorage = { getItem: key => data.get(key) ?? null, setItem: (key, value) => data.set(key, value) };
+  const api = load(undefined, { window: { localStorage } });
+  api.writeConnectedAccounts('creator-a', [{ platform: 'instagram', handle: 'saved', is_verified: true, access_token: 'must-not-persist' }]);
+  assert.equal(api.readConnectedAccounts('creator-a')[0].handle, 'saved');
+  assert.equal(api.readConnectedAccounts('creator-b'), null);
+  assert.equal(api.readConnectedAccounts(null), null);
+  assert.equal([...data.values()].join('').includes('must-not-persist'), false);
+  const key = [...data.keys()][0], saved = JSON.parse(data.get(key));
+  saved.at = Date.now() - 16 * 60_000;
+  data.set(key, JSON.stringify(saved));
+  assert.equal(api.readConnectedAccounts('creator-a'), null);
+});
+
+test('server removals replace the snapshot, including an empty account list', () => {
+  const data = new Map();
+  const api = load(undefined, { window: { localStorage: { getItem: key => data.get(key) ?? null, setItem: (key, value) => data.set(key, value) } } });
+  api.writeConnectedAccounts('owner', [{ platform: 'youtube', handle: 'old', is_verified: true }]);
+  api.writeConnectedAccounts('owner', []);
+  assert.equal(api.readConnectedAccounts('owner').length, 0);
+  data.set([...data.keys()][0], '{broken');
+  assert.equal(api.readConnectedAccounts('owner'), null);
+});
+
+test('account snapshot is optional when storage is unavailable or server-rendering', () => {
+  const blocked = load(undefined, { window: { localStorage: { getItem() { throw Error('blocked'); }, setItem() { throw Error('blocked'); } } } });
+  assert.equal(blocked.readConnectedAccounts('owner'), null);
+  assert.doesNotThrow(() => blocked.writeConnectedAccounts('owner', []));
+  assert.equal(load().readConnectedAccounts('owner'), null);
+});

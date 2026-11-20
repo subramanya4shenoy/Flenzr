@@ -1,3 +1,4 @@
+import { SharedPageNavigation } from "@/components/navigation/shared-page-navigation";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { accessToken, API_URL, currentIdentity } from "@/lib/server/session";
@@ -14,5 +15,5 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (response.status === 404) notFound();
   if (!response.ok) throw new Error("Could not load this enquiry. Please retry.");
   const enquiry: Enquiry = await response.json();
-  return <EnquiryActivityProvider ownerId={identity.user.id}><div className="fl-notification-shell"><main><nav><Link href={enquiry.viewer_role === "brand" ? "/dashboard/brand/enquiries" : "/dashboard/creator"}>← Enquiries</Link><NotificationBell /></nav><EnquiryInbox ownerId={identity.user.id} enquiryId={id} view={enquiry.viewer_role === "brand" ? "sent" : "received"} /></main></div></EnquiryActivityProvider>;
+  return <EnquiryActivityProvider ownerId={identity.user.id}><div className="fl-notification-shell"><main><SharedPageNavigation><Link href={enquiry.viewer_role === "brand" ? "/dashboard/brand/enquiries" : "/dashboard/creator"}>← Enquiries</Link><NotificationBell /></SharedPageNavigation><EnquiryInbox ownerId={identity.user.id} enquiryId={id} view={enquiry.viewer_role === "brand" ? "sent" : "received"} /></main></div></EnquiryActivityProvider>;
 }

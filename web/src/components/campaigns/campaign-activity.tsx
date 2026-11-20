@@ -53,7 +53,7 @@ function ActivityRecords({ audience, campaignId, kind }: { audience: CampaignAud
         <details><summary>{kind === "applications" ? "View pitch" : "View invitation"}</summary><p className="fl-activity-message">{item.message || "No message included."}</p></details>
         {((audience === "brand" && kind === "applications" && item.status === "pending") || (audience === "creator" && kind === "invitations" && item.status === "invited")) && !activityAccepting(item) && <p>This campaign is not open for acceptance.</p>}
         {item.status === "accepted" && <StartCollaboration sourceKind={kind === "applications" ? "application" : "invitation"} sourceId={item.id} />}
-        <div className="fl-activity-response-actions">{activityActions(audience, kind, item).map(action => <button type="button" key={action} onClick={() => { setNotice(""); setSelected({ id: item.id, action }); }}>{activityResponseLabel(kind, action)}</button>)}</div>
+        <div className="fl-activity-response-actions"><Link href={`/dashboard/offers/${item.campaign_id}`}>Offer &amp; counter-offers →</Link>{activityActions(audience, kind, item).map(action => <button type="button" key={action} onClick={() => { setNotice(""); setSelected({ id: item.id, action }); }}>{activityResponseLabel(kind, action)}</button>)}</div>
       </article>)}</div>
       <nav className="fl-activity-pagination" aria-label="Campaign activity pages"><button type="button" disabled={page === 1} onClick={() => move(page - 1)}>Previous</button><span>Page {page} of {Math.max(1, Math.ceil(state.data.total / state.data.page_size))}</span><button type="button" disabled={page * state.data.page_size >= state.data.total} onClick={() => move(page + 1)}>Next</button></nav>
     </>}

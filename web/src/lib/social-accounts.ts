@@ -1,6 +1,25 @@
 export type SocialPlatform = "instagram" | "youtube" | "x" | "tiktok" | "linkedin" | "twitch" | "facebook";
 export interface SocialAccount { platform: SocialPlatform; handle: string; is_verified: boolean; display_name?: string; avatar_url?: string; connected?: boolean }
 export interface SocialLink { id: string; platform: SocialPlatform; handle: string; url: string; isVerified: boolean; avatarUrl?: string; createdAt?: number; displayName?: string; isConnected?: boolean }
+// Display-only snapshot: authoritative connection changes still require a server response.
+const connectedSnapshotKey = (ownerId: string) => `flenzr_connected_accounts_v1_${ownerId}`;
+export function readConnectedAccounts(ownerId: string | null): SocialAccount[] | null {
+  if (!ownerId || typeof window === "undefined") return null;
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(connectedSnapshotKey(ownerId)) || "null");
+    if (!saved || saved.ownerId !== ownerId || !Number.isFinite(saved.at) || saved.at > Date.now() || Date.now() - saved.at > 15 * 60_000 || !Array.isArray(saved.accounts)) return null;
+    if (!saved.accounts.every((a: SocialAccount) => a && ["instagram", "youtube", "x", "tiktok", "linkedin", "twitch", "facebook"].includes(a.platform) && typeof a.handle === "string" && typeof a.is_verified === "boolean")) return null;
+    return saved.accounts;
+  } catch { return null; }
+}
+export function writeConnectedAccounts(ownerId: string | null, accounts: SocialAccount[]) {
+  if (!ownerId || typeof window === "undefined") return;
+  try {
+    // Explicitly retain display fields only, never provider tokens or other response fields.
+    const display = accounts.map(a => ({ platform: a.platform, handle: a.handle, is_verified: a.is_verified, display_name: a.display_name, avatar_url: a.avatar_url, connected: a.connected }));
+    window.localStorage.setItem(connectedSnapshotKey(ownerId), JSON.stringify({ ownerId, at: Date.now(), accounts: display }));
+  } catch { /* Optional cache: server reads and writes must still work. */ }
+}
 export function socialUrl(platform: SocialPlatform, handle: string) {
   const prefix = { instagram: "https://instagram.com/", youtube: "https://youtube.com/@", x: "https://x.com/", tiktok: "https://tiktok.com/@", linkedin: "https://linkedin.com/in/", twitch: "https://twitch.tv/", facebook: "https://www.facebook.com/" };
   return prefix[platform] + encodeURIComponent(handle);

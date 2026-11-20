@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { clearLocalAccountData } from "@/lib/local-data";
 import Link from "next/link";
 import {
   Sparkles,
@@ -34,7 +33,7 @@ import {
   Sliders,
 } from "lucide-react";
 import { HowItWorks } from "@/components/help/how-it-works";
-import { CreatorSidebar, type CreatorDashboardTab } from "@/components/creator/creator-sidebar";
+import { useCreatorWorkspace } from "@/components/creator/creator-workspace";
 import { CreatorProfileHeader } from "@/components/creator/creator-profile-header";
 import { CreatorScheduleCalendar } from "@/components/creator/creator-schedule-calendar";
 import {
@@ -48,8 +47,7 @@ import { CreatorAnalyticsView } from "@/components/creator/creator-analytics-vie
 import { CreatorPortfolioView } from "@/components/creator/creator-portfolio-view";
 import { CreatorWalletView } from "@/components/creator/creator-wallet-view";
 import { CreatorAiPitcher } from "@/components/creator/creator-ai-pitcher";
-import { NotificationBell } from "@/components/notifications/notification-center";
-import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { NotificationCenter } from "@/components/notifications/notification-center";
 import { useTranslation } from "@/lib/i18n/language-context";
 
 export type { CreatorDashboardTab } from "@/components/creator/creator-sidebar";
@@ -71,39 +69,16 @@ interface TrackedLinkItem {
   clicks: number;
 }
 
-const TAB_TITLES: Record<CreatorDashboardTab, string> = {
-  overview: "Studio Overview",
-  pipeline: "Collab Pipeline",
-  opportunities: "Campaign Opportunities",
-  ratecards: "Rate Cards & Packages",
-  calendar: "Shoot Calendar",
-  analytics: "Analytics",
-  portfolio: "Portfolio",
-  links: "Smart Links & Dynamic QR",
-  wallet: "Flenzr Vault",
-  ai_pitcher: "AI Pitcher",
-  how_it_works: "How it works",
-};
-
-
 export default function CreatorDashboardPage() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<CreatorDashboardTab>("overview");
-  useEffect(() => {
-    const restoreTab = () => {
-      if (window.location.hash === "#how-it-works") setActiveTab("how_it_works");
-      if (window.location.hash === "#analytics") setActiveTab("analytics");
-      if (window.location.hash === "#pipeline") setActiveTab("pipeline");
-      if (window.location.hash === "#opportunities") setActiveTab("opportunities");
-    };
-    window.addEventListener("hashchange", restoreTab);
-    const timer = window.setTimeout(restoreTab, 0);
-    return () => { window.clearTimeout(timer); window.removeEventListener("hashchange", restoreTab); };
-  }, []);
+  const workspace = useCreatorWorkspace();
+  if (!workspace) throw new Error("Creator workspace is unavailable");
+  const { activeTab, selectTab: setActiveTab, updateProfile } = workspace;
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const [creatorName, setCreatorName] = useState("Creator");
   const [creatorHandle, setCreatorHandle] = useState("");
+  useEffect(() => { if (creatorHandle) updateProfile(creatorName, creatorHandle); }, [creatorName, creatorHandle, updateProfile]);
   const [creatorNiche, setCreatorNiche] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
@@ -296,74 +271,6 @@ export default function CreatorDashboardPage() {
   const tierBadge = "Not rated yet";
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-[#f1f3f7] antialiased flex selection:bg-[#c1121f] selection:text-white">
-      <CreatorSidebar
-        activeTab={activeTab}
-        onSelect={(tab) => {
-          setActiveTab(tab);
-          const hash = tab === "how_it_works" ? "#how-it-works" : tab === "pipeline" ? "#pipeline" : tab === "analytics" ? "#analytics" : tab === "opportunities" ? "#opportunities" : "";
-          window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
-        }}
-        creatorHandle={creatorHandle}
-      />
-
-      {/* ========================================================= */}
-      {/* 2. MAIN CREATOR DASHBOARD WORKSPACE                       */}
-      {/* ========================================================= */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header Bar */}
-        <header className="h-14 border-b border-[#27272a] bg-[#09090b]/90 backdrop-blur-md px-4 sm:px-5 lg:px-6 flex items-center justify-between sticky top-0 z-20">
-          <div className="flex items-center gap-2 text-xs text-[#8c94a6]">
-            <button
-              type="button"
-              onClick={() => setActiveTab("overview")}
-              className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left"
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>{t("Studio")}</span>
-            </button>
-            <ChevronRight className="w-3.5 h-3.5 text-[#525866]" />
-            <button
-              type="button"
-              onClick={() => setActiveTab("overview")}
-              className="px-2.5 py-1 rounded-md bg-[#18181b] border border-[#27272a] text-white font-semibold hover:border-neutral-600 transition-colors cursor-pointer"
-            >
-              {creatorName}
-            </button>
-            <ChevronRight className="w-3.5 h-3.5 text-[#525866]" />
-            <span className="text-white font-bold">{t(TAB_TITLES[activeTab])}</span>
-          </div>
-
-          <div className="flex items-center gap-2.5 text-xs">
-            <NotificationBell /><LanguageSwitcher variant="compact" />
-            <Link
-              href={`/${creatorHandle}`}
-              target="_blank"
-              className="h-9 px-3.5 rounded-lg bg-white hover:bg-neutral-200 text-black font-bold inline-flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02]"
-            >
-              <span className="hidden sm:inline">{t("View Public Media Kit")}</span>
-              <span className="sm:hidden">{t("View Public Media Kit")}</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </Link>
-
-            <button
-              type="button"
-              onClick={async () => {
-                const res = await fetch("/api/auth/logout", { method: "POST" });
-                if (!res.ok) { alert("Could not sign out. Please retry."); return; }
-                if (typeof window !== "undefined") {
-                  clearLocalAccountData();
-                  window.location.href = "/login";
-                }
-              }}
-              className="h-9 px-3 rounded-lg border border-[#27272a] bg-[#18181b] hover:bg-[#222226] text-[#a1a1aa] hover:text-white font-medium transition-colors cursor-pointer"
-            >
-              {t("Sign Out")}
-            </button>
-          </div>
-        </header>
-
-        {/* Dashboard Main Workspace */}
         <main className="p-4 sm:p-5 lg:p-6 space-y-5 max-w-[1540px] w-full mx-auto">
           {/* TAB 1: STUDIO OVERVIEW (3-COLUMN COMMAND CENTER) */}
           {activeTab === "overview" && (
@@ -1043,6 +950,8 @@ export default function CreatorDashboardPage() {
             </div>
           )}
 
+          {activeTab === "notifications" && <NotificationCenter />}
+
           {activeTab === "how_it_works" && <HowItWorks audience="creator" />}
 
           {/* TAB 8: WALLET & INVOICES */}
@@ -1057,7 +966,5 @@ export default function CreatorDashboardPage() {
             />
           )}
         </main>
-      </div>
-    </div>
   );
 }

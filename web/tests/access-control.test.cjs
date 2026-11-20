@@ -10,6 +10,7 @@ function load(file, globals = {}, mocks = {}) {
   const exports = {};
   vm.runInNewContext(code, { exports, require: (name) => {
     if (name in mocks) return mocks[name];
+    if (name === 'react') return { cache: fn => fn };
     if (name === 'next/server') return { NextResponse: { json } };
     if (name === 'react/jsx-runtime') return { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) };
     if (name === 'node:crypto') return require('node:crypto');
@@ -182,12 +183,16 @@ test('notification center and enquiry links require verified sessions; detail ow
   const mocks = {
     'next/navigation': { redirect: path => { throw Error(path); }, notFound: () => { throw Error('not-found'); } },
     'next/link': 'Link', '@/lib/server/session': apiSession,
+    '@/components/navigation/shared-page-navigation': { SharedPageNavigation: 'SharedPageNavigation' },
     '@/components/enquiries/enquiry-activity': { EnquiryActivityProvider: 'Activity' },
     '@/components/enquiries/enquiry-inbox': { EnquiryInbox: 'Inbox' },
     '@/components/notifications/notification-center': { NotificationCenter: 'Center', NotificationBell: 'Bell' },
   };
   const notifications = load('src/app/dashboard/notifications/page.tsx', {}, mocks).default;
   await assert.rejects(notifications(), /\/login\?next=/);
+  current = identity;
+  await assert.doesNotReject(notifications());
+  current = null;
   const detail = load('src/app/dashboard/enquiries/[id]/page.tsx', {
     fetch: async (url, options) => {
       calls++; assert.equal(options.headers.Authorization, 'Bearer server-token');

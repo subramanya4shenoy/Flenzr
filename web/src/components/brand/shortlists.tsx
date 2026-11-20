@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 import { useEffect,useRef,useState } from "react";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
@@ -17,7 +18,7 @@ function ShortlistGroups({onOpen}:{onOpen:(id:string)=>void}){
   const saving=useRef(false),request=useRef<{name:string;id:string}|null>(null),key=shortlistQuery(q,page),current=result?.key===key?result:null;
   useEffect(()=>{const controller=new AbortController(),timer=setTimeout(()=>{
     shortlistRequest<ShortlistPage>(`?${key}`,{signal:controller.signal}).then(data=>{if(!controller.signal.aborted)setResult({key,data});}).catch(err=>{if(!controller.signal.aborted)setResult({key,error:err.message});});
-  },200);return()=>{clearTimeout(timer);controller.abort();};},[key,attempt]);
+  },q?200:0);return()=>{clearTimeout(timer);controller.abort();};},[key,attempt,q]);
   function refresh(){setResult(null);setAttempt(v=>v+1);}
   async function create(event:React.FormEvent){event.preventDefault();if(saving.current)return;let clean:string;try{clean=shortlistName(name);}catch(err){setError((err as Error).message);return;}
     if(request.current?.name!==clean)request.current={name:clean,id:crypto.randomUUID()};saving.current=true;setBusy(true);setError("");
@@ -28,7 +29,7 @@ function ShortlistGroups({onOpen}:{onOpen:(id:string)=>void}){
     <form onSubmit={create} className="fl-shortlist-create"><label>New shortlist<input name="shortlist-name" value={name} maxLength={80} required placeholder="e.g. Launch creators" disabled={busy} onChange={e=>setName(e.target.value)}/></label><button type="submit" disabled={busy}>{busy?"Creating…":"Create shortlist"}</button></form>
     {error&&<p role="alert" className="fl-shortlist-error">{error}</p>}
     <label className="fl-shortlist-search">Find a shortlist<input type="search" name="shortlist-search" maxLength={80} value={q} onChange={e=>{setQ(e.target.value);setPage(1);}}/></label>
-    {!current?<p role="status">Loading shortlists…</p>:current.error?<div role="alert"><p>{current.error}</p><button type="button" onClick={refresh}>Retry</button><Link href="/dashboard/brand/profile">Brand profile</Link></div>:current.data&&<>
+    {!current?<WorkspaceLoader label="Loading shortlists…" />:current.error?<div role="alert"><p>{current.error}</p><button type="button" onClick={refresh}>Retry</button><Link href="/dashboard/brand/profile">Brand profile</Link></div>:current.data&&<>
       <p role="status">{current.data.total} shortlist{current.data.total===1?"":"s"}</p>
       {!current.data.items.length&&<div className="fl-shortlist-empty"><p>{page>1?"No shortlists on this page. Return to the previous page.":q?"No shortlists match this search.":"No shortlists yet. Create a group here or save a creator from discovery."}</p></div>}
       <div className="fl-shortlist-groups">{current.data.items.map(row=><article key={row.id}><h3>{row.name}</h3><p>{row.members_count} saved creator{row.members_count===1?"":"s"}</p><button type="button" onClick={()=>onOpen(row.id)}>Open shortlist</button></article>)}</div>

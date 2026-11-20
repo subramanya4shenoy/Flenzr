@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 
 import { useEffect, useRef, useState } from "react";
 import type { Organization } from "@/lib/api";
@@ -56,7 +57,7 @@ export function BrandProfileEditor() {
       placeholder={key === "website" ? "https://yourcompany.com" : undefined}
       onChange={(event) => { setFields({ ...fields, [key]: event.target.value }); setMessage(""); }} /></label>;
   }
-  if (loading) return <p role="status">Loading brand profile…</p>;
+  if (loading) return <WorkspaceLoader label="Loading brand profile…" />;
   if (!loaded && error) return <div role="alert"><p>{error}</p><button type="button" onClick={() => { setLoading(true); setError(""); setAttempt(attempt + 1); }}>Retry loading</button></div>;
   return <form className="fl-brand-profile-editor" onSubmit={submit}>
     <div className="fl-brand-profile-summary"><div className="fl-brand-profile-avatar" aria-hidden="true">{(saved.name || "B").slice(0, 1).toUpperCase()}</div><div><h2>{organization ? saved.name : "Set up your brand"}</h2><p>{organization ? `Workspace · ${organization.slug}` : "Add your company details to get started."}</p></div></div>

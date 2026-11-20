@@ -45,6 +45,7 @@ export function CampaignLifecycleDialog({ campaignId, action, onClose, onSaved, 
     {loading ? <p role="status">Loading current campaign…</p> : !campaign ? <div role="alert"><p>{error}</p><button type="button" onClick={reload}>Retry loading</button></div> : <form onSubmit={confirm}>
       <div className="fl-campaign-action-summary"><h3>{campaign.title}</h3><p>{campaignStatusLabel[campaign.status]} · {campaign.budget_total_cents ? campaignMoney(campaign.budget_total_cents, campaign.currency) : "Budget to discuss"}</p></div>
       <p>{info.description}</p>
+      <p><strong>Audience:</strong> {campaign.visibility === "invited" ? "Private · only invited creators can view and apply. A copied link does not grant access." : "Public · the published brief can be shared with anyone."}</p>
       {!available && <p className="fl-campaign-error" role="status">This action is no longer available. Current status: {campaignStatusLabel[campaign.status]}.</p>}
       {issues.length > 0 && <div className="fl-campaign-requirements"><h3>Before you {action}</h3><ul>{issues.map((issue) => <li key={issue}>{issue}</li>)}</ul>{campaign.status === "draft" && <button type="button" onClick={() => onEdit(campaign.id)}>Edit draft</button>}</div>}
       {error && <p className="fl-campaign-error" role="alert">{error}</p>}

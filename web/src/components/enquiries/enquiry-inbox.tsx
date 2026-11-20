@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -9,6 +10,7 @@ import { useCreatorAccountId } from "@/components/creator/creator-account-contex
 import { Enquiry, enquiryCents, enquiryDeliveryDate, enquiryMoney, enquiryRequest, enquiryStatuses, mergeEnquiryRead } from "@/lib/enquiries";
 import { EnquiryUnreadBadge, useEnquiryActivity } from "./enquiry-activity";
 import "./enquiries.css";
+import "@/components/offers/offers.css";
 
 type Action = "accept" | "decline" | "counter" | "withdraw";
 const time = (date: string) => new Date(date).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
@@ -116,10 +118,11 @@ function EnquiryInboxView({ view, ownerId, enquiryId }: { view: "received" | "se
   }
   return <section className="fl-enquiries" aria-label={view === "received" ? "Creator enquiry inbox" : "Sent enquiries"}>
     <header className="fl-enquiries-header"><div>
-      <h2>{view === "received" ? "Collab enquiries" : "Sent enquiries"} <EnquiryUnreadBadge view={view} /></h2>
+      <h2>{view === "received" ? "Direct Offers" : "Sent direct Offers"} <EnquiryUnreadBadge view={view} /></h2>
       <p>{view === "received" ? "Real requests from brands, saved to your account. Open an enquiry to review its brief and mark the displayed update as read." : "Follow your requests and respond to creator proposals. Open an enquiry to review and mark its latest update as read."}</p>
     </div><button onClick={() => { setNotice(""); void load(); }} disabled={refreshing} aria-label="Refresh enquiries"><RefreshCw size={13} style={{ display: "inline", marginRight: 6 }} />{refreshing ? "Loading…" : "Refresh"}</button></header>
     <div className="fl-enquiries-toolbar"><span>{loading ? "Loading enquiries…" : `${items.length} ${items.length === 1 ? "enquiry" : "enquiries"} on this page`}{activity?.counts && ` · ${activity.counts[view]} unread across all pages`}</span><span>No payment is taken through an enquiry</span></div>
+    {loading && <WorkspaceLoader label="Loading enquiries…" />}
     {notice && <p role="status" className="fl-enquiry-muted">{notice}</p>}
     {error && <p role="alert" className="fl-enquiry-error">{error} <button onClick={() => { void load(); }}>Retry</button></p>}
     {!loading && !error && items.length === 0 && <div className="fl-enquiries-empty"><Inbox size={27} style={{ margin: "0 auto 10px" }} /><h3>{view === "received" ? "Your next collaboration starts here" : "No enquiries sent yet"}</h3><p>{view === "received" ? "Share your media kit. Requests sent by brands will appear here." : "Visit a creator’s media kit to send a package or custom enquiry."}</p></div>}
@@ -127,6 +130,7 @@ function EnquiryInboxView({ view, ownerId, enquiryId }: { view: "received" | "se
       const opened = openedId === enquiry.id;
       const readingThis = reading.has(enquiry.id);
       return <article key={enquiry.id} className="fl-enquiry-card" data-unread={enquiry.is_unread}>
+        <div className="fl-enquiry-offer-id"><span>DIRECT OFFER · {enquiry.id.slice(0,8).toUpperCase()}</span><span>PRIVATE · BRAND &amp; CREATOR ONLY</span></div>
         <div className="fl-enquiry-card-head"><div><h3>{view === "received" ? enquiry.brand_name : enquiry.creator_name} {enquiry.is_unread && <span className="fl-enquiry-unread-label">Unread</span>}</h3><p>{view === "received" ? `${enquiry.sender_email} · brand name supplied by sender` : enquiry.brand_name} · {time(enquiry.created_at)}</p></div><span className="fl-enquiry-status" data-status={enquiry.status}>{enquiryStatuses[enquiry.status]}</span></div>
         <div className="fl-enquiry-terms"><span>{enquiry.deliverable}</span><strong>{enquiryMoney(enquiry.amount_cents, enquiry.currency)}</strong></div>
         <p className="fl-enquiry-delivery">Preferred delivery: {enquiry.preferred_delivery_date ? <time dateTime={enquiry.preferred_delivery_date}>{enquiryDeliveryDate(enquiry.preferred_delivery_date)}</time> : "To discuss"}{enquiry.preferred_delivery_date && <span>Requested date · subject to agreement</span>}</p>

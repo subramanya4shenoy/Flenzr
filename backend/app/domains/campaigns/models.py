@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import enum
 from typing import List, Optional
 import uuid
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, TimestampMixin
@@ -44,6 +44,7 @@ class Campaign(Base, TimestampMixin):
         index=True,
     )
     revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
+    visibility: Mapped[str] = mapped_column(String(16), default="public", server_default="public", nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     brief: Mapped[str] = mapped_column(Text, nullable=False)
     target_niche: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
@@ -91,6 +92,10 @@ class CampaignApplication(Base, TimestampMixin):
         default=ApplicationStatus.PENDING,
         nullable=False,
     )
+
+    negotiation_revision: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    negotiation_author: Mapped[str] = mapped_column(String(16), default="creator", server_default="creator", nullable=False)
+    negotiation_history: Mapped[list] = mapped_column(JSON, default=list, server_default="[]", nullable=False)
 
     campaign = relationship("Campaign", back_populates="applications", lazy="selectin")
     creator = relationship("Creator", lazy="selectin")

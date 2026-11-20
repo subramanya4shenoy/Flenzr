@@ -74,7 +74,7 @@ class CampaignService:
         db: AsyncSession, niche: Optional[str] = None
     ) -> List[Campaign]:
         today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-        stmt = select(Campaign).where(Campaign.status == CampaignStatus.ACTIVE,
+        stmt = select(Campaign).where(Campaign.visibility == "public", Campaign.status == CampaignStatus.ACTIVE,
                                       or_(Campaign.end_date.is_(None), Campaign.end_date >= today))
         if niche:
             stmt = stmt.where(Campaign.target_niche == niche)
@@ -142,6 +142,8 @@ class CampaignService:
         campaign = await CampaignService.get_by_id(db, campaign_id, for_update=True)
         if campaign is None:
             raise EntityNotFoundError("Campaign", campaign_id)
+        if campaign.visibility == "invited" and not await CampaignService.existing_invitation(db, campaign_id, creator_id):
+            raise EntityNotFoundError("Offer", campaign_id)
         existing = await db.scalar(select(CampaignApplication).where(
             CampaignApplication.campaign_id == campaign_id, CampaignApplication.creator_id == creator_id))
         if existing:
@@ -180,7 +182,9 @@ class CampaignService:
             app.created_at.label("application_created"),
         ).join(Organization, Campaign.organization_id == Organization.id).outerjoin(app,
             and_(app.campaign_id == Campaign.id, app.creator_id == creator_id)).where(
-            Campaign.status == CampaignStatus.ACTIVE, or_(Campaign.end_date.is_(None), Campaign.end_date >= today))
+            Campaign.status == CampaignStatus.ACTIVE,
+            or_(Campaign.visibility == "public", select(CampaignInvitation.id).where(CampaignInvitation.campaign_id == Campaign.id, CampaignInvitation.creator_id == creator_id).exists()),
+            or_(Campaign.end_date.is_(None), Campaign.end_date >= today))
         def contains(value):
             return "%" + value.strip().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
         if q and q.strip():
@@ -451,6 +455,10 @@ class CampaignService:
             raise EntityNotFoundError("Campaign activity", record_id)
         # Serialize with publication/pause/close and other responses on PostgreSQL.
         current_status = await db.scalar(select(model.status).where(model.id == record_id))
+        if kind == "applications" and body.action == "accept":
+            application_revision = await db.scalar(select(CampaignApplication.negotiation_revision).where(CampaignApplication.id == record_id))
+            if application_revision and getattr(body, "expected_application_revision", None) != application_revision:
+                raise FlenzrException("OFFER_NEGOTIATION_CHANGED", "Review and accept the current terms on the Offer page.", 409)
         target = targets[body.action]
         if current_status == target:
             return await CampaignService.get_activity(db, kind=kind, record_id=record_id, **scope)

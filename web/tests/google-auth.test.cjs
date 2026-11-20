@@ -132,7 +132,7 @@ for (const [role, bio, next] of [['creator', '', '/signup/creator'], ['creator',
 }
 
 
-for (const target of ['/dashboard/notifications', '/dashboard/enquiries/12345678-1234-1234-1234-123456789abc', 'https://attacker.test', '//attacker.test', '/dashboard/enquiries/../brand']) {
+for (const target of ['/dashboard/offers/12345678-1234-1234-1234-123456789abc', '/dashboard/notifications', '/dashboard/enquiries/12345678-1234-1234-1234-123456789abc', 'https://attacker.test', '//attacker.test', '/dashboard/enquiries/../brand']) {
   test(`Google return destination is restricted: ${target}`, async () => {
     const h = harness();
     h.control.bio = 'Existing profile';

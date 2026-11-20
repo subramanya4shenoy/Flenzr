@@ -75,7 +75,7 @@ export default function LoginPage() {
         );
       } catch {}
       const next = new URLSearchParams(window.location.search).get("next") || "";
-      const notificationLink = /^\/dashboard\/(?:notifications|enquiries\/[0-9a-f-]{36})$/i.test(next);
+      const notificationLink = /^\/dashboard\/(?:notifications|(?:enquiries|offers)\/[0-9a-f-]{36})$/i.test(next);
       window.location.assign(notificationLink ? next : data.redirect);
     } catch { alert("Could not sign in. Please try again."); }
     finally { setIsLoading(false); }

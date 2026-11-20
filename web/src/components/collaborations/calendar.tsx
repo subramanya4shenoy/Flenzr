@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { collaborationRequest } from "@/lib/collaborations";
@@ -21,7 +22,7 @@ const serverMonth = () => null;
 export function CollaborationCalendar({ compact = false }: { compact?: boolean }) {
   // Resolve the initial month in the viewer's timezone after hydration.
   const today = useSyncExternalStore(subscribeLocalDay, localDate, serverMonth);
-  return today ? <Calendar compact={compact} initialMonth={today.slice(0, 7)} today={today} /> : <section className="fl-collab-calendar" aria-label="Collaboration calendar"><p role="status">Loading calendar…</p></section>;
+  return today ? <Calendar compact={compact} initialMonth={today.slice(0, 7)} today={today} /> : <section className="fl-collab-calendar" aria-label="Collaboration calendar"><WorkspaceLoader label="Loading calendar…" compact /></section>;
 }
 function Calendar({ compact, initialMonth, today }: { compact: boolean; initialMonth: string; today: string }) {
   const [month, setMonth] = useState(initialMonth), [day, setDay] = useState<number | null>(null);
@@ -53,7 +54,7 @@ function Calendar({ compact, initialMonth, today }: { compact: boolean; initialM
       {Array.from({ length: days }, (_, index) => { const value = index + 1, date = calendarDate(month, value), count = counts.get(date) || 0, owed = outstanding.get(date) || 0, urgency = owed ? dateUrgency(date, today).key : undefined; return <button type="button" key={value} data-deadline={urgency} aria-pressed={day === value} aria-label={`${dateLabel(date)}${data ? ` · ${count} ${count === 1 ? "deadline" : "deadlines"}${owed ? ` · ${owed} outstanding · ${urgency === "due_today" ? "due today" : urgency === "due_soon" ? "due within 7 days" : urgency}` : ""}` : ""}`} onClick={() => { setDay(value); setPage(1); }}><span>{value}</span>{count > 0 && <span className="fl-calendar-count" aria-hidden="true">{count}</span>}</button>; })}
     </div>
     <div className="fl-calendar-filter"><button type="button" aria-pressed={day === null} onClick={() => { setDay(null); setPage(1); }}>All dates</button><span>{day === null ? label : dateLabel(calendarDate(month, day))}</span></div>
-    {loading ? <p role="status">Loading agreed deadlines…</p> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Retry calendar</button></div> : data && <>
+    {loading ? <WorkspaceLoader label="Loading agreed deadlines…" compact /> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Retry calendar</button></div> : data && <>
       <p className="fl-calendar-summary">{data.total} {data.total === 1 ? "deadline" : "deadlines"}{day !== null ? " on this date" : " this month"}. Completed work stays visible.</p>
       {!data.items.length && <p>{page > 1 ? "No deadlines on this page. Go back to the previous page." : day !== null ? "No agreed deliveries due on this date." : "No agreed deliveries due this month."}</p>}
       <p className="fl-calendar-date-basis">Status as of {dateLabel(today)} · {timezone}. Due soon means the next 7 calendar days.</p>

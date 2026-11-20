@@ -85,6 +85,8 @@ def create_application() -> FastAPI:
         }
 
     # Mount Domain Routers
+    from app.domains.campaigns.offers import router as offers_router
+    app.include_router(offers_router, prefix=settings.API_V1_PREFIX)
     app.include_router(collaborations_router, prefix=settings.API_V1_PREFIX)
     app.include_router(identity_router, prefix=settings.API_V1_PREFIX)
     app.include_router(youtube_connection_router, prefix=settings.API_V1_PREFIX)

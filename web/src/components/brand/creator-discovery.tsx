@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -32,7 +33,7 @@ export function CreatorDiscovery({ onManageCampaigns, onViewCampaign, onViewShor
       } catch (err) {
         if (!controller.signal.aborted) setResult({ key, status: "error", error: err instanceof Error ? err.message : "Could not load creators. Please retry." });
       }
-    }, 300);
+    }, filters.q || filters.niche || filters.location ? 300 : 0);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [key, filters, offset, attempt, validationError]);
   const current = result?.key === key ? result : null;
@@ -63,6 +64,7 @@ export function CreatorDiscovery({ onManageCampaigns, onViewCampaign, onViewShor
     {validationError && <p className="fl-discovery-validation" role="alert">{validationError}</p>}
     <div className="fl-discovery-count" role="status" aria-live="polite">{validationError ? "Check audience filters" : loading ? "Searching creators…" : page ? `${page.total.toLocaleString()} creator${page.total === 1 ? "" : "s"} found${page.items.length ? ` · ${offset + 1}–${offset + page.items.length}` : ""}` : "Search unavailable"}</div>
     <div aria-busy={loading}>
+      {loading && <WorkspaceLoader label="Finding creators…" compact />}
       {loading && <div className="fl-discovery-grid" aria-hidden="true">{Array.from({ length: 4 }, (_, i) => <div className="fl-discovery-skeleton" key={i}><span /><span /><span /></div>)}</div>}
       {!validationError && current?.status === "error" && <div className="fl-discovery-empty" role="alert"><p>{current.error}</p><button type="button" onClick={() => { setResult(null); setAttempt(attempt + 1); }}>Retry search</button></div>}
       {page && page.items.length === 0 && <div className="fl-discovery-empty"><h3>{offset ? "No creators on this page" : filtered ? "No creators match your search" : "No creators yet"}</h3><p>{offset ? "The directory may have changed. Return to the first page." : filtered ? "Try a broader niche or location, or clear your filters." : "Creator profiles will appear here as people join Flenzr."}</p>{offset ? <button type="button" onClick={() => setOffset(0)}>First page</button> : filtered ? <button type="button" onClick={clear}>Clear filters</button> : null}</div>}

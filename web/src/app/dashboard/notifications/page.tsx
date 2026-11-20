@@ -1,3 +1,4 @@
+import { SharedPageNavigation } from "@/components/navigation/shared-page-navigation";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentIdentity } from "@/lib/server/session";
@@ -7,5 +8,5 @@ export default async function Page() {
   const identity = await currentIdentity();
   if (!identity) redirect("/login?next=%2Fdashboard%2Fnotifications");
   const workspace = identity.active_roles.includes("creator") ? "/dashboard/creator" : "/dashboard/brand";
-  return <EnquiryActivityProvider ownerId={identity.user.id}><div className="fl-notification-shell"><main><nav><Link href={workspace}>← Workspace</Link></nav><NotificationCenter /></main></div></EnquiryActivityProvider>;
+  return <EnquiryActivityProvider ownerId={identity.user.id}><div className="fl-notification-shell"><main><SharedPageNavigation><Link href={workspace}>← Workspace</Link></SharedPageNavigation><NotificationCenter /></main></div></EnquiryActivityProvider>;
 }
