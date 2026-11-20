@@ -21,7 +21,7 @@ class DeliveryService:
     @staticmethod
     def project(row, review=None):
         return dict(id=row.id, agreement_id=row.agreement_id, version=row.version, title=row.title,
-                    notes=row.notes, links=row.links, submitted_at=stamp(row.created_at),
+                    notes=row.notes, links=row.links, files=row.files or [], submitted_at=stamp(row.created_at),
                     review=DeliveryService.review_project(review, row) if review else None)
 
     @staticmethod
@@ -82,11 +82,19 @@ class DeliveryService:
             raise FlenzrException(code='DELIVERY_AGREEMENT_REQUIRED', message='Both participants must accept the same proposal before work can be submitted against its agreement.', status_code=409)
         if collab.delivery_version != body.expected_latest_version:
             raise FlenzrException(code='DELIVERY_VERSION_CHANGED', message='Another submission was saved. Refresh and review it before submitting a new version.', status_code=409)
+        from .files import CollaborationFiles, file_project
+        import uuid
+        delivery_id = str(uuid.uuid4())
+        attachments = await CollaborationFiles.attach(db, collab, agreement, body.file_ids)
         collab.delivery_version += 1
-        row = DeliverySubmission(collaboration_id=record_id, agreement_id=agreement.id, creator_user_id=user_id,
+        row = DeliverySubmission(id=delivery_id, files=[file_project(file) for file in attachments], collaboration_id=record_id, agreement_id=agreement.id, creator_user_id=user_id,
             version=collab.delivery_version, title=body.title, notes=body.notes, links=payload['links'],
             request_id=str(body.request_id), request_hash=fingerprint)
         db.add(row)
+        # Insert the immutable delivery before assigning file foreign keys.
+        await db.flush()
+        for file in attachments:
+            file.delivery_id = row.id
         await db.commit(); await db.refresh(row)
         return DeliveryService.project(row)
 

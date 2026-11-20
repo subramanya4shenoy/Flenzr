@@ -34,3 +34,11 @@ test('review requests require useful revision feedback and preserve optional app
   assert.throws(()=>api.deliveryReviewPayload('approve','x'.repeat(5001)));
   assert.throws(()=>api.deliveryReviewPayload('complete','Looks good'));
 });
+
+test('private files allow file-only or mixed deliveries and preserve legacy link payloads', () => {
+  const api=load(),id='f98ad888-1cce-4f65-9bb3-a81441741fd2';
+  const payload=api.deliveryPayload({...valid,links:[]},[id]);
+  assert.deepEqual(Array.from(payload.file_ids),[id]);assert.equal(payload.links.length,0);
+  assert.equal(api.deliveryPayload(valid).file_ids,undefined);
+  for(const ids of [[id,id],['other/secret'],Array(11).fill(id)])assert.throws(()=>api.deliveryPayload(valid,ids));
+});

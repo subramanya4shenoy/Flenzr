@@ -41,7 +41,7 @@ export function DeliveryReviewDialog({ path, delivery, action, onClose, onSaved 
   return <dialog ref={ref} className="fl-shared-dialog" aria-labelledby="delivery-review-title" onCancel={event => { if (saving.current) event.preventDefault(); else onClose(); }}>
     <h2 id="delivery-review-title">{action === "approve" ? "Approve" : "Request revisions for"} delivery version {delivery.version}?</h2>
     {loading ? <p role="status">Loading the latest submission…</p> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Reload review</button></div> : state?.row && <>
-      <DeliveryContents value={state.row} />
+      <DeliveryContents value={state.row} collaborationId={path.split("/")[1]} />
       <RevisionAllowance value={state.allowance || null} />
       {action === "request_revision" && <p>Confirming this request uses one revision round. Cancelling does not use a round.</p>}
       <label className="fl-delivery-feedback">{action === "request_revision" ? "Describe the requested changes" : "Feedback (optional)"}<textarea name="delivery-review-feedback" rows={4} maxLength={5000} value={feedback} disabled={busy || locked} onChange={event => setFeedback(event.target.value)} /></label>

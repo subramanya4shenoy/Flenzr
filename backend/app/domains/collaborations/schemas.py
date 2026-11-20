@@ -190,10 +190,22 @@ class DeliveryCreate(BaseModel):
     expected_latest_version: int = Field(ge=0, strict=True)
     title: str = Field(min_length=3, max_length=160)
     notes: str = Field('', max_length=5000)
-    links: list[DeliveryLink] = Field(min_length=1, max_length=10)
+    links: list[DeliveryLink] = Field(default_factory=list, max_length=10)
+    file_ids: list[UUID] = Field(default_factory=list, max_length=10)
+
+    @model_serializer(mode='wrap')
+    def legacy_link_payload(self, handler):
+        result = handler(self)
+        if not self.file_ids:
+            result.pop('file_ids', None)
+        return result
 
     @model_validator(mode='after')
     def distinct_links(self):
+        if not self.links and not self.file_ids:
+            raise ValueError('Add at least one file or HTTPS link')
+        if len(self.file_ids) != len(set(self.file_ids)):
+            raise ValueError('Remove duplicate files before submitting')
         urls = [str(link.url) for link in self.links]
         if len(urls) != len(set(urls)):
             raise ValueError('Remove duplicate links before submitting')
@@ -223,7 +235,44 @@ class DeliveryReviewRead(BaseModel):
     reviewed_at: str
 
 
+class CollaborationFileRead(BaseModel):
+    id: str
+    filename: str
+    content_type: str
+    size_bytes: int
+
+
+class FileUploadCreate(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    request_id: UUID
+    agreement_id: UUID
+    filename: str = Field(min_length=1, max_length=160)
+    content_type: str = Field(min_length=1, max_length=80)
+    size_bytes: int = Field(gt=0, le=500 * 1024 * 1024, strict=True)
+
+
+class FileUploadTicket(BaseModel):
+    file: CollaborationFileRead
+    endpoint: str
+    token: str
+    bucket: str
+    object_name: str
+    expires_in: int = 7200
+
+
+class FileDownload(BaseModel):
+    url: str
+    expires_in: int = 120
+
+
+class FileUploadLimits(BaseModel):
+    max_bytes: int
+    max_files: int = 10
+    content_types: list[str]
+
+
 class DeliveryRead(BaseModel):
+    files: list[CollaborationFileRead] = Field(default_factory=list)
     review: DeliveryReviewRead | None = None
     id: str
     agreement_id: str
@@ -375,3 +424,80 @@ class PublishingProofWorkspace(BaseModel):
     total: int
     page: int
     page_size: int
+
+
+class FeedbackCreate(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    request_id: UUID
+    completion_id: UUID
+    rating: int = Field(ge=1, le=5, strict=True)
+    comment: str = Field(min_length=10, max_length=2000)
+    confirmed: bool = Field(strict=True)
+
+    @field_validator('confirmed')
+    @classmethod
+    def explicit_confirmation(cls, value):
+        if not value:
+            raise ValueError('Explicit feedback confirmation is required')
+        return value
+
+    @field_validator('comment')
+    @classmethod
+    def plain_comment(cls, value):
+        # Allow ordinary paragraphs; reject invisible control-only padding.
+        if any(ord(char) < 32 and char not in '\n\t' or ord(char) == 127 for char in value):
+            raise ValueError('Remove control characters from your feedback')
+        if len(value.strip()) < 10:
+            raise ValueError('Describe your experience in at least ten characters')
+        return value
+
+
+class FeedbackRead(BaseModel):
+    id: str
+    completion_id: str
+    author_role: Literal['brand', 'creator']
+    is_mine: bool
+    rating: int
+    comment: str
+    submitted_at: str
+
+
+class FeedbackWorkspace(BaseModel):
+    collaboration_status: Literal['discussion', 'agreed', 'completed']
+    completion_id: str | None
+    completed_at: str | None
+    can_submit: bool
+    your_role: Literal['brand', 'creator']
+    recipient_role: Literal['brand', 'creator']
+    recipient_name: str
+    visibility: Literal['participants_only'] = 'participants_only'
+    items: list[FeedbackRead]
+
+
+class MessageCreate(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    request_id: UUID
+    text: str = Field(min_length=1, max_length=4000)
+
+    @field_validator('text')
+    @classmethod
+    def plain_message(cls, value):
+        if any(ord(char) < 32 and char not in '\n\t' or ord(char) == 127 for char in value):
+            raise ValueError('Remove control characters from your message')
+        return value
+
+
+class MessageRead(BaseModel):
+    id: str
+    sequence: int
+    author_role: Literal['brand', 'creator']
+    is_mine: bool
+    text: str
+    sent_at: str
+
+
+class MessagePage(BaseModel):
+    items: list[MessageRead]
+    latest_sequence: int
+    next_before: int | None
+    limit: int

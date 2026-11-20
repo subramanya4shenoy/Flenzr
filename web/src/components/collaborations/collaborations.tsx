@@ -4,6 +4,8 @@ import Link from "next/link";
 import { collaborationRequest, type Collaboration, type CollaborationPage } from "@/lib/collaborations";
 import { campaignMoney } from "@/lib/campaign-drafts";
 import "./collaborations.css";
+import { CollaborationMessages } from "./messages";
+import { CollaborationFeedback } from "./feedback";
 import { CollaborationProof } from "./publishing-proof";
 import { CollaborationDeliveries } from "./deliveries";
 import { CollaborationProposals } from "./proposals";
@@ -37,5 +39,5 @@ function Detail({ row }: { row: Collaboration }) {
   return <article className="fl-shared-detail"><span className="fl-shared-status">{status === "completed" ? "Completed" : status === "agreed" ? "Agreed" : "Discussion"}</span><h2>{row.title}</h2><p>{row.brand_name} · {row.creator_name}</p>
     <p>This saved brief and quote provide source context. Review the proposed or agreed terms below for this collaboration.</p>
     <dl><div><dt>Source brief</dt><dd>{row.brief}</dd></div><div><dt>Requested deliverables</dt><dd>{row.deliverable}</dd></div><div><dt>Source quote</dt><dd>{row.quoted_amount_cents === null ? "To discuss" : campaignMoney(row.quoted_amount_cents, row.currency)}</dd></div><div><dt>Requested delivery</dt><dd>{row.requested_delivery_date || "To discuss"} · subject to agreement</dd></div><div><dt>Source reference</dt><dd>{row.source_kind} · {row.source_id}</dd></div><div><dt>Created</dt><dd>{new Date(row.created_at).toLocaleString()}</dd></div></dl>
-    <p>No payment or funded booking has been created.</p><CollaborationProposals collaboration={row} onStatus={setStatus} /><CollaborationDeliveries collaborationId={row.id} status={status} onStatus={setStatus} /><CollaborationProof collaborationId={row.id} status={status} /><Link href="/dashboard/collaborations">← All collaborations</Link></article>;
+    <p>No payment or funded booking has been created.</p><CollaborationMessages key={row.id} collaborationId={row.id} /><CollaborationProposals collaboration={row} onStatus={setStatus} /><CollaborationDeliveries collaborationId={row.id} status={status} onStatus={setStatus} /><CollaborationProof collaborationId={row.id} status={status} /><CollaborationFeedback collaborationId={row.id} status={status} onStatus={setStatus} /><Link href="/dashboard/collaborations">← All collaborations</Link></article>;
 }

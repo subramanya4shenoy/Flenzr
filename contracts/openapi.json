@@ -997,6 +997,559 @@
         }
       }
     },
+    "/api/v1/collaborations/{record_id}/files/limits": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "File Limits",
+        "operationId": "file_limits_api_v1_collaborations__record_id__files_limits_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileUploadLimits"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/files": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Draft Files",
+        "operationId": "draft_files_api_v1_collaborations__record_id__files_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CollaborationFileRead"
+                  },
+                  "title": "Response Draft Files Api V1 Collaborations  Record Id  Files Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Reserve File",
+        "operationId": "reserve_file_api_v1_collaborations__record_id__files_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FileUploadCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileUploadTicket"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/files/{file_id}/finish": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Finish File",
+        "operationId": "finish_file_api_v1_collaborations__record_id__files__file_id__finish_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollaborationFileRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/files/{file_id}": {
+      "delete": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Remove File",
+        "operationId": "remove_file_api_v1_collaborations__record_id__files__file_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/files/{file_id}/download": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Download File",
+        "operationId": "download_file_api_v1_collaborations__record_id__files__file_id__download_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileDownload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/feedback": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Feedback Workspace",
+        "operationId": "feedback_workspace_api_v1_collaborations__record_id__feedback_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackWorkspace"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Submit Feedback",
+        "operationId": "submit_feedback_api_v1_collaborations__record_id__feedback_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/messages": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "List Messages",
+        "operationId": "list_messages_api_v1_collaborations__record_id__messages_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2147483647,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessagePage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Send Message",
+        "operationId": "send_message_api_v1_collaborations__record_id__messages_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/identity/me": {
       "get": {
         "tags": [
@@ -7598,6 +8151,34 @@
         ],
         "title": "CollaborationCreate"
       },
+      "CollaborationFileRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "filename",
+          "content_type",
+          "size_bytes"
+        ],
+        "title": "CollaborationFileRead"
+      },
       "CollaborationPage": {
         "properties": {
           "items": {
@@ -8241,8 +8822,16 @@
             },
             "type": "array",
             "maxItems": 10,
-            "minItems": 1,
             "title": "Links"
+          },
+          "file_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "File Ids"
           }
         },
         "additionalProperties": false,
@@ -8251,8 +8840,7 @@
           "request_id",
           "agreement_id",
           "expected_latest_version",
-          "title",
-          "links"
+          "title"
         ],
         "title": "DeliveryCreate"
       },
@@ -8282,6 +8870,13 @@
       },
       "DeliveryRead": {
         "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/CollaborationFileRead"
+            },
+            "type": "array",
+            "title": "Files"
+          },
           "review": {
             "anyOf": [
               {
@@ -9051,6 +9646,300 @@
         ],
         "title": "EnquiryWithdraw"
       },
+      "FeedbackCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "completion_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Completion Id"
+          },
+          "rating": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Rating"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Comment"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "completion_id",
+          "rating",
+          "comment",
+          "confirmed"
+        ],
+        "title": "FeedbackCreate"
+      },
+      "FeedbackRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "completion_id": {
+            "type": "string",
+            "title": "Completion Id"
+          },
+          "author_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Author Role"
+          },
+          "is_mine": {
+            "type": "boolean",
+            "title": "Is Mine"
+          },
+          "rating": {
+            "type": "integer",
+            "title": "Rating"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment"
+          },
+          "submitted_at": {
+            "type": "string",
+            "title": "Submitted At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "completion_id",
+          "author_role",
+          "is_mine",
+          "rating",
+          "comment",
+          "submitted_at"
+        ],
+        "title": "FeedbackRead"
+      },
+      "FeedbackWorkspace": {
+        "properties": {
+          "collaboration_status": {
+            "type": "string",
+            "enum": [
+              "discussion",
+              "agreed",
+              "completed"
+            ],
+            "title": "Collaboration Status"
+          },
+          "completion_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Id"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "can_submit": {
+            "type": "boolean",
+            "title": "Can Submit"
+          },
+          "your_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Your Role"
+          },
+          "recipient_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Recipient Role"
+          },
+          "recipient_name": {
+            "type": "string",
+            "title": "Recipient Name"
+          },
+          "visibility": {
+            "type": "string",
+            "const": "participants_only",
+            "title": "Visibility",
+            "default": "participants_only"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FeedbackRead"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "collaboration_status",
+          "completion_id",
+          "completed_at",
+          "can_submit",
+          "your_role",
+          "recipient_role",
+          "recipient_name",
+          "items"
+        ],
+        "title": "FeedbackWorkspace"
+      },
+      "FileDownload": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "default": 120
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "FileDownload"
+      },
+      "FileUploadCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "agreement_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Agreement Id"
+          },
+          "filename": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Filename"
+          },
+          "content_type": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Content Type"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "maximum": 524288000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Size Bytes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "agreement_id",
+          "filename",
+          "content_type",
+          "size_bytes"
+        ],
+        "title": "FileUploadCreate"
+      },
+      "FileUploadLimits": {
+        "properties": {
+          "max_bytes": {
+            "type": "integer",
+            "title": "Max Bytes"
+          },
+          "max_files": {
+            "type": "integer",
+            "title": "Max Files",
+            "default": 10
+          },
+          "content_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Content Types"
+          }
+        },
+        "type": "object",
+        "required": [
+          "max_bytes",
+          "content_types"
+        ],
+        "title": "FileUploadLimits"
+      },
+      "FileUploadTicket": {
+        "properties": {
+          "file": {
+            "$ref": "#/components/schemas/CollaborationFileRead"
+          },
+          "endpoint": {
+            "type": "string",
+            "title": "Endpoint"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "bucket": {
+            "type": "string",
+            "title": "Bucket"
+          },
+          "object_name": {
+            "type": "string",
+            "title": "Object Name"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "default": 7200
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "endpoint",
+          "token",
+          "bucket",
+          "object_name"
+        ],
+        "title": "FileUploadTicket"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -9147,6 +10036,108 @@
           "clicked_at"
         ],
         "title": "LinkClickSummary"
+      },
+      "MessageCreate": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "text"
+        ],
+        "title": "MessageCreate"
+      },
+      "MessagePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MessageRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "latest_sequence": {
+            "type": "integer",
+            "title": "Latest Sequence"
+          },
+          "next_before": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Before"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "latest_sequence",
+          "next_before",
+          "limit"
+        ],
+        "title": "MessagePage"
+      },
+      "MessageRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "author_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Author Role"
+          },
+          "is_mine": {
+            "type": "boolean",
+            "title": "Is Mine"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "sent_at": {
+            "type": "string",
+            "title": "Sent At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sequence",
+          "author_role",
+          "is_mine",
+          "text",
+          "sent_at"
+        ],
+        "title": "MessageRead"
       },
       "NotificationRead": {
         "properties": {

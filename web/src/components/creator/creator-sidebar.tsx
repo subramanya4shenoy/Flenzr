@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Award, Briefcase, Calendar, Compass, DollarSign, ExternalLink, LayoutDashboard,
+  Award, BookOpen, Briefcase, Calendar, Compass, DollarSign, ExternalLink, LayoutDashboard,
   Link2, PanelLeftClose, TrendingUp, Wallet, Wand2,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
@@ -21,6 +21,7 @@ const ITEMS = [
   { id: "portfolio", label: "Portfolio", title: "Portfolio", icon: Award, group: 1 },
   { id: "links", label: "Links & QR", title: "Smart Links & Dynamic QR", icon: Link2, group: 1 },
   { id: "wallet", label: "Wallet", title: "Flenzr Vault", icon: Wallet, group: 2 },
+  { id: "how_it_works", label: "How it works", title: "How it works", icon: BookOpen, group: 2 },
   { id: "ai_pitcher", label: "AI Pitcher", title: "AI Pitcher", icon: Wand2, group: 2 },
 ] as const;
 

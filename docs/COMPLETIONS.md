@@ -46,3 +46,7 @@ Migration 0022_completions was tested on disposable PostgreSQL and applied to th
 - Production-browser flow passes: fresh-read retry, cancel, stale/new unreviewed work, lost-response retry, shared receipt, closed actions, persisted list/detail status, agreement preservation and mobile fit.
 
 Step 19 is now implemented: see [Collaboration calendar](COLLABORATION-CALENDAR.md) for shared deadlines and manual testing. P08 still includes structured revision limits, publishing proof, secure attachments, reminders and moderated feedback.
+
+## Participant feedback
+
+Step 25 adds one private review from each saved participant after completion. See [COLLABORATION-FEEDBACK.md](COLLABORATION-FEEDBACK.md) for visibility, persistence and manual verification. Reviews do not change the completion receipt or publish profile ratings.

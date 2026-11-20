@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     SUPABASE_JWT_AUDIENCE: str = "authenticated"
     SUPABASE_JWKS_URL: Union[str, None] = None
 
+    # Private collaboration deliverables; keep within the project's global upload limit.
+    COLLABORATION_STORAGE_BUCKET: str = "collaboration-files"
+    COLLABORATION_FILE_MAX_BYTES: int = Field(default=50 * 1024 * 1024, ge=1024, le=500 * 1024 * 1024)
+
     # Instagram Unified Login / legacy Instagram Login (server-only credentials)
     INSTAGRAM_LOGIN_MODE: str = "unified"
     INSTAGRAM_CONFIG_ID: str = ""
@@ -70,6 +74,7 @@ class Settings(BaseSettings):
     NOTIFICATION_SMTP_USERNAME: str = ""
     NOTIFICATION_SMTP_PASSWORD: str = ""
     NOTIFICATION_SMTP_STARTTLS: bool = True
+    NOTIFICATION_SMTP_SSL: bool = False
 
     # CORS
     CORS_ORIGINS: List[str] = [

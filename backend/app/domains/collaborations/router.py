@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
@@ -11,11 +11,20 @@ from .proposals import ProposalService
 from .agreements import AgreementService
 from .deliveries import DeliveryService
 from .proof import PublishingProofService
+from .messages import MessageService
+from .schemas import MessageCreate, MessageRead, MessagePage
+from .feedback import FeedbackService
+from .schemas import FeedbackCreate, FeedbackRead, FeedbackWorkspace
 from .schemas import ProofConfirmationCreate, ProofConfirmationRead
 from .schemas import PublishingProofCreate, PublishingProofRead, PublishingProofWorkspace
 from .schemas import CompletionCreate, CompletionRead, DeliveryRead, DeliveryCreate, DeliveryWorkspace, DeliveryReviewCreate, DeliveryReviewRead
 from .schemas import AgreementRead, AgreementStatus, ProposalAccept
 from .schemas import ProposalWorkspace, ProposalDraftRead, ProposalDraftSave, ProposalRevisionRead, ProposalSend
+
+from .files import CollaborationFiles
+from .storage import MIME_EXTENSIONS
+from app.core.config import settings
+from .schemas import FileUploadCreate, FileUploadTicket, FileUploadLimits, CollaborationFileRead, FileDownload
 
 router = APIRouter(prefix='/collaborations', tags=['Collaborations'])
 
@@ -108,3 +117,59 @@ async def save_publishing_proof(record_id: str, body: PublishingProofCreate,
 async def confirm_publishing_proof(record_id: str, proof_id: str, body: ProofConfirmationCreate,
                                    user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     return await PublishingProofService.confirm(db, user.id, record_id, proof_id, body)
+
+
+async def private_response(response: Response):
+    response.headers['Cache-Control'] = 'no-store'
+
+
+@router.get('/{record_id}/files/limits', response_model=FileUploadLimits, dependencies=[Depends(private_response)])
+async def file_limits(record_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    await DeliveryService.collaboration(db, user.id, record_id)
+    return dict(max_bytes=settings.COLLABORATION_FILE_MAX_BYTES, content_types=list(MIME_EXTENSIONS))
+
+
+@router.get('/{record_id}/files', response_model=list[CollaborationFileRead], dependencies=[Depends(private_response)])
+async def draft_files(record_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await CollaborationFiles.draft_list(db, user.id, record_id)
+
+
+@router.post('/{record_id}/files', response_model=FileUploadTicket, dependencies=[Depends(private_response)])
+async def reserve_file(record_id: str, body: FileUploadCreate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await CollaborationFiles.reserve(db, user.id, record_id, body)
+
+
+@router.post('/{record_id}/files/{file_id}/finish', response_model=CollaborationFileRead, dependencies=[Depends(private_response)])
+async def finish_file(record_id: str, file_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await CollaborationFiles.finish(db, user.id, record_id, file_id)
+
+
+@router.delete('/{record_id}/files/{file_id}', dependencies=[Depends(private_response)])
+async def remove_file(record_id: str, file_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await CollaborationFiles.remove(db, user.id, record_id, file_id)
+
+
+@router.post('/{record_id}/files/{file_id}/download', response_model=FileDownload, dependencies=[Depends(private_response)])
+async def download_file(record_id: str, file_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await CollaborationFiles.download(db, user.id, record_id, file_id)
+
+
+@router.get('/{record_id}/feedback', response_model=FeedbackWorkspace, dependencies=[Depends(private_response)])
+async def feedback_workspace(record_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await FeedbackService.workspace(db, user.id, record_id)
+
+
+@router.post('/{record_id}/feedback', response_model=FeedbackRead, dependencies=[Depends(private_response)])
+async def submit_feedback(record_id: str, body: FeedbackCreate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await FeedbackService.submit(db, user.id, record_id, body)
+
+
+@router.get('/{record_id}/messages', response_model=MessagePage, dependencies=[Depends(private_response)])
+async def list_messages(record_id: str, before: int | None = Query(None, ge=1, le=2147483647), limit: int = Query(20, ge=1, le=50),
+                        user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await MessageService.list(db, user.id, record_id, before, limit)
+
+
+@router.post('/{record_id}/messages', response_model=MessageRead, dependencies=[Depends(private_response)])
+async def send_message(record_id: str, body: MessageCreate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await MessageService.send(db, user.id, record_id, body)

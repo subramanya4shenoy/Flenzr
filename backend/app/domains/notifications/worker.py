@@ -3,8 +3,6 @@ import argparse
 import asyncio
 import os
 import random
-import smtplib
-import ssl
 import uuid
 from datetime import timedelta
 from email.message import EmailMessage
@@ -13,6 +11,7 @@ from urllib.parse import urlsplit
 
 from sqlalchemy import and_, or_, select, update
 from app.core.config import settings
+from app.domains.notifications.smtp import send_smtp, validate_smtp
 from app.core.database import async_session_factory, engine
 from app.domains.identity.models import User
 from app.domains.notifications.models import Notification, NotificationEmail, now
@@ -46,14 +45,7 @@ def deliver(notification_id, recipient, title, message, enquiry_id):
         finally:
             temporary.unlink(missing_ok=True)
     elif transport == 'smtp':
-        if not settings.NOTIFICATION_SMTP_HOST:
-            raise ValueError('SMTP is not configured')
-        with smtplib.SMTP(settings.NOTIFICATION_SMTP_HOST, settings.NOTIFICATION_SMTP_PORT, timeout=20) as smtp:
-            if settings.NOTIFICATION_SMTP_STARTTLS:
-                smtp.starttls(context=ssl.create_default_context())
-            if settings.NOTIFICATION_SMTP_USERNAME:
-                smtp.login(settings.NOTIFICATION_SMTP_USERNAME, settings.NOTIFICATION_SMTP_PASSWORD)
-            smtp.send_message(mail)
+        send_smtp(mail)
     else:
         raise ValueError('Unsupported email transport')
 
@@ -110,6 +102,11 @@ async def process_one(factory=async_session_factory, send=deliver):
 
 
 async def run(once=False):
+    # Fail before claiming outbox rows when provider configuration is invalid.
+    if settings.NOTIFICATION_EMAIL_TRANSPORT == 'smtp':
+        validate_smtp()
+    elif settings.NOTIFICATION_EMAIL_TRANSPORT != 'sink':
+        raise ValueError('Unsupported email transport')
     try:
         while True:
             try:

@@ -99,3 +99,11 @@ Brand/client delivery decisions and revision requests: [Delivery reviews](docs/D
 - [Publishing proof confirmation and manual testing](docs/PROOF-CONFIRMATION.md) — Step 22, explicit brand/client acknowledgement and version-scoped history.
 
 - [Deadline indicators and manual testing](docs/DEADLINE-INDICATORS.md) — Step 23, current-state calendar urgency without false overdue delivery flags.
+
+Private delivery attachments and setup/manual checks: [Collaboration files](docs/COLLABORATION-FILES.md).
+
+Private participant reviews after completion: [Collaboration feedback](docs/COLLABORATION-FEEDBACK.md).
+
+Private collaboration conversations: [Messaging and manual checks](docs/COLLABORATION-MESSAGES.md).
+
+Full creator-to-brand regression report and reusable browser runner: [Journey verification](docs/COLLABORATION-JOURNEY.md).

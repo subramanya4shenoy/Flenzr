@@ -43,7 +43,7 @@ async def test_delivery_concurrency_immutability_and_database_privacy():
                 else:raise AssertionError('Browser role wrote shared record')
                 await savepoint.rollback()
             await connection.execute(text(f'CREATE SCHEMA {schema}'))
-            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','collaboration_proposal_drafts','collaboration_proposal_revisions','collaboration_proposal_acceptances','collaboration_agreements','collaboration_deliveries','collaboration_delivery_reviews','collaboration_completions'):
+            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','collaboration_proposal_drafts','collaboration_proposal_revisions','collaboration_proposal_acceptances','collaboration_agreements','collaboration_deliveries','collaboration_delivery_reviews','collaboration_completions','collaboration_files'):
                 await connection.execute(text(f'CREATE TABLE {schema}.{table} (LIKE public.{table} INCLUDING DEFAULTS INCLUDING INDEXES INCLUDING CONSTRAINTS)'))
         async def seed(db):
             owner=User(supabase_uid=str(uuid.uuid4()),email=uuid.uuid4().hex+'@example.com')
@@ -70,13 +70,33 @@ async def test_delivery_concurrency_immutability_and_database_privacy():
         for actor in (owner,creator):await call(lambda db,actor=actor:AgreementService.accept(db,actor,record_id,accept))
         agreement=await call(lambda db:AgreementService.read(db,owner,record_id))
         before=dict(agreement.snapshot)
-        body=DeliveryCreate(request_id=uuid.uuid4(),agreement_id=agreement.id,expected_latest_version=0,title='Native product preview',notes='Original edit',links=[{'label':'Video','url':'https://example.com/video'}])
+        from app.domains.collaborations.models import CollaborationFile
+        file_id=str(uuid.uuid4())
+        async def seed_file(db):
+            db.add(CollaborationFile(id=file_id, collaboration_id=record_id, agreement_id=agreement.id,
+                creator_user_id=creator, object_key=record_id+'/'+file_id+'.pdf',filename='preview.pdf',
+                content_type='application/pdf',size_bytes=100,state='ready',request_id=str(uuid.uuid4())))
+            await db.commit()
+        await call(seed_file)
+        async with engine.begin() as connection:
+            assert await connection.scalar(text("SELECT relrowsecurity FROM pg_class WHERE oid='public.collaboration_files'::regclass"))
+            await connection.execute(text('GRANT SELECT,INSERT ON public.collaboration_files TO anon,authenticated'))
+            for role in ('anon','authenticated'):
+                point=await connection.begin_nested();await connection.execute(text(f'SET LOCAL ROLE {role}'))
+                assert (await connection.execute(text('SELECT id FROM public.collaboration_files'))).all()==[]
+                try:await connection.execute(text("INSERT INTO public.collaboration_files (id) VALUES ('forbidden')"))
+                except DBAPIError as error:assert getattr(error.orig,'sqlstate',None)=='42501'
+                else:raise AssertionError('Browser role wrote file metadata')
+                await point.rollback()
+            await connection.execute(text(f'CREATE TRIGGER flenzr_file_immutable BEFORE UPDATE OR DELETE ON {schema}.collaboration_files FOR EACH ROW EXECUTE FUNCTION public.flenzr_protect_submitted_file()'))
+        body=DeliveryCreate(request_id=uuid.uuid4(),agreement_id=agreement.id,expected_latest_version=0,title='Native product preview',notes='Original edit',file_ids=[file_id],links=[{'label':'Video','url':'https://example.com/video'}])
         submitted=await asyncio.wait_for(asyncio.gather(*(call(lambda db:DeliveryService.submit(db,creator,record_id,body)) for _ in range(2))),timeout=15)
         assert submitted[0]==submitted[1] and submitted[0]['version']==1
+        assert submitted[0]['files'][0]['id']==file_id
         async def race(body):
             try:return await call(lambda db:DeliveryService.submit(db,creator,record_id,body))
             except FlenzrException as error:return error
-        bodies=[body.model_copy(update={'request_id':uuid.uuid4(),'expected_latest_version':1,'title':'New cut '+str(i)}) for i in range(2)]
+        bodies=[body.model_copy(update={'request_id':uuid.uuid4(),'expected_latest_version':1,'title':'New cut '+str(i),'file_ids':[]}) for i in range(2)]
         raced=await asyncio.gather(*(race(body) for body in bodies))
         assert sum(isinstance(row,dict) for row in raced)==1
         assert sum(isinstance(row,FlenzrException) and row.status_code==409 for row in raced)==1
@@ -88,6 +108,12 @@ async def test_delivery_concurrency_immutability_and_database_privacy():
         assert (await call(lambda db:DeliveryService.submit(db,creator,record_id,body)))==submitted[0]
         assert (await call(lambda db:AgreementService.read(db,creator,record_id))).snapshot==before
         async with engine.begin() as connection:
+            for statement in (f"UPDATE {schema}.collaboration_files SET filename='Changed'",f'DELETE FROM {schema}.collaboration_files'):
+                point=await connection.begin_nested()
+                try:await connection.execute(text(statement))
+                except DBAPIError as error:assert getattr(error.orig,'sqlstate',None)=='55000'
+                else:raise AssertionError('Submitted file was mutable')
+                await point.rollback()
             assert await connection.scalar(text("SELECT relrowsecurity FROM pg_class WHERE oid='public.collaboration_deliveries'::regclass"))
             await connection.execute(text('GRANT SELECT,INSERT ON public.collaboration_deliveries TO anon,authenticated'))
             for role in ('anon','authenticated'):

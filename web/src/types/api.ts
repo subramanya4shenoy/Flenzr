@@ -245,6 +245,128 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/collaborations/{record_id}/files/limits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** File Limits */
+        get: operations["file_limits_api_v1_collaborations__record_id__files_limits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collaborations/{record_id}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Draft Files */
+        get: operations["draft_files_api_v1_collaborations__record_id__files_get"];
+        put?: never;
+        /** Reserve File */
+        post: operations["reserve_file_api_v1_collaborations__record_id__files_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collaborations/{record_id}/files/{file_id}/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Finish File */
+        post: operations["finish_file_api_v1_collaborations__record_id__files__file_id__finish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collaborations/{record_id}/files/{file_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove File */
+        delete: operations["remove_file_api_v1_collaborations__record_id__files__file_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collaborations/{record_id}/files/{file_id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Download File */
+        post: operations["download_file_api_v1_collaborations__record_id__files__file_id__download_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collaborations/{record_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Feedback Workspace */
+        get: operations["feedback_workspace_api_v1_collaborations__record_id__feedback_get"];
+        put?: never;
+        /** Submit Feedback */
+        post: operations["submit_feedback_api_v1_collaborations__record_id__feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collaborations/{record_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Messages */
+        get: operations["list_messages_api_v1_collaborations__record_id__messages_get"];
+        put?: never;
+        /** Send Message */
+        post: operations["send_message_api_v1_collaborations__record_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/identity/me": {
         parameters: {
             query?: never;
@@ -2367,6 +2489,17 @@ export interface components {
              */
             source_id: string;
         };
+        /** CollaborationFileRead */
+        CollaborationFileRead: {
+            /** Id */
+            id: string;
+            /** Filename */
+            filename: string;
+            /** Content Type */
+            content_type: string;
+            /** Size Bytes */
+            size_bytes: number;
+        };
         /** CollaborationPage */
         CollaborationPage: {
             /** Items */
@@ -2615,7 +2748,9 @@ export interface components {
              */
             notes: string;
             /** Links */
-            links: components["schemas"]["DeliveryLink"][];
+            links?: components["schemas"]["DeliveryLink"][];
+            /** File Ids */
+            file_ids?: string[];
         };
         /** DeliveryLink */
         DeliveryLink: {
@@ -2629,6 +2764,8 @@ export interface components {
         };
         /** DeliveryRead */
         DeliveryRead: {
+            /** Files */
+            files?: components["schemas"]["CollaborationFileRead"][];
             review?: components["schemas"]["DeliveryReviewRead"] | null;
             /** Id */
             id: string;
@@ -2904,6 +3041,137 @@ export interface components {
              */
             note: string;
         };
+        /** FeedbackCreate */
+        FeedbackCreate: {
+            /**
+             * Request Id
+             * Format: uuid
+             */
+            request_id: string;
+            /**
+             * Completion Id
+             * Format: uuid
+             */
+            completion_id: string;
+            /** Rating */
+            rating: number;
+            /** Comment */
+            comment: string;
+            /** Confirmed */
+            confirmed: boolean;
+        };
+        /** FeedbackRead */
+        FeedbackRead: {
+            /** Id */
+            id: string;
+            /** Completion Id */
+            completion_id: string;
+            /**
+             * Author Role
+             * @enum {string}
+             */
+            author_role: "brand" | "creator";
+            /** Is Mine */
+            is_mine: boolean;
+            /** Rating */
+            rating: number;
+            /** Comment */
+            comment: string;
+            /** Submitted At */
+            submitted_at: string;
+        };
+        /** FeedbackWorkspace */
+        FeedbackWorkspace: {
+            /**
+             * Collaboration Status
+             * @enum {string}
+             */
+            collaboration_status: "discussion" | "agreed" | "completed";
+            /** Completion Id */
+            completion_id: string | null;
+            /** Completed At */
+            completed_at: string | null;
+            /** Can Submit */
+            can_submit: boolean;
+            /**
+             * Your Role
+             * @enum {string}
+             */
+            your_role: "brand" | "creator";
+            /**
+             * Recipient Role
+             * @enum {string}
+             */
+            recipient_role: "brand" | "creator";
+            /** Recipient Name */
+            recipient_name: string;
+            /**
+             * Visibility
+             * @default participants_only
+             * @constant
+             */
+            visibility: "participants_only";
+            /** Items */
+            items: components["schemas"]["FeedbackRead"][];
+        };
+        /** FileDownload */
+        FileDownload: {
+            /** Url */
+            url: string;
+            /**
+             * Expires In
+             * @default 120
+             */
+            expires_in: number;
+        };
+        /** FileUploadCreate */
+        FileUploadCreate: {
+            /**
+             * Request Id
+             * Format: uuid
+             */
+            request_id: string;
+            /**
+             * Agreement Id
+             * Format: uuid
+             */
+            agreement_id: string;
+            /** Filename */
+            filename: string;
+            /** Content Type */
+            content_type: string;
+            /** Size Bytes */
+            size_bytes: number;
+        };
+        /** FileUploadLimits */
+        FileUploadLimits: {
+            /** Max Bytes */
+            max_bytes: number;
+            /**
+             * Max Files
+             * @default 10
+             */
+            max_files: number;
+            /** Content Types */
+            content_types: string[];
+        };
+        /** FileUploadTicket */
+        FileUploadTicket: {
+            file: components["schemas"]["CollaborationFileRead"];
+            /** Endpoint */
+            endpoint: string;
+            /** Token */
+            token: string;
+            /** Bucket */
+            bucket: string;
+            /** Object Name */
+            object_name: string;
+            /**
+             * Expires In
+             * @default 7200
+             */
+            expires_in: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -2938,6 +3206,45 @@ export interface components {
             country?: string | null;
             /** User Agent */
             user_agent?: string | null;
+        };
+        /** MessageCreate */
+        MessageCreate: {
+            /**
+             * Request Id
+             * Format: uuid
+             */
+            request_id: string;
+            /** Text */
+            text: string;
+        };
+        /** MessagePage */
+        MessagePage: {
+            /** Items */
+            items: components["schemas"]["MessageRead"][];
+            /** Latest Sequence */
+            latest_sequence: number;
+            /** Next Before */
+            next_before: number | null;
+            /** Limit */
+            limit: number;
+        };
+        /** MessageRead */
+        MessageRead: {
+            /** Id */
+            id: string;
+            /** Sequence */
+            sequence: number;
+            /**
+             * Author Role
+             * @enum {string}
+             */
+            author_role: "brand" | "creator";
+            /** Is Mine */
+            is_mine: boolean;
+            /** Text */
+            text: string;
+            /** Sent At */
+            sent_at: string;
         };
         /** NotificationRead */
         NotificationRead: {
@@ -4274,6 +4581,334 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProofConfirmationRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    file_limits_api_v1_collaborations__record_id__files_limits_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileUploadLimits"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    draft_files_api_v1_collaborations__record_id__files_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollaborationFileRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reserve_file_api_v1_collaborations__record_id__files_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileUploadCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileUploadTicket"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    finish_file_api_v1_collaborations__record_id__files__file_id__finish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: string;
+                file_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollaborationFileRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_file_api_v1_collaborations__record_id__files__file_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: string;
+                file_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    download_file_api_v1_collaborations__record_id__files__file_id__download_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: string;
+                file_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileDownload"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    feedback_workspace_api_v1_collaborations__record_id__feedback_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackWorkspace"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_feedback_api_v1_collaborations__record_id__feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedbackCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_messages_api_v1_collaborations__record_id__messages_get: {
+        parameters: {
+            query?: {
+                before?: number | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessagePage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_message_api_v1_collaborations__record_id__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageRead"];
                 };
             };
             /** @description Validation Error */

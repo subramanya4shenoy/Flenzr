@@ -9,6 +9,7 @@ import jwt
 
 SECRET = 'p05-regression-only-signing-secret-not-real'
 API = 'http://127.0.0.1:8312/api/v1'
+AUTH_ORIGIN = os.getenv('FLENZR_REGRESSION_SUPABASE_URL', 'https://example.supabase.co').rstrip('/')
 
 
 def main():
@@ -17,7 +18,7 @@ def main():
     with httpx.Client(base_url=API) as client:
         for role, system_role in [('creator', 'creator'), ('brand', 'brand_owner'), ('outsider', 'creator')]:
             token = jwt.encode({'sub': 'p05-regression-' + role + '-' + str(stamp), 'email': 'p05-' + role + '-' + str(stamp) + '@example.com',
-                'aud': 'authenticated', 'iss': 'https://example.supabase.co/auth/v1', 'role': 'authenticated',
+                'aud': 'authenticated', 'iss': AUTH_ORIGIN + '/auth/v1', 'role': 'authenticated',
                 'iat': stamp, 'exp': stamp + 7200, 'user_metadata': {'full_name': 'P05 ' + role}}, SECRET, algorithm='HS256')
             headers = {'Authorization': 'Bearer ' + token}
             response = client.post('/identity/sync', headers=headers, json={'role': system_role})

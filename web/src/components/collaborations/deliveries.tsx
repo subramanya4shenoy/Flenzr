@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { DeliveryFilePicker, type DeliveryFile } from "./delivery-files";
 import { RevisionAllowance } from "./revision-allowance";
 import { CompletionDialog } from "./completion";
 import { DeliveryContents } from "./delivery-contents";
@@ -29,14 +30,14 @@ export function CollaborationDeliveries({ collaborationId, status, onStatus }: {
     {loading ? <p role="status">Loading deliveries…</p> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={reload}>Retry deliveries</button></div> : data && <>
       {data.completion && <div className="fl-completion-receipt" role="status"><h3>Collaboration completed</h3><p>Completed by brand / client · {new Date(data.completion.completed_at).toLocaleString()}</p><p>Final approved work: version {data.completion.version}. Submissions and reviews are closed. The agreement and history remain available.</p><a href={`#delivery-${data.completion.delivery_id}`} onClick={() => { setPage(1); }}>View final work ↓</a></div>}
       {completing && <CompletionDialog collaborationId={collaborationId} delivery={completing} onClose={() => setCompleting(null)} onSaved={receipt => { setCompleting(null); setNotice(`Collaboration completed with version ${receipt.version} as the final work.`); reload(); }} />}
-      {!data.completion && (!data.agreement_id ? <p>Both participants must accept the same proposal before delivery submissions open.</p> : <p>{data.can_submit ? "Submit links both participants can open. Check the sharing permissions on your files before submitting." : "The creator can submit work here. Use Refresh deliveries to check for updates."}</p>)}
+      {!data.completion && (!data.agreement_id ? <p>Both participants must accept the same proposal before delivery submissions open.</p> : <p>{data.can_submit ? "Upload private files or submit shared HTTPS links. Check external link permissions before submitting." : "The creator can submit work here. Use Refresh deliveries to check for updates."}</p>)}
       <RevisionAllowance value={data.revision_allowance} />
       {data.can_submit && !editing && <button type="button" onClick={() => { setPage(1); setNotice(""); setEditing(true); }}>{data.latest_version ? "Submit a new version" : "New delivery submission"}</button>}
       {editing && data.can_submit && data.agreement_id && <DeliveryEditor key={`${data.agreement_id}:${data.latest_version}`} path={path} agreementId={data.agreement_id} version={data.latest_version} onClose={() => setEditing(false)} onSubmitted={row => { setEditing(false); setNotice(`Delivery version ${row.version} submitted. Both participants can view it.`); reload(); }} />}
       {reviewing && <DeliveryReviewDialog path={path} delivery={reviewing.delivery} action={reviewing.action} onClose={() => setReviewing(null)} onSaved={receipt => { setReviewing(null); setNotice("Version " + receipt.version + ": " + (receipt.decision === "approved" ? "approved" : "revisions requested") + ". Both participants can view the decision."); reload(); }} />}
       <h3>Submission history</h3><p>{data.total} submitted {data.total === 1 ? "version" : "versions"}. Submission does not mean approval or completion.</p>
       {!data.items.length && <p>{page > 1 ? "No submissions on this page." : "No work submitted yet."}</p>}
-      {data.items.map(row => <details id={`delivery-${row.id}`} key={row.id} className="fl-delivery-version" open={page === 1 && row.version === data.latest_version}><summary>Version {row.version} · {row.title} · {new Date(row.submitted_at).toLocaleString()}</summary><DeliveryContents value={row} /><div className="fl-delivery-review">
+      {data.items.map(row => <details id={`delivery-${row.id}`} key={row.id} className="fl-delivery-version" open={page === 1 && row.version === data.latest_version}><summary>Version {row.version} · {row.title} · {new Date(row.submitted_at).toLocaleString()}</summary><DeliveryContents value={row} collaborationId={collaborationId} /><div className="fl-delivery-review">
         {row.review ? <><h3>{row.review.decision === "approved" ? "Approved" : "Revisions requested"}{row.version !== data.latest_version ? " · earlier version" : ""}</h3><p>Brand / client · {new Date(row.review.reviewed_at).toLocaleString()}</p>{row.review.feedback && <p className="fl-delivery-notes">{row.review.feedback}</p>}<p>This decision applies to version {row.version} only.</p>{row.version === data.latest_version && row.review.decision === "revisions_requested" && data.can_submit && <p>Review the requested changes, then submit a new delivery version.</p>}</>
           : <p>{row.version === data.latest_version ? "Awaiting brand/client review." : "Earlier version · no review recorded."}</p>}
         {data.can_complete && row.version === data.latest_version && row.review?.decision === "approved" && <button type="button" onClick={() => setCompleting(row)}>Complete collaboration</button>}
@@ -48,7 +49,8 @@ export function CollaborationDeliveries({ collaborationId, status, onStatus }: {
 }
 function DeliveryEditor({ path, agreementId, version, onClose, onSubmitted }: { path: string; agreementId: string; version: number; onClose: () => void; onSubmitted: (row: Delivery) => void }) {
   const [fields, setFields] = useState(emptyDelivery), [error, setError] = useState(""), [review, setReview] = useState<ReturnType<typeof deliveryPayload> | null>(null);
-  const dirty = JSON.stringify(fields) !== JSON.stringify(emptyDelivery());
+  const [files, setFiles] = useState<DeliveryFile[]>([]), [uploadBusy, setUploadBusy] = useState(false);
+  const dirty = files.length > 0 || uploadBusy || JSON.stringify(fields) !== JSON.stringify(emptyDelivery());
   useEffect(() => {
     if (!dirty) return;
     const unload = (event: BeforeUnloadEvent) => event.preventDefault();
@@ -62,18 +64,20 @@ function DeliveryEditor({ path, agreementId, version, onClose, onSubmitted }: { 
     return () => { window.removeEventListener("beforeunload", unload); document.removeEventListener("click", navigate, true); };
   }, [dirty]);
   function linkField(index: number, key: "label" | "url", value: string) { setFields(old => ({ ...old, links: old.links.map((link, i) => i === index ? { ...link, [key]: value } : link) })); }
-  function reviewSubmission(event: React.FormEvent) { event.preventDefault(); setError(""); try { setReview(deliveryPayload(fields)); } catch (error) { setError(error instanceof Error ? error.message : "Check the delivery details."); } }
+  function reviewSubmission(event: React.FormEvent) { event.preventDefault(); setError(""); try { setReview(deliveryPayload({ ...fields, links: fields.links.filter(link => link.label.trim() || link.url.trim()) }, files.map(file => file.id))); } catch (error) { setError(error instanceof Error ? error.message : "Check the delivery details."); } }
   return <form className="fl-delivery-editor" onSubmit={reviewSubmission}><h3>Prepare version {version + 1}</h3><p>These details are shared only when you confirm Submit delivery. Submitting a new version preserves earlier submissions.</p>
     <label>Delivery title<input name="delivery-title" maxLength={160} value={fields.title} onChange={event => setFields(old => ({ ...old, title: event.target.value }))} /></label>
     <label>Notes (optional)<textarea name="delivery-notes" rows={3} maxLength={5000} value={fields.notes} onChange={event => setFields(old => ({ ...old, notes: event.target.value }))} /></label>
+    <DeliveryFilePicker collaborationId={path.split("/")[1]} agreementId={agreementId} selected={files} onChange={setFiles} onBusy={setUploadBusy} />
+    <p>External links are optional when a private file is selected.</p>
     {fields.links.map((link, index) => <fieldset key={index}><legend>Link {index + 1}</legend><label>Label<input name={`delivery-label-${index}`} maxLength={80} value={link.label} onChange={event => linkField(index, "label", event.target.value)} /></label><label>HTTPS link<input name={`delivery-url-${index}`} inputMode="url" maxLength={2048} value={link.url} onChange={event => linkField(index, "url", event.target.value)} /></label>{fields.links.length > 1 && <button type="button" onClick={() => setFields(old => ({ ...old, links: old.links.filter((_, i) => i !== index) }))}>Remove link {index + 1}</button>}</fieldset>)}
     <button type="button" disabled={fields.links.length >= 10} onClick={() => setFields(old => ({ ...old, links: [...old.links, { label: "", url: "" }] }))}>Add another link</button>
     {error && <p role="alert">{error}</p>}
-    <div className="fl-shared-actions"><button type="button" onClick={() => { if (!dirty || window.confirm("Discard your unsubmitted delivery details?")) onClose(); }}>Cancel submission</button><button type="submit">Review delivery</button></div>
-    {review && <SubmissionDialog path={path} agreementId={agreementId} version={version} payload={review} onClose={() => setReview(null)} onSubmitted={onSubmitted} />}
+    <div className="fl-shared-actions"><button type="button" disabled={uploadBusy} onClick={() => { if (!dirty || window.confirm("Discard your unsubmitted delivery details?")) onClose(); }}>Cancel submission</button><button type="submit" disabled={uploadBusy}>Review delivery</button></div>
+    {review && <SubmissionDialog path={path} agreementId={agreementId} version={version} files={files} payload={review} onClose={() => setReview(null)} onSubmitted={onSubmitted} />}
   </form>;
 }
-function SubmissionDialog({ path, agreementId, version, payload, onClose, onSubmitted }: { path: string; agreementId: string; version: number; payload: ReturnType<typeof deliveryPayload>; onClose: () => void; onSubmitted: (row: Delivery) => void }) {
+function SubmissionDialog({ path, agreementId, version, files, payload, onClose, onSubmitted }: { path: string; agreementId: string; version: number; files: DeliveryFile[]; payload: ReturnType<typeof deliveryPayload>; onClose: () => void; onSubmitted: (row: Delivery) => void }) {
   const ref = useRef<HTMLDialogElement>(null), sending = useRef(false), requestId = useRef<string | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
   useEffect(() => { ref.current?.showModal(); }, []);
@@ -85,5 +89,5 @@ function SubmissionDialog({ path, agreementId, version, payload, onClose, onSubm
     } catch (error) { setError(error instanceof Error ? error.message : "Could not submit delivery. Please retry."); }
     finally { sending.current = false; setBusy(false); }
   }
-  return <dialog ref={ref} className="fl-shared-dialog" aria-labelledby="submit-delivery-title" onCancel={event => { if (sending.current) event.preventDefault(); else onClose(); }}><h2 id="submit-delivery-title">Submit delivery version {version + 1}?</h2><DeliveryContents value={payload} /><p>These links and notes will be saved for both participants. Send later updates as a new version.</p>{error && <p role="alert">{error} If another version was saved, keep editing, close the editor and refresh deliveries to review it.</p>}<div className="fl-shared-actions"><button type="button" disabled={busy} onClick={onClose}>Keep editing</button><button type="button" disabled={busy} onClick={submit}>{busy ? "Submitting delivery…" : "Submit delivery"}</button></div></dialog>;
+  return <dialog ref={ref} className="fl-shared-dialog" aria-labelledby="submit-delivery-title" onCancel={event => { if (sending.current) event.preventDefault(); else onClose(); }}><h2 id="submit-delivery-title">Submit delivery version {version + 1}?</h2><DeliveryContents value={{ ...payload, files }} /><p>These files, links and notes will be saved for both participants. Send later updates as a new version.</p>{error && <p role="alert">{error} If another version was saved, keep editing, close the editor and refresh deliveries to review it.</p>}<div className="fl-shared-actions"><button type="button" disabled={busy} onClick={onClose}>Keep editing</button><button type="button" disabled={busy} onClick={submit}>{busy ? "Submitting delivery…" : "Submit delivery"}</button></div></dialog>;
 }

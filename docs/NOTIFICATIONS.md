@@ -54,3 +54,44 @@ Sink filenames and email Message-IDs are stable per notification. Sink retries r
 7. Disconnect/reconnect the browser. Live updates recover; foreground polling is the fallback.
 
 Automated coverage includes recipient isolation, deduplication, atomic rollback, read/enquiry revision boundaries, owner-only deep links, capture delivery, retry delays, exhausted leases and inactive recipients. Browser checks with an isolated SQLite API cover bell/list updates, failed read/retry, protected link return through login, exact-record views, live withdrawal, reload persistence and mobile layout. A real PostgreSQL concurrent transition test confirms one winning state, one notification/outbox row and direct-table RLS isolation.
+
+## Real inbox setup and pilot gate
+
+The provider integration supports authenticated SMTP with verified TLS, using either STARTTLS (normally port 587) or implicit TLS (normally port 465). The worker validates configuration before claiming messages, so missing credentials or an invalid sender do not consume delivery attempts. Sender/domain verification and SPF/DKIM records must be completed in the chosen provider; this offline check cannot confirm them.
+
+1. Add provider settings to **backend/.env**, never frontend environment files:
+
+   ```dotenv
+   NOTIFICATION_EMAIL_TRANSPORT=smtp
+   NOTIFICATION_APP_ORIGIN=https://your-public-flenzr-domain
+   NOTIFICATION_EMAIL_FROM=Flenzr <notifications@your-verified-domain>
+   NOTIFICATION_SMTP_HOST=your-provider-smtp-host
+   NOTIFICATION_SMTP_PORT=587
+   NOTIFICATION_SMTP_USERNAME=your-provider-username
+   NOTIFICATION_SMTP_PASSWORD=your-provider-password
+   NOTIFICATION_SMTP_STARTTLS=true
+   NOTIFICATION_SMTP_SSL=false
+   ```
+
+   For port 465, set `NOTIFICATION_SMTP_SSL=true` and `NOTIFICATION_SMTP_STARTTLS=false`. Use the provider's documented settings. Keep the worker stopped while changing configuration. Set a public HTTPS origin that recipients can actually open; a localhost link only works on the developer's machine.
+
+2. Check configuration without connecting, sending or touching the database:
+
+   ```sh
+   cd backend
+   ./check-notification-email.sh
+   ```
+
+3. Send one explicitly addressed test, independent of the notification queue:
+
+   ```sh
+   ./check-notification-email.sh --send-test --to your-test-inbox@example.com
+   ```
+
+   Check the inbox and spam folder, sender identity, authentication results and Flenzr link. The command only reports provider acceptance, never inbox placement. It also works while transport remains `sink`, allowing a provider test before enabling the live queue. It does not print credentials or provider error responses.
+
+4. Review the existing outbox before starting the SMTP worker. Pending rows originally created in development can otherwise be sent to their real recipients. Already delivered sink messages are not replayed automatically. Do not bulk reset delivery states to test SMTP.
+
+5. Once recipients and queue contents are appropriate, restart the separate notification worker with SMTP enabled. Create a new test enquiry with controlled creator and brand accounts, then respond from the creator. Confirm both intended inboxes receive their respective email, the link requires sign-in as the correct participant, and the related outbox rows show `transport=smtp` and `status=delivered`. Reload/read actions must not send another email. Keep retries and provider failures observable through the saved outbox state.
+
+**Current verification:** encrypted transport selection, authentication, invalid setup before queue claims, offline preflight and isolated test-email behavior are covered by automated tests. Real SMTP acceptance, sender authentication and inbox delivery remain pending provider configuration and an explicitly chosen test inbox. This covers enquiry notifications; it does not configure Supabase Auth password-recovery/verification emails or add new notification events for every collaboration action.

@@ -10,6 +10,8 @@ export async function collaborationRequest<T>(path = "", options?: RequestInit):
     : response.status === 403 ? data?.error?.message || "Only the saved creator can submit delivery work."
     : response.status === 422 ? data?.error?.message || "Check the fields and try again."
     : response.status === 409 ? data?.error?.message || "This source is no longer eligible."
+    : response.status === 429 ? data?.error?.message || "Upload limit reached. Please try later."
+    : response.status === 503 ? data?.error?.message || "The service is temporarily unavailable. Please retry."
     : "Could not load or save the collaboration. Please retry.");
   return data as T;
 }

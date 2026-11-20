@@ -34,7 +34,7 @@ export function CompletionDialog({ collaborationId, delivery, onClose, onSaved }
   return <dialog ref={ref} className="fl-shared-dialog" aria-labelledby="completion-title" onCancel={event => { if (sending.current) event.preventDefault(); else onClose(); }}>
     <h2 id="completion-title">Complete this collaboration?</h2>
     {loading ? <p role="status">Checking the final approved work…</p> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Reload final work</button></div> : state?.row && <>
-      <h3>Final work · version {state.row.version}</h3><DeliveryContents value={state.row} />
+      <h3>Final work · version {state.row.version}</h3><DeliveryContents value={state.row} collaborationId={collaborationId} />
       <p>Confirm that this approved version fulfils the collaboration. Completion is final and closes further submissions and reviews. Your agreement and delivery history remain available.</p>
       <p>This does not collect or release payment.</p>
       {error && <p role="alert">{error} Retry this confirmation, or close and refresh deliveries to check whether completion was saved.</p>}

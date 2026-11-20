@@ -33,6 +33,7 @@ import {
   Bot,
   Sliders,
 } from "lucide-react";
+import { HowItWorks } from "@/components/help/how-it-works";
 import { CreatorSidebar, type CreatorDashboardTab } from "@/components/creator/creator-sidebar";
 import { CreatorProfileHeader } from "@/components/creator/creator-profile-header";
 import { CreatorScheduleCalendar } from "@/components/creator/creator-schedule-calendar";
@@ -81,6 +82,7 @@ const TAB_TITLES: Record<CreatorDashboardTab, string> = {
   links: "Smart Links & Dynamic QR",
   wallet: "Flenzr Vault",
   ai_pitcher: "AI Pitcher",
+  how_it_works: "How it works",
 };
 
 
@@ -89,6 +91,7 @@ export default function CreatorDashboardPage() {
   const [activeTab, setActiveTab] = useState<CreatorDashboardTab>("overview");
   useEffect(() => {
     const restoreTab = () => {
+      if (window.location.hash === "#how-it-works") setActiveTab("how_it_works");
       if (window.location.hash === "#analytics") setActiveTab("analytics");
       if (window.location.hash === "#pipeline") setActiveTab("pipeline");
       if (window.location.hash === "#opportunities") setActiveTab("opportunities");
@@ -298,7 +301,7 @@ export default function CreatorDashboardPage() {
         activeTab={activeTab}
         onSelect={(tab) => {
           setActiveTab(tab);
-          const hash = tab === "pipeline" ? "#pipeline" : tab === "analytics" ? "#analytics" : tab === "opportunities" ? "#opportunities" : "";
+          const hash = tab === "how_it_works" ? "#how-it-works" : tab === "pipeline" ? "#pipeline" : tab === "analytics" ? "#analytics" : tab === "opportunities" ? "#opportunities" : "";
           window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
         }}
         creatorHandle={creatorHandle}
@@ -1039,6 +1042,8 @@ export default function CreatorDashboardPage() {
               )}
             </div>
           )}
+
+          {activeTab === "how_it_works" && <HowItWorks audience="creator" />}
 
           {/* TAB 8: WALLET & INVOICES */}
           {activeTab === "wallet" && <CreatorWalletView />}

@@ -56,3 +56,7 @@ The migration was verified on disposable PostgreSQL and applied to the developme
 Next: Step 17 — brand/client review of an exact submitted version, with approval or a revision request and saved feedback. Secured file attachments, revision-limit rules, publishing proof, completion and payments remain separate tasks.
 
 Step 17 adds brand/client decisions on saved versions: see [Delivery reviews](DELIVERY-REVIEWS.md).
+
+## Private attachments
+
+Step 24 adds private Supabase file attachments alongside delivery links. See [COLLABORATION-FILES.md](COLLABORATION-FILES.md) for limits, access, draft lifecycle, setup and manual verification. Earlier link-only versions and agreement snapshots remain unchanged.

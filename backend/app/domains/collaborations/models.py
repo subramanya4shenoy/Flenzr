@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from sqlalchemy import CheckConstraint, Date, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import BigInteger, CheckConstraint, Date, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import Base, TimestampMixin
 
@@ -25,6 +25,7 @@ class Collaboration(Base, TimestampMixin):
     quoted_amount_cents: Mapped[int | None] = mapped_column(Integer)
     currency: Mapped[str] = mapped_column(String(3))
     requested_delivery_date: Mapped[date | None] = mapped_column(Date)
+    message_version: Mapped[int] = mapped_column(Integer, default=0, server_default='0')
     delivery_version: Mapped[int] = mapped_column(Integer, default=0, server_default='0')
     proposal_version: Mapped[int] = mapped_column(Integer, default=0, server_default='0')
     # Agreement acceptance and explicit completion are implemented transitions.
@@ -92,6 +93,7 @@ class DeliverySubmission(Base, TimestampMixin):
     title: Mapped[str] = mapped_column(String(160))
     notes: Mapped[str] = mapped_column(Text)
     links: Mapped[list] = mapped_column(JSON)
+    files: Mapped[list] = mapped_column(JSON, default=list, server_default='[]')
     request_id: Mapped[str] = mapped_column(String(36))
     request_hash: Mapped[str] = mapped_column(String(64))
 
@@ -146,5 +148,63 @@ class PublishingProofConfirmation(Base, TimestampMixin):
     collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
     proof_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaboration_publishing_proofs.id', ondelete='RESTRICT'), unique=True)
     reviewer_user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id', ondelete='RESTRICT'))
+    request_id: Mapped[str] = mapped_column(String(36))
+    request_hash: Mapped[str] = mapped_column(String(64))
+
+
+class CollaborationFile(Base, TimestampMixin):
+    __tablename__ = 'collaboration_files'
+    __table_args__ = (
+        UniqueConstraint('collaboration_id', 'request_id', name='uq_collaboration_file_request'),
+        CheckConstraint("state IN ('pending', 'ready', 'removed')", name='collaboration_file_state'),
+        CheckConstraint('size_bytes > 0', name='collaboration_file_positive_size'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
+    agreement_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaboration_agreements.id', ondelete='RESTRICT'))
+    creator_user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id', ondelete='RESTRICT'), index=True)
+    delivery_id: Mapped[str | None] = mapped_column(String(36), ForeignKey('collaboration_deliveries.id', ondelete='RESTRICT'))
+    object_key: Mapped[str] = mapped_column(String(255), unique=True)
+    filename: Mapped[str] = mapped_column(String(160))
+    content_type: Mapped[str] = mapped_column(String(80))
+    size_bytes: Mapped[int] = mapped_column(BigInteger)
+    state: Mapped[str] = mapped_column(String(16), default='pending')
+    request_id: Mapped[str] = mapped_column(String(36))
+
+
+class CollaborationFeedback(Base, TimestampMixin):
+    __tablename__ = 'collaboration_feedback'
+    __table_args__ = (
+        UniqueConstraint('collaboration_id', 'author_id', name='uq_collaboration_feedback_author'),
+        CheckConstraint('rating >= 1 AND rating <= 5', name='collaboration_feedback_rating'),
+        CheckConstraint('author_id <> recipient_id', name='collaboration_feedback_not_self'),
+        CheckConstraint("author_role IN ('brand', 'creator')", name='collaboration_feedback_role'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
+    completion_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaboration_completions.id', ondelete='RESTRICT'))
+    author_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id', ondelete='RESTRICT'))
+    recipient_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id', ondelete='RESTRICT'))
+    author_role: Mapped[str] = mapped_column(String(16))
+    rating: Mapped[int] = mapped_column(Integer)
+    comment: Mapped[str] = mapped_column(Text)
+    request_id: Mapped[str] = mapped_column(String(36))
+    request_hash: Mapped[str] = mapped_column(String(64))
+
+
+class CollaborationMessage(Base, TimestampMixin):
+    __tablename__ = 'collaboration_messages'
+    __table_args__ = (
+        UniqueConstraint('collaboration_id', 'sequence', name='uq_collaboration_message_sequence'),
+        UniqueConstraint('collaboration_id', 'author_id', 'request_id', name='uq_collaboration_message_request'),
+        CheckConstraint('sequence > 0', name='collaboration_message_sequence'),
+        CheckConstraint("author_role IN ('brand', 'creator')", name='collaboration_message_role'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
+    author_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id', ondelete='RESTRICT'))
+    author_role: Mapped[str] = mapped_column(String(16))
+    sequence: Mapped[int] = mapped_column(Integer)
+    text: Mapped[str] = mapped_column(Text)
     request_id: Mapped[str] = mapped_column(String(36))
     request_hash: Mapped[str] = mapped_column(String(64))

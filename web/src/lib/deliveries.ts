@@ -6,11 +6,12 @@ export type DeliveryReviewAction = components["schemas"]["DeliveryReviewCreate"]
 export type DeliveryLink = components["schemas"]["DeliveryLink"];
 export interface DeliveryFields { title: string; notes: string; links: { label: string; url: string }[] }
 export const emptyDelivery = (): DeliveryFields => ({ title: "", notes: "", links: [{ label: "", url: "" }] });
-export function deliveryPayload(fields: DeliveryFields) {
+export function deliveryPayload(fields: DeliveryFields, fileIds: string[] = []) {
   const title = fields.title.trim(), notes = fields.notes.trim();
   if (title.length < 3 || title.length > 160) throw new Error("Add a delivery title between 3 and 160 characters.");
   if (notes.length > 5000) throw new Error("Keep delivery notes within 5,000 characters.");
-  if (!fields.links.length || fields.links.length > 10) throw new Error("Add between 1 and 10 delivery links.");
+  if ((!fields.links.length && !fileIds.length) || fields.links.length > 10) throw new Error("Add between 1 and 10 delivery links.");
+  if (fileIds.length > 10 || new Set(fileIds).size !== fileIds.length || fileIds.some(id => !/^[0-9a-f-]{36}$/i.test(id))) throw new Error("Choose up to 10 distinct uploaded files.");
   const seen = new Set<string>();
   const links = fields.links.map(link => {
     const label = link.label.trim(), raw = link.url.trim();
@@ -25,7 +26,7 @@ export function deliveryPayload(fields: DeliveryFields) {
     seen.add(url.href);
     return { label, url: url.href };
   });
-  return { title, notes, links };
+  return { title, notes, links, ...(fileIds.length ? { file_ids: fileIds } : {}) };
 }
 
 export function deliveryReviewPayload(action: DeliveryReviewAction, feedback: string) {
