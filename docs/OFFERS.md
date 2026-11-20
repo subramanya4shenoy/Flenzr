@@ -2,6 +2,12 @@
 
 Offers reuse the campaign, application and shared collaboration records. Existing direct enquiries remain private direct Offers; they are not automatically published or converted into a multi-creator brief.
 
+## Listing design
+
+Brand and creator Offer lists share a ticket-style card: a stable, muted gradient on charcoal surfaces, bold brief title, niche, a perforated divider, and a separate stub for the total planned budget and application deadline. Brand cards show audience and lifecycle status, with secondary controls grouped under Manage Offer. Creator cards show application status and quick apply. Decorative reference stripes are not scannable codes. The dedicated Offer page keeps its existing document design. Desktop and 390px browser checks, navigation, TypeScript and focused lint pass.
+
+Brand listing cards also show application-based interest: up to four recent applicant avatars, a total count and “+N more.” Missing photos use initials. Clicking the row opens that Offer’s applications. Invitations and page views do not increase interest. Applicant previews are fetched in one owner-scoped query for the list and are never populated on public campaign responses.
+
 ## Brand flow
 
 1. Open **Offers** in the brand menu and create an Offer. New drafts default to **Invitation only**; choose **Public** for an openly shareable brief.

@@ -2,9 +2,9 @@
 import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { CheckCircle, ExternalLink, MapPin, Search, Star } from "lucide-react";
-import { discoverCreators, discoveryPageSize, discoveryQuery, discoveryNetworks, validateAudienceFilters, audienceSavedDate, type DiscoveryNetwork, type DiscoveryFilters, type DiscoveryPage } from "@/lib/creator-discovery";
+import { Search } from "lucide-react";
+import { CreatorDiscoveryTable } from "./creator-discovery-table";
+import { discoverCreators, discoveryPageSize, discoveryQuery, discoveryNetworks, validateAudienceFilters, type DiscoveryNetwork, type DiscoveryFilters, type DiscoveryPage } from "@/lib/creator-discovery";
 import "./creator-discovery.css";
 import { CampaignInvitationDialog } from "./campaign-invitation";
 import { ShortlistSaveDialog } from "./shortlist-save";
@@ -65,21 +65,10 @@ export function CreatorDiscovery({ onManageCampaigns, onViewCampaign, onViewShor
     <div className="fl-discovery-count" role="status" aria-live="polite">{validationError ? "Check audience filters" : loading ? "Searching creators…" : page ? `${page.total.toLocaleString()} creator${page.total === 1 ? "" : "s"} found${page.items.length ? ` · ${offset + 1}–${offset + page.items.length}` : ""}` : "Search unavailable"}</div>
     <div aria-busy={loading}>
       {loading && <WorkspaceLoader label="Finding creators…" compact />}
-      {loading && <div className="fl-discovery-grid" aria-hidden="true">{Array.from({ length: 4 }, (_, i) => <div className="fl-discovery-skeleton" key={i}><span /><span /><span /></div>)}</div>}
+      {loading && <div className="fl-discovery-row-skeletons" aria-hidden="true">{Array.from({ length: 4 }, (_, i) => <div key={i} />)}</div>}
       {!validationError && current?.status === "error" && <div className="fl-discovery-empty" role="alert"><p>{current.error}</p><button type="button" onClick={() => { setResult(null); setAttempt(attempt + 1); }}>Retry search</button></div>}
       {page && page.items.length === 0 && <div className="fl-discovery-empty"><h3>{offset ? "No creators on this page" : filtered ? "No creators match your search" : "No creators yet"}</h3><p>{offset ? "The directory may have changed. Return to the first page." : filtered ? "Try a broader niche or location, or clear your filters." : "Creator profiles will appear here as people join Flenzr."}</p>{offset ? <button type="button" onClick={() => setOffset(0)}>First page</button> : filtered ? <button type="button" onClick={clear}>Clear filters</button> : null}</div>}
-      {page && page.items.length > 0 && <div className="fl-discovery-grid">{page.items.map((creator) => <article className="fl-discovery-card" key={creator.handle}>
-        <div className="fl-discovery-card-heading"><div className="fl-discovery-avatar" aria-hidden="true">{creator.display_name.slice(0, 1).toUpperCase()}</div><div><h3>{creator.display_name}{creator.is_verified && <CheckCircle size={15} aria-label="Verified creator" />}</h3><p>@{creator.handle}</p></div><span className="fl-discovery-rating"><Star size={13} aria-hidden="true" />{creator.rating > 0 ? creator.rating.toFixed(1) : "No reviews yet"}</span></div>
-        <p className="fl-discovery-bio">{creator.bio || "This creator hasn’t added a bio yet."}</p>
-        <div className="fl-discovery-tags"><span>{creator.niche || "Niche not provided"}</span><span><MapPin size={12} aria-hidden="true" />{creator.location || "Location not provided"}</span></div>
-        {(creator.connected_networks || []).length > 0 && <ul className="fl-discovery-networks" aria-label="Connected networks">{creator.connected_networks.map((network) => <li key={network}>{discoveryNetworks.find((item) => item.value === network)?.label || network}</li>)}</ul>}
-        {(creator.audiences || []).filter((audience) => !filters.network || audience.network === filters.network).map((audience) => <div className="fl-discovery-audience" key={audience.network}>
-          <p><span>{discoveryNetworks.find((item) => item.value === audience.network)?.label}</span><strong>{audience.count === null ? "Audience unavailable" : `${audience.count.toLocaleString("en-IN")} ${audience.metric}`}</strong></p>
-          {audience.count !== null && <small>{audienceSavedDate(audience.updated_at)} · {audience.source}</small>}
-          {audience.count !== null && <small>Largest connected account · audiences aren’t combined</small>}
-        </div>)}
-        <footer><button type="button" className="fl-discovery-save" title="Save to shortlist" onClick={() => setSaveHandle(creator.handle)}>Save</button><button type="button" className="fl-discovery-invite" onClick={() => setInviteHandle(creator.handle)}>Invite to campaign</button><Link href={`/${encodeURIComponent(creator.handle)}`} target="_blank" rel="noopener noreferrer" aria-label={`View ${creator.display_name}’s media kit (opens in a new tab)`}>Media kit<ExternalLink size={13} aria-hidden="true" /></Link></footer>
-      </article>)}</div>}
+      {page && page.items.length > 0 && <CreatorDiscoveryTable creators={page.items} network={filters.network} onSave={setSaveHandle} onInvite={setInviteHandle} />}
     </div>
     {page && page.total > 0 && <nav className="fl-discovery-pagination" aria-label="Creator result pages"><button type="button" disabled={loading || offset === 0} onClick={() => setOffset(Math.max(0, offset - discoveryPageSize))}>Previous</button><span>Page {Math.floor(offset / discoveryPageSize) + 1} of {Math.max(1, Math.ceil(page.total / discoveryPageSize))}</span><button type="button" disabled={loading || offset + discoveryPageSize >= page.total} onClick={() => setOffset(offset + discoveryPageSize)}>Next</button></nav>}
   </section>;

@@ -43,3 +43,12 @@ export async function discoverCreators(filters: DiscoveryFilters, offset: number
   if (!res.ok) throw new Error("Could not load creators. Please retry.");
   return res.json();
 }
+
+/** Saved largest-account count per connected network; not a unique-person estimate. */
+export function discoveryTotalAudience(creator: Pick<DiscoveryCreator, "connected_networks" | "audiences">) {
+  const networks = Array.from(new Set(creator.connected_networks || []));
+  const counts = networks.map(network => creator.audiences?.find(item => item.network === network)?.count)
+    .filter((count): count is number => typeof count === "number" && Number.isSafeInteger(count) && count >= 0);
+  return { count: counts.length ? counts.reduce((sum, count) => sum + count, 0) : null,
+    known: counts.length, networks: networks.length, partial: counts.length < networks.length };
+}

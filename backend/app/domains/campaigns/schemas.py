@@ -109,6 +109,12 @@ class CampaignDraftUpdate(CampaignDraftFields):
         return self
 
 
+class CampaignApplicantPreview(BaseModel):
+    id: str
+    display_name: str
+    avatar_url: Optional[str] = None
+
+
 class CampaignRead(BaseModel):
     visibility: Literal["public", "invited"] = "public"
     id: str
@@ -124,6 +130,7 @@ class CampaignRead(BaseModel):
     status: CampaignStatus
     revision: int
     applicants_count: int = 0
+    applicant_preview: list[CampaignApplicantPreview] = Field(default_factory=list, max_length=4)
     created_at: datetime
     updated_at: datetime
 

@@ -67,3 +67,15 @@ Additional checks cover zero vs unknown/hidden counts, old/missing/future dates,
 6. If a network hides its count or does not provide it (such as LinkedIn sign-in), confirm Audience unavailable. A real zero should show 0 and remain searchable with Minimum = Maximum = 0.
 
 Next: **P06 Step 05 · P06.05.01 — Persist campaign drafts and edit them**.
+
+## Creator table
+
+Discover uses a dark, compact table with one row per creator. Columns show profile photo/name, connected-network icons, total saved audience, row actions and the public media-kit link. Missing photos use initials. Clicking a non-interactive area of the row, pressing Enter on the focused row, or following the name/media-kit link opens that creator’s media kit.
+
+Hover or focus a network icon to see its exact saved follower/subscriber count, source and saved date. On touch screens, tap an icon. Tooltips render outside the scrolling table so they are not clipped. Audience unavailable remains distinct from a real zero.
+
+Total audience adds the available largest-account snapshots across all connected networks, including YouTube subscribers. It does not estimate unique people or add multiple accounts on the same network. A plus sign identifies a partial total when another connected network lacks a count; the tooltip explains what is missing. All-unknown counts display a dash. Choosing a network filter highlights its icon without changing the overall-total basis.
+
+Invite to Offer and Save to shortlist appear on row hover or keyboard focus and remain visible on touch screens. These actions and network buttons do not trigger row navigation. The real invitation/shortlist dialogs are retained. On narrow screens, the table scrolls horizontally inside its container. Semantic headers provide a basis for future columns and sorting; this change does not add sorting controls. Existing search, filters and pagination remain in place.
+
+Checks cover aggregation with known/zero/unknown/partial values, per-network tooltip contents, focus/hover actions, invitation/shortlist dialogs, row media-kit navigation and mobile overflow. TypeScript, focused lint and the discovery/shortlist tests pass.

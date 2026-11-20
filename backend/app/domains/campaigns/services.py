@@ -66,7 +66,25 @@ class CampaignService:
         campaigns = []
         for campaign, applicants in result.all():
             campaign.applicants_count = applicants
+            campaign.applicant_preview = []
             campaigns.append(campaign)
+        if campaigns:
+            from app.domains.creators.models import Creator
+            from app.domains.identity.models import User
+            # One bounded preview query for the whole list, rather than a request/query per Offer.
+            ranked = select(
+                CampaignApplication.campaign_id, Creator.id, Creator.display_name, User.avatar_url,
+                func.row_number().over(partition_by=CampaignApplication.campaign_id,
+                    order_by=(CampaignApplication.created_at.desc(), CampaignApplication.id)).label("position"),
+            ).join(Creator, Creator.id == CampaignApplication.creator_id).join(User, User.id == Creator.user_id).where(
+                CampaignApplication.campaign_id.in_(select(Campaign.id).where(Campaign.organization_id == organization_id))
+            ).subquery()
+            previews = (await db.execute(select(ranked).where(ranked.c.position <= 4)
+                                        .order_by(ranked.c.campaign_id, ranked.c.position))).mappings().all()
+            by_id = {campaign.id: campaign for campaign in campaigns}
+            for row in previews:
+                by_id[row["campaign_id"]].applicant_preview.append(
+                    {"id": row["id"], "display_name": row["display_name"], "avatar_url": row["avatar_url"]})
         return campaigns
 
     @staticmethod

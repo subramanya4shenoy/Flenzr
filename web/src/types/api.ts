@@ -2224,6 +2224,15 @@ export interface components {
              */
             updated_at: string;
         };
+        /** CampaignApplicantPreview */
+        CampaignApplicantPreview: {
+            /** Id */
+            id: string;
+            /** Display Name */
+            display_name: string;
+            /** Avatar Url */
+            avatar_url?: string | null;
+        };
         /** CampaignApplicationCreate */
         CampaignApplicationCreate: {
             /** Pitch Message */
@@ -2556,6 +2565,8 @@ export interface components {
              * @default 0
              */
             applicants_count: number;
+            /** Applicant Preview */
+            applicant_preview?: components["schemas"]["CampaignApplicantPreview"][];
             /**
              * Created At
              * Format: date-time

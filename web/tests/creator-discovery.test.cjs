@@ -53,3 +53,16 @@ test('audience filters require a network, preserve zero and validate ranges with
   assert.equal(api.audienceSavedDate('not-a-date'),'Update date unavailable');
   assert.match(api.audienceSavedDate('2026-11-19T00:00:00Z'),/19 Nov 2026/);
 });
+
+test('discovery total distinguishes zero, partial and unavailable saved audiences', () => {
+  const { discoveryTotalAudience }=load('src/lib/creator-discovery.ts',{});
+  const count=(connected_networks,audiences)=>discoveryTotalAudience({connected_networks,audiences});
+  const check=(value,expected)=>assert.equal(JSON.stringify(value),JSON.stringify(expected));
+  check(count([],[]),{count:null,known:0,networks:0,partial:false});
+  check(count(['instagram'],[{network:'instagram',count:0}]),{count:0,known:1,networks:1,partial:false});
+  check(count(['instagram','youtube'],[{network:'instagram',count:12000},{network:'youtube',count:3000}]),{count:15000,known:2,networks:2,partial:false});
+  check(count(['instagram','linkedin'],[{network:'instagram',count:12000},{network:'linkedin',count:null}]),{count:12000,known:1,networks:2,partial:true});
+  check(count(['linkedin'],[]),{count:null,known:0,networks:1,partial:true});
+  check(count(['instagram','instagram'],[{network:'instagram',count:15},{network:'x',count:9000}]),{count:15,known:1,networks:1,partial:false});
+  for(const value of [true,'100',-1,2.5,NaN]) check(count(['youtube'],[{network:'youtube',count:value}]),{count:null,known:0,networks:1,partial:true});
+});

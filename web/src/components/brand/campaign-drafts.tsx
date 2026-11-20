@@ -4,6 +4,8 @@ import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
+import { OfferTicket } from "@/components/offers/offer-ticket";
+import { opportunityDate } from "@/lib/campaign-opportunities";
 import { CampaignRequestError, campaignDraftFields, campaignDraftPayload, campaignMoney, campaignRequest, emptyCampaignDraft, type CampaignDraftFields, type SavedCampaign } from "@/lib/campaign-drafts";
 import { campaignActions, campaignOpen, campaignStatusLabel, type CampaignAction } from "@/lib/campaign-lifecycle";
 import "./campaign-drafts.css";
@@ -107,12 +109,25 @@ export function CampaignDraftDialog({ campaignId, onClose, onSaved, onReloaded }
 }
 
 export function CampaignList({ campaigns, loading, error, missingOrganization, retry, onOpen, onAction, onActivity }: ReturnType<typeof useBrandCampaigns> & { onOpen: (id: string) => void; onActivity: (campaign: SavedCampaign) => void; onAction: (campaign: SavedCampaign, action: CampaignAction) => void }) {
-  if (loading) return <WorkspaceLoader label="Loading campaigns…" />;
+  if (loading) return <WorkspaceLoader label="Loading Offers…" />;
   if (missingOrganization) return <div className="fl-campaign-state"><h2>Set up your brand first</h2><p>Add your company details before saving a campaign draft.</p><Link href="/dashboard/brand/profile">Open brand profile</Link></div>;
   if (error) return <div className="fl-campaign-state" role="alert"><p>{error}</p><button type="button" onClick={retry}>Retry campaigns</button></div>;
-  if (!campaigns?.length) return <div className="fl-campaign-state"><h2>No campaigns yet</h2><p>Create your first draft to start shaping a campaign brief.</p></div>;
-  return <section className="fl-campaign-list" aria-label="Saved campaigns">{campaigns.map((campaign) => <article className="fl-campaign-card" key={campaign.id}>
-    <div><div className="fl-campaign-card-meta"><small>OFFER · {campaign.id.slice(0, 8).toUpperCase()}</small><span>{campaignStatusLabel[campaign.status]}</span>{campaign.target_niche && <small>{campaign.target_niche}</small>}</div><h3><Link href={`/dashboard/offers/${campaign.id}`}>{campaign.title}</Link></h3><p>{campaign.deliverable_summary || "Deliverables to discuss"}</p><small>Updated {new Date(campaign.updated_at).toLocaleDateString("en-IN")}{campaign.status === "draft" && " · Private draft"}</small>{campaign.status === "active" && !campaignOpen(campaign) && <p className="fl-campaign-expired">End date passed · Not accepting applications</p>}</div>
-    <div className="fl-campaign-card-actions"><strong>{campaign.budget_total_cents ? campaignMoney(campaign.budget_total_cents, campaign.currency) : "Budget to discuss"}</strong><div className="fl-campaign-status-actions"><Link href={`/dashboard/offers/${campaign.id}`}>Open Offer →</Link><button type="button" onClick={() => onActivity(campaign)}>Applications &amp; invitations</button><button type="button" onClick={() => onOpen(campaign.id)}>{campaign.status === "draft" ? "Edit draft" : "View brief"}</button>{campaignActions(campaign.status).map((action) => <button type="button" key={action} onClick={() => onAction(campaign, action)}>{action === "publish" ? "Publish" : action === "close" ? "Close" : action === "cancel" ? "Cancel" : action === "pause" ? "Pause" : "Resume"}</button>)}</div></div>
-  </article>)}</section>;
+  if (!campaigns?.length) return <div className="fl-campaign-state"><h2>No Offers yet</h2><p>Create your first Offer and shape the brief.</p></div>;
+  return <section className="fl-ticket-grid" aria-label="Saved Offers">{campaigns.map((campaign) => {
+    const expired = campaign.status === "active" && !campaignOpen(campaign);
+    return <OfferTicket key={campaign.id} id={campaign.id} title={campaign.title} issuer="Created by you"
+      niche={campaign.target_niche} deliverables={campaign.deliverable_summary}
+      budget={campaign.budget_total_cents ? campaignMoney(campaign.budget_total_cents, campaign.currency) : "To discuss"}
+      deadline={campaign.end_date ? opportunityDate(campaign.end_date) : "Open-ended"}
+      status={expired ? "Applications closed" : campaignStatusLabel[campaign.status]}
+      interest={{ count: campaign.applicants_count, people: campaign.applicant_preview || [], onOpen: () => onActivity(campaign) }}
+      state={expired ? "expired" : campaign.status}
+      access={campaign.status === "draft" ? "draft" : campaign.visibility === "invited" ? "invited" : "public"}>
+      <details><summary>Manage Offer</summary><div className="fl-ticket-management">
+        <button type="button" onClick={() => onActivity(campaign)}>Applications &amp; invitations</button>
+        <button type="button" onClick={() => onOpen(campaign.id)}>{campaign.status === "draft" ? "Edit draft" : "View brief"}</button>
+        {campaignActions(campaign.status).map((action) => <button type="button" key={action} onClick={() => onAction(campaign, action)}>{action === "publish" ? "Publish" : action === "close" ? "Close" : action === "cancel" ? "Cancel" : action === "pause" ? "Pause" : "Resume"}</button>)}
+      </div></details>
+    </OfferTicket>;
+  })}</section>;
 }

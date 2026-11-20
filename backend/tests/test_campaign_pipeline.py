@@ -64,3 +64,41 @@ async def test_pipeline_empty_and_authentication(client, auth_headers):
     assert (await client.get('/api/v1/campaigns/me/summary')).status_code == 401
     creator = auth_headers(sub='pipeline-forbidden', email='pipeline-forbidden@example.com')
     assert (await client.get('/api/v1/campaigns/me/summary', headers=creator)).status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_offer_interest_preview_is_owner_only_bounded_and_matches_total(client, auth_headers, db_session):
+    from app.domains.creators.models import Creator
+    from app.domains.identity.models import User
+    owner = await setup_brand(client, auth_headers, 'interest-owner')
+    other = await setup_brand(client, auth_headers, 'interest-other')
+    offer = (await client.post('/api/v1/campaigns', headers=owner, json=complete_brief())).json()
+    empty = (await client.post('/api/v1/campaigns', headers=owner, json=complete_brief())).json()
+    other_offer = (await client.post('/api/v1/campaigns', headers=other, json=complete_brief())).json()
+    people = []
+    for index in range(6):
+        headers = auth_headers(sub=f'interest-creator-{index}', email=f'interest-{index}@example.com')
+        profile = (await client.get('/api/v1/creators/me', headers=headers)).json()
+        creator = await db_session.get(Creator, profile['id'])
+        creator.display_name = f'Interested creator {index}'
+        user = await db_session.get(User, creator.user_id)
+        user.avatar_url = f'https://lh3.googleusercontent.com/interest-{index}.png'
+        db_session.add(CampaignApplication(campaign_id=offer['id'], creator_id=creator.id, proposed_rate_cents=1000,
+            created_at=datetime.now(timezone.utc)+timedelta(seconds=index)))
+        people.append(creator.id)
+    db_session.add(CampaignApplication(campaign_id=other_offer['id'], creator_id=people[0], proposed_rate_cents=1000))
+    await db_session.commit()
+    rows = (await client.get('/api/v1/campaigns/me', headers=owner)).json()
+    preview = next(row for row in rows if row['id'] == offer['id'])
+    assert preview['applicants_count'] == 6 and len(preview['applicant_preview']) == 4
+    assert [p['id'] for p in preview['applicant_preview']] == list(reversed(people[2:]))
+    assert preview['applicant_preview'][0]['avatar_url'] == 'https://lh3.googleusercontent.com/interest-5.png'
+    assert set(preview['applicant_preview'][0]) == {'id','display_name','avatar_url'}
+    untouched = next(row for row in rows if row['id'] == empty['id'])
+    assert untouched['applicants_count'] == 0 and untouched['applicant_preview'] == []
+    isolated = (await client.get('/api/v1/campaigns/me', headers=other)).json()
+    assert len(isolated) == 1 and isolated[0]['applicants_count'] == 1
+    assert len(isolated[0]['applicant_preview']) == 1
+    public = (await client.get('/api/v1/campaigns/explore')).json()
+    assert all(not row['applicant_preview'] for row in public)
+    assert (await client.get('/api/v1/campaigns/me')).status_code == 401

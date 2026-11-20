@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { OfferTicket } from "@/components/offers/offer-ticket";
 
 import { useCallback, useEffect, useState } from "react";
 import { opportunityDate, opportunityQuery, opportunityRequest, type CampaignOpportunity, type OpportunityPage } from "@/lib/campaign-opportunities";
@@ -30,17 +30,18 @@ export function CampaignOpportunities({ onViewApplications }: { onViewApplicatio
   function refresh() { setResult(null); setAttempt(value => value + 1); }
   return <section className="fl-opportunities" aria-label="Campaign opportunities">
     <header><div><h2>Brand Offers</h2><p>Explore published briefs and propose a collaboration.</p></div><button type="button" onClick={onViewApplications}>My applications</button></header>
-    <div className="fl-opportunity-filters"><label>Search campaigns<input name="opportunity-search" type="search" maxLength={255} placeholder="Campaign, brief or brand" value={q} onChange={e => { setQ(e.target.value); setPage(1); }} /></label><label>Niche<input name="opportunity-niche" maxLength={128} placeholder="e.g. Technology" value={niche} onChange={e => { setNiche(e.target.value); setPage(1); }} /></label><button type="button" disabled={!q && !niche} onClick={() => { setQ(""); setNiche(""); setPage(1); }}>Clear filters</button></div>
-    <div className="fl-opportunity-count"><p role="status">{loading ? "Loading opportunities…" : current?.error ? "Opportunities unavailable" : `${data?.total || 0} open campaign${data?.total === 1 ? "" : "s"}`}</p><button type="button" disabled={loading} onClick={refresh}>Refresh</button></div>
+    <div className="fl-opportunity-filters"><label>Search Offers<input name="opportunity-search" type="search" maxLength={255} placeholder="Offer, brief or brand" value={q} onChange={e => { setQ(e.target.value); setPage(1); }} /></label><label>Niche<input name="opportunity-niche" maxLength={128} placeholder="e.g. Technology" value={niche} onChange={e => { setNiche(e.target.value); setPage(1); }} /></label><button type="button" disabled={!q && !niche} onClick={() => { setQ(""); setNiche(""); setPage(1); }}>Clear filters</button></div>
+    <div className="fl-opportunity-count"><p role="status">{loading ? "Loading opportunities…" : current?.error ? "Opportunities unavailable" : `${data?.total || 0} open Offer${data?.total === 1 ? "" : "s"}`}</p><button type="button" disabled={loading} onClick={refresh}>Refresh</button></div>
     <div aria-busy={loading}>
       {current?.error && <div className="fl-opportunity-empty" role="alert"><p>{current.error}</p><button type="button" onClick={refresh}>Retry</button></div>}
-      {data && !data.items.length && <div className="fl-opportunity-empty"><h3>{page > 1 ? "No campaigns on this page" : q || niche ? "No campaigns match your search" : "No open campaigns yet"}</h3><p>{page > 1 ? "The board may have changed. Return to the previous page or refresh." : "Try a different search or check back when brands publish new briefs."}</p></div>}
-      {data && <div className="fl-opportunity-grid">{data.items.map(item => <article className="fl-opportunity-card" key={item.id}>
-        <div className="fl-opportunity-card-heading"><span>{item.target_niche || "Niche not specified"}</span>{item.application && <span className="fl-opportunity-application-status">{activityStatusLabel[item.application.status]}</span>}</div>
-        <h3><Link href={`/dashboard/offers/${item.id}`}>{item.title}</Link></h3><p className="fl-opportunity-brand">{item.organization_name}</p><p className="fl-opportunity-deliverables">{item.deliverable_summary || "See campaign brief"}</p>
-        <div className="fl-opportunity-budget"><small>Campaign budget</small><strong>{campaignMoney(item.budget_total_cents, item.currency)}</strong></div>
-        <footer><small>{item.end_date ? `Ends ${opportunityDate(item.end_date)} · UTC` : "Open end date"}</small><Link href={`/dashboard/offers/${item.id}`}>Open Offer →</Link><button type="button" onClick={() => setSelected(item.id)}>{item.application ? "View application" : "View brief & apply"}</button></footer>
-      </article>)}</div>}
+      {data && !data.items.length && <div className="fl-opportunity-empty"><h3>{page > 1 ? "No Offers on this page" : q || niche ? "No Offers match your search" : "No open Offers yet"}</h3><p>{page > 1 ? "The board may have changed. Return to the previous page or refresh." : "Try a different search or check back when brands publish new briefs."}</p></div>}
+      {data && <div className="fl-ticket-grid">{data.items.map(item => <OfferTicket key={item.id}
+        id={item.id} title={item.title} issuer={item.organization_name} niche={item.target_niche}
+        deliverables={item.deliverable_summary} budget={campaignMoney(item.budget_total_cents, item.currency)}
+        deadline={item.end_date ? opportunityDate(item.end_date) : "Open-ended"}
+        status={item.application ? activityStatusLabel[item.application.status] : "Open for applications"}>
+        <button type="button" onClick={() => setSelected(item.id)}>{item.application ? "View application" : "Quick apply"}</button>
+      </OfferTicket>)}</div>}
     </div>
     {data && data.total > 0 && <nav className="fl-opportunity-pagination" aria-label="Opportunity pages"><button type="button" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</button><span>Page {page} of {Math.max(1, Math.ceil(data.total / data.page_size))}</span><button type="button" disabled={page * data.page_size >= data.total} onClick={() => setPage(page + 1)}>Next</button></nav>}
     {selected && <CampaignApplicationDialog key={selected} campaignId={selected} onClose={() => setSelected(null)} onRecord={recordChanged} onViewApplications={() => { onViewApplications(); setSelected(null); }} />}

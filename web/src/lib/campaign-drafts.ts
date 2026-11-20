@@ -9,6 +9,7 @@ export interface SavedCampaign {
   target_niche: string | null; deliverable_summary: string | null;
   budget_total_cents: number; currency: string; start_date: string | null; end_date: string | null;
   status: "draft" | "active" | "paused" | "completed" | "cancelled";
+  applicant_preview?: { id: string; display_name: string; avatar_url?: string | null }[];
   revision: number; applicants_count: number; created_at: string; updated_at: string;
 }
 export const emptyCampaignDraft: CampaignDraftFields = { visibility: "invited", title: "", brief: "", target_niche: "", deliverable_summary: "", budget: "", currency: "INR", start_date: "", end_date: "" };

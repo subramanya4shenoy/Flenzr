@@ -7388,6 +7388,35 @@
         ],
         "title": "CampaignActivityRead"
       },
+      "CampaignApplicantPreview": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "display_name"
+        ],
+        "title": "CampaignApplicantPreview"
+      },
       "CampaignApplicationCreate": {
         "properties": {
           "pitch_message": {
@@ -8356,6 +8385,14 @@
             "type": "integer",
             "title": "Applicants Count",
             "default": 0
+          },
+          "applicant_preview": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignApplicantPreview"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "title": "Applicant Preview"
           },
           "created_at": {
             "type": "string",
