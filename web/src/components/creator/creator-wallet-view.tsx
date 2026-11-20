@@ -121,21 +121,21 @@ export function CreatorWalletView() {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#121215] border border-[#27272a] shadow-md">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] shadow-md">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+            <span className="theme-on-accent w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <h2 className="text-base sm:text-lg font-bold text-[color:var(--ui-ink-ffffff)] tracking-tight">
               {t("Flenzr Vault")}
             </h2>
           </div>
-          <p className="text-xs text-[#8c94a6] mt-0.5">
+          <p className="text-xs text-[color:var(--ui-ink-8c94a6)] mt-0.5">
             Your earnings and invoices will appear here after completed collaborations.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 flex items-center gap-1.5">
+          <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-[color:var(--ui-ink-emerald-400)] text-xs font-bold border border-[color:var(--ui-line-emerald-500)]/20 flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Payment setup pending</span>
           </span>
@@ -145,16 +145,16 @@ export function CreatorWalletView() {
       {/* Balance Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Available Withdrawal Card */}
-        <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4 flex flex-col justify-between">
+        <div className="p-5 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] space-y-4 flex flex-col justify-between">
           <div className="space-y-1">
-            <span className="text-[10px] uppercase font-bold text-[#8c94a6] tracking-wider block">
+            <span className="text-[10px] uppercase font-bold text-[color:var(--ui-ink-8c94a6)] tracking-wider block">
               {t("Available for Instant Payout")}
             </span>
-            <div className="text-3xl font-extrabold text-white tracking-tight">
+            <div className="text-3xl font-extrabold text-[color:var(--ui-ink-ffffff)] tracking-tight">
               ₹{availableBalance.toLocaleString("en-IN")}
             </div>
-            <p className="text-[11px] text-[#71717a] flex items-center gap-1 pt-0.5">
-              <Building2 className="w-3 h-3 text-neutral-400" />
+            <p className="text-[11px] text-[color:var(--ui-ink-71717a)] flex items-center gap-1 pt-0.5">
+              <Building2 className="w-3 h-3 text-[color:var(--ui-ink-neutral-400)]" />
               <span>No payout account connected</span>
             </p>
           </div>
@@ -164,7 +164,7 @@ export function CreatorWalletView() {
               type="button"
               onClick={handleWithdraw}
               disabled title="Connect a payout account before withdrawing"
-              className="w-full h-10 rounded-xl bg-white hover:bg-neutral-200 text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-50"
+              className="w-full h-10 rounded-xl bg-[color:var(--ui-paint-ffffff)] hover:bg-[color:var(--ui-paint-neutral-200)] text-[color:var(--ui-ink-000000)] font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-50"
             >
               {isWithdrawing ? (
                 <span className="inline-flex items-center gap-1.5">
@@ -172,12 +172,12 @@ export function CreatorWalletView() {
                   Initiating Instant Transfer...
                 </span>
               ) : withdrawSuccess ? (
-                <span className="inline-flex items-center gap-1.5 text-emerald-700 font-bold">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="inline-flex items-center gap-1.5 text-[color:var(--ui-ink-emerald-700)] font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[color:var(--ui-ink-emerald-600)]" />
                   Transferred to Bank!
                 </span>
               ) : availableBalance <= 0 ? (
-                <span className="text-neutral-500">No Balance Available</span>
+                <span className="text-[color:var(--ui-ink-neutral-500)]">No Balance Available</span>
               ) : (
                 <>
                   <span>{t("Withdraw to Bank Account")}</span>
@@ -189,15 +189,15 @@ export function CreatorWalletView() {
         </div>
 
         {/* Locked Escrow Card */}
-        <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4 flex flex-col justify-between">
+        <div className="p-5 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] space-y-4 flex flex-col justify-between">
           <div className="space-y-1">
-            <span className="text-[10px] uppercase font-bold text-[#8c94a6] tracking-wider block">
+            <span className="text-[10px] uppercase font-bold text-[color:var(--ui-ink-8c94a6)] tracking-wider block">
               {t("Secured in Flenzr Vault")}
             </span>
-            <div className="text-3xl font-extrabold text-white tracking-tight">
+            <div className="text-3xl font-extrabold text-[color:var(--ui-ink-ffffff)] tracking-tight">
               ₹{escrowTotal.toLocaleString("en-IN")}
             </div>
-            <p className="text-[11px] text-[#71717a]">
+            <p className="text-[11px] text-[color:var(--ui-ink-71717a)]">
               {escrowDeals.length > 0
                 ? `${escrowDeals.length} brand ${
                     escrowDeals.length === 1 ? "milestone" : "milestones"
@@ -206,18 +206,18 @@ export function CreatorWalletView() {
             </p>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#18181b] border border-[#27272a] text-xs space-y-1">
+          <div className="p-3 rounded-xl bg-[color:var(--ui-paint-18181b)] border border-[color:var(--ui-line-27272a)] text-xs space-y-1">
             {escrowDeals.length > 0 ? (
               escrowDeals.map((deal: any) => (
                 <div key={deal.id} className="flex items-center justify-between text-[11px]">
-                  <span className="text-white font-medium truncate max-w-[150px]">
+                  <span className="text-[color:var(--ui-ink-ffffff)] font-medium truncate max-w-[150px]">
                     {deal.brand} • {deal.deliverable}
                   </span>
-                  <span className="font-bold text-white shrink-0">{deal.amount}</span>
+                  <span className="font-bold text-[color:var(--ui-ink-ffffff)] shrink-0">{deal.amount}</span>
                 </div>
               ))
             ) : (
-              <p className="text-[11px] text-[#7e8697] italic text-center py-0.5">
+              <p className="text-[11px] text-[color:var(--ui-ink-7e8697)] italic text-center py-0.5">
                 Funds are held in escrow once brands lock a collaboration milestone.
               </p>
             )}
@@ -225,24 +225,24 @@ export function CreatorWalletView() {
         </div>
 
         {/* Lifetime Earnings Card */}
-        <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4 flex flex-col justify-between">
+        <div className="p-5 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] space-y-4 flex flex-col justify-between">
           <div className="space-y-1">
-            <span className="text-[10px] uppercase font-bold text-[#8c94a6] tracking-wider block">
+            <span className="text-[10px] uppercase font-bold text-[color:var(--ui-ink-8c94a6)] tracking-wider block">
               {t("Lifetime Collab Revenue")}
             </span>
-            <div className="text-3xl font-extrabold text-white tracking-tight">
+            <div className="text-3xl font-extrabold text-[color:var(--ui-ink-ffffff)] tracking-tight">
               {invoices.length > 0
                 ? `₹${invoices
                     .reduce((sum, inv) => sum + (parseInt(inv.grossAmount.replace(/[^0-9]/g, ""), 10) || 0), 0)
                     .toLocaleString("en-IN")}`
                 : "₹0"}
             </div>
-            <p className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+            <p className="text-[11px] text-[color:var(--ui-ink-emerald-400)] font-semibold flex items-center gap-1">
               <span>{invoices.length > 0 ? "+34% growth vs previous quarter" : "Ready for your first brand deal"}</span>
             </p>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-[#8c94a6] pt-2 border-t border-[#27272a]">
+          <div className="flex items-center justify-between text-xs text-[color:var(--ui-ink-8c94a6)] pt-2 border-t border-[color:var(--ui-line-27272a)]">
             <span>Total Deals: {invoices.length}</span>
             <span>Zero Chargebacks</span>
           </div>
@@ -250,11 +250,11 @@ export function CreatorWalletView() {
       </div>
 
       {/* Tax Invoices & Payout Ledger */}
-      <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
+      <div className="p-5 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-white">{t("Auto-Generated Brand Tax Invoices")}</h3>
-            <p className="text-xs text-[#8c94a6]">
+            <h3 className="text-sm font-bold text-[color:var(--ui-ink-ffffff)]">{t("Auto-Generated Brand Tax Invoices")}</h3>
+            <p className="text-xs text-[color:var(--ui-ink-8c94a6)]">
               All brand deliverables include downloadable GST invoices with Section 194J TDS deductions.
             </p>
           </div>
@@ -263,8 +263,8 @@ export function CreatorWalletView() {
         {/* Invoices Table or Empty State */}
         {invoices.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-white">
-              <thead className="bg-[#18181b] text-[#8c94a6] text-[10px] uppercase tracking-wider border-y border-[#27272a]">
+            <table className="w-full text-left text-xs text-[color:var(--ui-ink-ffffff)]">
+              <thead className="bg-[color:var(--ui-paint-18181b)] text-[color:var(--ui-ink-8c94a6)] text-[10px] uppercase tracking-wider border-y border-[color:var(--ui-line-27272a)]">
                 <tr>
                   <th className="py-3 px-4">Invoice #</th>
                   <th className="py-3 px-4">Brand / Sponsor</th>
@@ -275,26 +275,26 @@ export function CreatorWalletView() {
                   <th className="py-3 px-4 text-right">Invoice Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#27272a]">
+              <tbody className="divide-y divide-[color:var(--ui-line-27272a)]">
                 {invoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-[#18181b]/50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-white">{inv.invoiceNo}</td>
-                    <td className="py-3.5 px-4 font-semibold text-white">{inv.brand}</td>
-                    <td className="py-3.5 px-4 text-[#8c94a6]">{inv.date}</td>
-                    <td className="py-3.5 px-4 font-bold text-white">{inv.grossAmount}</td>
-                    <td className="py-3.5 px-4 text-neutral-400 font-mono">{inv.tdsDeducted}</td>
-                    <td className="py-3.5 px-4 font-bold text-emerald-400">{inv.netPayout}</td>
+                  <tr key={inv.id} className="hover:bg-[color:var(--ui-paint-18181b)]/50 transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[color:var(--ui-ink-ffffff)]">{inv.invoiceNo}</td>
+                    <td className="py-3.5 px-4 font-semibold text-[color:var(--ui-ink-ffffff)]">{inv.brand}</td>
+                    <td className="py-3.5 px-4 text-[color:var(--ui-ink-8c94a6)]">{inv.date}</td>
+                    <td className="py-3.5 px-4 font-bold text-[color:var(--ui-ink-ffffff)]">{inv.grossAmount}</td>
+                    <td className="py-3.5 px-4 text-[color:var(--ui-ink-neutral-400)] font-mono">{inv.tdsDeducted}</td>
+                    <td className="py-3.5 px-4 font-bold text-[color:var(--ui-ink-emerald-400)]">{inv.netPayout}</td>
                     <td className="py-3.5 px-4 text-right">
                       <button
                         type="button"
                         onClick={() => handleDownloadInvoice(inv.id, inv.invoiceNo)}
-                        className="px-3 py-1.5 rounded-lg bg-[#18181b] hover:bg-[#222226] text-white font-semibold text-xs border border-[#27272a] inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-3 py-1.5 rounded-lg bg-[color:var(--ui-paint-18181b)] hover:bg-[color:var(--ui-paint-222226)] text-[color:var(--ui-ink-ffffff)] font-semibold text-xs border border-[color:var(--ui-line-27272a)] inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
                         {downloadingId === inv.id ? (
-                          <span className="text-neutral-400 text-[11px]">Generating...</span>
+                          <span className="text-[color:var(--ui-ink-neutral-400)] text-[11px]">Generating...</span>
                         ) : (
                           <>
-                            <Download className="w-3.5 h-3.5 text-neutral-300" />
+                            <Download className="w-3.5 h-3.5 text-[color:var(--ui-ink-neutral-300)]" />
                             <span>PDF</span>
                           </>
                         )}
@@ -306,13 +306,13 @@ export function CreatorWalletView() {
             </table>
           </div>
         ) : (
-          <div className="p-8 rounded-2xl bg-[#18181b]/60 border border-dashed border-[#27272a] text-center space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center mx-auto text-neutral-400">
-              <FileText className="w-5 h-5 text-neutral-400" />
+          <div className="p-8 rounded-2xl bg-[color:var(--ui-paint-18181b)]/60 border border-dashed border-[color:var(--ui-line-27272a)] text-center space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-[color:var(--ui-paint-ffffff)]/[0.05] border border-[color:var(--ui-line-ffffff)]/10 flex items-center justify-center mx-auto text-[color:var(--ui-ink-neutral-400)]">
+              <FileText className="w-5 h-5 text-[color:var(--ui-ink-neutral-400)]" />
             </div>
             <div className="space-y-1">
-              <h4 className="text-sm font-semibold text-white">{t("No tax invoices generated yet")}</h4>
-              <p className="text-xs text-[#7e8697] max-w-md mx-auto">
+              <h4 className="text-sm font-semibold text-[color:var(--ui-ink-ffffff)]">{t("No tax invoices generated yet")}</h4>
+              <p className="text-xs text-[color:var(--ui-ink-7e8697)] max-w-md mx-auto">
                 {t("Invoices and Form 16A TDS certificates are automatically generated upon milestone completion in Flenzr Vault.")}
               </p>
             </div>

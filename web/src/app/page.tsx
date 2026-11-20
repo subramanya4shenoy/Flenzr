@@ -8,12 +8,12 @@ import { WorkflowStoryMotion } from "@/components/home/workflow-story-motion";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#09090b] text-neutral-100 selection:bg-[#c1121f] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[color:var(--ui-paint-09090b)] text-[color:var(--ui-ink-neutral-100)] selection:bg-[color:var(--ui-paint-c1121f)] selection:text-[color:var(--ui-ink-ffffff)] flex flex-col">
       {/* Background Subtle Accent Gradients */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-[#c1121f]/20 via-[#c1121f]/5 to-transparent blur-3xl opacity-75" />
-        <div className="absolute top-1/2 right-0 w-[550px] h-[550px] bg-[#c1121f]/8 blur-3xl rounded-full" />
-        <div className="absolute bottom-1/4 left-0 w-[500px] h-[500px] bg-red-950/20 blur-3xl rounded-full" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-[color:var(--ui-paint-c1121f)]/20 via-[color:var(--ui-paint-c1121f)]/5 to-transparent blur-3xl opacity-75" />
+        <div className="absolute top-1/2 right-0 w-[550px] h-[550px] bg-[color:var(--ui-paint-c1121f)]/8 blur-3xl rounded-full" />
+        <div className="absolute bottom-1/4 left-0 w-[500px] h-[500px] bg-[color:var(--ui-paint-red-950)]/20 blur-3xl rounded-full" />
       </div>
 
       {/* Localized Navigation Header with Language Switcher */}

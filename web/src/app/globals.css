@@ -28,8 +28,8 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background:var(--background);
+  color:var(--foreground);
   font-family: var(--font-sans);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -56,12 +56,12 @@ textarea {
 }
 
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background:var(--ui-paint-09090b);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 4px;
+  background:var(--ui-paint-27272a);
+  border-radius:4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

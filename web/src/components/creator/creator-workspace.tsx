@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -70,7 +71,7 @@ export function CreatorWorkspace({ children, initialName }: { children: ReactNod
         <div className="fl-creator-breadcrumb"><button type="button" onClick={() => selectTab("overview")}><Users size={14} aria-hidden="true" /><span>Studio</span></button><ChevronRight size={13} aria-hidden="true" /><button className="fl-creator-name" type="button" onClick={() => selectTab("overview")}>{profile.name}</button><ChevronRight size={13} aria-hidden="true" /><strong>{title}</strong></div>
         <div className="fl-creator-header-actions">
           <details ref={mobileMenu} className="fl-creator-mobile-menu"><summary aria-label="Creator menu"><Menu size={16} /><span>Menu</span></summary><nav aria-label="Creator mobile navigation">{CREATOR_NAV_ITEMS.map(item => <button key={item.id} type="button" aria-current={sharedTab === item.id ? "page" : undefined} onClick={() => selectTab(item.id)}><item.icon size={14} aria-hidden="true" />{item.label}</button>)}</nav></details>
-          <NotificationBell /><LanguageSwitcher variant="compact" />
+          <NotificationBell /><ThemeSwitcher /><LanguageSwitcher variant="compact" />
           {profile.handle && <Link aria-label="View public media kit" title="View public media kit" className="fl-creator-media-kit" href={`/${profile.handle}`} target="_blank"><span>Media Kit</span><ExternalLink size={13} aria-hidden="true" /></Link>}
           <button className="fl-creator-signout" type="button" aria-label="Sign out" title="Sign out" disabled={signingOut} onClick={() => void signOut()}><LogOut size={14} aria-hidden="true" /><span>{signingOut ? "Signing out…" : "Sign out"}</span></button>
         </div>

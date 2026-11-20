@@ -22,8 +22,8 @@ export function Logo({
 
   if (variant === "duotone-dark") {
     topFill = "#c1121f";
-    bottomFill = "#ffffff";
-    resolvedWordmark = wordmarkColor || "#ffffff";
+    bottomFill = "var(--logo-ink, #ffffff)";
+    resolvedWordmark = wordmarkColor || "var(--logo-wordmark, #ffffff)";
   } else if (variant === "white") {
     topFill = "#ffffff";
     bottomFill = "#ffffff";

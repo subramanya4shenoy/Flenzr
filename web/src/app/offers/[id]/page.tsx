@@ -1,3 +1,4 @@
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { API_URL, currentIdentity } from "@/lib/server/session";
@@ -17,5 +18,5 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     else unavailable = response.status !== 404;
   } catch { unavailable = true; }
   const login = `/login?next=${encodeURIComponent(destination)}`;
-  return <div className="fl-offer-public"><nav><Link href="/"><Logo size={28} variant="duotone-dark" withWordmark /></Link><Link href={login}>Sign in</Link></nav>{offer ? <main className="fl-offer-page"><OfferDocument offer={offer}><div className="fl-offer-visitor-action"><Link href={login}>{offer.accepting ? "Sign in to apply for this Offer" : "Sign in to view Offer"}</Link></div></OfferDocument></main> : <main className="fl-offer-gate"><h1>{unavailable ? "We couldn’t load this Offer" : "This Offer requires access"}</h1><p>{unavailable ? "Please retry in a moment." : "Sign in to check your access. Private Offers can only be opened by the brand and its invited creators."}</p><Link href={login}>Sign in to Flenzr</Link></main>}</div>;
+  return <div className="fl-offer-public"><nav><Link href="/"><Logo size={28} variant="duotone-dark" withWordmark /></Link><div className="fl-public-header-actions"><ThemeSwitcher /><Link href={login}>Sign in</Link></div></nav>{offer ? <main className="fl-offer-page"><OfferDocument offer={offer}><div className="fl-offer-visitor-action"><Link href={login}>{offer.accepting ? "Sign in to apply for this Offer" : "Sign in to view Offer"}</Link></div></OfferDocument></main> : <main className="fl-offer-gate"><h1>{unavailable ? "We couldn’t load this Offer" : "This Offer requires access"}</h1><p>{unavailable ? "Please retry in a moment." : "Sign in to check your access. Private Offers can only be opened by the brand and its invited creators."}</p><Link href={login}>Sign in to Flenzr</Link></main>}</div>;
 }

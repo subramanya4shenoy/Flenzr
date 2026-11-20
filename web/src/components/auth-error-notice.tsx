@@ -12,5 +12,5 @@ export function AuthErrorNotice() {
     const error = new URLSearchParams(window.location.search).get("auth_error");
     if (error) Promise.resolve().then(() => setMessage(MESSAGES[error] || "Could not sign in. Please try again."));
   }, []);
-  return message ? <p role="alert" className="p-3 rounded-xl bg-red-500/10 text-red-300 text-sm">{message}</p> : null;
+  return message ? <p role="alert" className="p-3 rounded-xl bg-red-500/10 text-[color:var(--ui-ink-red-300)] text-sm">{message}</p> : null;
 }

@@ -14,13 +14,13 @@ import { FacebookPageSelection } from "./facebook-page-selection";
 import { readConnectedAccounts, writeConnectedAccounts, getSocialAccounts, socialUrl, type SocialAccount, type SocialPlatform } from "@/lib/social-accounts";
 
 const platforms: Record<SocialPlatform, { name: string; initials: string; accent: string }> = {
-  facebook: { name: "Facebook", initials: "FB", accent: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-  instagram: { name: "Instagram", initials: "IG", accent: "bg-pink-500/10 text-pink-400 border-pink-500/20" },
-  youtube: { name: "YouTube", initials: "YT", accent: "bg-red-500/10 text-red-400 border-red-500/20" },
-  x: { name: "X", initials: "X", accent: "bg-white/5 text-white border-white/15" },
-  tiktok: { name: "TikTok", initials: "TK", accent: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20" },
-  linkedin: { name: "LinkedIn", initials: "IN", accent: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-  twitch: { name: "Twitch", initials: "TW", accent: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
+  facebook: { name: "Facebook", initials: "FB", accent: "bg-blue-500/10 text-[color:var(--ui-ink-blue-400)] border-[color:var(--ui-line-blue-500)]/20" },
+  instagram: { name: "Instagram", initials: "IG", accent: "bg-pink-500/10 text-[color:var(--ui-ink-pink-400)] border-[color:var(--ui-line-pink-500)]/20" },
+  youtube: { name: "YouTube", initials: "YT", accent: "bg-red-500/10 text-[color:var(--ui-ink-red-400)] border-[color:var(--ui-line-red-500)]/20" },
+  x: { name: "X", initials: "X", accent: "bg-[color:var(--ui-paint-ffffff)]/5 text-[color:var(--ui-ink-ffffff)] border-[color:var(--ui-line-ffffff)]/15" },
+  tiktok: { name: "TikTok", initials: "TK", accent: "bg-cyan-500/10 text-[color:var(--ui-ink-cyan-300)] border-[color:var(--ui-line-cyan-500)]/20" },
+  linkedin: { name: "LinkedIn", initials: "IN", accent: "bg-blue-500/10 text-[color:var(--ui-ink-blue-400)] border-[color:var(--ui-line-blue-500)]/20" },
+  twitch: { name: "Twitch", initials: "TW", accent: "bg-violet-500/10 text-[color:var(--ui-ink-violet-400)] border-[color:var(--ui-line-violet-500)]/20" },
 };
 
 
@@ -330,20 +330,20 @@ export function CreatorAnalyticsView() {
       }} />}
       <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Your social footprint</p>
-          <h2 className="text-2xl font-bold tracking-tight text-white">Account analytics</h2>
-          <p className="mt-2 max-w-xl text-xs leading-relaxed text-neutral-400">Your connected profiles and audience, at a glance.</p>
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--ui-ink-neutral-500)]">Your social footprint</p>
+          <h2 className="text-2xl font-bold tracking-tight text-[color:var(--ui-ink-ffffff)]">Account analytics</h2>
+          <p className="mt-2 max-w-xl text-xs leading-relaxed text-[color:var(--ui-ink-neutral-400)]">Your connected profiles and audience, at a glance.</p>
         </div>
-        {!loading && !error && accounts.length > 0 && <div className="flex shrink-0 gap-4 text-xs text-neutral-400">
-          <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /><strong className="text-white">{accounts.length}</strong> linked</span>
-          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /><strong className="text-white">{accounts.filter((account) => account.is_verified).length}</strong> verified</span>
+        {!loading && !error && accounts.length > 0 && <div className="flex shrink-0 gap-4 text-xs text-[color:var(--ui-ink-neutral-400)]">
+          <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /><strong className="text-[color:var(--ui-ink-ffffff)]">{accounts.length}</strong> linked</span>
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-[color:var(--ui-ink-emerald-400)]" /><strong className="text-[color:var(--ui-ink-ffffff)]">{accounts.filter((account) => account.is_verified).length}</strong> verified</span>
         </div>}
       </header>
 
-      {connectionNotice && <p role="status" className="rounded-xl border border-white/10 bg-white/5 p-4 text-xs text-neutral-300">{connectionNotice}</p>}
+      {connectionNotice && <p role="status" className="rounded-xl border border-[color:var(--ui-line-ffffff)]/10 bg-[color:var(--ui-paint-ffffff)]/5 p-4 text-xs text-[color:var(--ui-ink-neutral-300)]">{connectionNotice}</p>}
       {loading ? <WorkspaceLoader label="Loading linked accounts…" />
-        : error ? <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 text-sm text-amber-200" role="alert"><p>{error}</p><button type="button" onClick={() => { setLoading(true); void load(); }} className="mt-3 font-semibold underline underline-offset-4">Try again</button></div>
-        : accounts.length === 0 ? <div className="rounded-2xl border border-dashed border-[#303036] bg-[#121215] px-6 py-14 text-center"><Link2 className="mx-auto mb-4 h-7 w-7 text-neutral-500" /><h3 className="text-sm font-semibold text-white">Your accounts, all in one place</h3><p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-neutral-400">Link a social account from your Studio Overview to see its available stats here. You can link multiple accounts on the same platform.</p></div>
+        : error ? <div className="rounded-2xl border border-[color:var(--ui-line-amber-500)]/20 bg-amber-500/5 p-6 text-sm text-[color:var(--ui-ink-amber-200)]" role="alert"><p>{error}</p><button type="button" onClick={() => { setLoading(true); void load(); }} className="mt-3 font-semibold underline underline-offset-4">Try again</button></div>
+        : accounts.length === 0 ? <div className="rounded-2xl border border-dashed border-[color:var(--ui-line-303036)] bg-[color:var(--ui-paint-121215)] px-6 py-14 text-center"><Link2 className="mx-auto mb-4 h-7 w-7 text-[color:var(--ui-ink-neutral-500)]" /><h3 className="text-sm font-semibold text-[color:var(--ui-ink-ffffff)]">Your accounts, all in one place</h3><p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-[color:var(--ui-ink-neutral-400)]">Link a social account from your Studio Overview to see its available stats here. You can link multiple accounts on the same platform.</p></div>
         : <div className="analytics-workspace"><div className="analytics-account-grid">{accounts.map((account) => <AccountSection key={`${ownerId}:${account.platform}:${account.handle}:${account.is_verified}:${account.connected}`} account={account} />)}</div><RecentEngagementPanel accounts={accounts} /></div>}
     </div>
   );

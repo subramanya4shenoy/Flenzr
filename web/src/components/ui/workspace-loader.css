@@ -1,6 +1,6 @@
-.fl-workspace-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:280px;width:100%;padding:32px 16px;color:#a1a1aa;animation:fl-workspace-loader-appear .18s ease .12s both}
-.fl-workspace-loader-mark{position:relative;display:flex;align-items:center;justify-content:center;width:76px;height:76px;flex:none;border-radius:22px;background:#121215;border:1px solid #27272a}
-.fl-workspace-loader-mark::before{content:"";position:absolute;inset:-7px;border:1px solid #c1121f30;border-radius:27px;animation:fl-workspace-loader-halo 1.8s ease-in-out infinite}
+.fl-workspace-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:280px;width:100%;padding:32px 16px;color:var(--ui-ink-a1a1aa);animation:fl-workspace-loader-appear .18s ease .12s both}
+.fl-workspace-loader-mark{position:relative;display:flex;align-items:center;justify-content:center;width:76px;height:76px;flex:none;border-radius:22px;background:var(--ui-paint-121215);border:1px solid var(--ui-line-27272a)}
+.fl-workspace-loader-mark::before{content:"";position:absolute;inset:-7px;border:1px solid var(--ui-line-c1121f30);border-radius:27px;animation:fl-workspace-loader-halo 1.8s ease-in-out infinite}
 .fl-workspace-loader-mark svg{overflow:visible}
 .fl-workspace-loader-mark path{transform-box:fill-box;transform-origin:center;animation:fl-workspace-loader-wing 1.8s ease-in-out infinite}
 .fl-workspace-loader-mark path:last-child{animation-name:fl-workspace-loader-stem;animation-delay:.1s}

@@ -35,5 +35,5 @@ export default function AuthComplete() {
     finish();
     return () => { active = false; };
   }, []);
-  return <main className="p-12 text-sm text-neutral-300">{error || "Completing your sign-in…"}</main>;
+  return <main className="p-12 text-sm text-[color:var(--ui-ink-neutral-300)]">{error || "Completing your sign-in…"}</main>;
 }

@@ -39,7 +39,7 @@ export function HeroMotionDeck() {
           initial={{ opacity: 0, y: 22, filter: "blur(4px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-[1.08] mb-4"
+          className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[color:var(--ui-ink-ffffff)] max-w-4xl mx-auto leading-[1.08] mb-4"
         >
           {t("hero.headline", "A place to display your influence.")}
         </motion.h1>
@@ -66,10 +66,10 @@ export function HeroMotionDeck() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="relative h-7 px-3.5 rounded-full inline-flex items-center justify-center bg-[#c1121f] text-white text-xs font-bold shadow-lg shadow-[#c1121f]/25 pointer-events-auto cursor-pointer leading-none"
+            className="theme-on-accent relative h-7 px-3.5 rounded-full inline-flex items-center justify-center bg-[color:var(--ui-paint-c1121f)] text-[color:var(--ui-ink-ffffff)] text-xs font-bold shadow-lg shadow-[#c1121f]/25 pointer-events-auto cursor-pointer leading-none"
           >
             <span>@sarahmiller</span>
-            <div className="absolute -bottom-1 left-4 w-2.5 h-2.5 bg-[#c1121f] rotate-45 rounded-[1px]" />
+            <div className="theme-on-accent absolute -bottom-1 left-4 w-2.5 h-2.5 bg-[color:var(--ui-paint-c1121f)] rotate-45 rounded-[1px]" />
           </motion.div>
         </motion.div>
 
@@ -93,10 +93,10 @@ export function HeroMotionDeck() {
               ease: "easeInOut",
               delay: 0.4,
             }}
-            className="relative h-7 px-3.5 rounded-full inline-flex items-center justify-center bg-neutral-900 text-white text-xs font-bold shadow-lg shadow-black/40 border border-neutral-700 pointer-events-auto cursor-pointer leading-none"
+            className="relative h-7 px-3.5 rounded-full inline-flex items-center justify-center bg-[color:var(--ui-paint-neutral-900)] text-[color:var(--ui-ink-ffffff)] text-xs font-bold shadow-lg shadow-black/40 border border-[color:var(--ui-line-neutral-700)] pointer-events-auto cursor-pointer leading-none"
           >
             <span>@kabirmehta</span>
-            <div className="absolute -bottom-1 right-5 w-2.5 h-2.5 bg-neutral-900 rotate-45 rounded-[1px]" />
+            <div className="absolute -bottom-1 right-5 w-2.5 h-2.5 bg-[color:var(--ui-paint-neutral-900)] rotate-45 rounded-[1px]" />
           </motion.div>
         </motion.div>
 
@@ -120,10 +120,10 @@ export function HeroMotionDeck() {
               ease: "easeInOut",
               delay: 0.8,
             }}
-            className="relative h-7 px-3.5 rounded-full inline-flex items-center justify-center bg-neutral-900 text-white text-xs font-bold shadow-lg shadow-black/40 border border-neutral-700 pointer-events-auto cursor-pointer leading-none"
+            className="relative h-7 px-3.5 rounded-full inline-flex items-center justify-center bg-[color:var(--ui-paint-neutral-900)] text-[color:var(--ui-ink-ffffff)] text-xs font-bold shadow-lg shadow-black/40 border border-[color:var(--ui-line-neutral-700)] pointer-events-auto cursor-pointer leading-none"
           >
             <span>@ananyafit</span>
-            <div className="absolute -bottom-1 left-5 w-2.5 h-2.5 bg-neutral-900 rotate-45 rounded-[1px]" />
+            <div className="absolute -bottom-1 left-5 w-2.5 h-2.5 bg-[color:var(--ui-paint-neutral-900)] rotate-45 rounded-[1px]" />
           </motion.div>
         </motion.div>
 
@@ -159,44 +159,44 @@ export function HeroMotionDeck() {
               }}
               className={`relative shrink-0 w-52 sm:w-60 md:w-64 h-72 sm:h-84 md:h-96 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-black/60 cursor-pointer group ${
                 card.isCenterpiece
-                  ? "border-2 border-[#c1121f] z-20 shadow-[#c1121f]/20"
-                  : "border border-neutral-800"
-              } ${card.isQR ? "bg-gradient-to-br from-neutral-900 via-neutral-950 to-black text-white p-4 flex flex-col justify-between text-left" : "bg-neutral-900"}`}
+                  ? "border-2 border-[color:var(--ui-line-c1121f)] z-20 shadow-[#c1121f]/20"
+                  : "border border-[color:var(--ui-line-neutral-800)]"
+              } ${card.isQR ? "bg-gradient-to-br from-[color:var(--ui-paint-neutral-900)] via-[color:var(--ui-paint-neutral-950)] to-[color:var(--ui-paint-000000)] text-[color:var(--ui-ink-ffffff)] p-4 flex flex-col justify-between text-left" : "bg-[color:var(--ui-paint-neutral-900)]"}`}
             >
               {card.isQR ? (
                 <>
                   <div>
                     <div className="flex items-center justify-between text-xs mb-3">
-                      <span className="h-5 px-2.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-400/30 inline-flex items-center justify-center leading-none">
+                      <span className="h-5 px-2.5 rounded-full bg-emerald-500/20 text-[color:var(--ui-ink-emerald-300)] font-bold text-[10px] border border-[color:var(--ui-line-emerald-400)]/30 inline-flex items-center justify-center leading-none">
                         {card.tag}
                       </span>
-                      <span className="text-[10px] text-emerald-400 font-bold leading-none">
+                      <span className="text-[10px] text-[color:var(--ui-ink-emerald-400)] font-bold leading-none">
                         {card.rating}
                       </span>
                     </div>
-                    <div className="text-sm font-bold text-white mb-1">
+                    <div className="text-sm font-bold text-[color:var(--ui-ink-ffffff)] mb-1">
                       {card.name}
                     </div>
-                    <p className="text-[11px] text-neutral-400 leading-tight">
+                    <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)] leading-tight">
                       {t("hero.escrowDesc", "Guaranteed payouts held in Flenzr Vault. Released directly to Indian bank account on draft approval.")}
                     </p>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center space-y-1 text-center">
-                    <span className="text-[10px] uppercase font-bold text-neutral-400">
+                  <div className="p-3.5 rounded-2xl bg-[color:var(--ui-paint-ffffff)]/5 border border-[color:var(--ui-line-ffffff)]/10 flex flex-col items-center justify-center space-y-1 text-center">
+                    <span className="text-[10px] uppercase font-bold text-[color:var(--ui-ink-neutral-400)]">
                       {t("hero.totalPayout", "Total Monthly Payout")}
                     </span>
-                    <span className="text-xl font-black text-emerald-400">
+                    <span className="text-xl font-black text-[color:var(--ui-ink-emerald-400)]">
                       {card.stats}
                     </span>
-                    <span className="text-[10px] text-neutral-300 font-medium">
+                    <span className="text-[10px] text-[color:var(--ui-ink-neutral-300)] font-medium">
                       {t("hero.dealsCompleted", "3 Brand Deals Completed ✓")}
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between text-[11px]">
-                    <span className="text-neutral-300">{t("hero.creatorEarnings", "Creator Earnings")}</span>
-                    <span className="font-extrabold text-[#c1121f] text-xs">
+                  <div className="p-2.5 rounded-xl bg-[color:var(--ui-paint-ffffff)]/10 border border-[color:var(--ui-line-ffffff)]/10 flex items-center justify-between text-[11px]">
+                    <span className="text-[color:var(--ui-ink-neutral-300)]">{t("hero.creatorEarnings", "Creator Earnings")}</span>
+                    <span className="font-extrabold text-[color:var(--ui-ink-c1121f)] text-xs">
                       {t("hero.zeroCommission", "Zero Commission")}
                     </span>
                   </div>
@@ -208,52 +208,52 @@ export function HeroMotionDeck() {
                     alt={card.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/30" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--ui-paint-000000)]/95 via-[color:var(--ui-paint-000000)]/40 to-[color:var(--ui-paint-000000)]/30" />
 
                   {/* Top Badges */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between text-white text-[11px]">
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between text-[color:var(--ui-ink-ffffff)] text-[11px]">
                     <span
-                      className={`h-6 px-2.5 rounded-full font-bold text-[10px] shadow-sm inline-flex items-center justify-center gap-1 leading-none ${
+                      className={`theme-on-accent h-6 px-2.5 rounded-full font-bold text-[10px] shadow-sm inline-flex items-center justify-center gap-1 leading-none ${
                         card.isCenterpiece
                           ? "bg-emerald-600"
                           : card.tag === "Tech Review" || card.tag === "Food & Cafes"
-                          ? "bg-[#c1121f]"
-                          : "bg-black/80 backdrop-blur-md border border-white/20"
+                          ? "bg-[color:var(--ui-paint-c1121f)]"
+                          : "bg-[color:var(--ui-paint-000000)]/80 backdrop-blur-md border border-[color:var(--ui-line-ffffff)]/20"
                       }`}
                     >
                       {card.isCenterpiece && <Check className="w-2.5 h-2.5" />}
                       <span>{card.stats}</span>
                     </span>
-                    <span className="h-6 px-2 rounded-md bg-black/60 backdrop-blur-md font-semibold text-[10px] inline-flex items-center justify-center leading-none">
+                    <span className="h-6 px-2 rounded-md bg-[color:var(--ui-paint-000000)]/60 backdrop-blur-md font-semibold text-[10px] inline-flex items-center justify-center leading-none">
                       {card.tag}
                     </span>
                   </div>
 
                   {/* Bottom Glass Card Overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-[#09090b]/90 backdrop-blur-md border border-neutral-800 text-white text-left shadow-lg">
+                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-[color:var(--ui-paint-09090b)]/90 backdrop-blur-md border border-[color:var(--ui-line-neutral-800)] text-[color:var(--ui-ink-ffffff)] text-left shadow-lg">
                     <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="font-bold text-white truncate">
+                      <span className="font-bold text-[color:var(--ui-ink-ffffff)] truncate">
                         {card.name}
                       </span>
                       <span
                         className={`text-[10px] font-bold ${
                           card.isCenterpiece
-                            ? "h-5 px-1.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 inline-flex items-center justify-center leading-none"
-                            : "text-amber-400"
+                            ? "h-5 px-1.5 rounded bg-emerald-500/20 text-[color:var(--ui-ink-emerald-400)] border border-[color:var(--ui-line-emerald-500)]/30 inline-flex items-center justify-center leading-none"
+                            : "text-[color:var(--ui-ink-amber-400)]"
                         }`}
                       >
                         {card.rating}
                       </span>
                     </div>
-                    <div className="text-[11px] text-neutral-400 flex items-center justify-between">
+                    <div className="text-[11px] text-[color:var(--ui-ink-neutral-400)] flex items-center justify-between">
                       <span className="truncate pr-1">{card.package}</span>
                       <span
                         className={`font-extrabold shrink-0 ${
                           card.isCenterpiece
-                            ? "text-emerald-400"
+                            ? "text-[color:var(--ui-ink-emerald-400)]"
                             : card.tag === "Tech Review" || card.tag === "Food & Cafes"
-                            ? "text-[#c1121f]"
-                            : "text-white"
+                            ? "text-[color:var(--ui-ink-c1121f)]"
+                            : "text-[color:var(--ui-ink-ffffff)]"
                         }`}
                       >
                         {card.rate}
@@ -274,7 +274,7 @@ export function HeroMotionDeck() {
         transition={{ duration: 0.6, delay: 0.7 }}
         className="max-w-2xl mx-auto px-4 sm:px-6 mt-4"
       >
-        <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
+        <p className="text-[color:var(--ui-ink-neutral-400)] text-sm sm:text-base leading-relaxed">
           {t("hero.subtext", "Creators monetize their audience with upfront rate cards and secure Flenzr Vault payouts, while brands discover verified influencers to drive high-converting campaigns in ₹.")}
         </p>
 
@@ -282,13 +282,13 @@ export function HeroMotionDeck() {
         <div className="flex items-center justify-center gap-3.5 mt-6">
           <Link
             href="/signup/creator"
-            className="h-12 px-7 rounded-full bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold text-xs sm:text-sm shadow-lg shadow-[#c1121f]/25 transition-all hover:scale-[1.02] cursor-pointer inline-flex items-center justify-center leading-none"
+            className="theme-on-accent h-12 px-7 rounded-full bg-[color:var(--ui-paint-c1121f)] hover:bg-[color:var(--ui-paint-a50e1a)] text-[color:var(--ui-ink-ffffff)] font-bold text-xs sm:text-sm shadow-lg shadow-[#c1121f]/25 transition-all hover:scale-[1.02] cursor-pointer inline-flex items-center justify-center leading-none"
           >
             {t("hero.startEarning", "Start Earning — Join as Creator")}
           </Link>
           <Link
             href="/dashboard/brand"
-            className="h-12 px-7 rounded-full bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 hover:border-neutral-700 font-semibold text-xs sm:text-sm transition-all hover:scale-[1.02] cursor-pointer inline-flex items-center justify-center leading-none"
+            className="h-12 px-7 rounded-full bg-[color:var(--ui-paint-neutral-900)] hover:bg-[color:var(--ui-paint-neutral-800)] text-[color:var(--ui-ink-neutral-200)] border border-[color:var(--ui-line-neutral-800)] hover:border-[color:var(--ui-line-neutral-700)] font-semibold text-xs sm:text-sm transition-all hover:scale-[1.02] cursor-pointer inline-flex items-center justify-center leading-none"
           >
             {t("hero.hireCreators", "Hire Creators — Brand Portal")}
           </Link>

@@ -4,7 +4,7 @@ const VERSION_KEY = "flenzr_data_version";
 
 export function clearLocalAccountData() {
   for (const key of Object.keys(localStorage)) {
-    if (key.startsWith("flenzr_") && key !== "flenzr_locale" && key !== VERSION_KEY) {
+    if (key.startsWith("flenzr_") && key !== "flenzr_locale" && key !== "flenzr_theme" && key !== VERSION_KEY) {
       localStorage.removeItem(key);
     }
   }

@@ -38,14 +38,14 @@ function AccountActionButton({ label, children, ...props }: ComponentProps<"butt
         {...props}
         type="button"
         aria-describedby={tooltipId}
-        className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-red-300 hover:bg-red-400/10 hover:text-red-200 focus-visible:outline-2 focus-visible:outline-red-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+        className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-[color:var(--ui-ink-red-300)] hover:bg-red-400/10 hover:text-[color:var(--ui-ink-red-200)] focus-visible:outline-2 focus-visible:outline-[color:var(--ui-line-red-300)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
       >
         {children}
       </button>
       <span
         id={tooltipId}
         role="tooltip"
-        className="pointer-events-none absolute bottom-full right-0 z-50 mb-2 whitespace-nowrap rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1 text-[11px] font-medium text-white shadow-lg opacity-0 transition-opacity group-hover/account-action:opacity-100 group-focus-within/account-action:opacity-100"
+        className="pointer-events-none absolute bottom-full right-0 z-50 mb-2 whitespace-nowrap rounded-md border border-[color:var(--ui-line-neutral-700)] bg-[color:var(--ui-paint-neutral-950)] px-2 py-1 text-[11px] font-medium text-[color:var(--ui-ink-ffffff)] shadow-lg opacity-0 transition-opacity group-hover/account-action:opacity-100 group-focus-within/account-action:opacity-100"
       >
         {label}
       </span>
@@ -508,35 +508,35 @@ export function CreatorProfileHeader({
   const getPlatformIcon = (platform: PlatformKey) => {
     switch (platform) {
       case "facebook":
-        return <FacebookIcon className="w-4 h-4 text-[#5890ff]" />;
+        return <FacebookIcon className="w-4 h-4 text-[color:var(--ui-ink-5890ff)]" />;
       case "instagram":
-        return <InstagramIcon className="w-4 h-4 text-[#E1306C]" />;
+        return <InstagramIcon className="w-4 h-4 text-[color:var(--ui-ink-e1306c)]" />;
       case "youtube":
-        return <YoutubeIcon className="w-4 h-4 text-[#c1121f]" />;
+        return <YoutubeIcon className="w-4 h-4 text-[color:var(--ui-ink-c1121f)]" />;
       case "x":
-        return <XTwitterIcon className="w-4 h-4 text-neutral-900" />;
+        return <XTwitterIcon className="w-4 h-4 text-[color:var(--ui-ink-neutral-900)]" />;
       case "tiktok":
-        return <TikTokIcon className="w-4 h-4 text-black" />;
+        return <TikTokIcon className="w-4 h-4 text-[color:var(--ui-ink-000000)]" />;
       case "linkedin":
-        return <LinkedInIcon className="w-4 h-4 text-[#0077b5]" />;
+        return <LinkedInIcon className="w-4 h-4 text-[color:var(--ui-ink-0077b5)]" />;
       case "twitch":
-        return <TwitchIcon className="w-4 h-4 text-[#9146FF]" />;
+        return <TwitchIcon className="w-4 h-4 text-[color:var(--ui-ink-9146ff)]" />;
       default:
-        return <ExternalLink className="w-4 h-4 text-neutral-600" />;
+        return <ExternalLink className="w-4 h-4 text-[color:var(--ui-ink-neutral-600)]" />;
     }
   };
 
   return (
     <>
-      <section className="bg-[#121215] border border-[#27272a] rounded-2xl overflow-hidden shadow-xl relative text-[#f1f3f7]">
+      <section className="bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] rounded-2xl overflow-hidden shadow-xl relative text-[color:var(--ui-ink-f1f3f7)]">
         {/* 1. Sleek Dark Header Banner with Randomly Chosen Cover Image (1 of 5) */}
-        <div className="h-28 sm:h-32 relative border-b border-[#27272a] p-3 flex items-start justify-between overflow-hidden group">
+        <div className="h-28 sm:h-32 relative border-b border-[color:var(--ui-line-27272a)] p-3 flex items-start justify-between overflow-hidden group">
           <img
             src={coverImage}
             alt="Creator Profile Cover"
             className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#121215] via-black/40 to-black/30 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--ui-paint-121215)] via-[color:var(--ui-paint-000000)]/40 to-[color:var(--ui-paint-000000)]/30 pointer-events-none" />
           <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:14px_14px] pointer-events-none" />
 
           {/* Switch / Shuffle Cover button */}
@@ -545,17 +545,17 @@ export function CreatorProfileHeader({
               type="button"
               onClick={handleShuffleCover}
               title="Shuffle Cover Image (1 of 5)"
-              className="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity h-6 px-2.5 rounded-lg bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[10px] font-semibold border border-white/20 flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+              className="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity h-6 px-2.5 rounded-lg bg-[color:var(--ui-paint-000000)]/60 hover:bg-[color:var(--ui-paint-000000)]/80 backdrop-blur-md text-[color:var(--ui-ink-ffffff)] text-[10px] font-semibold border border-[color:var(--ui-line-ffffff)]/20 flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-105 active:scale-95"
             >
-              <RefreshCw className="w-2.5 h-2.5 text-neutral-300" />
+              <RefreshCw className="w-2.5 h-2.5 text-[color:var(--ui-ink-neutral-300)]" />
               <span>Change Cover</span>
             </button>
           )}
 
           {/* Verified White Badge */}
           {allLinkedSocialsVerified && (
-            <div className="relative z-10 ml-auto h-6 px-2.5 rounded-lg bg-white text-black text-[11px] font-bold shadow-md inline-flex items-center gap-1">
-              <Check className="w-3 h-3 text-[#c1121f] stroke-[3]" />
+            <div className="relative z-10 ml-auto h-6 px-2.5 rounded-lg bg-[color:var(--ui-paint-ffffff)] text-[color:var(--ui-ink-000000)] text-[11px] font-bold shadow-md inline-flex items-center gap-1">
+              <Check className="w-3 h-3 text-[color:var(--ui-ink-c1121f)] stroke-[3]" />
               <span>{t("Verified")}</span>
             </div>
           )}
@@ -564,9 +564,9 @@ export function CreatorProfileHeader({
         <div className="px-5 pb-5 pt-0 relative space-y-3.5">
           {/* 1. CREATOR AVATAR (Pulled from connected socials, cached in UI) */}
           <div className="relative group shrink-0 -mt-11 mb-2 inline-block">
-            <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden border-4 border-[#121215] bg-[#18181b] shadow-xl relative">
+            <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden border-4 border-[color:var(--ui-line-121215)] bg-[color:var(--ui-paint-18181b)] shadow-xl relative">
               {isLoadingAvatar && !activeAvatar ? (
-                <Loader2 className="w-6 h-6 animate-spin text-neutral-400" />
+                <Loader2 className="w-6 h-6 animate-spin text-[color:var(--ui-ink-neutral-400)]" />
               ) : activeAvatar ? (
                 <img
                   src={activeAvatar}
@@ -578,7 +578,7 @@ export function CreatorProfileHeader({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-3xl font-extrabold text-white">
+                <span className="text-3xl font-extrabold text-[color:var(--ui-ink-ffffff)]">
                   {creatorName.charAt(0) || "C"}
                 </span>
               )}
@@ -588,10 +588,10 @@ export function CreatorProfileHeader({
                 <button
                   type="button"
                   onClick={() => setShowAvatarPicker(true)}
-                  className="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold cursor-pointer backdrop-blur-xs z-10"
+                  className="theme-on-accent absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[color:var(--ui-ink-ffffff)] text-[10px] font-bold cursor-pointer backdrop-blur-xs z-10"
                   title="Switch profile picture"
                 >
-                  <Camera className="w-4 h-4 mb-0.5 text-white" />
+                  <Camera className="w-4 h-4 mb-0.5 text-[color:var(--ui-ink-ffffff)]" />
                   <span>{t("Switch")}</span>
                 </button>
               )}
@@ -603,9 +603,9 @@ export function CreatorProfileHeader({
                 type="button"
                 onClick={() => setShowAvatarPicker(true)}
                 title="Switch profile picture from connected accounts"
-                className="absolute bottom-0 right-0 bg-[#18181b] hover:bg-[#222226] text-white px-2 py-0.5 rounded-lg border border-[#27272a] shadow-md flex items-center gap-1 text-[10px] font-bold cursor-pointer transition-transform hover:scale-105 active:scale-95 z-20"
+                className="absolute bottom-0 right-0 bg-[color:var(--ui-paint-18181b)] hover:bg-[color:var(--ui-paint-222226)] text-[color:var(--ui-ink-ffffff)] px-2 py-0.5 rounded-lg border border-[color:var(--ui-line-27272a)] shadow-md flex items-center gap-1 text-[10px] font-bold cursor-pointer transition-transform hover:scale-105 active:scale-95 z-20"
               >
-                <Camera className="w-3 h-3 text-white" />
+                <Camera className="w-3 h-3 text-[color:var(--ui-ink-ffffff)]" />
                 <span>{t("Switch")}</span>
               </button>
             )}
@@ -615,44 +615,44 @@ export function CreatorProfileHeader({
           <div className="space-y-2 text-left">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[color:var(--ui-ink-ffffff)]">
                   {creatorName}
                 </h1>
-                <span className="px-2.5 py-0.5 rounded-md bg-white/10 border border-white/20 text-white text-[11px] font-semibold">
+                <span className="px-2.5 py-0.5 rounded-md bg-[color:var(--ui-paint-ffffff)]/10 border border-[color:var(--ui-line-ffffff)]/20 text-[color:var(--ui-ink-ffffff)] text-[11px] font-semibold">
                   {creator.niche || "Creator"}
                 </span>
               </div>
-              <p className="text-xs text-[#7e8697] font-medium mt-0.5">
+              <p className="text-xs text-[color:var(--ui-ink-7e8697)] font-medium mt-0.5">
                 @{handle} {creator.location ? `• ${creator.location}` : ""}
               </p>
             </div>
 
             {/* Rating */}
             <div className="pt-0.5">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-[#18181b] border border-[#27272a] text-white">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-[color:var(--ui-paint-18181b)] border border-[color:var(--ui-line-27272a)] text-[color:var(--ui-ink-ffffff)]">
+                <Star className="w-3.5 h-3.5 fill-[color:var(--ui-ink-amber-400)] text-[color:var(--ui-ink-amber-400)]" />
                 {creator.rating > 0 ? creator.rating.toFixed(1) : "No reviews yet"}
-                <span className="text-[#71717a] font-normal text-[10px]">({t("Brand reviews")})</span>
+                <span className="text-[color:var(--ui-ink-71717a)] font-normal text-[10px]">({t("Brand reviews")})</span>
               </span>
             </div>
 
             {creator.bio && (
-              <p className="text-[#a1a1aa] text-xs leading-relaxed line-clamp-2 pt-0.5">
+              <p className="text-[color:var(--ui-ink-a1a1aa)] text-xs leading-relaxed line-clamp-2 pt-0.5">
                 {creator.bio}
               </p>
             )}
 
             {/* 3. Skills Section (from Virgil Pana screenshot) */}
             <div className="space-y-1.5 pt-1">
-              <span className="text-[11px] uppercase tracking-wider text-[#71717a] font-semibold block">
+              <span className="text-[11px] uppercase tracking-wider text-[color:var(--ui-ink-71717a)] font-semibold block">
                 {t("Skills")}
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {dynamicSkills.length === 0 && <span className="text-xs text-neutral-500">No skills added yet</span>}
+                {dynamicSkills.length === 0 && <span className="text-xs text-[color:var(--ui-ink-neutral-500)]">No skills added yet</span>}
                 {dynamicSkills.map((skill) => (
                   <span
                     key={skill}
-                    className="px-2.5 py-1 rounded-lg bg-[#18181b] text-neutral-300 text-[11px] font-medium border border-[#27272a]"
+                    className="px-2.5 py-1 rounded-lg bg-[color:var(--ui-paint-18181b)] text-[color:var(--ui-ink-neutral-300)] text-[11px] font-medium border border-[color:var(--ui-line-27272a)]"
                   >
                     {t(skill, skill)}
                   </span>
@@ -662,15 +662,15 @@ export function CreatorProfileHeader({
 
             {/* 4. Position Type Section (Collab Formats) */}
             <div className="space-y-1.5 pt-0.5">
-              <span className="text-[11px] uppercase tracking-wider text-[#71717a] font-semibold block">
+              <span className="text-[11px] uppercase tracking-wider text-[color:var(--ui-ink-71717a)] font-semibold block">
                 {t("Position type")}
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {dynamicCollabFormats.length === 0 && <span className="text-xs text-neutral-500">No formats published yet</span>}
+                {dynamicCollabFormats.length === 0 && <span className="text-xs text-[color:var(--ui-ink-neutral-500)]">No formats published yet</span>}
                 {dynamicCollabFormats.map((type) => (
                   <span
                     key={type}
-                    className="px-2.5 py-1 rounded-lg bg-[#18181b] text-neutral-300 text-[11px] font-medium border border-[#27272a]"
+                    className="px-2.5 py-1 rounded-lg bg-[color:var(--ui-paint-18181b)] text-[color:var(--ui-ink-neutral-300)] text-[11px] font-medium border border-[color:var(--ui-line-27272a)]"
                   >
                     {t(type, type)}
                   </span>
@@ -679,24 +679,24 @@ export function CreatorProfileHeader({
             </div>
 
             {/* 5. Location & Timezone Split Card */}
-            <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-[#18181b] border border-[#27272a]">
+            <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-[color:var(--ui-paint-18181b)] border border-[color:var(--ui-line-27272a)]">
               <div>
-                <span className="text-[10px] text-[#71717a] uppercase font-semibold block">{t("Location")}</span>
-                <div className="text-xs font-semibold text-white mt-0.5 truncate">
+                <span className="text-[10px] text-[color:var(--ui-ink-71717a)] uppercase font-semibold block">{t("Location")}</span>
+                <div className="text-xs font-semibold text-[color:var(--ui-ink-ffffff)] mt-0.5 truncate">
                   {creator.location || "Not provided"}
                 </div>
               </div>
               <div>
-                <span className="text-[10px] text-[#71717a] uppercase font-semibold block">{t("Timezone")}</span>
-                <div className="text-xs font-semibold text-white mt-0.5 truncate">
+                <span className="text-[10px] text-[color:var(--ui-ink-71717a)] uppercase font-semibold block">{t("Timezone")}</span>
+                <div className="text-xs font-semibold text-[color:var(--ui-ink-ffffff)] mt-0.5 truncate">
                   Not provided
                 </div>
               </div>
             </div>
 
             {/* 6. Past Brand Partnerships */}
-            <div className="space-y-2 pt-2 border-t border-[#27272a]">
-              <span className="text-[11px] uppercase tracking-wider text-[#71717a] font-semibold block">
+            <div className="space-y-2 pt-2 border-t border-[color:var(--ui-line-27272a)]">
+              <span className="text-[11px] uppercase tracking-wider text-[color:var(--ui-ink-71717a)] font-semibold block">
                 {t("Past Brand Partnerships")}
               </span>
 
@@ -705,15 +705,15 @@ export function CreatorProfileHeader({
                   {dynamicPastPartnerships.slice(0, 3).map((deal, idx) => {
                     const initial = (deal.brand || "B").charAt(0).toUpperCase();
                     const colors = [
-                      "bg-emerald-950/80 border-emerald-600/30 text-emerald-400",
-                      "bg-violet-950/80 border-violet-600/30 text-violet-400",
-                      "bg-sky-950/80 border-sky-600/30 text-sky-400",
+                      "bg-[color:var(--ui-paint-emerald-950)]/80 border-[color:var(--ui-line-emerald-600)]/30 text-[color:var(--ui-ink-emerald-400)]",
+                      "bg-[color:var(--ui-paint-violet-950)]/80 border-[color:var(--ui-line-violet-600)]/30 text-[color:var(--ui-ink-violet-400)]",
+                      "bg-[color:var(--ui-paint-sky-950)]/80 border-[color:var(--ui-line-sky-600)]/30 text-[color:var(--ui-ink-sky-400)]",
                     ];
                     const colorClass = colors[idx % colors.length];
                     return (
                       <div
                         key={deal.id || idx}
-                        className="p-2.5 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between"
+                        className="p-2.5 rounded-xl bg-[color:var(--ui-paint-18181b)] border border-[color:var(--ui-line-27272a)] flex items-center justify-between"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div
@@ -722,11 +722,11 @@ export function CreatorProfileHeader({
                             {initial}
                           </div>
                           <div className="min-w-0">
-                            <div className="text-xs font-semibold text-white truncate">{deal.brand}</div>
-                            <div className="text-[10px] text-[#71717a] truncate">{deal.deliverable}</div>
+                            <div className="text-xs font-semibold text-[color:var(--ui-ink-ffffff)] truncate">{deal.brand}</div>
+                            <div className="text-[10px] text-[color:var(--ui-ink-71717a)] truncate">{deal.deliverable}</div>
                           </div>
                         </div>
-                        <span className="text-[10px] text-white font-bold bg-white/10 px-2 py-0.5 rounded border border-white/10 shrink-0">
+                        <span className="text-[10px] text-[color:var(--ui-ink-ffffff)] font-bold bg-[color:var(--ui-paint-ffffff)]/10 px-2 py-0.5 rounded border border-[color:var(--ui-line-ffffff)]/10 shrink-0">
                           {deal.amount}
                         </span>
                       </div>
@@ -734,11 +734,11 @@ export function CreatorProfileHeader({
                   })}
                 </div>
               ) : (
-                <div className="p-3 rounded-xl bg-[#18181b]/60 border border-dashed border-[#27272a] text-center space-y-1">
-                  <div className="text-xs font-semibold text-neutral-300">
+                <div className="p-3 rounded-xl bg-[color:var(--ui-paint-18181b)]/60 border border-dashed border-[color:var(--ui-line-27272a)] text-center space-y-1">
+                  <div className="text-xs font-semibold text-[color:var(--ui-ink-neutral-300)]">
                     {t("No completed brand partnerships yet")}
                   </div>
-                  <p className="text-[10px] text-[#71717a] leading-relaxed">
+                  <p className="text-[10px] text-[color:var(--ui-ink-71717a)] leading-relaxed">
                     {t("Lock your first collab in Flenzr Vault to unlock verified performance case studies and GMV proof badges.")}
                   </p>
                 </div>
@@ -746,19 +746,19 @@ export function CreatorProfileHeader({
             </div>
 
             {/* 7. ROW OF LINKED SOCIAL LOGOS WITH RED TICK ON VERIFIED ONES + '+' BUTTON */}
-            <div className="pt-2 border-t border-[#27272a]">
-              <span className="text-[10px] uppercase tracking-wider text-[#686f82] font-bold block mb-1.5">
+            <div className="pt-2 border-t border-[color:var(--ui-line-27272a)]">
+              <span className="text-[10px] uppercase tracking-wider text-[color:var(--ui-ink-686f82)] font-bold block mb-1.5">
                 {t("Connected Accounts")}
               </span>
               <div className="flex flex-wrap items-center gap-2">
                 {linkedSocials.map((social) => (
-                  <div key={social.id} className="w-full flex items-center gap-2 p-2 rounded-xl bg-neutral-900 border border-neutral-800">
+                  <div key={social.id} className="w-full flex items-center gap-2 p-2 rounded-xl bg-[color:var(--ui-paint-neutral-900)] border border-[color:var(--ui-line-neutral-800)]">
                     {social.url ? <a href={social.url} target="_blank" rel="noopener noreferrer" className="w-9 h-9 shrink-0 flex items-center justify-center" aria-label={`Visit ${social.platform} @${social.handle}`}>
                       {getPlatformIcon(social.platform)}
                     </a> : <span className="w-9 h-9 shrink-0 flex items-center justify-center" aria-label="LinkedIn account">{getPlatformIcon(social.platform)}</span>}
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold text-white truncate">{(social.platform === "linkedin" || social.platform === "facebook") && social.displayName ? social.displayName : "@" + social.handle}</div>
-                      <div className="text-[10px] text-neutral-400">{social.platform} · {social.isConnected ? "Connected" : social.platform === "linkedin" && social.displayName ? "Reconnect needed" : social.isVerified ? "Verified" : "Not verified"}</div>
+                      <div className="text-xs font-semibold text-[color:var(--ui-ink-ffffff)] truncate">{(social.platform === "linkedin" || social.platform === "facebook") && social.displayName ? social.displayName : "@" + social.handle}</div>
+                      <div className="text-[10px] text-[color:var(--ui-ink-neutral-400)]">{social.platform} · {social.isConnected ? "Connected" : social.platform === "linkedin" && social.displayName ? "Reconnect needed" : social.isVerified ? "Verified" : "Not verified"}</div>
                     </div>
                     {isEditable && <div className="flex flex-wrap gap-1 shrink-0">
                       {(social.platform === "youtube" || social.platform === "instagram" || social.platform === "linkedin" || social.platform === "x" || social.platform === "facebook") ? (
@@ -771,7 +771,7 @@ export function CreatorProfileHeader({
                         >
                           {isSavingSocial ? <Loader2 aria-hidden="true" className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw aria-hidden="true" className="w-3.5 h-3.5" />}
                         </AccountActionButton>
-                      ) : <button type="button" disabled={isSavingSocial || !socialsReady} onClick={() => editSocial(social)} className="px-2 py-1 text-[10px] text-neutral-300" aria-label={`Edit ${social.platform} @${social.handle}`}>Edit</button>}
+                      ) : <button type="button" disabled={isSavingSocial || !socialsReady} onClick={() => editSocial(social)} className="px-2 py-1 text-[10px] text-[color:var(--ui-ink-neutral-300)]" aria-label={`Edit ${social.platform} @${social.handle}`}>Edit</button>}
                       <AccountActionButton
                         label={t("Remove")}
                         disabled={isSavingSocial || !socialsReady}
@@ -783,8 +783,8 @@ export function CreatorProfileHeader({
                     </div>}
                   </div>
                 ))}
-                {!linkedSocials.length && <p className="text-xs text-neutral-500">No accounts linked yet.</p>}
-                {socialError && <p role="alert" className="text-xs text-red-300">{socialError}</p>}
+                {!linkedSocials.length && <p className="text-xs text-[color:var(--ui-ink-neutral-500)]">No accounts linked yet.</p>}
+                {socialError && <p role="alert" className="text-xs text-[color:var(--ui-ink-red-300)]">{socialError}</p>}
 
                 {isEditable && !linkedSocials.some((social) => social.platform === "instagram") && (
                   <button
@@ -798,7 +798,7 @@ export function CreatorProfileHeader({
                       setModalVerifyMsg(null);
                       setShowAddModal(true);
                     }}
-                    className="inline-flex items-center gap-2 rounded-xl border border-pink-500/25 bg-pink-500/10 px-3 py-2.5 text-xs font-semibold text-pink-200 hover:bg-pink-500/20 disabled:opacity-40 cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--ui-line-pink-500)]/25 bg-pink-500/10 px-3 py-2.5 text-xs font-semibold text-[color:var(--ui-ink-pink-200)] hover:bg-pink-500/20 disabled:opacity-40 cursor-pointer"
                   >
                     <InstagramIcon className="w-4 h-4" />
                     Connect Instagram
@@ -816,7 +816,7 @@ export function CreatorProfileHeader({
                       setModalVerifyMsg(null);
                       setShowAddModal(true);
                     }}
-                    className="inline-flex items-center gap-2 rounded-xl border border-blue-500/25 bg-blue-500/10 px-3 py-2.5 text-xs font-semibold text-blue-200 hover:bg-blue-500/20 disabled:opacity-40 cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--ui-line-blue-500)]/25 bg-blue-500/10 px-3 py-2.5 text-xs font-semibold text-[color:var(--ui-ink-blue-200)] hover:bg-blue-500/20 disabled:opacity-40 cursor-pointer"
                   >
                     <LinkedInIcon className="w-4 h-4" />
                     Connect LinkedIn
@@ -834,7 +834,7 @@ export function CreatorProfileHeader({
                       setModalVerifyMsg(null);
                       setShowAddModal(true);
                     }}
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 py-2.5 text-xs font-semibold text-neutral-200 hover:bg-white/10 disabled:opacity-40 cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--ui-line-ffffff)]/20 bg-[color:var(--ui-paint-ffffff)]/5 px-3 py-2.5 text-xs font-semibold text-[color:var(--ui-ink-neutral-200)] hover:bg-[color:var(--ui-paint-ffffff)]/10 disabled:opacity-40 cursor-pointer"
                   >
                     <XTwitterIcon className="w-4 h-4" />
                     Connect X
@@ -852,7 +852,7 @@ export function CreatorProfileHeader({
                       setModalVerifyMsg(null);
                       setShowAddModal(true);
                     }}
-                    className="inline-flex items-center gap-2 rounded-xl border border-blue-500/25 bg-blue-500/10 px-3 py-2.5 text-xs font-semibold text-blue-200 hover:bg-blue-500/20 disabled:opacity-40 cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--ui-line-blue-500)]/25 bg-blue-500/10 px-3 py-2.5 text-xs font-semibold text-[color:var(--ui-ink-blue-200)] hover:bg-blue-500/20 disabled:opacity-40 cursor-pointer"
                   >
                     <FacebookIcon className="w-4 h-4" />
                     {linkedSocials.some((social) => social.platform === "facebook") ? "Add Facebook Pages" : "Connect Facebook Pages"}
@@ -871,7 +871,7 @@ export function CreatorProfileHeader({
                       setModalVerifyMsg(null);
                     }}
                     title="Add More Social Links" disabled={isSavingSocial || !socialsReady}
-                    className="w-9 h-9 rounded-xl border border-dashed border-neutral-700 hover:border-neutral-500 bg-neutral-800/80 hover:bg-neutral-750 flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer shadow-xs group"
+                    className="w-9 h-9 rounded-xl border border-dashed border-[color:var(--ui-line-neutral-700)] hover:border-[color:var(--ui-line-neutral-500)] bg-[color:var(--ui-paint-neutral-800)]/80 hover:bg-neutral-750 flex items-center justify-center text-[color:var(--ui-ink-neutral-300)] hover:text-[color:var(--ui-ink-ffffff)] transition-all cursor-pointer shadow-xs group"
                   >
                     <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   </button>
@@ -880,8 +880,8 @@ export function CreatorProfileHeader({
 
               {/* Informational Subtext */}
               {linkedSocials.length > 0 && !allLinkedSocialsVerified && (
-                <p className="text-[11px] text-neutral-400 pt-2 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)] pt-2 flex items-center gap-1.5">
+                  <span className="theme-on-accent w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
                   <span>
                     Verify ownership to earn a verified tag. You can edit or remove any account without verifying it.
                   </span>
@@ -902,30 +902,30 @@ export function CreatorProfileHeader({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-md bg-[#141418] border border-neutral-800 rounded-2xl p-6 shadow-2xl space-y-4 text-white"
+              className="w-full max-w-md bg-[color:var(--ui-paint-141418)] border border-[color:var(--ui-line-neutral-800)] rounded-2xl p-6 shadow-2xl space-y-4 text-[color:var(--ui-ink-ffffff)]"
             >
-              <div className="flex items-center justify-between pb-2 border-b border-neutral-800">
+              <div className="flex items-center justify-between pb-2 border-b border-[color:var(--ui-line-neutral-800)]">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#c1121f]/20 text-[#c1121f] border border-[#c1121f]/30 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-[color:var(--ui-paint-c1121f)]/20 text-[color:var(--ui-ink-c1121f)] border border-[color:var(--ui-line-c1121f)]/30 flex items-center justify-center">
                     <Plus className="w-4 h-4 stroke-[3]" />
                   </div>
-                  <h3 className="text-sm font-bold text-white">{editingSocial ? "Edit linked account" : "Link social account"}</h3>
+                  <h3 className="text-sm font-bold text-[color:var(--ui-ink-ffffff)]">{editingSocial ? "Edit linked account" : "Link social account"}</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+                  className="p-1 rounded-lg text-[color:var(--ui-ink-neutral-400)] hover:text-[color:var(--ui-ink-ffffff)] hover:bg-[color:var(--ui-paint-neutral-800)] transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <form onSubmit={handleAddSocial} className="space-y-4 text-xs">
-                {editingSocial?.isVerified && <p className="text-amber-300">Changing this handle requires verification again.</p>}
-                {modalVerifyMsg && <p role="alert" className="text-red-300">{modalVerifyMsg.text}</p>}
+                {editingSocial?.isVerified && <p className="text-[color:var(--ui-ink-amber-300)]">Changing this handle requires verification again.</p>}
+                {modalVerifyMsg && <p role="alert" className="text-[color:var(--ui-ink-red-300)]">{modalVerifyMsg.text}</p>}
                 {/* Platform Selection */}
                 <div>
-                  <label className="block text-neutral-300 font-bold mb-1.5">Select Social Platform</label>
+                  <label className="block text-[color:var(--ui-ink-neutral-300)] font-bold mb-1.5">Select Social Platform</label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { key: "instagram" as PlatformKey, label: "Instagram", icon: InstagramIcon },
@@ -945,11 +945,11 @@ export function CreatorProfileHeader({
                           disabled={Boolean(editingSocial) || isSavingSocial} onClick={() => setNewPlatform(p.key)}
                           className={`p-2.5 rounded-xl border flex flex-col items-center gap-1.5 font-bold transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-white text-black border-white shadow-xs"
-                              : "bg-neutral-900 hover:bg-neutral-800 border-neutral-800 text-neutral-300"
+                              ? "bg-[color:var(--ui-paint-ffffff)] text-[color:var(--ui-ink-000000)] border-[color:var(--ui-line-ffffff)] shadow-xs"
+                              : "bg-[color:var(--ui-paint-neutral-900)] hover:bg-[color:var(--ui-paint-neutral-800)] border-[color:var(--ui-line-neutral-800)] text-[color:var(--ui-ink-neutral-300)]"
                           }`}
                         >
-                          <Icon className={`w-4 h-4 ${isSelected ? "text-black" : ""}`} />
+                          <Icon className={`w-4 h-4 ${isSelected ? "text-[color:var(--ui-ink-000000)]" : ""}`} />
                           <span className="text-[11px]">{p.label}</span>
                         </button>
                       );
@@ -957,36 +957,36 @@ export function CreatorProfileHeader({
                   </div>
                 </div>
 
-                {newPlatform === "facebook" ? <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 space-y-2">
-                  <p className="font-semibold text-white">Connect your Facebook Pages</p>
-                  <p className="text-neutral-400 leading-relaxed">Sign in with the Facebook account you use to manage your Pages and approve Page read access. If you manage several Pages, you’ll choose which ones to add after returning to Flenzr.</p>
-                  <p className="text-[11px] text-neutral-400">We import Page names, photos, and available audience counts. Flenzr does not publish posts or send messages through this connection. Personal Facebook profiles are not linked.</p>
-                </div> : newPlatform === "x" ? <div className="rounded-xl border border-white/15 bg-white/5 p-4 space-y-2">
-                  <p className="font-semibold text-white">Connect your X account</p>
-                  <p className="text-neutral-400 leading-relaxed">Sign in on X and approve read access. We’ll import your username, photo, and available follower, following, and post counts automatically.</p>
-                  <p className="text-[11px] text-neutral-400">Access renews automatically while authorized. Flenzr cannot post, send messages, or follow accounts with these permissions.</p>
-                </div> : newPlatform === "linkedin" ? <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 space-y-2">
-                  <p className="font-semibold text-white">Connect your LinkedIn account</p>
-                  <p className="text-neutral-400 leading-relaxed">Sign in on LinkedIn and allow profile access. We’ll import your name and photo automatically.</p>
-                  <p className="text-[11px] text-neutral-400">This connects your LinkedIn member account. It does not verify your real-world identity or provide follower and post analytics. No email or posting permission is requested.</p>
-                </div> : newPlatform === "youtube" ? <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-2">
-                  <p className="font-semibold text-white">Connect your YouTube channel</p>
-                  <p className="text-neutral-400 leading-relaxed">Choose your channel on Google and allow read-only access. We’ll add your channel details and verify ownership automatically.</p>
-                  <p className="text-[11px] text-neutral-500">No username entry or bio verification code needed. Flenzr cannot upload, edit, or delete your videos with this access.</p>
-                </div> : newPlatform === "instagram" ? <div className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-4 space-y-3">
-                  <p className="font-semibold text-white">Connect your Instagram account</p>
-                  <p className="text-neutral-400 leading-relaxed">Use a Creator or Business account. Flenzr will import your profile photo and available account counts, and verify ownership.</p>
-                  <ol className="list-decimal pl-4 space-y-1.5 text-neutral-300 leading-relaxed">
+                {newPlatform === "facebook" ? <div className="rounded-xl border border-[color:var(--ui-line-blue-500)]/20 bg-blue-500/5 p-4 space-y-2">
+                  <p className="font-semibold text-[color:var(--ui-ink-ffffff)]">Connect your Facebook Pages</p>
+                  <p className="text-[color:var(--ui-ink-neutral-400)] leading-relaxed">Sign in with the Facebook account you use to manage your Pages and approve Page read access. If you manage several Pages, you’ll choose which ones to add after returning to Flenzr.</p>
+                  <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)]">We import Page names, photos, and available audience counts. Flenzr does not publish posts or send messages through this connection. Personal Facebook profiles are not linked.</p>
+                </div> : newPlatform === "x" ? <div className="rounded-xl border border-[color:var(--ui-line-ffffff)]/15 bg-[color:var(--ui-paint-ffffff)]/5 p-4 space-y-2">
+                  <p className="font-semibold text-[color:var(--ui-ink-ffffff)]">Connect your X account</p>
+                  <p className="text-[color:var(--ui-ink-neutral-400)] leading-relaxed">Sign in on X and approve read access. We’ll import your username, photo, and available follower, following, and post counts automatically.</p>
+                  <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)]">Access renews automatically while authorized. Flenzr cannot post, send messages, or follow accounts with these permissions.</p>
+                </div> : newPlatform === "linkedin" ? <div className="rounded-xl border border-[color:var(--ui-line-blue-500)]/20 bg-blue-500/5 p-4 space-y-2">
+                  <p className="font-semibold text-[color:var(--ui-ink-ffffff)]">Connect your LinkedIn account</p>
+                  <p className="text-[color:var(--ui-ink-neutral-400)] leading-relaxed">Sign in on LinkedIn and allow profile access. We’ll import your name and photo automatically.</p>
+                  <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)]">This connects your LinkedIn member account. It does not verify your real-world identity or provide follower and post analytics. No email or posting permission is requested.</p>
+                </div> : newPlatform === "youtube" ? <div className="rounded-xl border border-[color:var(--ui-line-red-500)]/20 bg-red-500/5 p-4 space-y-2">
+                  <p className="font-semibold text-[color:var(--ui-ink-ffffff)]">Connect your YouTube channel</p>
+                  <p className="text-[color:var(--ui-ink-neutral-400)] leading-relaxed">Choose your channel on Google and allow read-only access. We’ll add your channel details and verify ownership automatically.</p>
+                  <p className="text-[11px] text-[color:var(--ui-ink-neutral-500)]">No username entry or bio verification code needed. Flenzr cannot upload, edit, or delete your videos with this access.</p>
+                </div> : newPlatform === "instagram" ? <div className="rounded-xl border border-[color:var(--ui-line-pink-500)]/20 bg-pink-500/5 p-4 space-y-3">
+                  <p className="font-semibold text-[color:var(--ui-ink-ffffff)]">Connect your Instagram account</p>
+                  <p className="text-[color:var(--ui-ink-neutral-400)] leading-relaxed">Use a Creator or Business account. Flenzr will import your profile photo and available account counts, and verify ownership.</p>
+                  <ol className="list-decimal pl-4 space-y-1.5 text-[color:var(--ui-ink-neutral-300)] leading-relaxed">
                     <li>Continue to Meta and sign in with Instagram or Facebook.</li>
                     <li>Select the business portfolio that owns your account, then share your Instagram account with Flenzr.</li>
                     <li>Approve access. You’ll return here with your account linked.</li>
                   </ol>
-                  <p className="text-[11px] text-neutral-400">Your username is filled in automatically. No bio code needed.</p>
-                  <p className="text-[11px] text-neutral-400">Meta also requests messaging access. Flenzr currently does not read or send messages.</p>
-                  <details className="border-t border-pink-500/15 pt-3">
-                    <summary className="cursor-pointer text-neutral-300 font-semibold">Account not appearing?</summary>
-                    <p className="text-[11px] text-neutral-400 mt-2 mb-3">Check that you selected the portfolio that owns your Instagram account and allowed it to be shared. If support has given you an account ID, enter it below.</p>
-                    <label htmlFor="instagram-account-id" className="block text-neutral-300 font-bold mb-1">Meta Instagram account ID <span className="font-normal text-neutral-500">(optional)</span></label>
+                  <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)]">Your username is filled in automatically. No bio code needed.</p>
+                  <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)]">Meta also requests messaging access. Flenzr currently does not read or send messages.</p>
+                  <details className="border-t border-[color:var(--ui-line-pink-500)]/15 pt-3">
+                    <summary className="cursor-pointer text-[color:var(--ui-ink-neutral-300)] font-semibold">Account not appearing?</summary>
+                    <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)] mt-2 mb-3">Check that you selected the portfolio that owns your Instagram account and allowed it to be shared. If support has given you an account ID, enter it below.</p>
+                    <label htmlFor="instagram-account-id" className="block text-[color:var(--ui-ink-neutral-300)] font-bold mb-1">Meta Instagram account ID <span className="font-normal text-[color:var(--ui-ink-neutral-500)]">(optional)</span></label>
                     <input
                       id="instagram-account-id"
                       type="text"
@@ -996,26 +996,26 @@ export function CreatorProfileHeader({
                       placeholder="Use only if Meta does not return your selected account"
                       value={instagramAccountId}
                       onChange={(e) => setInstagramAccountId(e.target.value.replace(/\D/g, ""))}
-                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-pink-500/60"
+                      className="w-full bg-[color:var(--ui-paint-neutral-950)] border border-[color:var(--ui-line-neutral-800)] rounded-xl px-3.5 py-2.5 text-xs font-semibold text-[color:var(--ui-ink-ffffff)] focus:outline-none focus:border-[color:var(--ui-line-pink-500)]/60"
                     />
-                    <p className="text-[10px] text-neutral-500 mt-1.5">Find it in <a href="https://business.facebook.com/settings/" target="_blank" rel="noreferrer" className="text-pink-300 hover:text-pink-200 underline">Meta Business Settings</a> → Instagram accounts. Flenzr still verifies access through OAuth.</p>
+                    <p className="text-[10px] text-[color:var(--ui-ink-neutral-500)] mt-1.5">Find it in <a href="https://business.facebook.com/settings/" target="_blank" rel="noreferrer" className="text-[color:var(--ui-ink-pink-300)] hover:text-[color:var(--ui-ink-pink-200)] underline">Meta Business Settings</a> → Instagram accounts. Flenzr still verifies access through OAuth.</p>
                   </details>
                 </div> : <div>
-                  <label className="block text-neutral-300 font-bold mb-1">
+                  <label className="block text-[color:var(--ui-ink-neutral-300)] font-bold mb-1">
                     Your {newPlatform.charAt(0).toUpperCase() + newPlatform.slice(1)} Handle
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-neutral-500 font-semibold">@</span>
+                    <span className="absolute left-3 top-2.5 text-[color:var(--ui-ink-neutral-500)] font-semibold">@</span>
                     <input
                       type="text"
                       placeholder="username"
                       value={newHandle}
                       onChange={(e) => setNewHandle(e.target.value)}
-                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-8 pr-3.5 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-[#c1121f]"
+                      className="w-full bg-[color:var(--ui-paint-neutral-950)] border border-[color:var(--ui-line-neutral-800)] rounded-xl pl-8 pr-3.5 py-2.5 text-xs font-semibold text-[color:var(--ui-ink-ffffff)] focus:outline-none focus:border-[color:var(--ui-line-c1121f)]"
                       required
                     />
                   </div>
-                  <p className="text-[10px] text-neutral-500 mt-1">
+                  <p className="text-[10px] text-[color:var(--ui-ink-neutral-500)] mt-1">
                     Changing a handle replaces the linked account and requires ownership verification again.
                   </p>
                 </div>}
@@ -1024,14 +1024,14 @@ export function CreatorProfileHeader({
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="px-4 py-2 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-800 font-bold cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-[color:var(--ui-ink-neutral-400)] hover:text-[color:var(--ui-ink-ffffff)] hover:bg-[color:var(--ui-paint-neutral-800)] font-bold cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSavingSocial || !socialsReady}
-                    className="px-5 py-2 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold cursor-pointer shadow-lg shadow-[#c1121f]/25"
+                    className="theme-on-accent px-5 py-2 rounded-xl bg-[color:var(--ui-paint-c1121f)] hover:bg-[color:var(--ui-paint-a50e1a)] text-[color:var(--ui-ink-ffffff)] font-bold cursor-pointer shadow-lg shadow-[#c1121f]/25"
                   >
                     {newPlatform === "youtube" || newPlatform === "instagram" || newPlatform === "linkedin" || newPlatform === "x" || newPlatform === "facebook" ? (isSavingSocial ? "Connecting…" : newPlatform === "youtube" ? "Connect YouTube" : newPlatform === "linkedin" ? "Connect LinkedIn" : newPlatform === "x" ? "Connect X" : newPlatform === "facebook" ? "Connect Facebook Pages" : "Connect Instagram") : isSavingSocial ? "Saving…" : editingSocial ? "Save changes" : "Connect Link"}
                   </button>
@@ -1052,17 +1052,17 @@ export function CreatorProfileHeader({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-lg bg-[#141418] border border-neutral-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 text-xs text-white max-h-[90vh] overflow-y-auto"
+              className="w-full max-w-lg bg-[color:var(--ui-paint-141418)] border border-[color:var(--ui-line-neutral-800)] rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 text-xs text-[color:var(--ui-ink-ffffff)] max-h-[90vh] overflow-y-auto"
             >
               {/* Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+              <div className="flex items-center justify-between pb-3 border-b border-[color:var(--ui-line-neutral-800)]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-[#c1121f] text-white flex items-center justify-center shadow-xs">
+                  <div className="theme-on-accent w-8 h-8 rounded-xl bg-[color:var(--ui-paint-c1121f)] text-[color:var(--ui-ink-ffffff)] flex items-center justify-center shadow-xs">
                     <Camera className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-extrabold text-white">Choose Profile Picture</h3>
-                    <p className="text-[11px] text-neutral-400">
+                    <h3 className="text-sm font-extrabold text-[color:var(--ui-ink-ffffff)]">Choose Profile Picture</h3>
+                    <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)]">
                       Default photo follows your earliest linked account. Select any photo below.
                     </p>
                   </div>
@@ -1070,7 +1070,7 @@ export function CreatorProfileHeader({
                 <button
                   type="button"
                   onClick={() => setShowAvatarPicker(false)}
-                  className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-[color:var(--ui-ink-neutral-400)] hover:text-[color:var(--ui-ink-ffffff)] hover:bg-[color:var(--ui-paint-neutral-800)] transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1078,23 +1078,23 @@ export function CreatorProfileHeader({
 
               {/* Success alert message if switched */}
               {avatarSuccessMsg && (
-                <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-800/80 text-emerald-300 flex items-center gap-2 text-xs font-semibold">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div className="p-3 rounded-xl bg-[color:var(--ui-paint-emerald-950)]/40 border border-[color:var(--ui-line-emerald-800)]/80 text-[color:var(--ui-ink-emerald-300)] flex items-center gap-2 text-xs font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-[color:var(--ui-ink-emerald-400)] shrink-0" />
                   <span>{avatarSuccessMsg}</span>
                 </div>
               )}
 
               {/* Available Avatars List / Grid */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-neutral-400">
-                  <span className="font-bold text-[11px] uppercase tracking-wider text-neutral-400">
+                <div className="flex items-center justify-between text-[color:var(--ui-ink-neutral-400)]">
+                  <span className="font-bold text-[11px] uppercase tracking-wider text-[color:var(--ui-ink-neutral-400)]">
                     Connected Account Photos ({availableAvatars.length})
                   </span>
                   {availableAvatars.some((a) => a.isEarliest && a.url !== activeAvatar) && (
                     <button
                       type="button"
                       onClick={handleResetToEarliest}
-                      className="text-[11px] font-bold text-[#c1121f] hover:underline cursor-pointer flex items-center gap-1"
+                      className="text-[11px] font-bold text-[color:var(--ui-ink-c1121f)] hover:underline cursor-pointer flex items-center gap-1"
                     >
                       <RefreshCw className="w-3 h-3" />
                       <span>Reset to Earliest Default</span>
@@ -1103,9 +1103,9 @@ export function CreatorProfileHeader({
                 </div>
 
                 {availableAvatars.length === 0 ? (
-                  <div className="p-6 text-center rounded-2xl bg-neutral-900 border border-neutral-800 text-neutral-400">
-                    <p className="font-semibold text-white">No profile photos found yet.</p>
-                    <p className="text-[11px] mt-1 text-neutral-400">
+                  <div className="p-6 text-center rounded-2xl bg-[color:var(--ui-paint-neutral-900)] border border-[color:var(--ui-line-neutral-800)] text-[color:var(--ui-ink-neutral-400)]">
+                    <p className="font-semibold text-[color:var(--ui-ink-ffffff)]">No profile photos found yet.</p>
+                    <p className="text-[11px] mt-1 text-[color:var(--ui-ink-neutral-400)]">
                       Connect your Instagram or YouTube account to automatically pull your real profile photo.
                     </p>
                   </div>
@@ -1119,11 +1119,11 @@ export function CreatorProfileHeader({
                           onClick={() => handleSelectAvatar(item.url)}
                           className={`relative p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-3.5 ${
                             isActive
-                              ? "bg-neutral-800/80 border-[#c1121f] ring-2 ring-[#c1121f]/30 shadow-sm"
-                              : "bg-neutral-900 hover:bg-neutral-850 border-neutral-800 hover:border-neutral-700"
+                              ? "bg-[color:var(--ui-paint-neutral-800)]/80 border-[color:var(--ui-line-c1121f)] ring-2 ring-[color:var(--ui-line-c1121f)]/30 shadow-sm"
+                              : "bg-[color:var(--ui-paint-neutral-900)] hover:bg-neutral-850 border-[color:var(--ui-line-neutral-800)] hover:border-[color:var(--ui-line-neutral-700)]"
                           }`}
                         >
-                          <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-neutral-950 shrink-0 border border-neutral-800">
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[color:var(--ui-paint-neutral-950)] shrink-0 border border-[color:var(--ui-line-neutral-800)]">
                             <img
                               src={item.url}
                               alt={item.source}
@@ -1134,7 +1134,7 @@ export function CreatorProfileHeader({
                               }}
                             />
                             {item.platform !== "default" && (
-                              <div className="absolute bottom-1 right-1 p-0.5 rounded-md bg-neutral-900/90 border border-neutral-800 shadow-xs">
+                              <div className="absolute bottom-1 right-1 p-0.5 rounded-md bg-[color:var(--ui-paint-neutral-900)]/90 border border-[color:var(--ui-line-neutral-800)] shadow-xs">
                                 {getPlatformIcon(item.platform as PlatformKey)}
                               </div>
                             )}
@@ -1143,20 +1143,20 @@ export function CreatorProfileHeader({
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1 flex-wrap mb-1">
                               {item.isEarliest && (
-                                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-950/60 text-amber-300 border border-amber-800/80">
+                                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[color:var(--ui-paint-amber-950)]/60 text-[color:var(--ui-ink-amber-300)] border border-[color:var(--ui-line-amber-800)]/80">
                                   Earliest Added
                                 </span>
                               )}
                               {isActive && (
-                                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[#c1121f] text-white flex items-center gap-0.5">
+                                <span className="theme-on-accent px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[color:var(--ui-paint-c1121f)] text-[color:var(--ui-ink-ffffff)] flex items-center gap-0.5">
                                   <Check className="w-2.5 h-2.5 stroke-[3]" /> Active
                                 </span>
                               )}
                             </div>
-                            <div className="font-extrabold text-white truncate text-xs">
+                            <div className="font-extrabold text-[color:var(--ui-ink-ffffff)] truncate text-xs">
                               {item.source}
                             </div>
-                            <div className="text-[11px] text-neutral-400 font-semibold truncate">
+                            <div className="text-[11px] text-[color:var(--ui-ink-neutral-400)] font-semibold truncate">
                               @{item.handle}
                             </div>
                           </div>
@@ -1168,8 +1168,8 @@ export function CreatorProfileHeader({
               </div>
 
               {/* Custom Image URL Option */}
-              <div className="pt-2 border-t border-neutral-800 space-y-2">
-                <label className="block text-neutral-300 font-bold text-[11px]">
+              <div className="pt-2 border-t border-[color:var(--ui-line-neutral-800)] space-y-2">
+                <label className="block text-[color:var(--ui-ink-neutral-300)] font-bold text-[11px]">
                   Or paste a custom image URL
                 </label>
                 <div className="flex items-center gap-2">
@@ -1178,7 +1178,7 @@ export function CreatorProfileHeader({
                     placeholder="https://example.com/avatar.jpg"
                     value={customAvatarUrl}
                     onChange={(e) => setCustomAvatarUrl(e.target.value)}
-                    className="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-3.5 py-2 text-xs font-semibold text-white focus:outline-none focus:border-[#c1121f]"
+                    className="flex-1 bg-[color:var(--ui-paint-neutral-950)] border border-[color:var(--ui-line-neutral-800)] rounded-xl px-3.5 py-2 text-xs font-semibold text-[color:var(--ui-ink-ffffff)] focus:outline-none focus:border-[color:var(--ui-line-c1121f)]"
                   />
                   <button
                     type="button"
@@ -1189,7 +1189,7 @@ export function CreatorProfileHeader({
                         setCustomAvatarUrl("");
                       }
                     }}
-                    className="px-4 py-2 rounded-xl bg-white hover:bg-neutral-200 text-black font-bold text-xs disabled:opacity-40 cursor-pointer transition-colors shadow-xs"
+                    className="px-4 py-2 rounded-xl bg-[color:var(--ui-paint-ffffff)] hover:bg-[color:var(--ui-paint-neutral-200)] text-[color:var(--ui-ink-000000)] font-bold text-xs disabled:opacity-40 cursor-pointer transition-colors shadow-xs"
                   >
                     Apply
                   </button>
@@ -1197,14 +1197,14 @@ export function CreatorProfileHeader({
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between pt-2 border-t border-neutral-800">
-                <p className="text-[11px] text-neutral-400">
+              <div className="flex items-center justify-between pt-2 border-t border-[color:var(--ui-line-neutral-800)]">
+                <p className="text-[11px] text-[color:var(--ui-ink-neutral-400)]">
                   Photo selection is saved to your creator profile.
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowAvatarPicker(false)}
-                  className="px-5 py-2 rounded-xl bg-[#c1121f] hover:bg-[#a50e1a] text-white font-bold cursor-pointer transition-colors shadow-lg shadow-[#c1121f]/25"
+                  className="theme-on-accent px-5 py-2 rounded-xl bg-[color:var(--ui-paint-c1121f)] hover:bg-[color:var(--ui-paint-a50e1a)] text-[color:var(--ui-ink-ffffff)] font-bold cursor-pointer transition-colors shadow-lg shadow-[#c1121f]/25"
                 >
                   Done
                 </button>

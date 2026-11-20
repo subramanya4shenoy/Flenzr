@@ -1,47 +1,47 @@
-.fl-campaign-dialog { box-sizing:border-box; color:#ededf0; background:#111114; border:1px solid #34343d; border-radius:18px; padding:24px; width:min(680px,calc(100vw - 28px)); max-height:calc(100dvh - 40px); overflow:auto; margin:auto; }
+.fl-campaign-dialog { box-sizing:border-box; color:var(--ui-ink-ededf0); background:var(--ui-paint-111114); border:1px solid var(--ui-line-34343d); border-radius:18px; padding:24px; width:min(680px,calc(100vw - 28px)); max-height:calc(100dvh - 40px); overflow:auto; margin:auto; }
 .fl-campaign-dialog::backdrop { background:rgba(0,0,0,.78); backdrop-filter:blur(4px); }
-.fl-campaign-dialog-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding-bottom:18px; margin-bottom:20px; border-bottom:1px solid #29292f; }
+.fl-campaign-dialog-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding-bottom:18px; margin-bottom:20px; border-bottom:1px solid var(--ui-line-29292f); }
 .fl-campaign-dialog h2 { font-size:20px; font-weight:650; }
-.fl-campaign-dialog p { font-size:12px; color:#aaaab6; line-height:1.6; }
+.fl-campaign-dialog p { font-size:12px; color:var(--ui-ink-aaaab6); line-height:1.6; }
 .fl-campaign-dialog fieldset { border:0; min-width:0; padding:0; }
 .fl-campaign-visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
 .fl-campaign-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
 .fl-campaign-wide { grid-column:1/-1; }
-.fl-campaign-dialog label { display:flex; flex-direction:column; gap:8px; min-width:0; font-size:12px; color:#b7b7c3; }
-.fl-campaign-dialog input,.fl-campaign-dialog textarea,.fl-campaign-dialog select { box-sizing:border-box; width:100%; min-width:0; border:1px solid #36363f; border-radius:9px; background:#1a1a20; color:#ededf0; padding:10px 12px; font:inherit; }
+.fl-campaign-dialog label { display:flex; flex-direction:column; gap:8px; min-width:0; font-size:12px; color:var(--ui-ink-b7b7c3); }
+.fl-campaign-dialog input,.fl-campaign-dialog textarea,.fl-campaign-dialog select { box-sizing:border-box; width:100%; min-width:0; border:1px solid var(--ui-line-36363f); border-radius:9px; background:var(--ui-paint-1a1a20); color:var(--ui-ink-ededf0); padding:10px 12px; font:inherit; }
 .fl-campaign-dialog textarea { resize:vertical; }
-.fl-campaign-dialog button,.fl-campaign-list button,.fl-campaign-state button,.fl-campaign-state a { background:#202027; color:#e4e4eb; font-size:12px; border:1px solid #383842; border-radius:9px; padding:9px 13px; cursor:pointer; }
+.fl-campaign-dialog button,.fl-campaign-list button,.fl-campaign-state button,.fl-campaign-state a { background:var(--ui-paint-202027); color:var(--ui-ink-e4e4eb); font-size:12px; border:1px solid var(--ui-line-383842); border-radius:9px; padding:9px 13px; cursor:pointer; }
 .fl-campaign-dialog button:disabled { opacity:.5; cursor:default; }
-.fl-campaign-dialog button[type=submit] { background:#bd1121; border-color:#bd1121; }
-.fl-campaign-dialog input:focus-visible,.fl-campaign-dialog textarea:focus-visible,.fl-campaign-dialog select:focus-visible,.fl-campaign-dialog button:focus-visible,.fl-campaign-list button:focus-visible { outline:2px solid #d34453; outline-offset:3px; }
+.fl-campaign-dialog button[type=submit] { background:#bd1121; border-color:var(--ui-line-bd1121); }
+.fl-campaign-dialog input:focus-visible,.fl-campaign-dialog textarea:focus-visible,.fl-campaign-dialog select:focus-visible,.fl-campaign-dialog button:focus-visible,.fl-campaign-list button:focus-visible { outline:2px solid var(--ui-line-d34453); outline-offset:3px; }
 .fl-campaign-dialog footer { display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
-.fl-campaign-dialog .fl-campaign-error { color:#f1a0ad; margin-top:16px; }
-.fl-campaign-dialog small { display:block; color:#9696a4; font-size:11px; margin-top:8px; }
-.fl-campaign-discard { margin-top:20px; padding:14px; border:1px solid #63414a; border-radius:10px; }
+.fl-campaign-dialog .fl-campaign-error { color:var(--ui-ink-f1a0ad); margin-top:16px; }
+.fl-campaign-dialog small { display:block; color:var(--ui-ink-9696a4); font-size:11px; margin-top:8px; }
+.fl-campaign-discard { margin-top:20px; padding:14px; border:1px solid var(--ui-line-63414a); border-radius:10px; }
 .fl-campaign-discard button { margin:10px 8px 0 0; }
 .fl-campaign-list { display:grid; gap:14px; }
-.fl-campaign-card { display:flex; justify-content:space-between; align-items:center; gap:24px; min-width:0; border:1px solid #2c2c34; border-radius:15px; padding:20px; background:#111114; }
+.fl-campaign-card { display:flex; justify-content:space-between; align-items:center; gap:24px; min-width:0; border:1px solid var(--ui-line-2c2c34); border-radius:15px; padding:20px; background:var(--ui-paint-111114); }
 .fl-campaign-card>div { min-width:0; }
 .fl-campaign-card h3 { font-size:16px; font-weight:600; margin:10px 0 6px; overflow-wrap:anywhere; }
-.fl-campaign-card p { font-size:12px; color:#adadba; margin-bottom:8px; overflow-wrap:anywhere; }
-.fl-campaign-card small { color:#9696a4; font-size:11px; }
+.fl-campaign-card p { font-size:12px; color:var(--ui-ink-adadba); margin-bottom:8px; overflow-wrap:anywhere; }
+.fl-campaign-card small { color:var(--ui-ink-9696a4); font-size:11px; }
 .fl-campaign-card-meta { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
-.fl-campaign-card-meta span { font-size:10px; text-transform:capitalize; color:#d9b3bb; background:#39202a; border:1px solid #57313d; border-radius:5px; padding:3px 6px; }
+.fl-campaign-card-meta span { font-size:10px; text-transform:capitalize; color:var(--ui-ink-d9b3bb); background:var(--ui-paint-39202a); border:1px solid var(--ui-line-57313d); border-radius:5px; padding:3px 6px; }
 .fl-campaign-card-actions { display:flex; flex-direction:column; flex-shrink:0; align-items:flex-end; gap:12px; }
 .fl-campaign-card-actions strong { font-size:14px; font-weight:600; }
-.fl-campaign-state { padding:28px 18px; border:1px dashed #33333c; border-radius:14px; text-align:center; color:#aaaab6; font-size:13px; }
-.fl-campaign-state h2 { font-size:16px; color:#e5e5eb; margin-bottom:8px; }
+.fl-campaign-state { padding:28px 18px; border:1px dashed var(--ui-line-33333c); border-radius:14px; text-align:center; color:var(--ui-ink-aaaab6); font-size:13px; }
+.fl-campaign-state h2 { font-size:16px; color:var(--ui-ink-e5e5eb); margin-bottom:8px; }
 .fl-campaign-state p { margin-bottom:18px; }
 @media(max-width:560px) { .fl-campaign-form-grid { grid-template-columns:minmax(0,1fr); } .fl-campaign-dialog { padding:18px; } .fl-campaign-card { flex-direction:column; align-items:stretch; gap:16px; } .fl-campaign-card-actions { flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; } }
 
 .fl-campaign-status-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:7px; max-width:400px; }
-.fl-campaign-action-summary { border:1px solid #33333d; border-radius:10px; padding:14px; margin-bottom:16px; }
+.fl-campaign-action-summary { border:1px solid var(--ui-line-33333d); border-radius:10px; padding:14px; margin-bottom:16px; }
 .fl-campaign-action-summary h3 { font-size:16px; font-weight:600; overflow-wrap:anywhere; }
 .fl-campaign-transition { width:min(540px,calc(100vw - 28px)); }
-.fl-campaign-requirements { margin-top:16px; padding:14px; border:1px solid #614c30; border-radius:10px; }
-.fl-campaign-requirements h3 { font-size:13px; color:#e2c29b; font-weight:600; }
-.fl-campaign-requirements ul { padding-left:20px; margin:10px 0 14px; color:#b7b1a8; font-size:12px; line-height:1.8; list-style:disc; }
-.fl-campaign-notice { color:#9dc7ac; font-size:13px; }
+.fl-campaign-requirements { margin-top:16px; padding:14px; border:1px solid var(--ui-line-614c30); border-radius:10px; }
+.fl-campaign-requirements h3 { font-size:13px; color:var(--ui-ink-e2c29b); font-weight:600; }
+.fl-campaign-requirements ul { padding-left:20px; margin:10px 0 14px; color:var(--ui-ink-b7b1a8); font-size:12px; line-height:1.8; list-style:disc; }
+.fl-campaign-notice { color:var(--ui-ink-9dc7ac); font-size:13px; }
 @media(max-width:560px) { .fl-campaign-status-actions { justify-content:flex-start; } }
 
-.fl-campaign-card .fl-campaign-expired { color:#d5b483; font-size:11px; margin-top:8px; }
+.fl-campaign-card .fl-campaign-expired { color:var(--ui-ink-d5b483); font-size:11px; margin-top:8px; }

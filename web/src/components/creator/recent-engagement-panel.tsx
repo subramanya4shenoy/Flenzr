@@ -9,13 +9,13 @@ import { InstagramIcon, YoutubeIcon, FacebookIcon, XTwitterIcon, LinkedInIcon, T
 import "./recent-engagement-panel.css";
 
 const networks = {
-  instagram: { name: "Instagram", color: "#e879c6", icon: InstagramIcon },
-  youtube: { name: "YouTube", color: "#fa7780", icon: YoutubeIcon },
-  facebook: { name: "Facebook", color: "#65abff", icon: FacebookIcon },
-  x: { name: "X", color: "#d1d5df", icon: XTwitterIcon },
-  linkedin: { name: "LinkedIn", color: "#58b9da", icon: LinkedInIcon },
-  tiktok: { name: "TikTok", color: "#56d6d5", icon: TikTokIcon },
-  twitch: { name: "Twitch", color: "#b995ff", icon: TwitchIcon },
+  instagram: { name: "Instagram", color: "var(--network-instagram)", icon: InstagramIcon },
+  youtube: { name: "YouTube", color: "var(--network-youtube)", icon: YoutubeIcon },
+  facebook: { name: "Facebook", color: "var(--network-facebook)", icon: FacebookIcon },
+  x: { name: "X", color: "var(--network-x)", icon: XTwitterIcon },
+  linkedin: { name: "LinkedIn", color: "var(--network-linkedin)", icon: LinkedInIcon },
+  tiktok: { name: "TikTok", color: "var(--network-tiktok)", icon: TikTokIcon },
+  twitch: { name: "Twitch", color: "var(--network-twitch)", icon: TwitchIcon },
 };
 type Reading = { data: RecentEngagement | null; error?: string; loading: boolean };
 const signature = (account: SocialAccount) => `${account.platform}:${account.handle}:${account.is_verified}:${account.connected}`;
@@ -83,9 +83,9 @@ export function RecentEngagementPanel({ accounts }: { accounts: SocialAccount[] 
       <svg viewBox="0 0 240 240" role="img" aria-label={total === null ? "Engagement counts unavailable" : `Engagement across networks: ${exact(total)} interactions`}>
         <defs><filter id={`${titleId}-glow`} x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" /></filter><radialGradient id={`${titleId}-ambient`}><stop offset="0" stopColor="#4adea3" stopOpacity=".12" /><stop offset="1" stopColor="#4adea3" stopOpacity="0" /></radialGradient></defs>
         <circle cx="120" cy="120" r="110" fill={`url(#${titleId}-ambient)`} />
-        {[44, 72, 98].map((r) => <circle key={r} cx="120" cy="120" r={r} fill="none" stroke="#293831" strokeWidth=".6" />)}
-        {Array.from({ length: 12 }, (_, index) => { const angle = index * Math.PI / 6; return <line key={index} x1={120 + Math.cos(angle) * 38} y1={120 + Math.sin(angle) * 38} x2={120 + Math.cos(angle) * 104} y2={120 + Math.sin(angle) * 104} stroke="#25352e" strokeWidth=".6" />; })}
-        <circle cx="120" cy="120" r={radius} fill="none" stroke="#20312a" strokeWidth="9" />
+        {[44, 72, 98].map((r) => <circle key={r} cx="120" cy="120" r={r} fill="none" stroke="var(--ui-ink-293831)" strokeWidth=".6" />)}
+        {Array.from({ length: 12 }, (_, index) => { const angle = index * Math.PI / 6; return <line key={index} x1={120 + Math.cos(angle) * 38} y1={120 + Math.sin(angle) * 38} x2={120 + Math.cos(angle) * 104} y2={120 + Math.sin(angle) * 104} stroke="var(--ui-ink-25352e)" strokeWidth=".6" />; })}
+        <circle cx="120" cy="120" r={radius} fill="none" stroke="var(--ui-ink-20312a)" strokeWidth="9" />
         {chartGroups.map((group) => {
           const length = total ? group.total! / total * circumference : 0;
           const start = offset; offset += length;

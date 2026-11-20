@@ -99,20 +99,20 @@ Best regards,`,
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#121215] border border-[#27272a] shadow-md">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] shadow-md">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+            <span className="w-2 h-2 rounded-full bg-[color:var(--ui-paint-ffffff)] animate-pulse" />
+            <h2 className="text-base sm:text-lg font-bold text-[color:var(--ui-ink-ffffff)] tracking-tight">
               Deal Negotiator &amp; Rate Estimator
             </h2>
           </div>
-          <p className="text-xs text-[#8c94a6] mt-0.5">
+          <p className="text-xs text-[color:var(--ui-ink-8c94a6)] mt-0.5">
             Explore an estimate based on your offer and selected usage terms. These estimates are not verified market benchmarks.
           </p>
         </div>
 
-        <span className="px-2.5 py-1 rounded-full bg-white/10 text-white text-xs font-bold border border-white/20 flex items-center gap-1.5">
+        <span className="px-2.5 py-1 rounded-full bg-[color:var(--ui-paint-ffffff)]/10 text-[color:var(--ui-ink-ffffff)] text-xs font-bold border border-[color:var(--ui-line-ffffff)]/20 flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Offer calculator</span>
         </span>
@@ -120,56 +120,56 @@ Best regards,`,
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Deal Input Form (Left 5 Cols) */}
-        <div className="lg:col-span-5 p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <Bot className="w-4 h-4 text-neutral-300" />
+        <div className="lg:col-span-5 p-5 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] space-y-4">
+          <h3 className="text-sm font-bold text-[color:var(--ui-ink-ffffff)] flex items-center gap-2">
+            <Bot className="w-4 h-4 text-[color:var(--ui-ink-neutral-300)]" />
             <span>Brand Offer Details</span>
           </h3>
 
           <form onSubmit={handleAnalyze} className="space-y-3.5 text-xs">
             <div>
-              <label className="block text-[#8c94a6] mb-1 font-medium">Brand or Agency Name</label>
+              <label className="block text-[color:var(--ui-ink-8c94a6)] mb-1 font-medium">Brand or Agency Name</label>
               <input
                 type="text"
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
                 placeholder="e.g. Dyson India"
                 required
-                className="w-full bg-[#09090b] border border-[#27272a] rounded-lg p-2.5 text-white focus:outline-hidden focus:border-white focus:ring-1 focus:ring-white/30"
+                className="w-full bg-[color:var(--ui-paint-09090b)] border border-[color:var(--ui-line-27272a)] rounded-lg p-2.5 text-[color:var(--ui-ink-ffffff)] focus:outline-hidden focus:border-[color:var(--ui-line-ffffff)] focus:ring-1 focus:ring-[color:var(--ui-line-ffffff)]/30"
               />
             </div>
 
             <div>
-              <label className="block text-[#8c94a6] mb-1 font-medium">Deliverables Scope</label>
+              <label className="block text-[color:var(--ui-ink-8c94a6)] mb-1 font-medium">Deliverables Scope</label>
               <input
                 type="text"
                 value={deliverables}
                 onChange={(e) => setDeliverables(e.target.value)}
                 placeholder="e.g. 1 Dedicated Video + 1 60s Reel"
                 required
-                className="w-full bg-[#09090b] border border-[#27272a] rounded-lg p-2.5 text-white focus:outline-hidden focus:border-white focus:ring-1 focus:ring-white/30"
+                className="w-full bg-[color:var(--ui-paint-09090b)] border border-[color:var(--ui-line-27272a)] rounded-lg p-2.5 text-[color:var(--ui-ink-ffffff)] focus:outline-hidden focus:border-[color:var(--ui-line-ffffff)] focus:ring-1 focus:ring-[color:var(--ui-line-ffffff)]/30"
               />
             </div>
 
             <div>
-              <label className="block text-[#8c94a6] mb-1 font-medium">Brand's Initial Proposed Budget</label>
+              <label className="block text-[color:var(--ui-ink-8c94a6)] mb-1 font-medium">Brand's Initial Proposed Budget</label>
               <input
                 type="text"
                 value={initialBudget}
                 onChange={(e) => setInitialBudget(e.target.value)}
                 placeholder="e.g. ₹35,000"
                 required
-                className="w-full bg-[#09090b] border border-[#27272a] rounded-lg p-2.5 text-white focus:outline-hidden focus:border-white focus:ring-1 focus:ring-white/30"
+                className="w-full bg-[color:var(--ui-paint-09090b)] border border-[color:var(--ui-line-27272a)] rounded-lg p-2.5 text-[color:var(--ui-ink-ffffff)] focus:outline-hidden focus:border-[color:var(--ui-line-ffffff)] focus:ring-1 focus:ring-[color:var(--ui-line-ffffff)]/30"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[#8c94a6] mb-1 font-medium">Exclusivity</label>
+                <label className="block text-[color:var(--ui-ink-8c94a6)] mb-1 font-medium">Exclusivity</label>
                 <select
                   value={exclusivity}
                   onChange={(e) => setExclusivity(e.target.value)}
-                  className="w-full bg-[#09090b] border border-[#27272a] rounded-lg p-2.5 text-white focus:outline-hidden focus:border-white focus:ring-1 focus:ring-white/30"
+                  className="w-full bg-[color:var(--ui-paint-09090b)] border border-[color:var(--ui-line-27272a)] rounded-lg p-2.5 text-[color:var(--ui-ink-ffffff)] focus:outline-hidden focus:border-[color:var(--ui-line-ffffff)] focus:ring-1 focus:ring-[color:var(--ui-line-ffffff)]/30"
                 >
                   <option value="none">None</option>
                   <option value="30d">30 Days (+25%)</option>
@@ -178,11 +178,11 @@ Best regards,`,
               </div>
 
               <div>
-                <label className="block text-[#8c94a6] mb-1 font-medium">Usage Rights</label>
+                <label className="block text-[color:var(--ui-ink-8c94a6)] mb-1 font-medium">Usage Rights</label>
                 <select
                   value={whitelisting}
                   onChange={(e) => setWhitelisting(e.target.value)}
-                  className="w-full bg-[#09090b] border border-[#27272a] rounded-lg p-2.5 text-white focus:outline-hidden focus:border-white focus:ring-1 focus:ring-white/30"
+                  className="w-full bg-[color:var(--ui-paint-09090b)] border border-[color:var(--ui-line-27272a)] rounded-lg p-2.5 text-[color:var(--ui-ink-ffffff)] focus:outline-hidden focus:border-[color:var(--ui-line-ffffff)] focus:ring-1 focus:ring-[color:var(--ui-line-ffffff)]/30"
                 >
                   <option value="organic">Organic Social</option>
                   <option value="whitelisting">Paid Whitelisting (+50%)</option>
@@ -195,7 +195,7 @@ Best regards,`,
               <button
                 type="submit"
                 disabled={isAnalyzing}
-                className="w-full h-10 rounded-xl bg-white hover:bg-neutral-200 text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-50"
+                className="w-full h-10 rounded-xl bg-[color:var(--ui-paint-ffffff)] hover:bg-[color:var(--ui-paint-neutral-200)] text-[color:var(--ui-ink-000000)] font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-50"
               >
                 {isAnalyzing ? (
                   <span className="inline-flex items-center gap-1.5">
@@ -218,39 +218,39 @@ Best regards,`,
           {result ? (
             <>
               {/* Rate Valuation Card */}
-              <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-4">
+              <div className="p-5 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-[#8c94a6] uppercase font-bold tracking-wider block">
+                    <span className="text-[10px] text-[color:var(--ui-ink-8c94a6)] uppercase font-bold tracking-wider block">
                       Fair Market Valuation
                     </span>
                     <div className="flex items-baseline gap-2 mt-0.5">
-                      <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                      <span className="text-2xl sm:text-3xl font-extrabold text-[color:var(--ui-ink-ffffff)] tracking-tight">
                         {result.targetRate}
                       </span>
-                      <span className="text-xs text-[#8c94a6]">
+                      <span className="text-xs text-[color:var(--ui-ink-8c94a6)]">
                         (Range: {result.minRate} – {result.maxRate})
                       </span>
                     </div>
                   </div>
 
                   {result.lowballPercentage > 0 && (
-                    <span className="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 text-xs font-bold border border-amber-500/20">
+                    <span className="px-2.5 py-1 rounded-full bg-amber-500/10 text-[color:var(--ui-ink-amber-300)] text-xs font-bold border border-[color:var(--ui-line-amber-500)]/20">
                       Initial offer was {result.lowballPercentage}% below market
                     </span>
                   )}
                 </div>
 
                 {/* Rationale Pills */}
-                <div className="p-3 rounded-xl bg-[#18181b] border border-[#27272a] space-y-1.5 text-xs">
-                  <div className="text-[11px] font-bold text-white flex items-center gap-1.5">
-                    <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="p-3 rounded-xl bg-[color:var(--ui-paint-18181b)] border border-[color:var(--ui-line-27272a)] space-y-1.5 text-xs">
+                  <div className="text-[11px] font-bold text-[color:var(--ui-ink-ffffff)] flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-[color:var(--ui-ink-emerald-400)]" />
                     <span>Valuation Factors</span>
                   </div>
-                  <ul className="space-y-1 text-[#a1a1aa] text-[11px]">
+                  <ul className="space-y-1 text-[color:var(--ui-ink-a1a1aa)] text-[11px]">
                     {result.rationale.map((r, idx) => (
                       <li key={idx} className="flex items-start gap-1.5">
-                        <span className="text-white">•</span>
+                        <span className="text-[color:var(--ui-ink-ffffff)]">•</span>
                         <span>{r}</span>
                       </li>
                     ))}
@@ -259,20 +259,20 @@ Best regards,`,
               </div>
 
               {/* 1-Click Counter Pitch Email */}
-              <div className="p-5 rounded-2xl bg-[#121215] border border-[#27272a] space-y-3">
+              <div className="p-5 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-[color:var(--ui-line-27272a)] space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-[color:var(--ui-ink-ffffff)] flex items-center gap-2">
                     <span>AI Generated Counter-Offer Pitch</span>
                   </h4>
 
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="h-8 px-3 rounded-lg bg-white text-black font-bold text-xs flex items-center gap-1.5 hover:bg-neutral-200 transition-colors cursor-pointer shadow-sm"
+                    className="h-8 px-3 rounded-lg bg-[color:var(--ui-paint-ffffff)] text-[color:var(--ui-ink-000000)] font-bold text-xs flex items-center gap-1.5 hover:bg-[color:var(--ui-paint-neutral-200)] transition-colors cursor-pointer shadow-sm"
                   >
                     {copied ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <Check className="w-3.5 h-3.5 text-[color:var(--ui-ink-emerald-600)]" />
                         <span>Copied!</span>
                       </>
                     ) : (
@@ -284,19 +284,19 @@ Best regards,`,
                   </button>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#09090b] border border-[#27272a] text-xs font-mono text-[#d4d4d8] whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto select-all">
+                <div className="p-4 rounded-xl bg-[color:var(--ui-paint-09090b)] border border-[color:var(--ui-line-27272a)] text-xs font-mono text-[color:var(--ui-ink-d4d4d8)] whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto select-all">
                   {result.pitchEmail}
                 </div>
               </div>
             </>
           ) : (
-            <div className="p-8 rounded-2xl bg-[#121215] border border-dashed border-[#27272a] text-center space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center mx-auto text-neutral-400">
-                <Bot className="w-6 h-6 text-neutral-400" />
+            <div className="p-8 rounded-2xl bg-[color:var(--ui-paint-121215)] border border-dashed border-[color:var(--ui-line-27272a)] text-center space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-[color:var(--ui-paint-ffffff)]/[0.05] border border-[color:var(--ui-line-ffffff)]/10 flex items-center justify-center mx-auto text-[color:var(--ui-ink-neutral-400)]">
+                <Bot className="w-6 h-6 text-[color:var(--ui-ink-neutral-400)]" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-white">AI Deal Negotiator Ready</h4>
-                <p className="text-xs text-[#7e8697] max-w-sm mx-auto">
+                <h4 className="text-sm font-semibold text-[color:var(--ui-ink-ffffff)]">AI Deal Negotiator Ready</h4>
+                <p className="text-xs text-[color:var(--ui-ink-7e8697)] max-w-sm mx-auto">
                   Enter the inbound brand name, deliverable scope, and initial proposed budget on the left to calculate your fair market benchmark and generate an escrow-backed counter offer.
                 </p>
               </div>

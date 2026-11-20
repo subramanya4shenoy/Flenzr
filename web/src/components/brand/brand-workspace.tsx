@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { BookOpen, Briefcase, Calendar, ChevronRight, Handshake, Inbox, LogOut, Menu, Search, Settings2, Users } from "lucide-react";
@@ -79,7 +80,7 @@ export function BrandWorkspace({ children }: { children: ReactNode }) {
           <details ref={mobileMenu} className="fl-brand-mobile-menu"><summary aria-label="Brand menu"><Menu size={17} /><span>Menu</span></summary>
             <nav aria-label="Brand mobile navigation">{items.map(item => <button key={item.id} type="button" aria-current={active === item.id ? "page" : undefined} onClick={() => navigate(item)}><item.icon size={15} aria-hidden="true" /><span>{item.label}</span>{item.id === "enquiries" && <EnquiryUnreadBadge view="sent" />}</button>)}</nav>
           </details>
-          <NotificationBell /><LanguageSwitcher variant="compact" />
+          <NotificationBell /><ThemeSwitcher /><LanguageSwitcher variant="compact" />
           <button className="fl-brand-signout" type="button" aria-label="Sign out" title="Sign out" disabled={signingOut} onClick={() => void signOut()}><LogOut size={15} aria-hidden="true" /><span>{signingOut ? "Signing out…" : "Sign out"}</span></button>
         </div>
       </header>

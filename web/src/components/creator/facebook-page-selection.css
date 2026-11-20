@@ -1,25 +1,25 @@
-.facebook-pages-dialog { width: min(440px, calc(100vw - 32px)); max-height: min(640px, calc(100dvh - 48px)); margin: auto; padding: 20px; border: 1px solid #33333b; border-radius: 18px; background: #141418; color: #ededf0; box-shadow: 0 24px 80px rgb(0 0 0 / 40%); }
+.facebook-pages-dialog { width: min(440px, calc(100vw - 32px)); max-height: min(640px, calc(100dvh - 48px)); margin: auto; padding: 20px; border:1px solid var(--ui-line-33333b); border-radius:18px; background:var(--ui-paint-141418); color:var(--ui-ink-ededf0); box-shadow: 0 24px 80px rgb(0 0 0 / 40%); }
 .facebook-pages-dialog::backdrop { background: rgb(0 0 0 / 65%); backdrop-filter: blur(4px); }
 .facebook-pages-dialog > header { display: flex; align-items: flex-start; gap: 10px; }
-.facebook-pages-dialog-brand { display: flex; align-items: center; justify-content: center; flex: 0 0 32px; height: 32px; border-radius: 9px; background: #20334a; color: #81aee5; }
+.facebook-pages-dialog-brand { display: flex; align-items: center; justify-content: center; flex: 0 0 32px; height: 32px; border-radius:9px; background:var(--ui-paint-20334a); color:var(--ui-ink-81aee5); }
 .facebook-pages-dialog h3 { font-size: 14px; font-weight: 600; line-height: 20px; }
-.facebook-pages-dialog header p { margin-top: 3px; color: #93939e; font-size: 11px; line-height: 17px; }
-.facebook-pages-dialog header > button { display: flex; flex: 0 0 28px; align-items: center; justify-content: center; height: 28px; margin-left: auto; border-radius: 7px; color: #93939e; cursor: pointer; }
-.facebook-pages-dialog header > button:hover { background: #23232b; color: white; }
-.facebook-pages-dialog-loading { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 40px 0; color: #a1a1aa; font-size: 12px; }
+.facebook-pages-dialog header p { margin-top: 3px; color:var(--ui-ink-93939e); font-size: 11px; line-height: 17px; }
+.facebook-pages-dialog header > button { display: flex; flex: 0 0 28px; align-items: center; justify-content: center; height: 28px; margin-left: auto; border-radius:7px; color:var(--ui-ink-93939e); cursor: pointer; }
+.facebook-pages-dialog header > button:hover { background:var(--ui-paint-23232b); color:var(--foreground); }
+.facebook-pages-dialog-loading { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 40px 0; color:var(--ui-ink-a1a1aa); font-size: 12px; }
 .facebook-pages-dialog-list { display: flex; flex-direction: column; gap: 7px; max-height: 360px; overflow-y: auto; margin-top: 20px; }
-.facebook-pages-dialog-list > label { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #292930; border-radius: 10px; background: #19191f; cursor: pointer; }
-.facebook-pages-dialog-list > label[data-selected="true"] { border-color: #42638b; background: #1c2838; }
-.facebook-pages-dialog-avatar { position: relative; display: flex; align-items: center; justify-content: center; flex: 0 0 36px; height: 36px; overflow: hidden; border-radius: 9px; background: #232d3a; color: #81aee5; }
+.facebook-pages-dialog-list > label { display: flex; align-items: center; gap: 10px; padding: 10px; border:1px solid var(--ui-line-292930); border-radius:10px; background:var(--ui-paint-19191f); cursor: pointer; }
+.facebook-pages-dialog-list > label[data-selected="true"] { border-color:var(--ui-line-42638b); background:var(--ui-paint-1c2838); }
+.facebook-pages-dialog-avatar { position: relative; display: flex; align-items: center; justify-content: center; flex: 0 0 36px; height: 36px; overflow: hidden; border-radius:9px; background:var(--ui-paint-232d3a); color:var(--ui-ink-81aee5); }
 .facebook-pages-dialog-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .facebook-pages-dialog-page { min-width: 0; flex: 1; }
 .facebook-pages-dialog-page strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 500; line-height: 18px; }
-.facebook-pages-dialog-page a { display: inline-flex; align-items: center; gap: 2px; color: #9797a4; font-size: 10px; line-height: 16px; }
+.facebook-pages-dialog-page a { display: inline-flex; align-items: center; gap: 2px; color:var(--ui-ink-9797a4); font-size: 10px; line-height: 16px; }
 .facebook-pages-dialog-list input { width: 14px; height: 14px; accent-color: #7ca3d3; }
-.facebook-pages-dialog-error { margin-top: 14px; color: #d5a3a3; font-size: 11px; line-height: 17px; }
-.facebook-pages-dialog footer { display: flex; align-items: center; gap: 6px; margin-top: 20px; padding-top: 14px; border-top: 1px solid #292930; }
-.facebook-pages-dialog footer > span { flex: 1; color: #93939e; font-size: 10px; }
-.facebook-pages-dialog footer > button { display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 7px; color: #bdbdc6; font-size: 11px; cursor: pointer; }
-.facebook-pages-dialog footer > button:last-child { background: #dee6f0; color: #11151d; font-weight: 600; }
+.facebook-pages-dialog-error { margin-top: 14px; color:var(--ui-ink-d5a3a3); font-size: 11px; line-height: 17px; }
+.facebook-pages-dialog footer { display: flex; align-items: center; gap: 6px; margin-top: 20px; padding-top: 14px; border-top:1px solid var(--ui-line-292930); }
+.facebook-pages-dialog footer > span { flex: 1; color:var(--ui-ink-93939e); font-size: 10px; }
+.facebook-pages-dialog footer > button { display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius:7px; color:var(--ui-ink-bdbdc6); font-size: 11px; cursor: pointer; }
+.facebook-pages-dialog footer > button:last-child { background:var(--ui-paint-dee6f0); color:var(--ui-ink-11151d); font-weight: 600; }
 .facebook-pages-dialog button:disabled, .facebook-pages-dialog input:disabled { opacity: 0.4; cursor: default; }
-.facebook-pages-dialog button:focus-visible, .facebook-pages-dialog a:focus-visible, .facebook-pages-dialog input:focus-visible { outline: 2px solid #91b0d7; outline-offset: 2px; }
+.facebook-pages-dialog button:focus-visible, .facebook-pages-dialog a:focus-visible, .facebook-pages-dialog input:focus-visible { outline:2px solid var(--ui-line-91b0d7); outline-offset:2px; }

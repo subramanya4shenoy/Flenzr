@@ -23,7 +23,7 @@ function storage(seed = {}) {
 }
 
 test('migration clears old users and balances once, preserving preferences and unrelated data', () => {
-  const localStorage = storage({ flenzr_auth_session: 'old', flenzr_vault_available_balance: '185500', flenzr_avatar_old: 'old', flenzr_locale: 'kn', unrelated: 'keep' });
+  const localStorage = storage({ flenzr_auth_session: 'old', flenzr_vault_available_balance: '185500', flenzr_avatar_old: 'old', flenzr_locale: 'kn', flenzr_theme: 'light', unrelated: 'keep' });
   const sessionStorage = storage({ flenzr_token: 'old', unrelated: 'keep' });
   const api = load('src/lib/local-data.ts', { localStorage, sessionStorage });
   api.migrateLocalData();
@@ -31,6 +31,7 @@ test('migration clears old users and balances once, preserving preferences and u
   assert.equal(localStorage.getItem('flenzr_vault_available_balance'), null);
   assert.equal(localStorage.getItem('flenzr_avatar_old'), null);
   assert.equal(localStorage.getItem('flenzr_locale'), 'kn');
+  assert.equal(localStorage.getItem('flenzr_theme'), 'light');
   assert.equal(localStorage.getItem('unrelated'), 'keep');
   assert.equal(sessionStorage.getItem('flenzr_token'), null);
   localStorage.setItem('flenzr_creator_profile', 'new');
@@ -42,11 +43,13 @@ test('account switches cannot inherit a previous creator’s local deals', () =>
   const localStorage = storage();
   const api = load('src/lib/local-data.ts', { localStorage, sessionStorage: storage() });
   api.selectLocalAccount('first@example.com');
+  localStorage.setItem('flenzr_theme', 'light');
   localStorage.setItem('flenzr_collab_pipeline_deals', '[{"id":"first"}]');
   api.selectLocalAccount('FIRST@example.com');
   assert.notEqual(localStorage.getItem('flenzr_collab_pipeline_deals'), null);
   api.selectLocalAccount('second@example.com');
   assert.equal(localStorage.getItem('flenzr_collab_pipeline_deals'), null);
+  assert.equal(localStorage.getItem('flenzr_theme'), 'light');
 });
 
 function enrichment(fetch, connection = { ok: false, status: 409, json: async () => ({ error: { code: "INSTAGRAM_CONNECTION_REQUIRED" } }) }) {

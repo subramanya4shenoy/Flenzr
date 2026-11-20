@@ -27,7 +27,7 @@ export function LocalDataBoundary({ children }: { children: React.ReactNode }) {
   // after the migration, so stale users and balances cannot flash or reload.
   const accountScreen = pathname.startsWith("/dashboard") || pathname.startsWith("/signup") || pathname === "/login";
   if (accountScreen && !ready) {
-    return failed ? <p className="p-8 text-sm text-neutral-400" role="alert">Browser storage is unavailable. Enable site storage and reload to continue.</p> : <WorkspaceLoader label="Preparing your workspace…" />;
+    return failed ? <p className="p-8 text-sm text-[color:var(--ui-ink-neutral-400)]" role="alert">Browser storage is unavailable. Enable site storage and reload to continue.</p> : <WorkspaceLoader label="Preparing your workspace…" />;
   }
   return children;
 }
