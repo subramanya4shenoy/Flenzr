@@ -28,8 +28,10 @@ export function useBrandCampaigns() {
     return () => controller.abort();
   }, [attempt]);
   const retry = useCallback(() => { setLoading(true); setError(""); setAttempt((value) => value + 1); }, []);
-  return { campaigns, loading, error, missingOrganization, retry,
-    saved: (campaign: SavedCampaign) => { generation.current += 1; setLoading(false); setAttempt((value) => value + 1); setCampaigns((previous) => [campaign, ...(previous || []).filter((row) => row.id !== campaign.id)]); setError(""); setMissingOrganization(false); } };
+  return {
+    campaigns, loading, error, missingOrganization, retry,
+    saved: (campaign: SavedCampaign) => { generation.current += 1; setLoading(false); setAttempt((value) => value + 1); setCampaigns((previous) => [campaign, ...(previous || []).filter((row) => row.id !== campaign.id)]); setError(""); setMissingOrganization(false); }
+  };
 }
 
 export function CampaignDraftDialog({ campaignId, parentCampaignId, onClose, onSaved, onReloaded }: { campaignId: string | null; parentCampaignId?: string; onClose: () => void; onReloaded: () => void; onSaved: (campaign: SavedCampaign) => void }) {
@@ -48,16 +50,20 @@ export function CampaignDraftDialog({ campaignId, parentCampaignId, onClose, onS
   const dirty = JSON.stringify(fields) !== JSON.stringify(baseline);
   const readOnly = Boolean(campaign && campaign.status !== "draft");
   useEffect(() => { dialog.current?.showModal(); }, []);
+  // Keep the latest parent callback without making it a load dependency:
+  // an unstable callback would refetch and overwrite the fields being typed.
+  const reloaded = useRef(onReloaded);
+  useEffect(() => { reloaded.current = onReloaded; }, [onReloaded]);
   useEffect(() => {
     if (!campaignId && !requestId.current) return;
     const controller = new AbortController();
     campaignRequest<SavedCampaign>(`/${campaignId || requestId.current}`, { signal: controller.signal }).then((saved) => {
       if (controller.signal.aborted) return;
       setCampaign(saved); const restored = campaignDraftFields(saved);
-      setFields(restored); setBaseline(restored); setLoading(false); setError(""); setConflict(false); onReloaded();
+      setFields(restored); setBaseline(restored); setLoading(false); setError(""); setConflict(false); reloaded.current();
     }).catch((err) => { if (!controller.signal.aborted) { setError(err.message); setLoading(false); } });
     return () => controller.abort();
-  }, [campaignId, attempt, onReloaded]);
+  }, [campaignId, attempt]);
   useEffect(() => {
     if (!dirty) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
