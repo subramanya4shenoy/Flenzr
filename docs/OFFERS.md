@@ -1,5 +1,7 @@
 # Offers
 
+Campaigns now group multiple offers in the brand workspace. See [Campaigns and offers](CAMPAIGN-HIERARCHY.md) for the folder flow, existing-offer organisation and storage compatibility.
+
 Offers reuse the campaign, application and shared collaboration records. Existing direct enquiries remain private direct Offers; they are not automatically published or converted into a multi-creator brief.
 
 ## Listing design
@@ -46,3 +48,7 @@ Validation: 565 backend tests passed (17 optional checks skipped in the default 
 4. As the brand, refresh the Offer and send a counter. As the creator, refresh and accept it.
 5. Start the collaboration and confirm its quote matches the accepted counter. Agree on the proposal from both accounts, then refresh the Offer to see the claimed state.
 6. Repeat with another creator on the same Offer; selection of the first creator must not close the Offer or replace either application.
+
+Offer ticket previews use five complete SVG backgrounds recreated from the supplied references: Horizons, Neon Peak, Pastel Mesh, Black, and Iridescent Silk. Their composition, colors and fine grain live in `web/public/offer-patterns`, with no raster images embedded in the SVGs. Each artwork retains its palette in either workspace theme; light text is used on dark artwork and dark text on pastel artwork. The same artwork is fitted across the whole ticket header, without the earlier cream wash or extra noise layer.
+
+`offerTicketPattern(id)` preserves the existing six stable assignment slots; `offerTicketArtwork` maps them onto the five replacement designs. Refreshing, editing or changing devices does not reshuffle an offer's design. Preserve the assignment order and hash algorithm when extending the set.

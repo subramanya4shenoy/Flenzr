@@ -3,7 +3,7 @@
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Briefcase, Calendar, ChevronRight, Handshake, Inbox, LogOut, Menu, Search, Settings2, Users } from "lucide-react";
+import { BookOpen, Folder, Calendar, ChevronRight, Handshake, Inbox, LogOut, Menu, Search, Settings2, Users } from "lucide-react";
 import { DashboardSidebar, type DashboardNavItem } from "@/components/navigation/dashboard-sidebar";
 import { NotificationBell } from "@/components/notifications/notification-center";
 import { EnquiryUnreadBadge, useEnquiryActivity } from "@/components/enquiries/enquiry-activity";
@@ -17,7 +17,7 @@ export const useBrandWorkspace = () => useContext(BrandWorkspaceContext);
 const ROOT = "/dashboard/brand";
 const ITEMS: readonly DashboardNavItem[] = [
   { id: "discovery", label: "Discover", title: "Creator Discovery", icon: Search, group: 0, href: ROOT },
-  { id: "campaigns", label: "Offers", title: "Offers", icon: Briefcase, group: 0, href: ROOT + "#campaigns" },
+  { id: "campaigns", label: "Campaigns", title: "Campaigns", icon: Folder, group: 0, href: ROOT + "#campaigns" },
   { id: "shortlists", label: "Shortlists", title: "Shortlists", icon: Users, group: 0, href: ROOT + "#shortlists" },
   { id: "collaborations", label: "Collabs", title: "Collaborations", icon: Handshake, group: 1, href: "/dashboard/collaborations" },
   { id: "enquiries", label: "Direct Offers", title: "Sent direct Offers", icon: Inbox, group: 1, href: ROOT + "/enquiries" },
@@ -42,7 +42,7 @@ export function BrandWorkspace({ children }: { children: ReactNode }) {
     return () => { window.clearTimeout(timer); window.removeEventListener("hashchange", restore); window.removeEventListener("popstate", restore); };
   }, [pathname]);
   const active = pathname === ROOT
-    ? hash === "#campaigns" ? "campaigns" : hash === "#shortlists" ? "shortlists" : hash === "#how-it-works" ? "how_it_works" : "discovery"
+    ? (hash === "#campaigns" || hash.startsWith("#campaigns/")) ? "campaigns" : hash === "#shortlists" ? "shortlists" : hash === "#how-it-works" ? "how_it_works" : "discovery"
     : pathname.startsWith("/dashboard/offers/") ? "campaigns"
     : pathname.startsWith("/dashboard/collaborations") ? "collaborations"
     : pathname === "/dashboard/calendar" ? "calendar"

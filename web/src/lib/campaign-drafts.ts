@@ -4,6 +4,7 @@ export interface CampaignDraftFields {
   budget: string; currency: string; start_date: string; end_date: string;
 }
 export interface SavedCampaign {
+  parent_campaign_id?: string | null;
   visibility?: "public" | "invited";
   id: string; organization_id: string; title: string; brief: string;
   target_niche: string | null; deliverable_summary: string | null;

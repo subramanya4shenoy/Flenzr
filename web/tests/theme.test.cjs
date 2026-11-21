@@ -15,7 +15,7 @@ function bootstrap(saved, initial = 'dark', blocked = false) {
 test('saved light preference is applied before paint with native control and browser chrome colors', () => {
  const { root, meta } = bootstrap('light');
  assert.equal(root.dataset.theme, 'light'); assert.equal(root.dark, false);
- assert.equal(root.style.colorScheme, 'light'); assert.equal(meta.content, '#f5f6f9');
+ assert.equal(root.style.colorScheme, 'light'); assert.equal(meta.content, '#ffffff');
 });
 test('dark preference overrides a light server cookie', () => {
  const { root } = bootstrap('dark', 'light');

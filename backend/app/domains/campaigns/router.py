@@ -29,10 +29,14 @@ from app.domains.campaigns.schemas import (
     CampaignTransition,
 )
 from app.domains.campaigns.services import CampaignService
+from app.domains.campaigns.folders import router as folder_router
 from app.domains.identity.models import SystemRole, User
 from app.domains.identity.services import IdentityService
 
 router = APIRouter(prefix="/campaigns", tags=["Campaigns & Opportunities"])
+
+# Static folder routes must precede the legacy /{campaign_id} offer route.
+router.include_router(folder_router)
 
 
 @router.get("/me", response_model=List[CampaignRead])

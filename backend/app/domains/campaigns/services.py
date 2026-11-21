@@ -11,6 +11,7 @@ from app.domains.campaigns.models import (
     Campaign,
     CampaignApplication,
     CampaignInvitation,
+    MarketingCampaign,
     CampaignStatus,
     InvitationStatus,
 )
@@ -28,6 +29,13 @@ from app.domains.campaigns.schemas import (
 
 
 class CampaignService:
+    @staticmethod
+    async def validate_parent(db: AsyncSession, organization_id: str, parent_campaign_id: str | None):
+        if parent_campaign_id is not None and not await db.scalar(select(MarketingCampaign.id).where(
+            MarketingCampaign.id == parent_campaign_id, MarketingCampaign.organization_id == organization_id
+        )):
+            raise EntityNotFoundError("Campaign", parent_campaign_id)
+
     @staticmethod
     async def pipeline_summary(db: AsyncSession, organization_id: str):
         # Independent scalar aggregates avoid multiplying applications by invitations.
@@ -126,6 +134,7 @@ class CampaignService:
     async def create(
         db: AsyncSession, organization_id: str, payload: CampaignCreate
     ) -> Campaign:
+        await CampaignService.validate_parent(db, organization_id, payload.parent_campaign_id)
         campaign = Campaign(
             organization_id=organization_id,
             status=CampaignStatus.ACTIVE,  # Validated legacy create-and-publish request
@@ -305,6 +314,7 @@ class CampaignService:
 
     @staticmethod
     async def create_draft(db: AsyncSession, organization_id: str, payload: CampaignDraftCreate):
+        await CampaignService.validate_parent(db, organization_id, payload.parent_campaign_id)
         draft_id = str(payload.request_id)
         values = CampaignService._draft_values(payload)
         existing = await CampaignService.get_by_id(db, draft_id)
@@ -332,6 +342,8 @@ class CampaignService:
             raise EntityNotFoundError("Campaign", draft_id)
         CampaignService._check_draft(campaign, organization_id)
         values = CampaignService._draft_values(payload)
+        if "parent_campaign_id" in values:
+            await CampaignService.validate_parent(db, organization_id, values["parent_campaign_id"])
         if campaign.revision != payload.expected_revision:
             if campaign.revision == payload.expected_revision + 1 and CampaignService._same_draft(campaign, values):
                 return campaign

@@ -12,7 +12,7 @@ function apply(theme: Theme) {
   root.dataset.theme = theme;
   root.classList.toggle("dark", theme === "dark");
   root.style.colorScheme = theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#f5f6f9" : "#09090b");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#ffffff" : "#09090b");
 }
 
 function subscribe(listener: () => void) {

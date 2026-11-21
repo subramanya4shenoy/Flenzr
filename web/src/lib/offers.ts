@@ -10,6 +10,7 @@ export interface OfferApplication {
   history: { action: string; author: string; amount_cents: number; message: string; at: string }[];
 }
 export interface OfferWorkspace extends PublicOffer {
+  parent_campaign_id?: string | null; parent_campaign_title?: string | null;
   viewer_role: "brand" | "creator"; applications: OfferApplication[]; total_applications: number; page: number; invited: boolean;
 }
 export async function offerRequest<T>(path: string, options: RequestInit = {}): Promise<T> {

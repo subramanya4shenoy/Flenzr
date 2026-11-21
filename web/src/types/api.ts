@@ -1283,6 +1283,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/campaigns/folders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Folders */
+        get: operations["list_folders_api_v1_campaigns_folders_get"];
+        put?: never;
+        /** Create Folder */
+        post: operations["create_folder_api_v1_campaigns_folders_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/folders/{folder_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Folder */
+        get: operations["get_folder_api_v1_campaigns_folders__folder_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit Folder */
+        patch: operations["edit_folder_api_v1_campaigns_folders__folder_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/campaigns/folders/{folder_id}/open": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record Folder Open */
+        post: operations["record_folder_open_api_v1_campaigns_folders__folder_id__open_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaigns/{offer_id}/folder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Move Offer */
+        patch: operations["move_offer_api_v1_campaigns__offer_id__folder_patch"];
+        trace?: never;
+    };
     "/api/v1/campaigns/me": {
         parameters: {
             query?: never;
@@ -2318,6 +2388,8 @@ export interface components {
          * @description Legacy create-and-publish path uses the same readiness rules as publishing a draft.
          */
         CampaignCreate: {
+            /** Parent Campaign Id */
+            parent_campaign_id?: string | null;
             /**
              * Visibility
              * @default public
@@ -2346,6 +2418,8 @@ export interface components {
         };
         /** CampaignDraftCreate */
         CampaignDraftCreate: {
+            /** Parent Campaign Id */
+            parent_campaign_id?: string | null;
             /**
              * Visibility
              * @default public
@@ -2385,6 +2459,8 @@ export interface components {
         };
         /** CampaignDraftUpdate */
         CampaignDraftUpdate: {
+            /** Parent Campaign Id */
+            parent_campaign_id?: string | null;
             /**
              * Visibility
              * @default public
@@ -2407,6 +2483,59 @@ export interface components {
             start_date?: string | null;
             /** End Date */
             end_date?: string | null;
+            /** Expected Revision */
+            expected_revision: number;
+        };
+        /** CampaignFolderCreate */
+        CampaignFolderCreate: {
+            /** Title */
+            title: string;
+            /**
+             * Objective
+             * @default
+             */
+            objective: string;
+            /**
+             * Request Id
+             * Format: uuid
+             */
+            request_id: string;
+        };
+        /** CampaignFolderRead */
+        CampaignFolderRead: {
+            /** Title */
+            title: string;
+            /**
+             * Objective
+             * @default
+             */
+            objective: string;
+            /** Id */
+            id: string;
+            /** Revision */
+            revision: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Last Opened At */
+            last_opened_at?: string | null;
+        };
+        /** CampaignFolderUpdate */
+        CampaignFolderUpdate: {
+            /** Title */
+            title: string;
+            /**
+             * Objective
+             * @default
+             */
+            objective: string;
             /** Expected Revision */
             expected_revision: number;
         };
@@ -2531,6 +2660,8 @@ export interface components {
         };
         /** CampaignRead */
         CampaignRead: {
+            /** Parent Campaign Id */
+            parent_campaign_id?: string | null;
             /**
              * Visibility
              * @default public
@@ -3407,6 +3538,16 @@ export interface components {
             /** Created At */
             created_at: string;
         };
+        /** OfferFolderUpdate */
+        OfferFolderUpdate: {
+            /**
+             * Parent Campaign Id
+             * Format: uuid
+             */
+            parent_campaign_id: string;
+            /** Expected Revision */
+            expected_revision: number;
+        };
         /** OfferWorkspace */
         OfferWorkspace: {
             /** Id */
@@ -3437,6 +3578,10 @@ export interface components {
             revision: number;
             /** Accepting */
             accepting: boolean;
+            /** Parent Campaign Id */
+            parent_campaign_id?: string | null;
+            /** Parent Campaign Title */
+            parent_campaign_title?: string | null;
             /**
              * Viewer Role
              * @enum {string}
@@ -6995,6 +7140,191 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_folders_api_v1_campaigns_folders_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignFolderRead"][];
+                };
+            };
+        };
+    };
+    create_folder_api_v1_campaigns_folders_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignFolderCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignFolderRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_folder_api_v1_campaigns_folders__folder_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                folder_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignFolderRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_folder_api_v1_campaigns_folders__folder_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                folder_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignFolderUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignFolderRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_folder_open_api_v1_campaigns_folders__folder_id__open_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                folder_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignFolderRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    move_offer_api_v1_campaigns__offer_id__folder_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfferFolderUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignRead"];
+                };
             };
             /** @description Validation Error */
             422: {

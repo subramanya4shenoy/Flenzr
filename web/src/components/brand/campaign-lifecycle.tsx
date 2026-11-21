@@ -36,20 +36,20 @@ export function CampaignLifecycleDialog({ campaignId, action, onClose, onSaved, 
     try {
       const saved = await campaignRequest<SavedCampaign>(`/${campaign.id}/transition`, { method: "POST", body: JSON.stringify({ action, expected_revision: campaign.revision, expected_status: campaign.status }) });
       onSaved(saved); onClose();
-    } catch (err) { setError(err instanceof Error ? err.message : "Could not update this campaign. Please retry."); setStale(err instanceof CampaignRequestError && err.status === 409); }
+    } catch (err) { setError(err instanceof Error ? err.message : "Could not update this offer. Please retry."); setStale(err instanceof CampaignRequestError && err.status === 409); }
     finally { saving.current = false; setBusy(false); }
   }
   function reload() { setLoading(true); setAttempt(attempt + 1); }
   return <dialog ref={dialog} className="fl-campaign-dialog fl-campaign-transition" aria-labelledby="campaign-action-title" onCancel={(event) => { event.preventDefault(); if (!saving.current) onClose(); }}>
     <div className="fl-campaign-dialog-heading"><h2 id="campaign-action-title">{info.label}</h2><button type="button" disabled={busy} aria-label="Close campaign action" onClick={onClose}><X size={18} /></button></div>
-    {loading ? <p role="status">Loading current campaign…</p> : !campaign ? <div role="alert"><p>{error}</p><button type="button" onClick={reload}>Retry loading</button></div> : <form onSubmit={confirm}>
+    {loading ? <p role="status">Loading current offer…</p> : !campaign ? <div role="alert"><p>{error}</p><button type="button" onClick={reload}>Retry loading</button></div> : <form onSubmit={confirm}>
       <div className="fl-campaign-action-summary"><h3>{campaign.title}</h3><p>{campaignStatusLabel[campaign.status]} · {campaign.budget_total_cents ? campaignMoney(campaign.budget_total_cents, campaign.currency) : "Budget to discuss"}</p></div>
       <p>{info.description}</p>
       <p><strong>Audience:</strong> {campaign.visibility === "invited" ? "Private · only invited creators can view and apply. A copied link does not grant access." : "Public · the published brief can be shared with anyone."}</p>
       {!available && <p className="fl-campaign-error" role="status">This action is no longer available. Current status: {campaignStatusLabel[campaign.status]}.</p>}
       {issues.length > 0 && <div className="fl-campaign-requirements"><h3>Before you {action}</h3><ul>{issues.map((issue) => <li key={issue}>{issue}</li>)}</ul>{campaign.status === "draft" && <button type="button" onClick={() => onEdit(campaign.id)}>Edit draft</button>}</div>}
       {error && <p className="fl-campaign-error" role="alert">{error}</p>}
-      {stale && <button type="button" onClick={reload}>Reload campaign</button>}
+      {stale && <button type="button" onClick={reload}>Reload offer</button>}
       <footer><button type="button" disabled={busy} onClick={onClose}>{available ? "Keep current status" : "Done"}</button>{available && <button type="submit" disabled={busy || Boolean(issues.length) || stale}>{busy ? "Updating…" : info.label}</button>}</footer>
     </form>}
   </dialog>;

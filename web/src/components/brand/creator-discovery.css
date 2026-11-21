@@ -25,7 +25,7 @@
 .fl-discovery-card footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; border-top:1px solid var(--ui-line-29292f); margin-top:18px; padding-top:14px; }
 .fl-discovery-card footer>span { font-size:11px; color:var(--ui-ink-92929d); }
 .fl-discovery-card footer a { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; }
-.fl-discovery-pagination { display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:flex-end; margin-top:24px; }
+.fl-discovery-pagination { display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:center; margin-top:24px; }
 .fl-discovery-pagination span { font-size:12px; color:var(--ui-ink-9999a5); }
 .fl-discovery-empty { text-align:center; border:1px dashed var(--ui-line-33333b); border-radius:14px; padding:36px 18px; }
 .fl-discovery-empty h3 { font-size:16px; font-weight:600; }

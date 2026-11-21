@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import enum
 from typing import List, Optional
 import uuid
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, Integer, JSON, String, Text
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, ForeignKeyConstraint, Index, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, TimestampMixin
@@ -29,6 +29,20 @@ class InvitationStatus(str, enum.Enum):
     DECLINED = "declined"
 
 
+class MarketingCampaign(Base, TimestampMixin):
+    """An organization's private campaign folder; existing Campaign rows are offers."""
+    __tablename__ = "marketing_campaigns"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    organization_id: Mapped[str] = mapped_column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    objective: Mapped[str] = mapped_column(Text, nullable=False, default="", server_default="")
+    last_opened_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
+
+    __table_args__ = (UniqueConstraint("id", "organization_id", name="uq_marketing_campaign_owner"),)
+
+
 class Campaign(Base, TimestampMixin):
     __tablename__ = "campaigns"
 
@@ -44,6 +58,7 @@ class Campaign(Base, TimestampMixin):
         index=True,
     )
     revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
+    parent_campaign_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True, index=True)
     visibility: Mapped[str] = mapped_column(String(16), default="public", server_default="public", nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     brief: Mapped[str] = mapped_column(Text, nullable=False)
@@ -63,6 +78,12 @@ class Campaign(Base, TimestampMixin):
     organization = relationship("Organization", back_populates="campaigns", lazy="selectin")
     applications = relationship("CampaignApplication", back_populates="campaign", cascade="all, delete-orphan")
     invitations = relationship("CampaignInvitation", back_populates="campaign", cascade="all, delete-orphan")
+
+    __table_args__ = (ForeignKeyConstraint(
+        ["parent_campaign_id", "organization_id"],
+        ["marketing_campaigns.id", "marketing_campaigns.organization_id"],
+        name="fk_offer_parent_campaign_owner",
+    ),)
 
 
 class CampaignApplication(Base, TimestampMixin):

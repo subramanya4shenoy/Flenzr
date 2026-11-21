@@ -32,7 +32,7 @@ export function useBrandCampaigns() {
     saved: (campaign: SavedCampaign) => { generation.current += 1; setLoading(false); setAttempt((value) => value + 1); setCampaigns((previous) => [campaign, ...(previous || []).filter((row) => row.id !== campaign.id)]); setError(""); setMissingOrganization(false); } };
 }
 
-export function CampaignDraftDialog({ campaignId, onClose, onSaved, onReloaded }: { campaignId: string | null; onClose: () => void; onReloaded: () => void; onSaved: (campaign: SavedCampaign) => void }) {
+export function CampaignDraftDialog({ campaignId, parentCampaignId, onClose, onSaved, onReloaded }: { campaignId: string | null; parentCampaignId?: string; onClose: () => void; onReloaded: () => void; onSaved: (campaign: SavedCampaign) => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const saving = useRef(false);
   const requestId = useRef<string | null>(null);
@@ -76,7 +76,7 @@ export function CampaignDraftDialog({ campaignId, onClose, onSaved, onReloaded }
       saving.current = true; setBusy(true);
       requestId.current ||= crypto.randomUUID();
       const saved = await campaignRequest<SavedCampaign>(campaign ? `/${campaign.id}/draft` : "/drafts", {
-        method: campaign ? "PATCH" : "POST", body: JSON.stringify({ ...payload, ...(campaign ? { expected_revision: campaign.revision } : { request_id: requestId.current }) }),
+        method: campaign ? "PATCH" : "POST", body: JSON.stringify({ ...payload, ...(campaign ? { expected_revision: campaign.revision } : { request_id: requestId.current, ...(parentCampaignId ? { parent_campaign_id: parentCampaignId } : {}) }) }),
       });
       onSaved(saved); onClose();
     } catch (err) {
@@ -91,9 +91,9 @@ export function CampaignDraftDialog({ campaignId, onClose, onSaved, onReloaded }
       onChange={(event) => setFields({ ...fields, [key]: event.target.value })} /></label>;
   }
   return <dialog ref={dialog} className="fl-campaign-dialog" onCancel={(event) => { event.preventDefault(); close(); }} aria-labelledby="campaign-dialog-title">
-    <div className="fl-campaign-dialog-heading"><div><h2 id="campaign-dialog-title">{readOnly ? "Offer brief" : campaign || campaignId ? "Edit Offer draft" : "New Offer draft"}</h2><p>{readOnly ? "Saved campaign details" : "Only your brand can see this draft."}</p></div><button type="button" aria-label="Close campaign editor" onClick={close} disabled={busy}><X size={18} /></button></div>
+    <div className="fl-campaign-dialog-heading"><div><h2 id="campaign-dialog-title">{readOnly ? "Offer brief" : campaign || campaignId ? "Edit Offer draft" : "New Offer draft"}</h2><p>{readOnly ? "Saved offer details" : "Only your brand can see this draft."}</p></div><button type="button" aria-label="Close offer editor" onClick={close} disabled={busy}><X size={18} /></button></div>
     {loading ? <WorkspaceLoader label="Loading saved brief…" compact /> : campaignId && !campaign ? <div role="alert"><p>{error}</p><button onClick={() => { setLoading(true); setAttempt(attempt + 1); }}>Retry loading</button></div> : <form onSubmit={submit}>
-      <fieldset disabled={busy || readOnly || discarding || conflict}><legend className="fl-campaign-visually-hidden">Campaign details</legend><div className="fl-campaign-form-grid">
+      <fieldset disabled={busy || readOnly || discarding || conflict}><legend className="fl-campaign-visually-hidden">Offer details</legend><div className="fl-campaign-form-grid">
         {input("title", "Offer title", 255)}
         <label><span>Who can see and apply?</span><select name="campaign-visibility" value={fields.visibility || "public"} onChange={event => setFields({ ...fields, visibility: event.target.value as "public" | "invited" })}><option value="invited">Private · invited creators only</option><option value="public">Public · shareable Offer page</option></select></label>{input("target_niche", "Target niche · optional", 128)}
         <label className="fl-campaign-wide"><span>Brief · optional while drafting</span><textarea name="campaign-brief" rows={4} maxLength={20000} value={fields.brief} onChange={(event) => setFields({ ...fields, brief: event.target.value })} /></label>
@@ -108,10 +108,10 @@ export function CampaignDraftDialog({ campaignId, onClose, onSaved, onReloaded }
   </dialog>;
 }
 
-export function CampaignList({ campaigns, loading, error, missingOrganization, retry, onOpen, onAction, onActivity }: ReturnType<typeof useBrandCampaigns> & { onOpen: (id: string) => void; onActivity: (campaign: SavedCampaign) => void; onAction: (campaign: SavedCampaign, action: CampaignAction) => void }) {
+export function CampaignList({ campaigns, loading, error, missingOrganization, retry, onOpen, onAction, onActivity, onMove }: ReturnType<typeof useBrandCampaigns> & { onOpen: (id: string) => void; onActivity: (campaign: SavedCampaign) => void; onAction: (campaign: SavedCampaign, action: CampaignAction) => void; onMove?: (offer: SavedCampaign) => void }) {
   if (loading) return <WorkspaceLoader label="Loading Offers…" />;
-  if (missingOrganization) return <div className="fl-campaign-state"><h2>Set up your brand first</h2><p>Add your company details before saving a campaign draft.</p><Link href="/dashboard/brand/profile">Open brand profile</Link></div>;
-  if (error) return <div className="fl-campaign-state" role="alert"><p>{error}</p><button type="button" onClick={retry}>Retry campaigns</button></div>;
+  if (missingOrganization) return <div className="fl-campaign-state"><h2>Set up your brand first</h2><p>Add your company details before saving an offer draft.</p><Link href="/dashboard/brand/profile">Open brand profile</Link></div>;
+  if (error) return <div className="fl-campaign-state" role="alert"><p>{error}</p><button type="button" onClick={retry}>Retry offers</button></div>;
   if (!campaigns?.length) return <div className="fl-campaign-state"><h2>No Offers yet</h2><p>Create your first Offer and shape the brief.</p></div>;
   return <section className="fl-ticket-grid" aria-label="Saved Offers">{campaigns.map((campaign) => {
     const expired = campaign.status === "active" && !campaignOpen(campaign);
@@ -126,6 +126,7 @@ export function CampaignList({ campaigns, loading, error, missingOrganization, r
       <details><summary>Manage Offer</summary><div className="fl-ticket-management">
         <button type="button" onClick={() => onActivity(campaign)}>Applications &amp; invitations</button>
         <button type="button" onClick={() => onOpen(campaign.id)}>{campaign.status === "draft" ? "Edit draft" : "View brief"}</button>
+        {onMove && <button type="button" onClick={() => onMove(campaign)}>Move to campaign</button>}
         {campaignActions(campaign.status).map((action) => <button type="button" key={action} onClick={() => onAction(campaign, action)}>{action === "publish" ? "Publish" : action === "close" ? "Close" : action === "cancel" ? "Cancel" : action === "pause" ? "Pause" : "Resume"}</button>)}
       </div></details>
     </OfferTicket>;

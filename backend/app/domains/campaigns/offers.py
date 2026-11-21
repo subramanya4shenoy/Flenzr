@@ -14,7 +14,7 @@ from app.core.exceptions import EntityNotFoundError, FlenzrException, Permission
 from app.domains.identity.models import User
 from app.domains.creators.models import Creator
 from app.domains.brands.models import Organization
-from .models import Campaign, CampaignApplication, CampaignInvitation, CampaignStatus, ApplicationStatus
+from .models import Campaign, CampaignApplication, CampaignInvitation, CampaignStatus, ApplicationStatus, MarketingCampaign
 from .services import CampaignService
 
 router = APIRouter(prefix='/offers', tags=['Offers'])
@@ -49,6 +49,8 @@ class Application(BaseModel):
     claimed: bool = False
 
 class OfferWorkspace(PublicOffer):
+    parent_campaign_id: str | None = None
+    parent_campaign_title: str | None = None
     viewer_role: Literal['brand', 'creator']
     applications: list[Application]
     total_applications: int
@@ -115,7 +117,11 @@ async def workspace(offer_id: UUID, page: int = Query(1, ge=1, le=10000), user: 
         query = query.where(CampaignApplication.creator_id == creator)
     total = await db.scalar(select(func.count()).select_from(query.subquery()))
     records = (await db.scalars(query.order_by(CampaignApplication.created_at.desc(), CampaignApplication.id).offset((page-1)*20).limit(20))).all()
-    return {**await document(db, row), 'viewer_role':role, 'applications':[await application_view(db, a) for a in records], 'total_applications':total, 'page':page, 'invited':invited}
+    parent = await db.scalar(select(MarketingCampaign).where(MarketingCampaign.id == row.parent_campaign_id,
+        MarketingCampaign.organization_id == row.organization_id)) if role == 'brand' and row.parent_campaign_id else None
+    return {**await document(db, row), 'parent_campaign_id': parent.id if parent else None,
+        'parent_campaign_title': parent.title if parent else None, 'viewer_role':role,
+        'applications':[await application_view(db, a) for a in records], 'total_applications':total, 'page':page, 'invited':invited}
 
 @router.post('/{offer_id}/applications/{application_id}/negotiate', response_model=Application)
 async def negotiate(offer_id: UUID, application_id: UUID, body: Negotiate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):

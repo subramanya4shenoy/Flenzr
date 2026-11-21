@@ -14,7 +14,7 @@ const inter = Inter({
 
 export async function generateViewport(): Promise<Viewport> {
   const theme = (await cookies()).get("flenzr_theme")?.value;
-  return { themeColor: theme === "light" ? "#f5f6f9" : "#09090b" };
+  return { themeColor: theme === "light" ? "#ffffff" : "#09090b" };
 }
 
 export const metadata: Metadata = {

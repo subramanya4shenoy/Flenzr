@@ -4387,6 +4387,290 @@
         }
       }
     },
+    "/api/v1/campaigns/folders": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "List Folders",
+        "operationId": "list_folders_api_v1_campaigns_folders_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CampaignFolderRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Folders Api V1 Campaigns Folders Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Create Folder",
+        "operationId": "create_folder_api_v1_campaigns_folders_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignFolderCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignFolderRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/campaigns/folders/{folder_id}": {
+      "get": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Get Folder",
+        "operationId": "get_folder_api_v1_campaigns_folders__folder_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "folder_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Folder Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignFolderRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Edit Folder",
+        "operationId": "edit_folder_api_v1_campaigns_folders__folder_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "folder_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Folder Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignFolderUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignFolderRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/folders/{folder_id}/open": {
+      "post": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Record Folder Open",
+        "operationId": "record_folder_open_api_v1_campaigns_folders__folder_id__open_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "folder_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Folder Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignFolderRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{offer_id}/folder": {
+      "patch": {
+        "tags": [
+          "Campaigns & Opportunities"
+        ],
+        "summary": "Move Offer",
+        "operationId": "move_offer_api_v1_campaigns__offer_id__folder_patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Offer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfferFolderUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/campaigns/me": {
       "get": {
         "tags": [
@@ -7634,6 +7918,19 @@
       },
       "CampaignCreate": {
         "properties": {
+          "parent_campaign_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 36,
+                "minLength": 36
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Campaign Id"
+          },
           "visibility": {
             "type": "string",
             "enum": [
@@ -7718,6 +8015,19 @@
       },
       "CampaignDraftCreate": {
         "properties": {
+          "parent_campaign_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 36,
+                "minLength": 36
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Campaign Id"
+          },
           "visibility": {
             "type": "string",
             "enum": [
@@ -7816,6 +8126,19 @@
       },
       "CampaignDraftUpdate": {
         "properties": {
+          "parent_campaign_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 36,
+                "minLength": 36
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Campaign Id"
+          },
           "visibility": {
             "type": "string",
             "enum": [
@@ -7935,6 +8258,118 @@
           "expected_revision"
         ],
         "title": "CampaignDraftUpdate"
+      },
+      "CampaignFolderCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "objective": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Objective",
+            "default": ""
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "request_id"
+        ],
+        "title": "CampaignFolderCreate"
+      },
+      "CampaignFolderRead": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "objective": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Objective",
+            "default": ""
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "last_opened_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Opened At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "id",
+          "revision",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CampaignFolderRead"
+      },
+      "CampaignFolderUpdate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "objective": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Objective",
+            "default": ""
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "expected_revision"
+        ],
+        "title": "CampaignFolderUpdate"
       },
       "CampaignInvitationCreate": {
         "properties": {
@@ -8295,6 +8730,17 @@
       },
       "CampaignRead": {
         "properties": {
+          "parent_campaign_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Campaign Id"
+          },
           "visibility": {
             "type": "string",
             "enum": [
@@ -10580,6 +11026,27 @@
         ],
         "title": "NotificationRead"
       },
+      "OfferFolderUpdate": {
+        "properties": {
+          "parent_campaign_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Parent Campaign Id"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "parent_campaign_id",
+          "expected_revision"
+        ],
+        "title": "OfferFolderUpdate"
+      },
       "OfferWorkspace": {
         "properties": {
           "id": {
@@ -10667,6 +11134,28 @@
           "accepting": {
             "type": "boolean",
             "title": "Accepting"
+          },
+          "parent_campaign_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Campaign Id"
+          },
+          "parent_campaign_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Campaign Title"
           },
           "viewer_role": {
             "type": "string",

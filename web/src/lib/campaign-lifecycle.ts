@@ -3,11 +3,11 @@ import type { SavedCampaign } from "./campaign-drafts";
 export type CampaignAction = "publish" | "pause" | "resume" | "close" | "cancel";
 export const campaignStatusLabel = { draft: "Draft", active: "Published", paused: "Paused", completed: "Closed", cancelled: "Cancelled" };
 export const campaignActionInfo: Record<CampaignAction, { label: string; done: string; target: SavedCampaign["status"]; description: string }> = {
-  publish: { label: "Publish campaign", done: "Campaign published.", target: "active", description: "Make this brief visible to creators and open it for applications. Publishing does not take a payment." },
-  pause: { label: "Pause campaign", done: "Campaign paused.", target: "paused", description: "Hide this opportunity and stop new applications and invitations. You can resume it later." },
-  resume: { label: "Resume campaign", done: "Campaign resumed.", target: "active", description: "Make this opportunity visible again and accept new applications and invitations." },
-  close: { label: "Close campaign", done: "Campaign closed.", target: "completed", description: "Stop accepting new applications and invitations permanently. This does not mark existing collaboration work as delivered or paid." },
-  cancel: { label: "Cancel campaign", done: "Campaign cancelled.", target: "cancelled", description: "Cancel this campaign permanently. Existing collaboration records and payments remain unchanged." },
+  publish: { label: "Publish offer", done: "Offer published.", target: "active", description: "Make this brief visible to creators and open it for applications. Publishing does not take a payment." },
+  pause: { label: "Pause offer", done: "Offer paused.", target: "paused", description: "Hide this opportunity and stop new applications and invitations. You can resume it later." },
+  resume: { label: "Resume offer", done: "Offer resumed.", target: "active", description: "Make this opportunity visible again and accept new applications and invitations." },
+  close: { label: "Close offer", done: "Offer closed.", target: "completed", description: "Stop accepting new applications and invitations permanently. This does not mark existing collaboration work as delivered or paid." },
+  cancel: { label: "Cancel offer", done: "Offer cancelled.", target: "cancelled", description: "Cancel this offer permanently. Existing collaboration records and payments remain unchanged." },
 };
 export function campaignActions(status: SavedCampaign["status"]): CampaignAction[] {
   return status === "draft" ? ["publish", "cancel"] : status === "active" ? ["pause", "close", "cancel"] : status === "paused" ? ["resume", "close", "cancel"] : [];

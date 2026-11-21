@@ -29,6 +29,7 @@ class CampaignUpdate(BaseModel):
 
 class CampaignDraftFields(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    parent_campaign_id: Optional[str] = Field(None, min_length=36, max_length=36)
     visibility: Literal["public", "invited"] = "public"
     title: str = Field(min_length=3, max_length=255)
     brief: str = Field(default="", max_length=20000)
@@ -116,6 +117,7 @@ class CampaignApplicantPreview(BaseModel):
 
 
 class CampaignRead(BaseModel):
+    parent_campaign_id: Optional[str] = None
     visibility: Literal["public", "invited"] = "public"
     id: str
     organization_id: str
