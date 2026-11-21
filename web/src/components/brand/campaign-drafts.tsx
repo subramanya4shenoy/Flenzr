@@ -28,10 +28,8 @@ export function useBrandCampaigns() {
     return () => controller.abort();
   }, [attempt]);
   const retry = useCallback(() => { setLoading(true); setError(""); setAttempt((value) => value + 1); }, []);
-  return {
-    campaigns, loading, error, missingOrganization, retry,
-    saved: (campaign: SavedCampaign) => { generation.current += 1; setLoading(false); setAttempt((value) => value + 1); setCampaigns((previous) => [campaign, ...(previous || []).filter((row) => row.id !== campaign.id)]); setError(""); setMissingOrganization(false); }
-  };
+  return { campaigns, loading, error, missingOrganization, retry,
+    saved: (campaign: SavedCampaign) => { generation.current += 1; setLoading(false); setAttempt((value) => value + 1); setCampaigns((previous) => [campaign, ...(previous || []).filter((row) => row.id !== campaign.id)]); setError(""); setMissingOrganization(false); } };
 }
 
 export function CampaignDraftDialog({ campaignId, parentCampaignId, onClose, onSaved, onReloaded }: { campaignId: string | null; parentCampaignId?: string; onClose: () => void; onReloaded: () => void; onSaved: (campaign: SavedCampaign) => void }) {
