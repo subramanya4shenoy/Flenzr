@@ -100,7 +100,7 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
       try {
         const parsed = JSON.parse((event as MessageEvent).data);
         if (typeof parsed.peer_online === "boolean") setPeerOnline(parsed.peer_online);
-      } catch {}
+      } catch { }
     });
 
     source.addEventListener("presence", event => {
@@ -108,7 +108,7 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
         const parsed = JSON.parse((event as MessageEvent).data);
         setPeerOnline(Boolean(parsed.online));
         if (!parsed.online && parsed.at) setPeerLastSeen(parsed.at);
-      } catch {}
+      } catch { }
     });
 
     source.addEventListener("typing", event => {
@@ -120,7 +120,7 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
         if (active) {
           typingTimer.current = setTimeout(() => setPeerTyping(false), 4500);
         }
-      } catch {}
+      } catch { }
     });
 
     source.addEventListener("message", event => {
@@ -141,7 +141,7 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
         });
         void markRead(incoming.sequence);
         onActivity?.();
-      } catch {}
+      } catch { }
     });
 
     source.addEventListener("read", event => {
@@ -150,7 +150,7 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
         if (typeof parsed.last_read_sequence === "number") {
           setPeerLastRead(prev => Math.max(prev, parsed.last_read_sequence));
         }
-      } catch {}
+      } catch { }
     });
 
     source.addEventListener("reaction", event => {
@@ -166,7 +166,7 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
             },
           };
         });
-      } catch {}
+      } catch { }
     });
 
     const forwardCall = (kind: string) => (event: Event) => {
@@ -183,7 +183,7 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
           setCall(prev => prev.phase !== "idle" && (!callId || prev.callId === callId) ? { phase: "idle" } : prev);
         }
         callSignalHandlers.current.forEach(fn => fn(kind, payload));
-      } catch {}
+      } catch { }
     };
 
     for (const kind of ["call_ring", "call_accept", "call_decline", "call_offer", "call_answer", "call_ice", "call_end"]) {
@@ -341,7 +341,7 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
     setCall({ phase: "idle" });
     await sendSignal(wasOutgoing ? "call_end" : "call_decline", { call_id: callId });
     if (wasOutgoing) {
-      void postMessage("Missed video call", "call_event").catch(() => {});
+      void postMessage("Missed video call", "call_event").catch(() => { });
     }
   }
 
@@ -353,7 +353,7 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
     const mins = Math.floor(durationSeconds / 60);
     const secs = durationSeconds % 60;
     const summary = mins > 0 ? `Video call · ${mins}m ${secs}s` : `Video call · ${secs}s`;
-    void postMessage(summary, "call_event").catch(() => {});
+    void postMessage(summary, "call_event").catch(() => { });
   }
 
   const meta: ChatParticipantMeta | null | undefined = data?.meta;
@@ -364,169 +364,169 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
 
   return <section id="collaboration-messages" className="fl-chat-container" aria-label="Private collaboration chat">
     <div className="fl-chat-shell" data-in-call={inActiveCall}>
-    {/* Active Video Call Split Stage */}
-    {call.phase === "active" && <VideoCallStage
-      callId={call.callId}
-      isCaller={call.isCaller}
-      peerName={peerName}
-      peerAvatarUrl={meta?.peer_avatar_url || null}
-      sendSignal={sendSignal}
-      registerSignalHandler={registerSignalHandler}
-      onEnd={secs => void endActiveCall(secs)}
-    />}
+      {/* Active Video Call Split Stage */}
+      {call.phase === "active" && <VideoCallStage
+        callId={call.callId}
+        isCaller={call.isCaller}
+        peerName={peerName}
+        peerAvatarUrl={meta?.peer_avatar_url || null}
+        sendSignal={sendSignal}
+        registerSignalHandler={registerSignalHandler}
+        onEnd={secs => void endActiveCall(secs)}
+      />}
 
-    <div className="fl-chat-pane">
-      {/* Chat Header */}
-      <header className="fl-chat-header">
-        <div className="fl-chat-peer">
-          <ChatAvatar name={peerName} url={meta?.peer_avatar_url} online={online} />
-          <div className="fl-chat-peer-copy">
-            <h2>{peerName}</h2>
-            <p className="fl-chat-presence" data-typing={peerTyping} data-online={online}>{statusText}</p>
-          </div>
-        </div>
-        <div className="fl-chat-header-actions">
-          <button type="button" className="fl-chat-icon-btn fl-chat-call-btn" disabled={call.phase !== "idle" || loading} onClick={() => void startCall()} title="Start video call" aria-label="Start video call">
-            <Video size={16} aria-hidden="true" />
-            <span>Video call</span>
-          </button>
-          <button type="button" className="fl-chat-icon-btn" disabled={loading || busy} onClick={() => { setCursors([]); setAttempt(v => v + 1); }} title="Refresh messages" aria-label="Refresh messages">
-            <RefreshCw size={15} aria-hidden="true" />
-          </button>
-        </div>
-      </header>
-
-      {/* Incoming / Outgoing Ringing Banner */}
-      {call.phase === "incoming" && <div className="fl-call-banner" role="alert">
-        <div className="fl-call-banner-copy"><PhoneIncoming size={17} aria-hidden="true" /><span><strong>{peerName}</strong> is calling you on video…</span></div>
-        <div className="fl-call-banner-actions">
-          <button type="button" className="fl-call-accept" onClick={() => void acceptCall()}><Phone size={14} aria-hidden="true" /> Accept</button>
-          <button type="button" className="fl-call-decline" onClick={() => void declineOrCancelCall()}><PhoneOff size={14} aria-hidden="true" /> Decline</button>
-        </div>
-      </div>}
-
-      {call.phase === "outgoing" && <div className="fl-call-banner" role="status">
-        <div className="fl-call-banner-copy"><Video size={17} aria-hidden="true" /><span>Calling <strong>{peerName}</strong>… waiting for answer</span></div>
-        <div className="fl-call-banner-actions">
-          <button type="button" className="fl-call-decline" onClick={() => void declineOrCancelCall()}><PhoneOff size={14} aria-hidden="true" /> Cancel</button>
-        </div>
-      </div>}
-
-      {/* Message Feed */}
-      <div className="fl-chat-body" ref={list} tabIndex={0} role="region" aria-label="Conversation history" aria-busy={loading}>
-        {loading ? <p className="fl-chat-empty" role="status">Loading conversation…</p>
-          : state?.error && !data ? <div className="fl-chat-empty" role="alert"><p>{state.error}</p><button type="button" onClick={() => setAttempt(v => v + 1)}>Retry</button></div>
-          : data && <>
-            {data.next_before !== null && <div className="fl-chat-load-more">
-              <button type="button" disabled={busy} onClick={() => { const c = data.next_before; if (c !== null) setCursors(old => [...old, c]); }}>Load older messages</button>
-            </div>}
-            {cursors.length > 0 && <div className="fl-chat-load-more">
-              <button type="button" disabled={busy} onClick={() => setCursors([])}>Jump to latest</button>
-            </div>}
-
-            {!data.items.length ? <div className="fl-chat-empty">
-              <p>Start the conversation with <strong>{peerName}</strong>.</p>
-              <small>Messages are private to you and your collaborator. Agreed terms still require a proposal.</small>
-            </div> : <ol className="fl-chat-list">
-              {data.items.map((message, index) => {
-                const prev = data.items[index - 1];
-                const day = formatDayLabel(message.sent_at);
-                const showDay = !prev || formatDayLabel(prev.sent_at) !== day;
-                const isRead = message.is_mine && peerLastRead >= message.sequence;
-                const reactions = message.reactions || [];
-
-                return <li key={message.id} className="fl-chat-row-wrap">
-                  {showDay && <div className="fl-chat-day"><span>{day}</span></div>}
-                  {message.message_type === "call_event" ? (
-                    <div className="fl-chat-call-event">
-                      <Video size={13} aria-hidden="true" />
-                      <span>{message.text}</span>
-                      <time dateTime={message.sent_at}>{formatShortTime(message.sent_at)}</time>
-                    </div>
-                  ) : (
-                    <div className="fl-chat-row" data-mine={message.is_mine}>
-                      {!message.is_mine && <ChatAvatar name={peerName} url={meta?.peer_avatar_url} size="sm" />}
-                      <div className="fl-chat-bubble-col">
-                        <div className="fl-chat-bubble-wrap">
-                          <div className="fl-chat-bubble" data-mine={message.is_mine}>
-                            <p>{message.text}</p>
-                            <span className="fl-chat-meta">
-                              <time dateTime={message.sent_at}>{formatShortTime(message.sent_at)}</time>
-                              {message.is_mine && (isRead
-                                ? <CheckCheck size={14} className="fl-chat-tick-read" aria-label="Read" />
-                                : <Check size={14} className="fl-chat-tick-sent" aria-label="Sent" />)}
-                            </span>
-                          </div>
-                          <div className="fl-chat-quick-react" aria-label="Quick reactions">
-                            {QUICK_REACTIONS.map(emoji => (
-                              <button key={emoji} type="button" onClick={() => void toggleReaction(message.id, emoji)} aria-label={`React with ${emoji}`}>{emoji}</button>
-                            ))}
-                          </div>
-                        </div>
-                        {reactions.length > 0 && <div className="fl-chat-reactions">
-                          {reactions.map(r => (
-                            <button key={r.emoji} type="button" data-mine={r.reacted_by_me} onClick={() => void toggleReaction(message.id, r.emoji)}>
-                              <span>{r.emoji}</span>{r.count > 1 && <small>{r.count}</small>}
-                            </button>
-                          ))}
-                        </div>}
-                      </div>
-                      {message.is_mine && <ChatAvatar name="You" url={meta?.my_avatar_url} size="sm" />}
-                    </div>
-                  )}
-                </li>;
-              })}
-            </ol>}
-
-            {peerTyping && <div className="fl-chat-row" data-mine={false} aria-live="polite">
-              <ChatAvatar name={peerName} url={meta?.peer_avatar_url} size="sm" />
-              <div className="fl-chat-typing-bubble" aria-label={`${peerName} is typing`}>
-                <span /><span /><span />
-              </div>
-            </div>}
-          </>}
-      </div>
-
-      {/* Composer + Emoji Picker */}
-      <form className="fl-chat-composer" onSubmit={event => void send(event)}>
-        {error && <p className="fl-chat-error" role="alert">{error}{locked && " Retry to confirm whether it was sent."}</p>}
-        {emojiOpen && <div className="fl-emoji-popover" role="dialog" aria-label="Emoji picker">
-          {EMOJI_GROUPS.map(group => (
-            <div key={group.label} className="fl-emoji-group">
-              <span>{group.label}</span>
-              <div>{group.emojis.map(emoji => (
-                <button key={emoji} type="button" onClick={() => insertEmoji(emoji)}>{emoji}</button>
-              ))}</div>
+      <div className="fl-chat-pane">
+        {/* Chat Header */}
+        <header className="fl-chat-header">
+          <div className="fl-chat-peer">
+            <ChatAvatar name={peerName} url={meta?.peer_avatar_url} online={online} />
+            <div className="fl-chat-peer-copy">
+              <h2>{peerName}</h2>
+              <p className="fl-chat-presence" data-typing={peerTyping} data-online={online}>{statusText}</p>
             </div>
-          ))}
+          </div>
+          <div className="fl-chat-header-actions">
+            <button type="button" className="fl-chat-icon-btn fl-chat-call-btn" disabled={call.phase !== "idle" || loading} onClick={() => void startCall()} title="Start video call" aria-label="Start video call">
+              <Video size={16} aria-hidden="true" />
+              <span>Video call</span>
+            </button>
+            <button type="button" className="fl-chat-icon-btn" disabled={loading || busy} onClick={() => { setCursors([]); setAttempt(v => v + 1); }} title="Refresh messages" aria-label="Refresh messages">
+              <RefreshCw size={15} aria-hidden="true" />
+            </button>
+          </div>
+        </header>
+
+        {/* Incoming / Outgoing Ringing Banner */}
+        {call.phase === "incoming" && <div className="fl-call-banner" role="alert">
+          <div className="fl-call-banner-copy"><PhoneIncoming size={17} aria-hidden="true" /><span><strong>{peerName}</strong> is calling you on video…</span></div>
+          <div className="fl-call-banner-actions">
+            <button type="button" className="fl-call-accept" onClick={() => void acceptCall()}><Phone size={14} aria-hidden="true" /> Accept</button>
+            <button type="button" className="fl-call-decline" onClick={() => void declineOrCancelCall()}><PhoneOff size={14} aria-hidden="true" /> Decline</button>
+          </div>
         </div>}
-        <div className="fl-chat-input-bar">
-          <button type="button" className="fl-chat-emoji-btn" onClick={() => setEmojiOpen(v => !v)} aria-expanded={emojiOpen} aria-label="Add emoji" title="Emoji">
-            <Smile size={18} aria-hidden="true" />
-          </button>
-          <textarea
-            ref={inputRef}
-            id="collaboration-message-text"
-            name="message-text"
-            rows={1}
-            maxLength={8000}
-            placeholder={`Message ${peerName}…`}
-            value={text}
-            disabled={busy || locked}
-            onChange={event => handleTyping(event.target.value)}
-            onKeyDown={event => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                void send();
-              }
-            }}
-          />
-          <button type="submit" className="fl-chat-send-btn" disabled={busy || !data || !text.trim()} aria-label="Send message" title="Send (Enter)">
-            <Send size={16} aria-hidden="true" />
-          </button>
+
+        {call.phase === "outgoing" && <div className="fl-call-banner" role="status">
+          <div className="fl-call-banner-copy"><Video size={17} aria-hidden="true" /><span>Calling <strong>{peerName}</strong>… waiting for answer</span></div>
+          <div className="fl-call-banner-actions">
+            <button type="button" className="fl-call-decline" onClick={() => void declineOrCancelCall()}><PhoneOff size={14} aria-hidden="true" /> Cancel</button>
+          </div>
+        </div>}
+
+        {/* Message Feed */}
+        <div className="fl-chat-body" ref={list} tabIndex={0} role="region" aria-label="Conversation history" aria-busy={loading}>
+          {loading ? <p className="fl-chat-empty" role="status">Loading conversation…</p>
+            : state?.error && !data ? <div className="fl-chat-empty" role="alert"><p>{state.error}</p><button type="button" onClick={() => setAttempt(v => v + 1)}>Retry</button></div>
+              : data && <>
+                {data.next_before !== null && <div className="fl-chat-load-more">
+                  <button type="button" disabled={busy} onClick={() => { const c = data.next_before; if (c !== null) setCursors(old => [...old, c]); }}>Load older messages</button>
+                </div>}
+                {cursors.length > 0 && <div className="fl-chat-load-more">
+                  <button type="button" disabled={busy} onClick={() => setCursors([])}>Jump to latest</button>
+                </div>}
+
+                {!data.items.length ? <div className="fl-chat-empty">
+                  <p>Start the conversation with <strong>{peerName}</strong>.</p>
+                  <small>Messages are private to you and your collaborator. Agreed terms still require a proposal.</small>
+                </div> : <ol className="fl-chat-list">
+                  {data.items.map((message, index) => {
+                    const prev = data.items[index - 1];
+                    const day = formatDayLabel(message.sent_at);
+                    const showDay = !prev || formatDayLabel(prev.sent_at) !== day;
+                    const isRead = message.is_mine && peerLastRead >= message.sequence;
+                    const reactions = message.reactions || [];
+
+                    return <li key={message.id} className="fl-chat-row-wrap">
+                      {showDay && <div className="fl-chat-day"><span>{day}</span></div>}
+                      {message.message_type === "call_event" ? (
+                        <div className="fl-chat-call-event">
+                          <Video size={13} aria-hidden="true" />
+                          <span>{message.text}</span>
+                          <time dateTime={message.sent_at}>{formatShortTime(message.sent_at)}</time>
+                        </div>
+                      ) : (
+                        <div className="fl-chat-row" data-mine={message.is_mine}>
+                          {!message.is_mine && <ChatAvatar name={peerName} url={meta?.peer_avatar_url} size="sm" />}
+                          <div className="fl-chat-bubble-col">
+                            <div className="fl-chat-bubble-wrap">
+                              <div className="fl-chat-bubble" data-mine={message.is_mine}>
+                                <p>{message.text}</p>
+                                <span className="fl-chat-meta">
+                                  <time dateTime={message.sent_at}>{formatShortTime(message.sent_at)}</time>
+                                  {message.is_mine && (isRead
+                                    ? <CheckCheck size={14} className="fl-chat-tick-read" aria-label="Read" />
+                                    : <Check size={14} className="fl-chat-tick-sent" aria-label="Sent" />)}
+                                </span>
+                              </div>
+                              <div className="fl-chat-quick-react" aria-label="Quick reactions">
+                                {QUICK_REACTIONS.map(emoji => (
+                                  <button key={emoji} type="button" onClick={() => void toggleReaction(message.id, emoji)} aria-label={`React with ${emoji}`}>{emoji}</button>
+                                ))}
+                              </div>
+                            </div>
+                            {reactions.length > 0 && <div className="fl-chat-reactions">
+                              {reactions.map(r => (
+                                <button key={r.emoji} type="button" data-mine={r.reacted_by_me} onClick={() => void toggleReaction(message.id, r.emoji)}>
+                                  <span>{r.emoji}</span>{r.count > 1 && <small>{r.count}</small>}
+                                </button>
+                              ))}
+                            </div>}
+                          </div>
+                          {message.is_mine && <ChatAvatar name="You" url={meta?.my_avatar_url} size="sm" />}
+                        </div>
+                      )}
+                    </li>;
+                  })}
+                </ol>}
+
+                {peerTyping && <div className="fl-chat-row" data-mine={false} aria-live="polite">
+                  <ChatAvatar name={peerName} url={meta?.peer_avatar_url} size="sm" />
+                  <div className="fl-chat-typing-bubble" aria-label={`${peerName} is typing`}>
+                    <span /><span /><span />
+                  </div>
+                </div>}
+              </>}
         </div>
-      </form>
-    </div>
+
+        {/* Composer + Emoji Picker */}
+        <form className="fl-chat-composer" onSubmit={event => void send(event)}>
+          {error && <p className="fl-chat-error" role="alert">{error}{locked && " Retry to confirm whether it was sent."}</p>}
+          {emojiOpen && <div className="fl-emoji-popover" role="dialog" aria-label="Emoji picker">
+            {EMOJI_GROUPS.map(group => (
+              <div key={group.label} className="fl-emoji-group">
+                <span>{group.label}</span>
+                <div>{group.emojis.map(emoji => (
+                  <button key={emoji} type="button" onClick={() => insertEmoji(emoji)}>{emoji}</button>
+                ))}</div>
+              </div>
+            ))}
+          </div>}
+          <div className="fl-chat-input-bar">
+            <button type="button" className="fl-chat-emoji-btn" onClick={() => setEmojiOpen(v => !v)} aria-expanded={emojiOpen} aria-label="Add emoji" title="Emoji">
+              <Smile size={18} aria-hidden="true" />
+            </button>
+            <textarea
+              ref={inputRef}
+              id="collaboration-message-text"
+              name="message-text"
+              rows={1}
+              maxLength={8000}
+              placeholder={`Message ${peerName}…`}
+              value={text}
+              disabled={busy || locked}
+              onChange={event => handleTyping(event.target.value)}
+              onKeyDown={event => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  void send();
+                }
+              }}
+            />
+            <button type="submit" className="fl-chat-send-btn" disabled={busy || !data || !text.trim()} aria-label="Send message" title="Send (Enter)">
+              <Send size={16} aria-hidden="true" />
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </section>;
 }
