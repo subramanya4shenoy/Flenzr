@@ -5,6 +5,7 @@ from app.core.dependencies import get_current_user
 from app.domains.identity.models import User
 from .schemas import CollaborationCreate, CollaborationRead, CollaborationPage
 from .service import CollaborationService
+from .groups import CollaborationGroupPage, CollaborationGroupService, OfferCollaborationWorkspace
 from .calendar import CollaborationCalendar
 from .schemas import CalendarPage
 from .proposals import ProposalService
@@ -38,6 +39,17 @@ async def create_collaboration(body: CollaborationCreate, user: User = Depends(g
 async def list_collaborations(page: int = Query(1, ge=1, le=10000), page_size: int = Query(20, ge=1, le=50),
                               user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     return await CollaborationService.list(db, user.id, page, page_size)
+
+
+@router.get('/groups', response_model=CollaborationGroupPage)
+async def list_collaboration_groups(page: int = Query(1, ge=1, le=10000), page_size: int = Query(20, ge=1, le=50),
+                                    user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await CollaborationGroupService.list_groups(db, user.id, page, page_size)
+
+
+@router.get('/offers/{offer_id}', response_model=OfferCollaborationWorkspace)
+async def read_offer_collaborations(offer_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await CollaborationGroupService.offer_workspace(db, user.id, offer_id)
 
 
 @router.get('/calendar', response_model=CalendarPage)

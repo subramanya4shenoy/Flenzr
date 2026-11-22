@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Award, Bell, BookOpen, Briefcase, Calendar, Compass, DollarSign, LayoutDashboard,
+  Award, Bell, BookOpen, Calendar, Compass, DollarSign, Handshake, Inbox, LayoutDashboard,
   Link2, TrendingUp, Wallet, Wand2,
 } from "lucide-react";
 import { DashboardSidebar } from "@/components/navigation/dashboard-sidebar";
@@ -9,7 +9,8 @@ import { EnquiryUnreadBadge, useEnquiryActivity } from "@/components/enquiries/e
 
 export const CREATOR_NAV_ITEMS = [
   { id: "overview", label: "Overview", title: "Studio Overview", icon: LayoutDashboard, group: 0 },
-  { id: "pipeline", label: "Collabs", title: "Collab Pipeline", icon: Briefcase, group: 0 },
+  { id: "collaborations", label: "Collabs", title: "Collaborations", icon: Handshake, group: 0 },
+  { id: "pipeline", label: "Enquiries", title: "Enquiries & Activity", icon: Inbox, group: 0 },
   { id: "opportunities", label: "Offers", title: "Brand Offers", icon: Compass, group: 0 },
   { id: "ratecards", label: "Rate Cards", title: "Rate Cards & Packages", icon: DollarSign, group: 0 },
   { id: "calendar", label: "Calendar", title: "Collaboration Calendar", icon: Calendar, group: 0 },
@@ -34,7 +35,7 @@ export function CreatorSidebar({ activeTab, onSelect, creatorHandle }: CreatorSi
   const activity = useEnquiryActivity();
   const items = CREATOR_NAV_ITEMS.map(item => ({
     ...item,
-    href: item.id === "calendar" ? "/dashboard/calendar" : item.id === "notifications" ? "/dashboard/notifications" : `/dashboard/creator${item.id === "overview" ? "" : "#" + item.id.replaceAll("_", "-")}`,
+    href: item.id === "collaborations" ? "/dashboard/collaborations" : item.id === "calendar" ? "/dashboard/calendar" : item.id === "notifications" ? "/dashboard/notifications" : `/dashboard/creator${item.id === "overview" ? "" : "#" + item.id.replaceAll("_", "-")}`,
     unread: item.id === "pipeline" ? activity?.counts?.received : 0,
     badge: item.id === "pipeline" ? <EnquiryUnreadBadge view="received" className="creator-sidebar-count" /> : undefined,
   }));

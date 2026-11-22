@@ -106,3 +106,39 @@ async def test_individual_enquiry_sender_without_brand_organization_can_collabor
     assert response.status_code == 200,response.text
     assert (await client.get('/api/v1/collaborations/'+response.json()['id'],headers=creator)).status_code == 200
     assert (await client.get('/api/v1/collaborations/'+response.json()['id'],headers=owner)).status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_offer_collaboration_groups_and_multi_influencer_workspace(client,auth_headers,db_session):
+    owner,creator,outsider,records = await sources(client,auth_headers,db_session)
+    app_src = dict(records)['application']
+    enq_src = dict(records)['enquiry']
+    # Start collaboration for the direct enquiry only; leave accepted application unstarted.
+    enq_collab = await client.post('/api/v1/collaborations',headers=owner,json={'source_kind':'enquiry','source_id':enq_src.id})
+    assert enq_collab.status_code == 200
+    # Brand sees the Offer grouped (with accepted application + accepted invitation) plus the direct enquiry row.
+    groups = await client.get('/api/v1/collaborations/groups',headers=owner)
+    assert groups.status_code == 200, groups.text
+    items = groups.json()['items']
+    offer_item = next(item for item in items if item['kind'] == 'offer')
+    assert offer_item['id'] == app_src.campaign_id
+    assert offer_item['creator_count'] == 2
+    assert offer_item['started_count'] == 0
+    assert any(item['kind'] == 'collaboration' and item['id'] == enq_collab.json()['id'] for item in items)
+    # Offer workspace is strictly brand-owner scoped.
+    ws = await client.get(f'/api/v1/collaborations/offers/{app_src.campaign_id}',headers=owner)
+    assert ws.status_code == 200, ws.text
+    assert len(ws.json()['participants']) == 2
+    assert all(p['proposal_status'] == 'not_started' for p in ws.json()['participants'])
+    assert (await client.get(f'/api/v1/collaborations/offers/{app_src.campaign_id}',headers=creator)).status_code == 404
+    assert (await client.get(f'/api/v1/collaborations/offers/{app_src.campaign_id}',headers=outsider)).status_code == 404
+    # Starting a collaboration for the application updates started_count and participant status.
+    started = await client.post('/api/v1/collaborations',headers=owner,json={'source_kind':'application','source_id':app_src.id})
+    assert started.status_code == 200
+    ws2 = (await client.get(f'/api/v1/collaborations/offers/{app_src.campaign_id}',headers=owner)).json()
+    started_p = next(p for p in ws2['participants'] if p['source_id'] == app_src.id)
+    assert started_p['collaboration_id'] == started.json()['id']
+    assert started_p['proposal_status'] == 'no_proposal'
+    # Creator only ever sees their own individual collaborations, never grouped brand offers.
+    creator_groups = (await client.get('/api/v1/collaborations/groups',headers=creator)).json()['items']
+    assert all(item['kind'] == 'collaboration' for item in creator_groups)

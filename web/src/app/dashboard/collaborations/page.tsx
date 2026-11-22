@@ -6,5 +6,5 @@ import { SharedCollaborations } from "@/components/collaborations/collaborations
 export default async function Page() {
   const identity = await currentIdentity();
   if (!identity) redirect("/login?next=%2Fdashboard%2Fcollaborations");
-  return <div className="fl-shared-shell"><main><SharedPageNavigation>{hasRole(identity, "creator") && <Link href="/dashboard/creator">Creator workspace</Link>} {hasRole(identity, "brand_owner") && <Link href="/dashboard/brand">Brand workspace</Link>} <Link href="/dashboard/calendar">Calendar</Link></SharedPageNavigation><SharedCollaborations /></main></div>;
+  return <div className="fl-shared-shell"><main><SharedPageNavigation>{hasRole(identity, "creator") && <Link href="/dashboard/creator">Creator workspace</Link>} {hasRole(identity, "brand_owner") && <Link href="/dashboard/brand">Brand workspace</Link>} <Link href="/dashboard/calendar">Calendar</Link></SharedPageNavigation><SharedCollaborations viewerId={identity.user.id} /></main></div>;
 }

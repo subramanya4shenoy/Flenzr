@@ -47,13 +47,13 @@ export function CreatorWorkspace({ children, initialName }: { children: ReactNod
   }, [pathname, profile.handle, initialName, updateProfile]);
   function selectTab(tab: CreatorDashboardTab) {
     if (mobileMenu.current) mobileMenu.current.open = false;
-    const href = tab === "calendar" ? "/dashboard/calendar" : tab === "notifications" ? "/dashboard/notifications" : ROOT + hashFor(tab);
+    const href = tab === "collaborations" ? "/dashboard/collaborations" : tab === "calendar" ? "/dashboard/calendar" : tab === "notifications" ? "/dashboard/notifications" : ROOT + hashFor(tab);
     if (pathname === ROOT && href.startsWith(ROOT)) {
       setActiveTab(tab); window.history.replaceState(null, "", href); window.dispatchEvent(new HashChangeEvent("hashchange"));
       window.scrollTo({ top: 0, behavior: "instant" });
     } else router.push(href);
   }
-  const sharedTab = pathname.startsWith("/dashboard/offers/") ? "opportunities" : pathname === "/dashboard/calendar" ? "calendar" : pathname === "/dashboard/notifications" ? "notifications" : pathname.startsWith("/dashboard/collaborations") || pathname.startsWith("/dashboard/enquiries/") ? "pipeline" : activeTab;
+  const sharedTab = pathname.startsWith("/dashboard/offers/") ? "opportunities" : pathname === "/dashboard/calendar" ? "calendar" : pathname === "/dashboard/notifications" ? "notifications" : pathname.startsWith("/dashboard/collaborations") ? "collaborations" : pathname.startsWith("/dashboard/enquiries/") ? "pipeline" : activeTab;
   const title = pathname.startsWith("/dashboard/collaborations/") ? "Collaboration details" : pathname === "/dashboard/collaborations" ? "Collaborations" : pathname.startsWith("/dashboard/enquiries/") ? "Enquiry details" : CREATOR_NAV_ITEMS.find(item => item.id === sharedTab)?.title || "Studio Overview";
   async function signOut() {
     if (signingOut) return;
