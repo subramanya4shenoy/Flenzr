@@ -9,11 +9,13 @@ from app.domains.campaigns.models import (
     ApplicationStatus, Campaign, CampaignApplication, CampaignInvitation, InvitationStatus,
 )
 from app.domains.creators.models import Creator
+from app.domains.identity.models import User
 from .models import (
     Collaboration, CollaborationAgreement, CollaborationCompletion, CollaborationFeedback,
-    CollaborationMessage, DeliveryReview, DeliverySubmission, ProposalAcceptance,
+    CollaborationMessage, CollaborationMessageRead, DeliveryReview, DeliverySubmission, ProposalAcceptance,
     ProposalRevision, PublishingProof, PublishingProofConfirmation,
 )
+from .realtime import chat_hub
 from .schemas import CollaborationRead
 
 
@@ -47,6 +49,9 @@ class OfferParticipantSummary(BaseModel):
     creator_id: str
     creator_name: str
     creator_handle: str
+    creator_avatar_url: str | None = None
+    is_online: bool = False
+    last_seen_at: datetime | None = None
     source_kind: Literal['application', 'invitation']
     source_id: str
     collaboration_id: str | None = None
@@ -63,6 +68,9 @@ class OfferParticipantSummary(BaseModel):
     brand_feedback_submitted: bool = False
     creator_feedback_submitted: bool = False
     message_count: int = 0
+    unread_count: int = 0
+    last_message_preview: str | None = None
+    last_message_at: datetime | None = None
     updated_at: datetime
 
 
@@ -293,12 +301,14 @@ class CollaborationGroupService:
                 sources.append(('invitation', inv, c))
 
         creator_ids = list({src.creator_id for _, src, _ in sources})
-        creator_map: dict[str, tuple[str, str]] = {}
+        creator_map: dict[str, tuple[str, str, str | None, str | None, datetime | None]] = {}
         if creator_ids:
             for cr in (await db.execute(
-                select(Creator.id, Creator.display_name, Creator.handle).where(Creator.id.in_(creator_ids))
+                select(Creator.id, Creator.display_name, Creator.handle, Creator.user_id, User.avatar_url, User.last_seen_at)
+                .join(User, User.id == Creator.user_id)
+                .where(Creator.id.in_(creator_ids))
             )).all():
-                creator_map[cr.id] = (cr.display_name, cr.handle)
+                creator_map[cr.id] = (cr.display_name, cr.handle, cr.user_id, cr.avatar_url, cr.last_seen_at)
 
         collab_ids = [c.id for _, _, c in sources if c is not None]
         agreements: dict[str, CollaborationAgreement] = {}
@@ -311,6 +321,8 @@ class CollaborationGroupService:
         confirmed_proof_ids: set[str] = set()
         feedback_roles: dict[str, set[str]] = {}
         message_counts: dict[str, int] = {}
+        latest_messages: dict[str, CollaborationMessage] = {}
+        my_read_seqs: dict[str, int] = {}
 
         if collab_ids:
             for ag in (await db.scalars(
@@ -382,9 +394,27 @@ class CollaborationGroupService:
             )).all():
                 message_counts[msg_row[0]] = int(msg_row[1])
 
+            for m in (await db.scalars(
+                select(CollaborationMessage)
+                .where(CollaborationMessage.collaboration_id.in_(collab_ids))
+                .order_by(CollaborationMessage.sequence.desc())
+            )).all():
+                latest_messages.setdefault(m.collaboration_id, m)
+
+            for rd in (await db.scalars(
+                select(CollaborationMessageRead).where(
+                    CollaborationMessageRead.collaboration_id.in_(collab_ids),
+                    CollaborationMessageRead.user_id == user_id,
+                )
+            )).all():
+                my_read_seqs[rd.collaboration_id] = rd.last_read_sequence
+
         participants: list[OfferParticipantSummary] = []
         for kind, src, c in sources:
-            display_name, handle = creator_map.get(src.creator_id, (c.creator_name if c else 'Creator', ''))
+            display_name, handle, creator_uid, creator_avatar, creator_last_seen = creator_map.get(
+                src.creator_id, (c.creator_name if c else 'Creator', '', None, None, None)
+            )
+            online = bool(creator_uid and chat_hub.is_online(creator_uid))
             quote = (
                 c.quoted_amount_cents if c is not None
                 else (src.proposed_rate_cents if kind == 'application' else src.offered_rate_cents)
@@ -397,6 +427,9 @@ class CollaborationGroupService:
                     creator_id=src.creator_id,
                     creator_name=display_name,
                     creator_handle=handle,
+                    creator_avatar_url=creator_avatar,
+                    is_online=online,
+                    last_seen_at=_utc(creator_last_seen) if creator_last_seen else None,
                     source_kind=kind,
                     source_id=src.id,
                     collaboration_id=None,
@@ -459,11 +492,16 @@ class CollaborationGroupService:
             else:
                 fb_status = 'pending'
 
+            last_msg = latest_messages.get(c.id)
+            unread = max(0, (c.message_version or 0) - my_read_seqs.get(c.id, 0)) if (last_msg and last_msg.author_id != user_id) else 0
             participants.append(OfferParticipantSummary(
                 key=c.id,
                 creator_id=src.creator_id,
                 creator_name=display_name,
                 creator_handle=handle,
+                creator_avatar_url=creator_avatar,
+                is_online=online,
+                last_seen_at=_utc(creator_last_seen) if creator_last_seen else None,
                 source_kind=kind,
                 source_id=src.id,
                 collaboration_id=c.id,
@@ -480,6 +518,9 @@ class CollaborationGroupService:
                 brand_feedback_submitted='brand' in roles,
                 creator_feedback_submitted='creator' in roles,
                 message_count=message_counts.get(c.id, 0),
+                unread_count=unread,
+                last_message_preview=last_msg.text[:120] if last_msg else None,
+                last_message_at=_utc(last_msg.created_at) if last_msg else None,
                 updated_at=updated,
             ))
 

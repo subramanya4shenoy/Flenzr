@@ -15,6 +15,7 @@ import {
   withOpenedRecent, withoutRecent,
 } from "@/lib/collaboration-recents";
 import { campaignMoney } from "@/lib/campaign-drafts";
+import { avatarProxyUrl } from "@/lib/collaboration-messages";
 import "@/components/brand/campaign-folders.css";
 import "./collaborations.css";
 import { CollaborationMessages } from "./messages";
@@ -310,12 +311,19 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
           {data.participants.map(p => {
             const active = selectedParticipant?.key === p.key;
             const badge = stepBadge(step, p);
+            const avatar = avatarProxyUrl(p.creator_avatar_url);
+            const unread = step === "messages" ? (p.unread_count || 0) : 0;
+            const preview = step === "messages" && p.last_message_preview ? p.last_message_preview : badge.label;
             return <button key={p.key} type="button" role="option" aria-selected={active} className="fl-collab-person" data-active={active} onClick={() => { setStartError(""); setSelectedKey(p.key); }}>
-              <span className="fl-collab-person-avatar" aria-hidden="true">{initials(p.creator_name)}</span>
+              <span className="fl-collab-person-avatar-wrap">
+                <span className="fl-collab-person-avatar" aria-hidden="true">{avatar ? <img src={avatar} alt={p.creator_name} /> : initials(p.creator_name)}</span>
+                <i className="fl-chat-online-dot" data-online={Boolean(p.is_online)} aria-hidden="true" />
+              </span>
               <span className="fl-collab-person-copy">
                 <strong>{p.creator_name}</strong>
-                <small className="fl-collab-person-status" data-tone={badge.tone}>{badge.label}</small>
+                <small className="fl-collab-person-status" data-tone={step === "messages" && p.last_message_preview ? "muted" : badge.tone}>{preview}</small>
               </span>
+              {unread > 0 && <span className="fl-collab-unread-badge" aria-label={`${unread} unread`}>{unread}</span>}
             </button>;
           })}
         </div>
@@ -433,7 +441,7 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
             {step === "deliveries" && <CollaborationDeliveries key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} onStatus={refresh} />}
             {step === "proof" && <CollaborationProof key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} />}
             {step === "feedback" && <CollaborationFeedback key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} onStatus={refresh} />}
-            {step === "messages" && <CollaborationMessages key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} />}
+            {step === "messages" && <CollaborationMessages key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} onActivity={refresh} />}
           </>}
         </article>}
       </div>

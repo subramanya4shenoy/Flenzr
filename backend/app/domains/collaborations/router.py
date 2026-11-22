@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, Query, Response
+import asyncio
+import json
+from fastapi import APIRouter, Depends, Query, Request, Response
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
@@ -13,7 +16,11 @@ from .agreements import AgreementService
 from .deliveries import DeliveryService
 from .proof import PublishingProofService
 from .messages import MessageService
-from .schemas import MessageCreate, MessageRead, MessagePage
+from .realtime import chat_hub
+from .schemas import (
+    ChatSignal, MessageCreate, MessagePage, MessageReactionSummary,
+    MessageReactionToggle, MessageRead, MessageReadReceipt, MessageReadReceiptRead,
+)
 from .feedback import FeedbackService
 from .schemas import FeedbackCreate, FeedbackRead, FeedbackWorkspace
 from .schemas import ProofConfirmationCreate, ProofConfirmationRead
@@ -185,3 +192,52 @@ async def list_messages(record_id: str, before: int | None = Query(None, ge=1, l
 @router.post('/{record_id}/messages', response_model=MessageRead, dependencies=[Depends(private_response)])
 async def send_message(record_id: str, body: MessageCreate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     return await MessageService.send(db, user.id, record_id, body)
+
+
+@router.post('/{record_id}/messages/read', response_model=MessageReadReceiptRead, dependencies=[Depends(private_response)])
+async def mark_messages_read(record_id: str, body: MessageReadReceipt, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await MessageService.mark_read(db, user.id, record_id, body.last_read_sequence)
+
+
+@router.post('/{record_id}/messages/{message_id}/reactions', response_model=list[MessageReactionSummary], dependencies=[Depends(private_response)])
+async def toggle_message_reaction(record_id: str, message_id: str, body: MessageReactionToggle, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await MessageService.toggle_reaction(db, user.id, record_id, message_id, body.emoji)
+
+
+@router.post('/{record_id}/chat/signal', dependencies=[Depends(private_response)])
+async def send_chat_signal(record_id: str, body: ChatSignal, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    collab = await DeliveryService.collaboration(db, user.id, record_id)
+    if body.kind == 'heartbeat':
+        await MessageService.touch_last_seen(db, user.id)
+        return {'ok': True}
+    role = 'brand' if user.id == collab.brand_user_id else 'creator'
+    chat_hub.publish(record_id, body.kind, {'from_role': role, 'payload': body.payload}, exclude_user_id=user.id)
+    return {'ok': True}
+
+
+@router.get('/{record_id}/chat/events', dependencies=[Depends(private_response)])
+async def chat_events(record_id: str, request: Request, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    collab = await DeliveryService.collaboration(db, user.id, record_id)
+    peer_id = collab.creator_user_id if user.id == collab.brand_user_id else collab.brand_user_id
+    await MessageService.touch_last_seen(db, user.id)
+    queue = chat_hub.subscribe(record_id, user.id)
+
+    async def stream():
+        try:
+            yield f"event: ready\ndata: {json.dumps({'peer_online': chat_hub.is_online(peer_id)})}\n\n"
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    msg = await asyncio.wait_for(queue.get(), timeout=20.0)
+                    yield f"event: {msg['event']}\ndata: {json.dumps(msg['data'])}\n\n"
+                except asyncio.TimeoutError:
+                    yield "event: ping\ndata: {}\n\n"
+        finally:
+            chat_hub.unsubscribe(record_id, user.id, queue)
+
+    return StreamingResponse(
+        stream(),
+        media_type='text/event-stream',
+        headers={'Cache-Control': 'no-store, no-transform', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'},
+    )

@@ -1,6 +1,6 @@
 import uuid
-from datetime import date
-from sqlalchemy import BigInteger, CheckConstraint, Date, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from datetime import date, datetime, timezone
+from sqlalchemy import BigInteger, CheckConstraint, Date, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import Base, TimestampMixin
 
@@ -206,5 +206,26 @@ class CollaborationMessage(Base, TimestampMixin):
     author_role: Mapped[str] = mapped_column(String(16))
     sequence: Mapped[int] = mapped_column(Integer)
     text: Mapped[str] = mapped_column(Text)
+    message_type: Mapped[str] = mapped_column(String(16), default='text', server_default='text')
     request_id: Mapped[str] = mapped_column(String(36))
     request_hash: Mapped[str] = mapped_column(String(64))
+
+
+class CollaborationMessageRead(Base, TimestampMixin):
+    __tablename__ = 'collaboration_message_reads'
+    __table_args__ = (UniqueConstraint('collaboration_id', 'user_id', name='uq_collaboration_message_read_user'),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id', ondelete='RESTRICT'), index=True)
+    last_read_sequence: Mapped[int] = mapped_column(Integer, default=0, server_default='0')
+    read_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class CollaborationMessageReaction(Base, TimestampMixin):
+    __tablename__ = 'collaboration_message_reactions'
+    __table_args__ = (UniqueConstraint('message_id', 'user_id', 'emoji', name='uq_collaboration_message_reaction'),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    message_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaboration_messages.id', ondelete='CASCADE'), index=True)
+    collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id', ondelete='RESTRICT'))
+    emoji: Mapped[str] = mapped_column(String(16))

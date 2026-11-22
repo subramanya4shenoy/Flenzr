@@ -76,3 +76,26 @@ async def test_messages_work_before_agreement_and_after_completion_without_chang
 async def test_bounded_pagination(client,auth_headers,db_session,query):
     brand,creator,outsider,deliveries,agreement=await agreed(client,auth_headers,db_session)
     assert (await client.get(deliveries.removesuffix('/deliveries')+'/messages'+query,headers=creator)).status_code==422
+
+
+@pytest.mark.asyncio
+async def test_chat_read_receipts_reactions_call_events_and_signals(client,auth_headers,db_session):
+    brand,creator,outsider,deliveries,agreement=await agreed(client,auth_headers,db_session)
+    base=deliveries.removesuffix('/deliveries')
+    msg=(await client.post(base+'/messages',headers=brand,json=message('Hey there 👋'))).json()
+    assert msg['message_type']=='text' and msg['reactions']==[]
+    # Creator marks message read -> brand sees peer_last_read_sequence == 1
+    rd=await client.post(base+'/messages/read',headers=creator,json={'last_read_sequence':1})
+    assert rd.status_code==200 and rd.json()['last_read_sequence']==1
+    brand_view=(await client.get(base+'/messages',headers=brand)).json()
+    assert brand_view['meta']['peer_last_read_sequence']==1
+    # Emoji reaction toggle on and off
+    r1=await client.post(f"{base}/messages/{msg['id']}/reactions",headers=creator,json={'emoji':'❤️'})
+    assert r1.status_code==200 and r1.json()==[{'emoji':'❤️','count':1,'reacted_by_me':True}]
+    r2=await client.post(f"{base}/messages/{msg['id']}/reactions",headers=creator,json={'emoji':'❤️'})
+    assert r2.status_code==200 and r2.json()==[]
+    # Call event message + ephemeral signal (outsider denied)
+    call_msg=await client.post(base+'/messages',headers=brand,json=message('Video call · 2m 10s',message_type='call_event'))
+    assert call_msg.status_code==200 and call_msg.json()['message_type']=='call_event'
+    assert (await client.post(base+'/chat/signal',headers=brand,json={'kind':'typing','payload':{'active':True}})).status_code==200
+    assert (await client.post(base+'/chat/signal',headers=outsider,json={'kind':'typing','payload':{'active':True}})).status_code==404

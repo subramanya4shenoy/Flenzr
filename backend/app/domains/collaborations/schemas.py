@@ -478,6 +478,7 @@ class MessageCreate(BaseModel):
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
     request_id: UUID
     text: str = Field(min_length=1, max_length=4000)
+    message_type: Literal['text', 'call_event'] = 'text'
 
     @field_validator('text')
     @classmethod
@@ -487,13 +488,32 @@ class MessageCreate(BaseModel):
         return value
 
 
+class MessageReactionSummary(BaseModel):
+    emoji: str
+    count: int
+    reacted_by_me: bool
+
+
 class MessageRead(BaseModel):
     id: str
     sequence: int
     author_role: Literal['brand', 'creator']
     is_mine: bool
     text: str
+    message_type: Literal['text', 'call_event'] = 'text'
+    reactions: list[MessageReactionSummary] = Field(default_factory=list)
     sent_at: str
+
+
+class ChatParticipantMeta(BaseModel):
+    peer_name: str
+    peer_role: Literal['brand', 'creator']
+    peer_avatar_url: str | None = None
+    my_avatar_url: str | None = None
+    peer_online: bool = False
+    peer_last_seen_at: str | None = None
+    peer_last_read_sequence: int = 0
+    my_last_read_sequence: int = 0
 
 
 class MessagePage(BaseModel):
@@ -501,3 +521,25 @@ class MessagePage(BaseModel):
     latest_sequence: int
     next_before: int | None
     limit: int
+    meta: ChatParticipantMeta | None = None
+
+
+class MessageReadReceipt(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    last_read_sequence: int = Field(ge=0, strict=True)
+
+
+class MessageReadReceiptRead(BaseModel):
+    last_read_sequence: int
+    read_at: str
+
+
+class MessageReactionToggle(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    emoji: str = Field(min_length=1, max_length=16)
+
+
+class ChatSignal(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    kind: Literal['typing', 'heartbeat', 'call_ring', 'call_accept', 'call_decline', 'call_offer', 'call_answer', 'call_ice', 'call_end']
+    payload: dict = Field(default_factory=dict)

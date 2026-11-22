@@ -33,6 +33,9 @@ export interface OfferParticipantSummary {
   creator_id: string;
   creator_name: string;
   creator_handle: string;
+  creator_avatar_url?: string | null;
+  is_online?: boolean;
+  last_seen_at?: string | null;
   source_kind: "application" | "invitation";
   source_id: string;
   collaboration_id: string | null;
@@ -49,6 +52,9 @@ export interface OfferParticipantSummary {
   brand_feedback_submitted: boolean;
   creator_feedback_submitted: boolean;
   message_count: number;
+  unread_count?: number;
+  last_message_preview?: string | null;
+  last_message_at?: string | null;
   updated_at: string;
 }
 
