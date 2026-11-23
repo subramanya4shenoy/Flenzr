@@ -7,7 +7,7 @@ import { X } from "lucide-react";
 import { OfferTicket } from "@/components/offers/offer-ticket";
 import { opportunityDate } from "@/lib/campaign-opportunities";
 import { CampaignRequestError, campaignDraftFields, campaignDraftPayload, campaignMoney, campaignRequest, emptyCampaignDraft, type CampaignDraftFields, type SavedCampaign } from "@/lib/campaign-drafts";
-import { campaignActions, campaignOpen, campaignStatusLabel, type CampaignAction } from "@/lib/campaign-lifecycle";
+import { campaignOpen, campaignStatusLabel, type CampaignAction } from "@/lib/campaign-lifecycle";
 import "./campaign-drafts.css";
 
 export function useBrandCampaigns() {
@@ -112,7 +112,7 @@ export function CampaignDraftDialog({ campaignId, parentCampaignId, onClose, onS
   </dialog>;
 }
 
-export function CampaignList({ campaigns, loading, error, missingOrganization, retry, onOpen, onAction, onActivity, onMove }: ReturnType<typeof useBrandCampaigns> & { onOpen: (id: string) => void; onActivity: (campaign: SavedCampaign) => void; onAction: (campaign: SavedCampaign, action: CampaignAction) => void; onMove?: (offer: SavedCampaign) => void }) {
+export function CampaignList({ campaigns, loading, error, missingOrganization, retry, onActivity }: ReturnType<typeof useBrandCampaigns> & { onOpen?: (id: string) => void; onActivity: (campaign: SavedCampaign) => void; onAction?: (campaign: SavedCampaign, action: CampaignAction) => void; onMove?: (offer: SavedCampaign) => void }) {
   if (loading) return <WorkspaceLoader label="Loading Offers…" />;
   if (missingOrganization) return <div className="fl-campaign-state"><h2>Set up your brand first</h2><p>Add your company details before saving an offer draft.</p><Link href="/dashboard/brand/profile">Open brand profile</Link></div>;
   if (error) return <div className="fl-campaign-state" role="alert"><p>{error}</p><button type="button" onClick={retry}>Retry offers</button></div>;
@@ -127,12 +127,7 @@ export function CampaignList({ campaigns, loading, error, missingOrganization, r
       interest={{ count: campaign.applicants_count, people: campaign.applicant_preview || [], onOpen: () => onActivity(campaign) }}
       state={expired ? "expired" : campaign.status}
       access={campaign.status === "draft" ? "draft" : campaign.visibility === "invited" ? "invited" : "public"}>
-      <details><summary>Manage Offer</summary><div className="fl-ticket-management">
-        <button type="button" onClick={() => onActivity(campaign)}>Applications &amp; invitations</button>
-        <button type="button" onClick={() => onOpen(campaign.id)}>{campaign.status === "draft" ? "Edit draft" : "View brief"}</button>
-        {onMove && <button type="button" onClick={() => onMove(campaign)}>Move to campaign</button>}
-        {campaignActions(campaign.status).map((action) => <button type="button" key={action} onClick={() => onAction(campaign, action)}>{action === "publish" ? "Publish" : action === "close" ? "Close" : action === "cancel" ? "Cancel" : action === "pause" ? "Pause" : "Resume"}</button>)}
-      </div></details>
+      <Link className="fl-ticket-manage" href={`/dashboard/offers/${campaign.id}#manage`}>Manage Offer</Link>
     </OfferTicket>;
   })}</section>;
 }

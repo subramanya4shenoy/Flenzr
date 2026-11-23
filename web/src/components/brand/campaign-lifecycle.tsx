@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { Globe2, LockKeyhole, X } from "lucide-react";
 import { CampaignRequestError, campaignMoney, campaignRequest, type SavedCampaign } from "@/lib/campaign-drafts";
 import { campaignActionInfo, campaignActions, campaignPublishIssues, campaignStatusLabel, type CampaignAction } from "@/lib/campaign-lifecycle";
 import "./campaign-drafts.css";
@@ -41,16 +41,40 @@ export function CampaignLifecycleDialog({ campaignId, action, onClose, onSaved, 
   }
   function reload() { setLoading(true); setAttempt(attempt + 1); }
   return <dialog ref={dialog} className="fl-campaign-dialog fl-campaign-transition" aria-labelledby="campaign-action-title" onCancel={(event) => { event.preventDefault(); if (!saving.current) onClose(); }}>
-    <div className="fl-campaign-dialog-heading"><h2 id="campaign-action-title">{info.label}</h2><button type="button" disabled={busy} aria-label="Close campaign action" onClick={onClose}><X size={18} /></button></div>
+    <div className="fl-campaign-dialog-heading">
+      <div>
+        <h2 id="campaign-action-title">{info.label}</h2>
+        <p className="fl-campaign-dialog-sub">{info.description}</p>
+      </div>
+      <button type="button" className="fl-campaign-dialog-close" disabled={busy} aria-label="Close campaign action" onClick={onClose}><X size={16} /></button>
+    </div>
     {loading ? <p role="status">Loading current offer…</p> : !campaign ? <div role="alert"><p>{error}</p><button type="button" onClick={reload}>Retry loading</button></div> : <form onSubmit={confirm}>
-      <div className="fl-campaign-action-summary"><h3>{campaign.title}</h3><p>{campaignStatusLabel[campaign.status]} · {campaign.budget_total_cents ? campaignMoney(campaign.budget_total_cents, campaign.currency) : "Budget to discuss"}</p></div>
-      <p>{info.description}</p>
-      <p><strong>Audience:</strong> {campaign.visibility === "invited" ? "Private · only invited creators can view and apply. A copied link does not grant access." : "Public · the published brief can be shared with anyone."}</p>
+      <div className="fl-campaign-action-summary">
+        <div className="fl-campaign-action-summary-head">
+          <h3>{campaign.title}</h3>
+          <span className="fl-campaign-action-pill">{campaignStatusLabel[campaign.status]}</span>
+        </div>
+        <dl className="fl-campaign-action-facts">
+          <div>
+            <dt>Planned budget</dt>
+            <dd>{campaign.budget_total_cents ? campaignMoney(campaign.budget_total_cents, campaign.currency) : "To discuss"}</dd>
+          </div>
+          <div>
+            <dt>Audience</dt>
+            <dd>{campaign.visibility === "invited"
+              ? <><LockKeyhole size={12} aria-hidden="true" /> Private · invited creators only</>
+              : <><Globe2 size={12} aria-hidden="true" /> Public · shareable with anyone</>}</dd>
+          </div>
+        </dl>
+      </div>
       {!available && <p className="fl-campaign-error" role="status">This action is no longer available. Current status: {campaignStatusLabel[campaign.status]}.</p>}
       {issues.length > 0 && <div className="fl-campaign-requirements"><h3>Before you {action}</h3><ul>{issues.map((issue) => <li key={issue}>{issue}</li>)}</ul>{campaign.status === "draft" && <button type="button" onClick={() => onEdit(campaign.id)}>Edit draft</button>}</div>}
       {error && <p className="fl-campaign-error" role="alert">{error}</p>}
       {stale && <button type="button" onClick={reload}>Reload offer</button>}
-      <footer><button type="button" disabled={busy} onClick={onClose}>{available ? "Keep current status" : "Done"}</button>{available && <button type="submit" disabled={busy || Boolean(issues.length) || stale}>{busy ? "Updating…" : info.label}</button>}</footer>
+      <footer>
+        <button type="button" disabled={busy} onClick={onClose}>{available ? "Keep current status" : "Done"}</button>
+        {available && <button type="submit" className="fl-campaign-submit theme-on-accent" disabled={busy || Boolean(issues.length) || stale}>{busy ? "Updating…" : info.label}</button>}
+      </footer>
     </form>}
   </dialog>;
 }
