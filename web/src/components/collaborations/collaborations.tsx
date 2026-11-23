@@ -183,7 +183,7 @@ function Detail({ row }: { row: Collaboration }) {
       </div>
     </aside>
 
-    <div className="fl-collab-main">
+    <div className="fl-collab-main" data-chat-mode={step === "messages"}>
       <nav className="fl-collab-breadcrumb" aria-label="Breadcrumb">
         <ol>
           <li><Link href="/dashboard/collaborations">Collaborations</Link></li>

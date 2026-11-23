@@ -330,7 +330,7 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
       </aside>}
 
       {/* Right Content Pane */}
-      <div className="fl-collab-main">
+      <div className="fl-collab-main" data-chat-mode={step === "messages" && Boolean(selectedParticipant?.collaboration)}>
         <nav className="fl-collab-breadcrumb" aria-label="Breadcrumb">
           <ol>
             <li><Link href="/dashboard/collaborations">Collaborations</Link></li>

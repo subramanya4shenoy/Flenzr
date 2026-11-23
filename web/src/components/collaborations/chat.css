@@ -1,17 +1,14 @@
 /* Full-fledged collaboration chat + built-in WebRTC video call */
-.fl-chat-container{container-type:inline-size;min-width:0;width:100%}
-.fl-chat-shell{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;min-width:0}
+.fl-chat-container{container-type:inline-size;min-width:0;width:100%;flex:1;min-height:0;display:flex;flex-direction:column}
+.fl-chat-shell{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;min-width:0;flex:1;min-height:0}
 /* Default during a call: video on top, chat cleanly below */
-.fl-chat-shell[data-in-call="true"] .fl-call-stage{height:min(520px,56dvh);min-height:320px}
-.fl-chat-shell[data-in-call="true"] .fl-chat-pane{height:min(460px,50dvh);min-height:340px}
+.fl-chat-shell[data-in-call="true"]{grid-template-rows:minmax(280px,1.15fr) minmax(240px,1fr)}
 /* Only place chat on the right when the chat container itself has ample width */
 @container (min-width: 1020px){
-  .fl-chat-shell[data-in-call="true"]{grid-template-columns:minmax(0,1.55fr) minmax(360px,1fr);align-items:stretch}
-  .fl-chat-shell[data-in-call="true"] .fl-call-stage,
-  .fl-chat-shell[data-in-call="true"] .fl-chat-pane{height:min(680px,calc(100dvh - 210px));min-height:460px}
+  .fl-chat-shell[data-in-call="true"]{grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1.55fr) minmax(360px,1fr);align-items:stretch}
 }
 
-.fl-chat-pane{display:flex;flex-direction:column;height:min(680px,calc(100dvh - 210px));min-height:440px;border:1px solid var(--ui-line-303036);border-radius:16px;background:var(--ui-paint-121215);overflow:hidden;min-width:0}
+.fl-chat-pane{display:flex;flex-direction:column;height:100%;min-height:0;border:1px solid var(--ui-line-303036);border-radius:14px;background:var(--ui-paint-121215);overflow:hidden;min-width:0}
 .fl-chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--ui-line-303036);background:color-mix(in srgb,var(--ui-paint-18181b) 65%,transparent);flex:none}
 .fl-chat-peer{display:flex;align-items:center;gap:12px;min-width:0}
 .fl-chat-peer-copy{display:grid;gap:2px;min-width:0}
@@ -108,7 +105,7 @@
 .fl-shared .fl-emoji-group button:hover{background:color-mix(in srgb,var(--foreground) 10%,transparent)}
 
 /* Built-in WebRTC Video Call Stage */
-.fl-call-stage{display:flex;flex-direction:column;height:min(680px,calc(100dvh - 210px));min-height:440px;border:1px solid var(--ui-line-303036);border-radius:16px;background:#0b0b0e;overflow:hidden;min-width:0}
+.fl-call-stage{display:flex;flex-direction:column;height:100%;min-height:0;border:1px solid var(--ui-line-303036);border-radius:14px;background:#0b0b0e;overflow:hidden;min-width:0}
 .fl-call-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid #232329;color:#f4f4f5;font-size:13px}
 .fl-call-live-pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:rgba(193,18,31,.22);color:#fca5a5}
 .fl-call-live-pill i{width:7px;height:7px;border-radius:999px;background:#ef4444}
