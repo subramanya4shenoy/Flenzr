@@ -1,5 +1,5 @@
 export interface PublicOffer {
-  id: string; title: string; brief: string; brand_name: string; deliverables: string | null;
+  id: string; title: string; brief: string; brand_name: string; brand_logo_url?: string | null; deliverables: string | null;
   niche: string | null; budget_cents: number; currency: string; starts_at: string | null; ends_at: string | null;
   status: string; visibility: "public" | "invited"; revision: number; accepting: boolean;
 }

@@ -61,7 +61,9 @@ export function messageText(value: string) {
 export function avatarProxyUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   if (url.startsWith("/") || url.startsWith("data:")) return url;
-  return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+  // Request uncropped higher-res Google avatars instead of Google's =s96-c square crop.
+  const normalized = url.includes("googleusercontent.com/") ? url.replace(/=s\d+-c$/i, "=s256") : url;
+  return `/api/proxy-image?url=${encodeURIComponent(normalized)}`;
 }
 
 export function formatLastSeen(iso: string | null | undefined, online: boolean): string {

@@ -24,6 +24,7 @@ class PublicOffer(BaseModel):
     title: str
     brief: str
     brand_name: str
+    brand_logo_url: str | None = None
     deliverables: str | None
     niche: str | None
     budget_cents: int
@@ -84,9 +85,14 @@ async def access(db, offer, user):
     return 'creator', creator, bool(invitation)
 
 async def document(db, row):
-    brand = await db.scalar(select(Organization.name).where(Organization.id == row.organization_id))
+    org = (await db.execute(
+        select(Organization.name, Organization.logo_url, User.avatar_url)
+        .outerjoin(User, User.id == Organization.owner_id)
+        .where(Organization.id == row.organization_id)
+    )).one_or_none()
     expired = row.end_date and row.end_date.date() < datetime.now(timezone.utc).date()
-    return dict(id=row.id, title=row.title, brief=row.brief, brand_name=brand or 'Brand',
+    return dict(id=row.id, title=row.title, brief=row.brief, brand_name=(org.name if org else None) or 'Brand',
+        brand_logo_url=(org.logo_url or org.avatar_url) if org else None,
         deliverables=row.deliverable_summary, niche=row.target_niche, budget_cents=row.budget_total_cents,
         currency=row.currency, starts_at=row.start_date, ends_at=row.end_date,
         status='expired' if expired and row.status == CampaignStatus.ACTIVE else row.status.value,
