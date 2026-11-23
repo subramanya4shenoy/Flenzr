@@ -18,6 +18,34 @@ async def apply(client, h, o, quote=10000):
     return await client.post(f"/api/v1/campaigns/{o['id']}/apply", headers=h, json={'proposed_rate_cents':quote, 'pitch_message':'A private creator pitch', 'expected_campaign_revision':o['revision']})
 
 @pytest.mark.asyncio
+async def test_applicant_photos_use_saved_user_avatar_and_stay_participant_scoped(client, auth_headers, db_session):
+    from sqlalchemy import select, update
+    from app.domains.creators.models import Creator
+    from app.domains.identity.models import User
+
+    owner, creators, profiles = await actors(client, auth_headers)
+    photo = 'https://lh3.googleusercontent.com/offer-test-avatar'
+    await db_session.execute(update(User).where(User.id == select(Creator.user_id).where(
+        Creator.id == profiles[0]['id']).scalar_subquery()).values(avatar_url=photo))
+    await db_session.commit()
+    o = await offer(client, owner)
+    applications = [(await apply(client, h, o)).json() for h in creators[:2]]
+    path = f"/api/v1/offers/{o['id']}"
+    brand_rows = (await client.get(path, headers=owner)).json()['applications']
+    photos = {a['id']: a['creator_avatar_url'] for a in brand_rows}
+    assert photos == {applications[0]['id']: photo, applications[1]['id']: None}
+    own_rows = (await client.get(path, headers=creators[0])).json()['applications']
+    assert len(own_rows) == 1 and own_rows[0]['creator_avatar_url'] == photo
+    other_rows = (await client.get(path, headers=creators[1])).json()['applications']
+    assert len(other_rows) == 1 and other_rows[0]['creator_avatar_url'] is None
+    assert photo not in (await client.get(path + '/public')).text
+    assert (await client.get(path, headers=creators[2])).json()['applications'] == []
+    response = await client.post(path + f"/applications/{applications[0]['id']}/negotiate", headers=owner,
+        json={'action': 'counter', 'request_id': str(uuid.uuid4()), 'expected_revision': 0,
+              'expected_offer_revision': o['revision'], 'amount_cents': 15000})
+    assert response.status_code == 200 and response.json()['creator_avatar_url'] == photo
+
+@pytest.mark.asyncio
 async def test_public_offer_is_a_whitelist_and_private_offer_cannot_leak_or_be_applied_to(client, auth_headers):
     owner, creators, profiles = await actors(client, auth_headers)
     public = await offer(client, owner)

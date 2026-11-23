@@ -39,6 +39,7 @@ class Application(BaseModel):
     id: str
     creator_name: str
     creator_handle: str
+    creator_avatar_url: str | None = None
     amount_cents: int
     pitch: str | None
     status: str
@@ -92,11 +93,12 @@ async def document(db, row):
         visibility=row.visibility, revision=row.revision, accepting=CampaignService.accepts_applications(row))
 
 async def application_view(db, row):
-    creator = (await db.execute(select(Creator.display_name, Creator.handle).where(Creator.id == row.creator_id))).one()
+    creator = (await db.execute(select(Creator.display_name, Creator.handle, User.avatar_url)
+        .join(User, User.id == Creator.user_id).where(Creator.id == row.creator_id))).one()
     from app.domains.collaborations.models import Collaboration, CollaborationAgreement
     collaboration = await db.scalar(select(Collaboration.id).where(Collaboration.application_id == row.id))
     claimed = bool(collaboration and await db.scalar(select(CollaborationAgreement.id).where(CollaborationAgreement.collaboration_id == collaboration)))
-    return dict(collaboration_id=collaboration, claimed=claimed, id=row.id, creator_name=creator.display_name, creator_handle=creator.handle,
+    return dict(collaboration_id=collaboration, claimed=claimed, id=row.id, creator_name=creator.display_name, creator_handle=creator.handle, creator_avatar_url=creator.avatar_url,
         amount_cents=row.proposed_rate_cents, pitch=row.pitch_message, status=row.status.value,
         revision=row.negotiation_revision, proposed_by=row.negotiation_author,
         history=[{k:v for k,v in event.items() if k not in ('request_id','request_hash')} for event in row.negotiation_history])

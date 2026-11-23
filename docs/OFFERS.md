@@ -12,14 +12,16 @@ Brand listing cards also show application-based interest: up to four recent appl
 
 ## Brand flow
 
-1. Open **Offers** in the brand menu and create an Offer. New drafts default to **Invitation only**; choose **Public** for an openly shareable brief.
+1. Open **Campaigns** in the brand menu, open a campaign and choose **New Offer**. New drafts default to **Invitation only**; choose **Public** for an openly shareable brief.
 2. Enter the brief, deliverables, niche, planned total budget and application closing date, then save and publish.
 3. Open the dedicated Offer page and use **Share Offer**. Public links show a read-only brief before sign-in. Private links reveal no brief until the viewer signs in as the owning brand or an invited creator.
-4. Invite a creator by their Flenzr handle and an individual quote. Send that creator the share link. The form saves access; it does not send an external email.
-5. Review each application privately. Counter its quote, decline it or select the creator at their proposed terms. Multiple creators can be selected independently.
+4. Choose **Manage** in the Offer's left navigation to change publication state or invite a creator by their Flenzr handle and an individual quote. Send that creator the share link. The form saves access; it does not send an external email.
+5. Choose **Applicants** to see the applicant list beside the section menu. Select a creator to review their private pitch, quote and negotiation history, or choose **All applicants** for the current page. Counter the quote, decline it or select the creator at their proposed terms. Multiple creators can be selected independently; lists paginate at 20 applicants.
 6. Start each selected creator’s collaboration. Both parties must accept the same proposal version before that application is shown as claimed. Existing delivery, review, proof and completion workflows then apply.
 
 Pausing or closing an Offer stops new applications, selections and counters. Existing collaborations continue independently. The total budget describes the brief and does not impose a one-creator limit or automatically reserve funds. Payments are not live.
+
+The brand Offer page uses **Overview**, **Manage** and **Applicants** as its second navigation level. Overview shows the full brief; Manage contains brand controls and invitations. Applicants collapses the section menu to icons on desktop and adds the creator selector. The selector and application details show each creator’s saved profile photo, with initials when missing or unavailable. Photos come from the participant-scoped application response, not the public brief. On narrow screens, sections appear in a horizontal menu with a scrollable applicant list above the content. The sidebar matches the collaboration menu dimensions and animates between expanded and icon-only states, respecting reduced-motion preferences. Offer identity is shown in page breadcrumbs rather than a separate sidebar heading. Breadcrumbs link Campaigns → parent campaign → offer → section → selected applicant. Section hashes restore on reload and browser Back/Forward. Creator and signed-out public Offer views retain their document layout.
 
 ## Creator flow
 
@@ -35,6 +37,8 @@ Open **Offers**, or follow a brand’s share link. Private Offers require a matc
 - Migration `0028_offers` adds visibility and application negotiation fields; existing campaigns default to public. It is applied to the configured database.
 
 ## Verification
+
+2026-11-23 navigation check: TypeScript and focused ESLint passed. An isolated Next.js browser preview with sample API responses checked brand section isolation, individual applicant selection, counter/selection submissions, 21-applicant pagination, section reload and browser Back/Forward, creator-view preservation, and overflow at 1024px, 768px and 390px. Dark/light desktop and mobile layouts were inspected. This checks the navigation change; it does not replace database-backed workflow regression.
 
 Automated tests cover private access/application denial, public field whitelisting, private drafts, multiple selections, counter history, retries, stale revisions, rejecting one’s own terms, paused Offers and collaboration quote handoff. Browser checks use isolated test accounts and a real cookie BFF/API/database: creator application, brand counter, creator acceptance, collaboration navigation, private invitation grant and outsider denial. The 390px layout has no horizontal overflow. Google sign-in return-path tests include the dedicated Offer route.
 

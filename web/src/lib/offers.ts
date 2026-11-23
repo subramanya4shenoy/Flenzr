@@ -5,6 +5,7 @@ export interface PublicOffer {
 }
 export interface OfferApplication {
   id: string; creator_name: string; creator_handle: string; amount_cents: number; pitch: string | null;
+  creator_avatar_url?: string | null;
   status: string; revision: number; proposed_by: "brand" | "creator";
   collaboration_id: string | null; claimed: boolean;
   history: { action: string; author: string; amount_cents: number; message: string; at: string }[];

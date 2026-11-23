@@ -1,16 +1,19 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Check, Copy, FileText, Globe2, LockKeyhole, Users, X } from "lucide-react";
+import Image from "next/image";
+import { ArrowUpRight, Check, ChevronRight, Copy, FileText, Globe2, LockKeyhole, Settings2, Users, X } from "lucide-react";
 import { offerRequest, type PublicOffer, type OfferWorkspace, type OfferApplication } from "@/lib/offers";
 import { campaignMoney, campaignRequest, draftBudgetCents, type SavedCampaign } from "@/lib/campaign-drafts";
 import { campaignFolderHref } from "@/lib/campaign-folders";
+import { avatarProxyUrl } from "@/lib/collaboration-messages";
 import { campaignActions, type CampaignAction } from "@/lib/campaign-lifecycle";
 import { CampaignLifecycleDialog } from "@/components/brand/campaign-lifecycle";
 import { CampaignDraftDialog } from "@/components/brand/campaign-drafts";
 import { StartCollaboration } from "@/components/collaborations/start-collaboration";
 import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 import "./offers.css";
+import "./offer-workspace.css";
 
 const label: Record<string, string> = { draft: "Draft", active: "Open for applications", paused: "Paused", completed: "Closed", cancelled: "Cancelled", expired: "Expired", pending: "Under review", accepted: "Selected · agreement next", rejected: "Declined", withdrawn: "Withdrawn" };
 const date = (value: string | null) => value ? new Date(value.slice(0,10)+"T00:00:00Z").toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric", timeZone:"UTC" }) : "To discuss";
@@ -26,6 +29,26 @@ export function OfferDocument({ offer, children }: { offer: PublicOffer; childre
   </article>;
 }
 
+type OfferSection = "overview" | "manage" | "applicants";
+const offerSections = [
+  { id: "overview", label: "Overview", icon: FileText },
+  { id: "manage", label: "Manage", icon: Settings2 },
+  { id: "applicants", label: "Applicants", icon: Users },
+] as const;
+function sectionFromHash(): OfferSection {
+  const hash = window.location.hash.slice(1);
+  return hash === "manage" || hash === "applicants" ? hash : "overview";
+}
+
+function ApplicantAvatar({ application }: { application: OfferApplication }) {
+  const src = avatarProxyUrl(application.creator_avatar_url);
+  const initials = application.creator_name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase() || "C";
+  return <span className="fl-offer-applicant-avatar" aria-hidden="true">
+    <span>{initials}</span>
+    {src && <Image key={src} src={src} alt="" width={30} height={30} unoptimized loading="lazy" onError={event => { event.currentTarget.hidden = true; }} />}
+  </span>;
+}
+
 export function OfferWorkspacePage({ id }: { id: string }) {
   const [offer,setOffer] = useState<OfferWorkspace | null>(null), [error,setError] = useState(""), [notice,setNotice] = useState("");
   const [page,setPage] = useState(1), [refreshing,setRefreshing] = useState(false);
@@ -33,6 +56,30 @@ export function OfferWorkspacePage({ id }: { id: string }) {
   const [quote,setQuote] = useState(""), [pitch,setPitch] = useState(""), [handle,setHandle] = useState(""), [invitationQuote,setInvitationQuote] = useState("");
   const [busy,setBusy] = useState(false), [share,setShare] = useState(""), [editing,setEditing] = useState(false);
   const saving = useRef(false);
+  const [section, setSection] = useState<OfferSection>("overview");
+  const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(null);
+  useEffect(() => {
+    const sync = () => setSection(sectionFromHash());
+    const timer = window.setTimeout(sync, 0);
+    window.addEventListener("hashchange", sync);
+    window.addEventListener("popstate", sync);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("hashchange", sync);
+      window.removeEventListener("popstate", sync);
+    };
+  }, []);
+  function selectSection(next: OfferSection) {
+    setSection(next);
+    if (window.location.hash !== `#${next}`) {
+      window.history.pushState(null, "", `${window.location.pathname}${window.location.search}#${next}`);
+    }
+  }
+  function changeApplicantPage(next: number) {
+    setRefreshing(true);
+    setSelectedApplicantId(null);
+    setPage(next);
+  }
   const reload = useCallback(async () => {
     setRefreshing(true);
     try { setOffer(await offerRequest<OfferWorkspace>(`/${id}?page=${page}`)); setError(""); } catch(e) { setError(e instanceof Error ? e.message : "Could not load Offer."); }
@@ -42,7 +89,8 @@ export function OfferWorkspacePage({ id }: { id: string }) {
     const controller = new AbortController();
     offerRequest<OfferWorkspace>(`/${id}?page=${page}`, { signal: controller.signal }).then(data => {
       if (!controller.signal.aborted) { setOffer(data); setError(""); }
-    }).catch(error => { if (!controller.signal.aborted) setError(error instanceof Error ? error.message : "Could not load Offer."); });
+    }).catch(error => { if (!controller.signal.aborted) setError(error instanceof Error ? error.message : "Could not load Offer."); })
+      .finally(() => { if (!controller.signal.aborted) setRefreshing(false); });
     return () => controller.abort();
   },[id,page]);
   async function apply(event:React.FormEvent) {
@@ -59,25 +107,65 @@ export function OfferWorkspacePage({ id }: { id: string }) {
   async function copyShare() {if(offer?.status==="draft"){setShare("");setNotice("");setError("This Offer is still a draft. Publish it before sharing — creators can’t open drafts, even public ones.");return;}const url=window.location.origin+`/offers/${id}`;setShare(url);try{await navigator.clipboard.writeText(url);setNotice(offer?.visibility==="invited"?"Link copied. Only invited creators can open this Offer.":"Public Offer link copied.");}catch{setNotice("Select and copy the share link below.");}}
   if(!offer)return <div className="fl-offer-page">{error?<div role="alert"><p>{error}</p><button type="button" onClick={()=>void reload()}>Retry Offer</button></div>:<WorkspaceLoader label="Opening Offer…" />}</div>;
   const owned=offer.viewer_role==="brand";
-  return <main className="fl-offer-page"><div className="fl-offer-page-actions"><Link href={owned ? campaignFolderHref(offer.parent_campaign_id || "unassigned") : "/dashboard/creator#opportunities"}>← {owned ? offer.parent_campaign_title || "Unassigned offers" : "All Offers"}</Link><div><button type="button" onClick={()=>void copyShare()}><Copy size={13} /> Share Offer</button><button type="button" disabled={refreshing} onClick={()=>void reload()}>{refreshing?"Refreshing…":"Refresh Offer"}</button></div></div>
+  const selectedApplicant = owned ? offer.applications.find(app => app.id === selectedApplicantId) : null;
+  const visibleApplications = selectedApplicant ? [selectedApplicant] : offer.applications;
+  return <div className="fl-offer-workspace" data-owned={owned} data-applicants={owned && section === "applicants"}>
+    {owned && <aside className="fl-offer-section-sidebar" aria-label="Offer navigation">
+      <nav aria-label="Offer sections">
+        {offerSections.map(item => <button key={item.id} type="button" className="fl-offer-section-link" aria-current={section === item.id ? "page" : undefined} aria-controls="offer-section-content" aria-label={item.label} title={item.label} onClick={() => selectSection(item.id)}>
+          <item.icon size={16} aria-hidden="true" /><span className="fl-offer-section-label">{item.label}</span>
+          {item.id === "applicants" && <span className="fl-offer-nav-count" aria-hidden="true">{offer.total_applications}</span>}
+        </button>)}
+      </nav>
+    </aside>}
+    {owned && <aside className="fl-offer-applicant-sidebar" aria-label="Offer applicants" hidden={section !== "applicants"}>
+      <div className="fl-offer-applicant-heading"><strong>Applicants</strong><span>{offer.total_applications} total</span></div>
+      <nav aria-label="Select applicant">
+        <button type="button" className="fl-offer-applicant-link" aria-current={!selectedApplicant ? "true" : undefined} aria-controls="offer-section-content" onClick={() => setSelectedApplicantId(null)}>
+          <span className="fl-offer-applicant-avatar" aria-hidden="true"><Users size={16} /></span><span><strong>All applicants</strong><small>Review this page of applications</small></span>
+        </button>
+        {offer.applications.map(app => <button key={app.id} type="button" className="fl-offer-applicant-link" aria-current={selectedApplicant?.id === app.id ? "true" : undefined} aria-controls="offer-section-content" onClick={() => setSelectedApplicantId(app.id)}>
+          <ApplicantAvatar application={app} />
+          <span><strong>{app.creator_name}</strong><small>{app.claimed ? "Claimed" : label[app.status]}</small></span>
+        </button>)}
+      </nav>
+      {!offer.applications.length && <p className="fl-offer-applicant-empty">No applicants yet.</p>}
+      {offer.total_applications > 20 && <div className="fl-offer-applicant-pagination">
+        <button type="button" aria-label="Previous applicants page" disabled={page === 1 || refreshing} onClick={() => changeApplicantPage(page - 1)}>←</button>
+        <span>{page} / {Math.ceil(offer.total_applications / 20)}</span>
+        <button type="button" aria-label="Next applicants page" disabled={page * 20 >= offer.total_applications || refreshing} onClick={() => changeApplicantPage(page + 1)}>→</button>
+      </div>}
+    </aside>}
+    <main className="fl-offer-page" id="offer-section-content" aria-label={owned ? `${offer.title} · ${offerSections.find(item => item.id === section)?.label}` : undefined}><div className="fl-offer-page-actions">
+      {owned ? <nav className="fl-offer-breadcrumb" aria-label="Breadcrumb"><ol>
+        <li><Link href="/dashboard/brand#campaigns">Campaigns</Link></li>
+        <li aria-hidden="true"><ChevronRight size={13} /></li>
+        <li><Link href={campaignFolderHref(offer.parent_campaign_id || "unassigned")}>{offer.parent_campaign_title || "Unassigned offers"}</Link></li>
+        <li aria-hidden="true"><ChevronRight size={13} /></li>
+        <li><button type="button" onClick={() => selectSection("overview")}>{offer.title}</button></li>
+        <li aria-hidden="true"><ChevronRight size={13} /></li>
+        <li>{section === "applicants" && selectedApplicant ? <button type="button" onClick={() => setSelectedApplicantId(null)}>Applicants</button> : <span aria-current="page">{offerSections.find(item => item.id === section)?.label}</span>}</li>
+        {section === "applicants" && selectedApplicant && <><li aria-hidden="true"><ChevronRight size={13} /></li><li><span aria-current="page">{selectedApplicant.creator_name}</span></li></>}
+      </ol></nav> : <Link href="/dashboard/creator#opportunities">← All Offers</Link>}
+      <div><button type="button" onClick={()=>void copyShare()}><Copy size={13} /> Share Offer</button><button type="button" disabled={refreshing} onClick={()=>void reload()}>{refreshing?"Refreshing…":"Refresh Offer"}</button></div></div>
     {error&&<p className="fl-offer-error" role="alert">{error}</p>}{notice&&<p className="fl-offer-notice" role="status"><Check size={14}/>{notice}</p>}{share&&<label className="fl-offer-share">{offer.visibility==="invited"?"Private link · invited creators still need to sign in":"Public share link"}<input readOnly value={share} onFocus={e=>e.target.select()} /></label>}
-    <OfferDocument offer={offer} />
-    {owned&&<section className="fl-offer-panel"><div className="fl-offer-panel-heading"><div><span className="fl-offer-eyebrow">BRAND CONTROLS</span><h2>Manage this Offer</h2></div><div className="fl-offer-controls">{offer.status==="draft"&&<button type="button" onClick={()=>{setNotice("");setError("");setEditing(true);}}>Edit saved draft <ArrowUpRight size={13}/></button>}{campaignActions((offer.status === "expired" ? "active" : offer.status) as SavedCampaign["status"]).map(a=><button key={a} type="button" onClick={()=>setAction(a)}>{a==="close"?"Close applications":a==="publish"?"Publish Offer":a==="cancel"?"Cancel Offer":a==="pause"?"Pause Offer":"Resume Offer"}</button>)}</div></div><p>Closing applications stops new selection and counter-offers. Existing collaborations keep their own agreements and delivery progress.</p>
+    {owned && section !== "overview" && <header className="fl-offer-section-heading"><h1>{section === "manage" ? "Manage offer" : selectedApplicant?.creator_name || "Applicants"}</h1><p>{section === "manage" ? "Manage publication and invite creators to this offer." : selectedApplicant ? `@${selectedApplicant.creator_handle} · Application and negotiation` : `${offer.total_applications} ${offer.total_applications === 1 ? "application" : "applications"} for this offer`}</p></header>}
+    {(!owned || section === "overview") && <OfferDocument offer={offer} />}
+    {owned&&section==="manage"&&<section className="fl-offer-panel"><div className="fl-offer-panel-heading"><div><span className="fl-offer-eyebrow">BRAND CONTROLS</span><h2>Manage this Offer</h2></div><div className="fl-offer-controls">{offer.status==="draft"&&<button type="button" onClick={()=>{setNotice("");setError("");setEditing(true);}}>Edit saved draft <ArrowUpRight size={13}/></button>}{campaignActions((offer.status === "expired" ? "active" : offer.status) as SavedCampaign["status"]).map(a=><button key={a} type="button" onClick={()=>setAction(a)}>{a==="close"?"Close applications":a==="publish"?"Publish Offer":a==="cancel"?"Cancel Offer":a==="pause"?"Pause Offer":"Resume Offer"}</button>)}</div></div><p>Closing applications stops new selection and counter-offers. Existing collaborations keep their own agreements and delivery progress.</p>
       {offer.accepting&&<form className="fl-offer-inline-form" onSubmit={invite}><label>Invite a creator<input name="offer-invite-handle" placeholder="Creator’s Flenzr handle" required value={handle} onChange={e=>setHandle(e.target.value)} /></label><label>Quote for this creator · {offer.currency}<input name="offer-invite-quote" inputMode="decimal" required value={invitationQuote} onChange={e=>setInvitationQuote(e.target.value)} /></label><button type="submit" disabled={busy}>{busy?"Saving…":"Invite creator"}</button></form>}
     </section>}
     {!owned&&!offer.applications.length&&<section className="fl-offer-panel"><span className="fl-offer-eyebrow">YOUR APPLICATION</span><h2>{offer.accepting?"Bring your perspective to this Offer":"Applications aren’t open"}</h2>{offer.invited&&<p>You’ve been invited by the brand. Apply with your pitch and proposed quote.</p>}{offer.accepting&&<form onSubmit={apply}><label>Your proposed quote · {offer.currency}<input name="offer-quote" inputMode="decimal" required value={quote} onChange={e=>setQuote(e.target.value)} /></label><label>Why you’re a fit<textarea name="offer-pitch" rows={4} maxLength={5000} value={pitch} onChange={e=>setPitch(e.target.value)} placeholder="Your idea, approach and what you can deliver." /></label><button type="submit" className="fl-offer-primary" disabled={busy}>{busy?"Saving application…":"Apply for Offer"}</button></form>}</section>}
-    {(owned||offer.applications.length>0)&&<section className="fl-offer-panel"><span className="fl-offer-eyebrow">PRIVATE TO EACH CREATOR AND THE BRAND</span><h2>{owned?`Applications · ${offer.total_applications}`:"Your application"}</h2>{owned&&<p>You can select more than one creator. Negotiation and selection happen independently for each application.</p>}{!offer.applications.length&&<p>No applications yet. Share your Offer or invite creators.</p>}
-      <div className="fl-offer-applications">{offer.applications.map(app=><article key={app.id} className="fl-offer-application"><div className="fl-offer-panel-heading"><div><h3>{app.creator_name}</h3><span>@{app.creator_handle}</span></div><span className="fl-offer-state">{app.claimed ? "Claimed · agreement saved" : label[app.status]}</span></div><div className="fl-offer-quote"><strong>{campaignMoney(app.amount_cents,offer.currency)}</strong><span>{app.revision?`Latest terms from the ${app.proposed_by}`:"Creator’s initial quote"}</span></div>{app.pitch&&<p>{app.pitch}</p>}
+    {((owned&&section==="applicants")||(!owned&&offer.applications.length>0))&&<section className="fl-offer-panel"><span className="fl-offer-eyebrow">PRIVATE TO EACH CREATOR AND THE BRAND</span><h2>{owned?selectedApplicant ? "Application details" : `Applications · ${offer.total_applications}`:"Your application"}</h2>{owned&&<p>You can select more than one creator. Negotiation and selection happen independently for each application.</p>}{!offer.applications.length&&<p>No applications yet. Share your Offer or invite creators.</p>}
+      <div className="fl-offer-applications">{visibleApplications.map(app=><article key={app.id} className="fl-offer-application"><div className="fl-offer-panel-heading"><div className="fl-offer-application-identity"><ApplicantAvatar application={app} /><div><h3>{app.creator_name}</h3><span>@{app.creator_handle}</span></div></div><span className="fl-offer-state">{app.claimed ? "Claimed · agreement saved" : label[app.status]}</span></div><div className="fl-offer-quote"><strong>{campaignMoney(app.amount_cents,offer.currency)}</strong><span>{app.revision?`Latest terms from the ${app.proposed_by}`:"Creator’s initial quote"}</span></div>{app.pitch&&<p>{app.pitch}</p>}
         {app.history.length>0&&<details><summary>Negotiation history · {app.history.length} updates</summary><ol>{app.history.map((event,i)=><li key={i}><strong>{event.author} · {event.action} · {campaignMoney(event.amount_cents,offer.currency)}</strong><time>{new Date(event.at).toLocaleString()}</time><p>{event.message}</p></li>)}</ol></details>}
         {app.status==="pending"&&<div className="fl-offer-controls">{offer.accepting&&<>{app.proposed_by!==offer.viewer_role&&<button className="fl-offer-primary" type="button" onClick={()=>setResponse({application:app,action:"accept"})}>{owned?"Select creator at this quote":"Accept brand’s counter-offer"}</button>}<button type="button" onClick={()=>setResponse({application:app,action:"counter"})}>Make counter-offer</button></>}<button type="button" onClick={()=>setResponse({application:app,action:owned?"reject":"withdraw"})}>{owned?"Decline application":"Withdraw application"}</button></div>}
         {app.status==="accepted"&&<div className="fl-offer-selection"><p>{app.claimed ? "Both participants accepted the agreement. Continue in your shared collaboration for deliveries, reviews and publishing proof." : "Selected. Open the collaboration to confirm scope, price, rights and dates together. The Offer is claimed only after both accept the same agreement."}</p>{app.collaboration_id ? <Link href={`/dashboard/collaborations/${app.collaboration_id}`}>Open collaboration →</Link> : <StartCollaboration sourceKind="application" sourceId={app.id}/>}</div>}
       </article>)}</div>
-      {owned&&offer.total_applications>20&&<div className="fl-offer-controls"><button type="button" disabled={page===1||refreshing} onClick={()=>setPage(p=>p-1)}>Previous</button><span>Page {page} of {Math.ceil(offer.total_applications/20)}</span><button type="button" disabled={page*20>=offer.total_applications||refreshing} onClick={()=>setPage(p=>p+1)}>Next</button></div>}
     </section>}
     {response&&<OfferResponseDialog offer={offer} application={response.application} action={response.action} onClose={()=>setResponse(null)} onSaved={()=>{setResponse(null);setNotice("Response saved. Your collaborator can review the latest terms.");void reload();}} />}
     {action&&<CampaignLifecycleDialog campaignId={id} action={action} onClose={()=>setAction(null)} onReloaded={()=>void reload()} onEdit={()=>{setAction(null);setEditing(true);}} onSaved={()=>{setAction(null);void reload();}} />}
     {editing&&<CampaignDraftDialog campaignId={id} onClose={()=>setEditing(false)} onReloaded={reload} onSaved={()=>{setEditing(false);setNotice("Offer draft saved.");void reload();}} />}
-  </main>;
+  </main></div>;
 }
 
 function OfferResponseDialog({offer,application,action,onClose,onSaved}:{offer:OfferWorkspace;application:OfferApplication;action:string;onClose:()=>void;onSaved:()=>void}) {

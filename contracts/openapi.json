@@ -7132,6 +7132,17 @@
             "type": "string",
             "title": "Creator Handle"
           },
+          "creator_avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Avatar Url"
+          },
           "amount_cents": {
             "type": "integer",
             "title": "Amount Cents"

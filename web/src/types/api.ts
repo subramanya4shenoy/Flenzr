@@ -2091,6 +2091,8 @@ export interface components {
             creator_name: string;
             /** Creator Handle */
             creator_handle: string;
+            /** Creator Avatar Url */
+            creator_avatar_url?: string | null;
             /** Amount Cents */
             amount_cents: number;
             /** Pitch */
