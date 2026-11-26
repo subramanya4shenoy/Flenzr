@@ -225,3 +225,15 @@ test('account gateway preserves backend Retry-After without exposing credentials
   assert.equal(response.status, 429); assert.equal(response.headers['Retry-After'], '30');
   assert.equal(response.headers['Cache-Control'], 'no-store');
 });
+
+test('collaboration notification login redirect preserves only allowed views', async()=>{
+ const detail=load('src/app/dashboard/collaborations/[id]/page.tsx',{}, {
+  '@/lib/server/session':{currentIdentity:async()=>null},
+  '@/components/collaborations/collaborations':{SharedCollaborations:()=>null},
+  'next/navigation':{redirect:target=>{throw Error(target);}},
+ });
+ for(const view of ['proposal','deliveries','proof','activity','https://attacker.test']){
+  const target='/dashboard/collaborations/record'+(view.startsWith('https')?'':'?view='+view);
+  await assert.rejects(()=>detail.default({params:Promise.resolve({id:'record'}),searchParams:Promise.resolve({view})}),error=>error.message==='/login?next='+encodeURIComponent(target));
+ }
+});

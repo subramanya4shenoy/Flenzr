@@ -24,7 +24,7 @@ export function CollaborationProof({ collaborationId, status, onConfirmedChange 
         if (!controller.signal.aborted) {
           setState({ key, data: res });
           const latestItem = res.items.find(row => row.version === res.latest_proof_version) ?? res.items[0];
-          onConfirmedChange?.(Boolean(res.latest_proof_version > 0 && latestItem?.version === res.latest_proof_version && latestItem?.confirmation));
+          onConfirmedChange?.(Boolean(res.latest_proof_version > 0 && latestItem?.version === res.latest_proof_version && latestItem?.agreement_id === res.current_agreement_id && latestItem?.delivery_id === res.eligible_delivery?.id && latestItem?.confirmation));
         }
       })
       .catch(error => { if (!controller.signal.aborted) setState({ key, error: error instanceof Error ? error.message : "Could not load publishing proof." }); });
@@ -38,7 +38,7 @@ export function CollaborationProof({ collaborationId, status, onConfirmedChange 
     : data?.can_confirm
       ? "Review and confirm the creator’s live published post links."
       : "Final post links provided by the creator, separate from preview submissions.";
-  const confirmationLabel = !data?.items.length
+  const confirmationLabel = latest && (latest.agreement_id !== data?.current_agreement_id || latest.delivery_id !== data?.eligible_delivery?.id) ? "Historical proof" : !data?.items.length
     ? "Not recorded yet"
     : latest?.confirmation
       ? "Confirmed by brand"
@@ -156,7 +156,7 @@ export function CollaborationProof({ collaborationId, status, onConfirmedChange 
           )}
 
           {data.items.map((row, idx) => {
-            const isLatest = row.version === data.latest_proof_version;
+            const isLatest = row.version === data.latest_proof_version && row.agreement_id === data.current_agreement_id && row.delivery_id === data.eligible_delivery?.id;
             const isLast = idx === data.items.length - 1;
             const minimal = showEditor || !isLatest;
             const badge = row.confirmation

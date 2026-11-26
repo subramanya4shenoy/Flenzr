@@ -7,6 +7,7 @@ from app.core.exceptions import DomainRuleViolation
 from .models import Collaboration, CollaborationAgreement, CollaborationCompletion, DeliverySubmission, DeliveryReview
 from .service import CollaborationService
 from .agreements import stamp
+from .current_agreement import current_agreement_filter
 
 
 class CollaborationCalendar:
@@ -23,7 +24,7 @@ class CollaborationCalendar:
         start, end = date(year, number, 1).isoformat(), date(year, number, days).isoformat()
         due = CollaborationAgreement.snapshot['terms']['delivery_date'].as_string()
         # ISO date strings preserve calendar-date ordering on PostgreSQL and SQLite.
-        scope = (CollaborationService.scope(user_id), Collaboration.status.in_(('agreed', 'completed')),
+        scope = (CollaborationService.scope(user_id), current_agreement_filter(), Collaboration.status.in_(('agreed', 'completed')),
                  due >= start, due <= end)
         base = select(Collaboration, CollaborationAgreement, CollaborationCompletion, DeliverySubmission, DeliveryReview).select_from(Collaboration).join(CollaborationAgreement,
             CollaborationAgreement.collaboration_id == Collaboration.id).outerjoin(CollaborationCompletion,
@@ -31,7 +32,7 @@ class CollaborationCalendar:
             and_(DeliverySubmission.collaboration_id == Collaboration.id, DeliverySubmission.version == Collaboration.delivery_version)).outerjoin(DeliveryReview,
             DeliveryReview.delivery_id == DeliverySubmission.id).where(*scope)
         # Only work still owed by the creator counts as outstanding delivery work.
-        outstanding = and_(Collaboration.status == 'agreed', or_(DeliverySubmission.id.is_(None), DeliveryReview.decision == 'revisions_requested'))
+        outstanding = and_(Collaboration.status == 'agreed', or_(DeliverySubmission.id.is_(None), DeliverySubmission.agreement_id != CollaborationAgreement.id, DeliveryReview.decision == 'revisions_requested'))
         counts = (await db.execute(base.with_only_columns(due.label('delivery_date'), func.count(Collaboration.id).label('total'),
             func.sum(case((outstanding, 1), else_=0)).label('outstanding'), maintain_column_froms=True)
             .group_by(due).order_by(due))).all()
@@ -42,7 +43,7 @@ class CollaborationCalendar:
         items = []
         for collab, agreement, completion, delivery, review in rows:
             snapshot = agreement.snapshot
-            state = 'completed' if collab.status == 'completed' else 'not_submitted' if not delivery else review.decision if review else 'awaiting_review'
+            state = 'completed' if collab.status == 'completed' else 'not_submitted' if not delivery or delivery.agreement_id != agreement.id else review.decision if review else 'awaiting_review'
             items.append(dict(collaboration_id=collab.id, agreement_id=agreement.id, title=snapshot['title'],
                 brand_name=snapshot['brand_name'], creator_name=snapshot['creator_name'],
                 delivery_date=snapshot['terms']['delivery_date'], deliverables=snapshot['terms']['deliverables'],

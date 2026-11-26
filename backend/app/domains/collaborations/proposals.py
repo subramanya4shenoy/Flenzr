@@ -2,6 +2,7 @@ import hashlib
 import json
 from datetime import datetime, timezone
 from sqlalchemy import select
+from app.domains.notifications.service import record_collaboration_notification
 from app.core.exceptions import EntityNotFoundError, FlenzrException
 from .models import Collaboration, ProposalDraft, ProposalRevision
 from .service import CollaborationService
@@ -94,5 +95,7 @@ class ProposalService:
         row = ProposalRevision(collaboration_id=record_id, author_id=user_id, version=collab.proposal_version,
                                request_id=str(body.request_id), request_hash=fingerprint, terms=dict(terms))
         db.add(row); await db.delete(draft)
+        await record_collaboration_notification(db, collaboration=collab, actor_id=user_id,
+            kind='proposal_sent', event_key=f'proposal_sent:{row.version}')
         await db.commit(); await db.refresh(row)
         return ProposalService.project(row, collab, user_id)

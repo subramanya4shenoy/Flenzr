@@ -34,8 +34,8 @@ export function CollaborationDeliveries({ collaborationId, status, viewerRole, o
     return () => controller.abort();
   }, [key, page, path, onStatus]);
   const reload = () => { setPage(1); setAttempt(value => value + 1); };
-  const isBrand = viewerRole === "brand" || Boolean(data?.can_review || data?.can_complete);
-  const isCreator = viewerRole === "creator" || Boolean(data?.can_submit);
+  const isBrand = (viewerRole || data?.viewer_role) === "brand" || Boolean(data?.can_review || data?.can_complete);
+  const isCreator = (viewerRole || data?.viewer_role) === "creator" || Boolean(data?.can_submit);
   const subtitle = isBrand
     ? "Review submitted deliverables, request revisions, or approve final work."
     : isCreator
@@ -44,6 +44,8 @@ export function CollaborationDeliveries({ collaborationId, status, viewerRole, o
   const latestRow = data?.items.find(row => row.version === data.latest_version);
   const currentStageLabel = data?.completion
     ? "Completed"
+    : latestRow && latestRow.agreement_id !== data?.agreement_id
+      ? "Fresh delivery required for current scope"
     : !data?.items.length
       ? "Awaiting submission"
       : !latestRow?.review
@@ -64,6 +66,7 @@ export function CollaborationDeliveries({ collaborationId, status, viewerRole, o
       </div>
     </header>
     {notice && <p className="fl-del-notice" role="status">{notice}</p>}
+    {latestRow && latestRow.agreement_id !== data?.agreement_id && <p className="fl-del-notice" role="status">The scope changed. Earlier deliveries and approvals remain historical; submit and review fresh work against the current agreement.</p>}
     {loading ? <p role="status">Loading deliveries…</p> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={reload}>Retry deliveries</button></div> : data && (!data.agreement_id ? (
       <div className="fl-step-locked" role="status">
         <span className="fl-step-locked-icon" aria-hidden="true"><LockKeyhole size={20} /></span>

@@ -1,53 +1,24 @@
 import uuid
 import pytest
-from app.domains.collaborations.models import Collaboration, CollaborationAgreement, DeliverySubmission
-from app.domains.identity.models import User
-
-
-async def make_user(db_session, email, full_name, _role):
-    uid = str(uuid.uuid4())
-    user = User(id=uid, supabase_uid=uid, email=email, full_name=full_name)
-    db_session.add(user)
-    await db_session.flush()
-    return user
+from app.domains.collaborations.models import Collaboration, DeliverySubmission
 
 
 @pytest.mark.asyncio
 async def test_delivery_timestamped_comments_lifecycle(client, auth_headers, db_session):
-    brand = await make_user(db_session, 'brand-rev@example.com', 'Brand Rev', 'brand')
-    creator = await make_user(db_session, 'creator-rev@example.com', 'Creator Rev', 'creator')
-    outsider = await make_user(db_session, 'outsider-rev@example.com', 'Outsider', 'brand')
-    collab = Collaboration(
-        id=str(uuid.uuid4()),
-        brand_user_id=brand.id,
-        creator_user_id=creator.id,
-        enquiry_id=str(uuid.uuid4()),
-        title='Reel Campaign',
-        brand_name='Brand Rev',
-        creator_name='Creator Rev',
-        brief='Create a 30s launch reel',
-        deliverable='1 Instagram Reel',
-        currency='INR',
-        status='agreed',
-        delivery_version=1,
-    )
-    db_session.add(collab)
-    await db_session.flush()
-    agreement = CollaborationAgreement(
-        id=str(uuid.uuid4()),
-        collaboration_id=collab.id,
-        proposal_id=str(uuid.uuid4()),
-        snapshot={'terms': {'revision_limit': 2}},
-        snapshot_hash='a' * 64,
-    )
-    db_session.add(agreement)
-    await db_session.flush()
+    from test_deliveries import agreed
+
+    # Use real source/proposal/agreement references so this fixture also works
+    # after another suite enables SQLite foreign-key enforcement.
+    bh, ch, oh, deliveries_path, agreement = await agreed(client, auth_headers, db_session)
+    collab_id = deliveries_path.split('/')[-2]
+    collab = await db_session.get(Collaboration, collab_id)
+    collab.delivery_version = 1
     file_id = str(uuid.uuid4())
     delivery = DeliverySubmission(
         id=str(uuid.uuid4()),
         collaboration_id=collab.id,
-        agreement_id=agreement.id,
-        creator_user_id=creator.id,
+        agreement_id=agreement['id'],
+        creator_user_id=collab.creator_user_id,
         version=1,
         title='First Cut',
         notes='Initial reel cut',
@@ -60,9 +31,6 @@ async def test_delivery_timestamped_comments_lifecycle(client, auth_headers, db_
     await db_session.commit()
 
     base = f'/api/v1/collaborations/{collab.id}/deliveries/{delivery.id}/comments'
-    bh = auth_headers(brand.supabase_uid, brand.email)
-    ch = auth_headers(creator.supabase_uid, creator.email)
-    oh = auth_headers(outsider.supabase_uid, outsider.email)
 
     # Outsider cannot read or post
     assert (await client.get(base, headers=oh)).status_code == 404

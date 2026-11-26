@@ -1,5 +1,7 @@
 import asyncio
 import json
+
+import anyio
 from fastapi import APIRouter, Depends, Query, Request, Response
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +10,12 @@ from app.core.dependencies import get_current_user
 from app.domains.identity.models import User
 from .schemas import CollaborationCreate, CollaborationRead, CollaborationPage
 from .service import CollaborationService
+from .activity import CollaborationActivity
+from .scope_changes import ScopeChanges
+from .schemas import ScopeWorkspace, ScopeChangeCreate, ScopeDecisionCreate, ScopeChangeRead
+from .models import CollaborationAgreement
+from sqlalchemy import select
+from .schemas import CollaborationActivityPage
 from .groups import CollaborationGroupPage, CollaborationGroupService, OfferCollaborationWorkspace
 from .calendar import CollaborationCalendar
 from .schemas import CalendarPage
@@ -170,6 +178,47 @@ async def private_response(response: Response):
     response.headers['Cache-Control'] = 'no-store'
 
 
+@router.get('/{record_id}/scope-changes', response_model=ScopeWorkspace, dependencies=[Depends(private_response)])
+async def scope_workspace(record_id: str, page: int = Query(1, ge=1, le=10000), page_size: int = Query(10, ge=1, le=50),
+                         user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await ScopeChanges.workspace(db, user.id, record_id, page, page_size)
+
+
+@router.post('/{record_id}/scope-changes', response_model=ScopeChangeRead, dependencies=[Depends(private_response)])
+async def propose_scope(record_id: str, body: ScopeChangeCreate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await ScopeChanges.create(db, user.id, record_id, body)
+
+
+@router.post('/{record_id}/scope-changes/{change_id}/decide', response_model=ScopeChangeRead, dependencies=[Depends(private_response)])
+async def decide_scope(record_id: str, change_id: str, body: ScopeDecisionCreate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await ScopeChanges.decide(db, user.id, record_id, change_id, body)
+
+
+@router.get('/{record_id}/agreements', response_model=list[AgreementRead], dependencies=[Depends(private_response)])
+async def agreement_history(record_id: str, limit: int = Query(20, ge=1, le=50), offset: int = Query(0, ge=0, le=10000),
+                            user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    await CollaborationService.read(db, user.id, record_id)
+    return (await db.scalars(select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id == record_id)
+                            .order_by(CollaborationAgreement.revision.desc()).offset(offset).limit(limit))).all()
+
+
+@router.get('/{record_id}/agreements/{agreement_id}', response_model=AgreementRead, dependencies=[Depends(private_response)])
+async def historical_agreement(record_id: str, agreement_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    from app.core.exceptions import EntityNotFoundError
+    await CollaborationService.read(db, user.id, record_id)
+    row = await db.scalar(select(CollaborationAgreement).where(CollaborationAgreement.id == agreement_id, CollaborationAgreement.collaboration_id == record_id))
+    if not row:
+        raise EntityNotFoundError('Agreement', agreement_id)
+    return row
+
+
+@router.get('/{record_id}/activity', response_model=CollaborationActivityPage, dependencies=[Depends(private_response)])
+async def collaboration_activity(record_id: str, limit: int = Query(25, ge=1, le=50),
+                                 before: str | None = Query(None, min_length=1, max_length=500),
+                                 user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await CollaborationActivity.read(db, user.id, record_id, limit, before)
+
+
 @router.get('/{record_id}/files/limits', response_model=FileUploadLimits, dependencies=[Depends(private_response)])
 async def file_limits(record_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     await DeliveryService.collaboration(db, user.id, record_id)
@@ -239,7 +288,7 @@ async def send_chat_signal(record_id: str, body: ChatSignal, user: User = Depend
         await MessageService.touch_last_seen(db, user.id)
         return {'ok': True}
     role = 'brand' if user.id == collab.brand_user_id else 'creator'
-    chat_hub.publish(record_id, body.kind, {'from_role': role, 'payload': body.payload}, exclude_user_id=user.id)
+    await chat_hub.publish(record_id, body.kind, {'from_role': role, 'payload': body.payload}, exclude_user_id=user.id, required=True)
     return {'ok': True}
 
 
@@ -248,21 +297,24 @@ async def chat_events(record_id: str, request: Request, user: User = Depends(get
     collab = await DeliveryService.collaboration(db, user.id, record_id)
     peer_id = collab.creator_user_id if user.id == collab.brand_user_id else collab.brand_user_id
     await MessageService.touch_last_seen(db, user.id)
-    queue = chat_hub.subscribe(record_id, user.id)
+    queue = await chat_hub.subscribe(record_id, user.id)
 
     async def stream():
         try:
-            yield f"event: ready\ndata: {json.dumps({'peer_online': chat_hub.is_online(peer_id)})}\n\n"
+            yield f"event: ready\ndata: {json.dumps({'peer_online': await chat_hub.peer_online(record_id, peer_id)})}\n\n"
             while True:
                 if await request.is_disconnected():
                     break
                 try:
                     msg = await asyncio.wait_for(queue.get(), timeout=20.0)
+                    if msg is None:
+                        break
                     yield f"event: {msg['event']}\ndata: {json.dumps(msg['data'])}\n\n"
                 except asyncio.TimeoutError:
                     yield "event: ping\ndata: {}\n\n"
         finally:
-            chat_hub.unsubscribe(record_id, user.id, queue)
+            with anyio.CancelScope(shield=True):
+                await chat_hub.unsubscribe(record_id, user.id, queue)
 
     return StreamingResponse(
         stream(),

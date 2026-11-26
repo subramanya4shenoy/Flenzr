@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, Clock, FileEdit, RefreshCw, Send, X } from "lucide-react";
 import { collaborationRequest, type Collaboration } from "@/lib/collaborations";
 import { campaignMoney } from "@/lib/campaign-drafts";
+import { ScopeChangesPanel } from "./scope-changes";
 import { AcceptanceDialog } from "./agreement";
 import { AgreementSheet } from "./agreement-sheet";
 import { proposalCurrencies, proposalFields, proposalPayload, type ProposalDraft, type ProposalFields, type ProposalRevision, type ProposalTerms, type ProposalWorkspace } from "@/lib/proposals";
@@ -34,7 +35,7 @@ export function CollaborationProposals({ collaboration, onStatus }: { collaborat
     return () => controller.abort();
   }, [key, page, path, onStatus]);
 
-  const reload = () => { setPage(1); setAttempt(value => value + 1); };
+  const reload = useCallback(() => { setPage(1); setAttempt(value => value + 1); }, []);
   function saved(message: string) { setEditing(false); setReview(false); setLiveDraftTerms(null); setNotice(message); reload(); }
 
   async function downloadAgreement() {
@@ -67,7 +68,7 @@ export function CollaborationProposals({ collaboration, onStatus }: { collaborat
   const sheetMode: "agreed" | "proposal" | "draft" = editing
     ? "draft"
     : selectedHistoryRow
-      ? (agreement && agreement.snapshot.proposal_version === selectedHistoryRow.version ? "agreed" : "proposal")
+      ? (agreement && agreement.revision === 1 && agreement.snapshot.proposal_version === selectedHistoryRow.version ? "agreed" : "proposal")
       : agreement
         ? "agreed"
         : latest
@@ -97,6 +98,7 @@ export function CollaborationProposals({ collaboration, onStatus }: { collaborat
         </button>
       </div>
       <div className="fl-prop-top-actions">
+        {agreement && <button type="button" className="fl-prop-btn-secondary" onClick={() => { const panel = document.getElementById("collaboration-scope-changes"); panel?.scrollIntoView({ block: "start" }); panel?.focus({ preventScroll: true }); }}>Scope changes</button>}
         {data && !editing && !agreement && <button type="button" className="fl-prop-btn-secondary" onClick={() => { setNotice(""); setTab("agreement"); setPage(1); setEditing(true); }}>
           <FileEdit size={13} aria-hidden="true" /> {data.draft ? "Edit draft" : data.latest_version ? "Draft a revision" : "Draft proposal"}
         </button>}
@@ -120,6 +122,7 @@ export function CollaborationProposals({ collaboration, onStatus }: { collaborat
           mode={sheetMode}
           version={sheetVersion}
           agreementId={agreement?.id}
+          agreementRevision={agreement?.revision}
           agreedAt={agreement?.snapshot.agreed_at}
           acceptance={acceptance}
           onDownload={agreement ? () => void downloadAgreement() : undefined}
@@ -144,7 +147,7 @@ export function CollaborationProposals({ collaboration, onStatus }: { collaborat
           {(acceptance || agreement) ? (
             <section className="fl-prop-acceptance-card" data-agreed={Boolean(agreement)} aria-label="Proposal acceptance and agreement">
               <div className="fl-prop-acceptance-head">
-                <h3>{agreement ? `Agreement confirmed · Version ${agreement.snapshot.proposal_version}` : `Mutual acceptance · Version ${acceptance?.version}`}</h3>
+                <h3>{agreement ? `Agreement confirmed · Revision ${agreement.revision}` : `Mutual acceptance · Version ${acceptance?.version}`}</h3>
               </div>
               <p>{agreement
                 ? "Both participants accepted these exact terms. Proposal editing is now locked, and deliveries are open."
@@ -197,6 +200,8 @@ export function CollaborationProposals({ collaboration, onStatus }: { collaborat
             </div>
           </div>}
         </>}
+
+        {tab === "agreement" && agreement && !editing && <ScopeChangesPanel key={collaboration.id} collaborationId={collaboration.id} agreementId={agreement.id} onChanged={reload} />}
 
         {tab === "history" && <div className="fl-prop-history-section">
           {!data.items.length ? <p>No sent proposal versions yet.</p> : <div className="fl-prop-history-list">

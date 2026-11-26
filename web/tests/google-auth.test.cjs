@@ -141,3 +141,12 @@ for (const target of ['/dashboard/offers/12345678-1234-1234-1234-123456789abc', 
     assert.equal(new URL(result.location).searchParams.get('next'), safe ? target : '/dashboard/creator');
   });
 }
+
+for (const [suffix,safe] of [['',true],['?view=proposal',true],['?view=deliveries',true],['?view=proof',true],['?view=activity',true],['?view=messages',false],['?view=deliveries&next=https://attacker.test',false],['#deliveries',false],['/../brand',false]]) {
+ test(`Google preserves only allowed collaboration destinations: ${suffix}`,async()=>{
+  const h=harness();h.control.bio='Existing profile';
+  const target='/dashboard/collaborations/12345678-1234-1234-1234-123456789abc'+suffix;
+  const result=await h.callback(await h.begin('creator',false,target));
+  assert.equal(new URL(result.location).searchParams.get('next'),safe?target:'/dashboard/creator');
+ });
+}

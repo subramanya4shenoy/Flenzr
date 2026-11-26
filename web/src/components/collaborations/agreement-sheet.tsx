@@ -11,6 +11,7 @@ interface AgreementSheetProps {
   mode: "agreed" | "proposal" | "draft";
   version?: number;
   agreementId?: string;
+  agreementRevision?: number;
   agreedAt?: string;
   acceptance?: ProposalWorkspace["acceptance"];
   onDownload?: () => void;
@@ -30,7 +31,7 @@ function formatDate(value: string | null | undefined) {
 }
 
 export function AgreementSheet({
-  collaboration, terms, mode, version, agreementId, agreedAt, acceptance, onDownload, downloading,
+  collaboration, terms, mode, version, agreementId, agreementRevision = 1, agreedAt, acceptance, onDownload, downloading,
 }: AgreementSheetProps) {
   const amount = terms.amount_cents == null ? "To be confirmed" : campaignMoney(terms.amount_cents, terms.currency || "INR");
   const docTitle = mode === "agreed" ? "Collaboration Agreement" : mode === "draft" ? "Collaboration Proposal (Draft)" : `Collaboration Proposal — Version ${version || 1}`;
@@ -53,6 +54,7 @@ export function AgreementSheet({
           </span>
           <dl>
             <div><dt>Reference</dt><dd>{docRef}</dd></div>
+            {mode === "agreed" && <div><dt>Agreement revision</dt><dd>{agreementRevision}</dd></div>}
             <div><dt>{mode === "agreed" ? "Agreed on" : "Date"}</dt><dd>{mode === "agreed" && agreedAt ? formatDate(agreedAt) : formatDate(new Date().toISOString())}</dd></div>
           </dl>
         </div>

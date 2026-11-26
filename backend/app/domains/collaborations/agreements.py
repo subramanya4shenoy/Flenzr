@@ -1,8 +1,10 @@
+from .current_agreement import current_agreement_stmt
 import copy
 import hashlib
 import json
 from datetime import datetime, timezone
 from sqlalchemy import select
+from app.domains.notifications.service import record_collaboration_notification
 from app.core.exceptions import EntityNotFoundError, FlenzrException
 from .models import Collaboration, CollaborationAgreement, ProposalAcceptance, ProposalRevision
 from .service import CollaborationService
@@ -20,14 +22,14 @@ class AgreementService:
     @staticmethod
     async def read(db, user_id, record_id):
         await CollaborationService.read(db, user_id, record_id)
-        agreement = await db.scalar(select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id == record_id))
+        agreement = await db.scalar(current_agreement_stmt(record_id))
         if not agreement:
             raise EntityNotFoundError('Agreement', record_id)
         return agreement
 
     @staticmethod
     async def state(db, user_id, collab):
-        agreement = await db.scalar(select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id == collab.id))
+        agreement = await db.scalar(current_agreement_stmt(collab.id))
         proposal = await db.scalar(select(ProposalRevision).where(ProposalRevision.collaboration_id == collab.id,
                                                                  ProposalRevision.version == collab.proposal_version))
         acceptance = None
@@ -39,6 +41,8 @@ class AgreementService:
                 brand_accepted_at=dates.get(collab.brand_user_id), creator_accepted_at=dates.get(collab.creator_user_id),
                 you_accepted=you_accepted, can_accept=not agreement and not you_accepted and
                 bool(proposal.terms.get('delivery_date') and proposal.terms['delivery_date'] >= datetime.now(timezone.utc).date().isoformat()))
+        if agreement and agreement.revision > 1 and acceptance:
+            acceptance.update(brand_accepted_at=agreement.snapshot['brand_accepted_at'], creator_accepted_at=agreement.snapshot['creator_accepted_at'])
         return dict(acceptance=acceptance, agreement=agreement, collaboration_status=collab.status)
 
     @staticmethod
@@ -56,7 +60,7 @@ class AgreementService:
                                                                    ProposalAcceptance.user_id == user_id))
         if existing:
             return await AgreementService.state(db, user_id, collab)
-        agreement = await db.scalar(select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id == record_id))
+        agreement = await db.scalar(current_agreement_stmt(record_id))
         if agreement or collab.status != 'discussion':
             raise FlenzrException(code='AGREEMENT_LOCKED', message='This collaboration already has an agreement.', status_code=409)
         if not proposal.terms.get('delivery_date') or proposal.terms['delivery_date'] < datetime.now(timezone.utc).date().isoformat():
@@ -75,5 +79,8 @@ class AgreementService:
             db.add(CollaborationAgreement(collaboration_id=collab.id, proposal_id=proposal.id,
                 snapshot=snapshot, snapshot_hash=snapshot_hash(snapshot), created_at=now, updated_at=now))
             collab.status = 'agreed'
+        await record_collaboration_notification(db, collaboration=collab, actor_id=user_id,
+            kind='agreement_confirmed' if collab.status == 'agreed' else 'proposal_accepted',
+            event_key=f'acceptance:{proposal.version}:{user_id}')
         await db.commit()
         return await AgreementService.state(db, user_id, collab)

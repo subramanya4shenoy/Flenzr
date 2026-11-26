@@ -41,7 +41,7 @@ async def test_mutual_acceptance_races_immutability_and_database_privacy():
                 else:raise AssertionError('Browser role wrote shared record')
                 await savepoint.rollback()
             await connection.execute(text(f'CREATE SCHEMA {schema}'))
-            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','collaboration_proposal_drafts','collaboration_proposal_revisions','collaboration_proposal_acceptances','collaboration_agreements'):
+            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','notifications','collaboration_proposal_drafts','collaboration_proposal_revisions','collaboration_proposal_acceptances','collaboration_agreements'):
                 await connection.execute(text(f'CREATE TABLE {schema}.{table} (LIKE public.{table} INCLUDING DEFAULTS INCLUDING INDEXES INCLUDING CONSTRAINTS)'))
         async def seed(db):
             owner=User(supabase_uid=str(uuid.uuid4()),email=uuid.uuid4().hex+'@example.com')

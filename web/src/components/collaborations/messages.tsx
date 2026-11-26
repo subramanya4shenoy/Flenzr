@@ -56,7 +56,10 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
         method: "POST",
         body: JSON.stringify({ kind, payload }),
       });
-    } catch { /* Ephemeral signals never block chat. */ }
+    } catch (error) {
+      if (kind.startsWith("call_")) throw error;
+      // Typing and heartbeat failures do not block conversation.
+    }
   }, [collaborationId]);
 
   const markRead = useCallback(async (sequence: number) => {
@@ -97,6 +100,12 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
     const source = new EventSource(`/api/collaborations/${collaborationId}/live`);
 
     source.addEventListener("ready", event => {
+      // The live stream has no durable replay. Reconcile persisted history and
+      // receipts after each connection, including missed events during downtime.
+      // Keep the draft and history cursor intact.
+      setAttempt(value => value + 1);
+      onActivity?.();
+      callSignalHandlers.current.forEach(fn => fn("transport_ready", {}));
       try {
         const parsed = JSON.parse((event as MessageEvent).data);
         if (typeof parsed.peer_online === "boolean") setPeerOnline(parsed.peer_online);
@@ -324,13 +333,15 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
     if (call.phase !== "idle") return;
     const callId = crypto.randomUUID();
     setCall({ phase: "outgoing", callId, startedAt: Date.now() });
-    await sendSignal("call_ring", { call_id: callId });
+    try { await sendSignal("call_ring", { call_id: callId }); }
+    catch { setCall({ phase: "idle" }); setError("Could not send the call invitation. Please try again."); }
   }
 
   async function acceptCall() {
     if (call.phase !== "incoming") return;
     const callId = call.callId;
-    await sendSignal("call_accept", { call_id: callId });
+    try { await sendSignal("call_accept", { call_id: callId }); }
+    catch { setError("Could not accept the call. Please try again."); return; }
     setCall({ phase: "active", callId, isCaller: false, connectedAt: Date.now() });
   }
 
@@ -339,7 +350,8 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
     const callId = call.callId;
     const wasOutgoing = call.phase === "outgoing";
     setCall({ phase: "idle" });
-    await sendSignal(wasOutgoing ? "call_end" : "call_decline", { call_id: callId });
+    try { await sendSignal(wasOutgoing ? "call_end" : "call_decline", { call_id: callId }); }
+    catch { setError("The call closed here, but the other participant could not be notified."); }
     if (wasOutgoing) {
       void postMessage("Missed video call", "call_event").catch(() => { });
     }
@@ -349,7 +361,8 @@ export function CollaborationMessages({ collaborationId, onActivity }: { collabo
     if (call.phase !== "active") return;
     const callId = call.callId;
     setCall({ phase: "idle" });
-    await sendSignal("call_end", { call_id: callId });
+    try { await sendSignal("call_end", { call_id: callId }); }
+    catch { setError("The call ended here, but the other participant could not be notified."); }
     const mins = Math.floor(durationSeconds / 60);
     const secs = durationSeconds % 60;
     const summary = mins > 0 ? `Video call · ${mins}m ${secs}s` : `Video call · ${secs}s`;

@@ -1,6 +1,6 @@
 # Brand profile persistence — P06.02.01
 
-Implemented 18 November 2026. Open **Brand profile** from the brand workspace header, or visit `/dashboard/brand/profile` while signed in as a brand owner.
+Implemented 18 November 2026. Open **Brand profile** from the brand workspace menu, or visit `/dashboard/brand/profile` while signed in as a brand owner.
 
 ## Shipped behavior
 
@@ -12,7 +12,17 @@ The PATCH endpoint resolves ownership from the authenticated user, requires the 
 
 Team membership, company-logo uploads and campaign persistence are separate roadmap tasks.
 
-## Verification
+## Organization onboarding follow-up · Step 33 · 26 November 2026
+
+P06.01.01 is complete. Different owners may use the same organization name. The first generated slug keeps the existing name-derived form when available; a collision receives a unique suffix. Generated slugs fit the database's 64-character limit, including long names, and names with no ASCII slug characters use the existing owner-based fallback.
+
+An explicitly requested slug remains exact: if another organization has it, creation returns `409 DUPLICATE_ENTITY`. It does not rename the requested slug, return another owner's profile or grant an owner role after the failed creation. Retrying with an available slug succeeds.
+
+The API locks the authenticated owner's user row before checking for an existing organization. Concurrent requests for one owner therefore return the same organization/profile; different owners can still onboard in parallel. The slug unique constraint arbitrates races, with savepoints allowing generated allocations to retry safely. Allocation retries are bounded; exhaustion returns a clear conflict. Existing IDs and slugs are preserved, and repeated owner POSTs do not overwrite the original profile.
+
+Verification: **580 backend tests passed, 19 opt-in checks skipped**. Focused onboarding/profile tests: **19 passed**. A separate native PostgreSQL test passed generated-name, explicit-slug and same-owner races. An isolated browser with actual UI/BFF/API/SQLite successfully onboarded three brands with the same name, reloaded their distinct profiles, checked explicit-conflict recovery and 390px width, and recorded zero browser exceptions. No live-user organizations were created during testing.
+
+## Historical profile verification · 18 November 2026
 
 - Full backend suite: **285 passed, 3 skipped** (opt-in PostgreSQL tests).
 - Full web suite: **106 passed**.
@@ -23,7 +33,7 @@ Team membership, company-logo uploads and campaign persistence are separate road
 
 ## Manual check
 
-1. Sign in as a brand and open **Brand profile** in the workspace header.
+1. Sign in as a brand and open **Brand profile** in the workspace menu.
 2. Enter a brand name, company name, billing email and any optional details. Click **Save profile**; confirm the saved message.
 3. Refresh. Check the values, then sign out and back in to confirm persistence in your normal session.
 4. Change a field and click **Discard changes**. The saved value should return.
@@ -31,4 +41,4 @@ Team membership, company-logo uploads and campaign persistence are separate road
 6. Clear an optional field, save, and refresh. It should remain empty.
 7. In another brand account, confirm that the profile shows that account's details. A creator account cannot open this brand page.
 
-The next build slice is **P06.03.01 — Connect creator discovery filters and pagination**.
+The tracker now records the completed onboarding follow-up separately from staging/production and external-integration release gates. See `roadmap.html` for current workstreams.

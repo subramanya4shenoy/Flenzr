@@ -6,6 +6,7 @@ from typing import AsyncGenerator
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.config import settings
@@ -36,8 +37,20 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
     async with TestingSessionLocal() as session:
         yield session
 
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+    # SQLite cannot ALTER/DROP constraints to break the legitimate cyclic
+    # agreement <-> scope references. Disable FK enforcement only for teardown;
+    # preserve the original setting for every test's actual business operations.
+    async with test_engine.connect() as conn:
+        foreign_keys = await conn.scalar(text('PRAGMA foreign_keys'))
+        await conn.commit()
+        await conn.exec_driver_sql('PRAGMA foreign_keys=OFF')
+        await conn.commit()
+        try:
+            async with conn.begin():
+                await conn.run_sync(Base.metadata.drop_all)
+        finally:
+            await conn.exec_driver_sql(f'PRAGMA foreign_keys={1 if foreign_keys else 0}')
+            await conn.commit()
 
 
 @pytest_asyncio.fixture(scope="function")

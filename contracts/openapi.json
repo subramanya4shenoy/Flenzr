@@ -301,6 +301,115 @@
         }
       }
     },
+    "/api/v1/collaborations/groups": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "List Collaboration Groups",
+        "operationId": "list_collaboration_groups_api_v1_collaborations_groups_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollaborationGroupPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/offers/{offer_id}": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Read Offer Collaborations",
+        "operationId": "read_offer_collaborations_api_v1_collaborations_offers__offer_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Offer Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferCollaborationWorkspace"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/collaborations/calendar": {
       "get": {
         "tags": [
@@ -976,6 +1085,266 @@
         }
       }
     },
+    "/api/v1/collaborations/{record_id}/deliveries/{delivery_id}/comments": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "List Delivery Comments",
+        "operationId": "list_delivery_comments_api_v1_collaborations__record_id__deliveries__delivery_id__comments_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "delivery_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Delivery Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeliveryCommentRead"
+                  },
+                  "title": "Response List Delivery Comments Api V1 Collaborations  Record Id  Deliveries  Delivery Id  Comments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Create Delivery Comment",
+        "operationId": "create_delivery_comment_api_v1_collaborations__record_id__deliveries__delivery_id__comments_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "delivery_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Delivery Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryCommentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryCommentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/deliveries/{delivery_id}/comments/{comment_id}": {
+      "patch": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Update Delivery Comment",
+        "operationId": "update_delivery_comment_api_v1_collaborations__record_id__deliveries__delivery_id__comments__comment_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "delivery_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Delivery Id"
+            }
+          },
+          {
+            "name": "comment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryCommentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryCommentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Delete Delivery Comment",
+        "operationId": "delete_delivery_comment_api_v1_collaborations__record_id__deliveries__delivery_id__comments__comment_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "delivery_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Delivery Id"
+            }
+          },
+          {
+            "name": "comment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/collaborations/{record_id}/publishing-proof": {
       "get": {
         "tags": [
@@ -1151,6 +1520,406 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProofConfirmationRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/scope-changes": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Scope Workspace",
+        "operationId": "scope_workspace_api_v1_collaborations__record_id__scope_changes_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScopeWorkspace"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Propose Scope",
+        "operationId": "propose_scope_api_v1_collaborations__record_id__scope_changes_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScopeChangeCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScopeChangeRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/scope-changes/{change_id}/decide": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Decide Scope",
+        "operationId": "decide_scope_api_v1_collaborations__record_id__scope_changes__change_id__decide_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "change_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Change Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScopeDecisionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScopeChangeRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/agreements": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Agreement History",
+        "operationId": "agreement_history_api_v1_collaborations__record_id__agreements_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgreementRead"
+                  },
+                  "title": "Response Agreement History Api V1 Collaborations  Record Id  Agreements Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/agreements/{agreement_id}": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Historical Agreement",
+        "operationId": "historical_agreement_api_v1_collaborations__record_id__agreements__agreement_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "agreement_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Agreement Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgreementRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/activity": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Collaboration Activity",
+        "operationId": "collaboration_activity_api_v1_collaborations__record_id__activity_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 500
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollaborationActivityPage"
                 }
               }
             }
@@ -1461,6 +2230,16 @@
               "type": "string",
               "title": "File Id"
             }
+          },
+          {
+            "name": "inline",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Inline"
+            }
           }
         ],
         "responses": {
@@ -1705,6 +2484,233 @@
                 "schema": {
                   "$ref": "#/components/schemas/MessageRead"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/messages/read": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Mark Messages Read",
+        "operationId": "mark_messages_read_api_v1_collaborations__record_id__messages_read_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageReadReceipt"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageReadReceiptRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/messages/{message_id}/reactions": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Toggle Message Reaction",
+        "operationId": "toggle_message_reaction_api_v1_collaborations__record_id__messages__message_id__reactions_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          },
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Message Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageReactionToggle"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MessageReactionSummary"
+                  },
+                  "title": "Response Toggle Message Reaction Api V1 Collaborations  Record Id  Messages  Message Id  Reactions Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/chat/signal": {
+      "post": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Send Chat Signal",
+        "operationId": "send_chat_signal_api_v1_collaborations__record_id__chat_signal_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatSignal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collaborations/{record_id}/chat/events": {
+      "get": {
+        "tags": [
+          "Collaborations"
+        ],
+        "summary": "Chat Events",
+        "operationId": "chat_events_api_v1_collaborations__record_id__chat_events_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "record_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Record Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -6978,6 +7984,22 @@
             "type": "string",
             "title": "Id"
           },
+          "revision": {
+            "type": "integer",
+            "title": "Revision",
+            "default": 1
+          },
+          "scope_change_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope Change Id"
+          },
           "snapshot": {
             "$ref": "#/components/schemas/AgreementSnapshot"
           },
@@ -7004,8 +8026,21 @@
         "properties": {
           "schema_version": {
             "type": "integer",
-            "const": 1,
+            "enum": [
+              1,
+              2
+            ],
             "title": "Schema Version"
+          },
+          "scope_change": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScopeProvenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "collaboration_id": {
             "type": "string",
@@ -8919,6 +9954,238 @@
         ],
         "title": "CampaignTransition"
       },
+      "ChatParticipantMeta": {
+        "properties": {
+          "peer_name": {
+            "type": "string",
+            "title": "Peer Name"
+          },
+          "peer_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Peer Role"
+          },
+          "peer_avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peer Avatar Url"
+          },
+          "my_avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "My Avatar Url"
+          },
+          "peer_online": {
+            "type": "boolean",
+            "title": "Peer Online",
+            "default": false
+          },
+          "peer_last_seen_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peer Last Seen At"
+          },
+          "peer_last_read_sequence": {
+            "type": "integer",
+            "title": "Peer Last Read Sequence",
+            "default": 0
+          },
+          "my_last_read_sequence": {
+            "type": "integer",
+            "title": "My Last Read Sequence",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "peer_name",
+          "peer_role"
+        ],
+        "title": "ChatParticipantMeta"
+      },
+      "ChatSignal": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "typing",
+              "heartbeat",
+              "call_ring",
+              "call_accept",
+              "call_decline",
+              "call_offer",
+              "call_answer",
+              "call_ice",
+              "call_end"
+            ],
+            "title": "Kind"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "ChatSignal"
+      },
+      "CollaborationActivityPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CollaborationActivityRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "limit"
+        ],
+        "title": "CollaborationActivityPage"
+      },
+      "CollaborationActivityRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "collaboration_started",
+              "proposal_sent",
+              "proposal_accepted",
+              "agreement_confirmed",
+              "delivery_submitted",
+              "delivery_approved",
+              "revision_requested",
+              "proof_submitted",
+              "proof_confirmed",
+              "collaboration_completed",
+              "scope_proposed",
+              "scope_accepted",
+              "scope_declined",
+              "scope_withdrawn"
+            ],
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "actor_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "brand",
+                  "creator",
+                  "both"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Role"
+          },
+          "actor_name": {
+            "type": "string",
+            "title": "Actor Name"
+          },
+          "is_mine": {
+            "type": "boolean",
+            "title": "Is Mine"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          },
+          "occurred_at": {
+            "type": "string",
+            "title": "Occurred At"
+          },
+          "section": {
+            "type": "string",
+            "enum": [
+              "overview",
+              "proposals",
+              "deliveries",
+              "proof"
+            ],
+            "title": "Section"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "description",
+          "actor_role",
+          "actor_name",
+          "is_mine",
+          "version",
+          "occurred_at",
+          "section"
+        ],
+        "title": "CollaborationActivityRead"
+      },
       "CollaborationCreate": {
         "properties": {
           "source_kind": {
@@ -8971,6 +10238,160 @@
           "size_bytes"
         ],
         "title": "CollaborationFileRead"
+      },
+      "CollaborationGroupItem": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "offer",
+              "collaboration"
+            ],
+            "title": "Kind"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "creator_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Name"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "offer",
+              "application",
+              "invitation",
+              "enquiry"
+            ],
+            "title": "Source Kind"
+          },
+          "creator_count": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Creator Count"
+          },
+          "started_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Started Count"
+          },
+          "agreed_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Agreed Count"
+          },
+          "completed_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Completed Count"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "discussion",
+              "agreed",
+              "completed"
+            ],
+            "title": "Status"
+          },
+          "quoted_amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quoted Amount Cents"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "requested_delivery_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Delivery Date"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "id",
+          "title",
+          "brand_name",
+          "source_kind",
+          "creator_count",
+          "started_count",
+          "agreed_count",
+          "completed_count",
+          "status",
+          "currency",
+          "updated_at"
+        ],
+        "title": "CollaborationGroupItem"
+      },
+      "CollaborationGroupPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CollaborationGroupItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "CollaborationGroupPage"
       },
       "CollaborationPage": {
         "properties": {
@@ -9580,6 +11001,137 @@
         ],
         "title": "DeliverableType"
       },
+      "DeliveryCommentCreate": {
+        "properties": {
+          "file_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Id"
+          },
+          "timestamp_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 86400000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp Ms"
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Body"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "DeliveryCommentCreate"
+      },
+      "DeliveryCommentRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "delivery_id": {
+            "type": "string",
+            "title": "Delivery Id"
+          },
+          "file_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Id"
+          },
+          "author_id": {
+            "type": "string",
+            "title": "Author Id"
+          },
+          "author_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Author Role"
+          },
+          "author_name": {
+            "type": "string",
+            "title": "Author Name"
+          },
+          "timestamp_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp Ms"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "resolved": {
+            "type": "boolean",
+            "title": "Resolved"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "delivery_id",
+          "file_id",
+          "author_id",
+          "author_role",
+          "author_name",
+          "timestamp_ms",
+          "body",
+          "resolved",
+          "created_at"
+        ],
+        "title": "DeliveryCommentRead"
+      },
+      "DeliveryCommentUpdate": {
+        "properties": {
+          "resolved": {
+            "type": "boolean",
+            "title": "Resolved"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "resolved"
+        ],
+        "title": "DeliveryCommentUpdate"
+      },
       "DeliveryCreate": {
         "properties": {
           "request_id": {
@@ -9804,6 +11356,14 @@
       },
       "DeliveryWorkspace": {
         "properties": {
+          "viewer_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Viewer Role"
+          },
           "revision_allowance": {
             "anyOf": [
               {
@@ -9886,6 +11446,7 @@
         },
         "type": "object",
         "required": [
+          "viewer_role",
           "revision_allowance",
           "can_request_revision",
           "collaboration_status",
@@ -10842,6 +12403,15 @@
             "maxLength": 4000,
             "minLength": 1,
             "title": "Text"
+          },
+          "message_type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "call_event"
+            ],
+            "title": "Message Type",
+            "default": "text"
           }
         },
         "additionalProperties": false,
@@ -10879,6 +12449,16 @@
           "limit": {
             "type": "integer",
             "title": "Limit"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChatParticipantMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -10889,6 +12469,45 @@
           "limit"
         ],
         "title": "MessagePage"
+      },
+      "MessageReactionSummary": {
+        "properties": {
+          "emoji": {
+            "type": "string",
+            "title": "Emoji"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "reacted_by_me": {
+            "type": "boolean",
+            "title": "Reacted By Me"
+          }
+        },
+        "type": "object",
+        "required": [
+          "emoji",
+          "count",
+          "reacted_by_me"
+        ],
+        "title": "MessageReactionSummary"
+      },
+      "MessageReactionToggle": {
+        "properties": {
+          "emoji": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 1,
+            "title": "Emoji"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "emoji"
+        ],
+        "title": "MessageReactionToggle"
       },
       "MessageRead": {
         "properties": {
@@ -10916,6 +12535,22 @@
             "type": "string",
             "title": "Text"
           },
+          "message_type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "call_event"
+            ],
+            "title": "Message Type",
+            "default": "text"
+          },
+          "reactions": {
+            "items": {
+              "$ref": "#/components/schemas/MessageReactionSummary"
+            },
+            "type": "array",
+            "title": "Reactions"
+          },
           "sent_at": {
             "type": "string",
             "title": "Sent At"
@@ -10931,6 +12566,39 @@
           "sent_at"
         ],
         "title": "MessageRead"
+      },
+      "MessageReadReceipt": {
+        "properties": {
+          "last_read_sequence": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Last Read Sequence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "last_read_sequence"
+        ],
+        "title": "MessageReadReceipt"
+      },
+      "MessageReadReceiptRead": {
+        "properties": {
+          "last_read_sequence": {
+            "type": "integer",
+            "title": "Last Read Sequence"
+          },
+          "read_at": {
+            "type": "string",
+            "title": "Read At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "last_read_sequence",
+          "read_at"
+        ],
+        "title": "MessageReadReceiptRead"
       },
       "Negotiate": {
         "properties": {
@@ -10996,8 +12664,26 @@
             "title": "Id"
           },
           "enquiry_id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Enquiry Id"
+          },
+          "collaboration_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collaboration Id"
           },
           "kind": {
             "type": "string",
@@ -11028,6 +12714,7 @@
         "required": [
           "id",
           "enquiry_id",
+          "collaboration_id",
           "kind",
           "title",
           "message",
@@ -11036,6 +12723,92 @@
           "created_at"
         ],
         "title": "NotificationRead"
+      },
+      "OfferCollaborationWorkspace": {
+        "properties": {
+          "offer_id": {
+            "type": "string",
+            "title": "Offer Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "brief": {
+            "type": "string",
+            "title": "Brief"
+          },
+          "deliverable": {
+            "type": "string",
+            "title": "Deliverable"
+          },
+          "budget_total_cents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Total Cents"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "requested_delivery_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Delivery Date"
+          },
+          "offer_status": {
+            "type": "string",
+            "title": "Offer Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "participants": {
+            "items": {
+              "$ref": "#/components/schemas/OfferParticipantSummary"
+            },
+            "type": "array",
+            "title": "Participants"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offer_id",
+          "title",
+          "brand_name",
+          "brief",
+          "deliverable",
+          "currency",
+          "offer_status",
+          "created_at",
+          "updated_at",
+          "participants"
+        ],
+        "title": "OfferCollaborationWorkspace"
       },
       "OfferFolderUpdate": {
         "properties": {
@@ -11058,6 +12831,224 @@
         ],
         "title": "OfferFolderUpdate"
       },
+      "OfferParticipantSummary": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "creator_id": {
+            "type": "string",
+            "title": "Creator Id"
+          },
+          "creator_name": {
+            "type": "string",
+            "title": "Creator Name"
+          },
+          "creator_handle": {
+            "type": "string",
+            "title": "Creator Handle"
+          },
+          "creator_avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Avatar Url"
+          },
+          "is_online": {
+            "type": "boolean",
+            "title": "Is Online",
+            "default": false
+          },
+          "last_seen_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Seen At"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "application",
+              "invitation"
+            ],
+            "title": "Source Kind"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "collaboration_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collaboration Id"
+          },
+          "collaboration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CollaborationRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quoted_amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quoted Amount Cents"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "proposal_status": {
+            "type": "string",
+            "enum": [
+              "not_started",
+              "no_proposal",
+              "in_discussion",
+              "awaiting_other",
+              "agreed"
+            ],
+            "title": "Proposal Status"
+          },
+          "proposal_version": {
+            "type": "integer",
+            "title": "Proposal Version",
+            "default": 0
+          },
+          "delivery_status": {
+            "type": "string",
+            "enum": [
+              "locked",
+              "awaiting_submission",
+              "awaiting_review",
+              "revisions_requested",
+              "approved",
+              "completed"
+            ],
+            "title": "Delivery Status"
+          },
+          "delivery_version": {
+            "type": "integer",
+            "title": "Delivery Version",
+            "default": 0
+          },
+          "proof_status": {
+            "type": "string",
+            "enum": [
+              "locked",
+              "awaiting_proof",
+              "awaiting_confirmation",
+              "confirmed"
+            ],
+            "title": "Proof Status"
+          },
+          "proof_version": {
+            "type": "integer",
+            "title": "Proof Version",
+            "default": 0
+          },
+          "feedback_status": {
+            "type": "string",
+            "enum": [
+              "locked",
+              "pending",
+              "partial",
+              "both_submitted"
+            ],
+            "title": "Feedback Status"
+          },
+          "brand_feedback_submitted": {
+            "type": "boolean",
+            "title": "Brand Feedback Submitted",
+            "default": false
+          },
+          "creator_feedback_submitted": {
+            "type": "boolean",
+            "title": "Creator Feedback Submitted",
+            "default": false
+          },
+          "message_count": {
+            "type": "integer",
+            "title": "Message Count",
+            "default": 0
+          },
+          "unread_count": {
+            "type": "integer",
+            "title": "Unread Count",
+            "default": 0
+          },
+          "last_message_preview": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Message Preview"
+          },
+          "last_message_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Message At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "creator_id",
+          "creator_name",
+          "creator_handle",
+          "source_kind",
+          "source_id",
+          "currency",
+          "proposal_status",
+          "delivery_status",
+          "proof_status",
+          "feedback_status",
+          "updated_at"
+        ],
+        "title": "OfferParticipantSummary"
+      },
       "OfferWorkspace": {
         "properties": {
           "id": {
@@ -11075,6 +13066,17 @@
           "brand_name": {
             "type": "string",
             "title": "Brand Name"
+          },
+          "brand_logo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Logo Url"
           },
           "deliverables": {
             "anyOf": [
@@ -12030,6 +14032,17 @@
             "type": "string",
             "title": "Brand Name"
           },
+          "brand_logo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Logo Url"
+          },
           "deliverables": {
             "anyOf": [
               {
@@ -12243,6 +14256,17 @@
       },
       "PublishingProofWorkspace": {
         "properties": {
+          "current_agreement_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Agreement Id"
+          },
           "can_confirm": {
             "type": "boolean",
             "title": "Can Confirm"
@@ -12602,6 +14626,321 @@
           "remaining"
         ],
         "title": "RevisionAllowance"
+      },
+      "ScopeChangeCreate": {
+        "properties": {
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "expected_agreement_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Expected Agreement Id"
+          },
+          "expected_work_state": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Expected Work State"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/ProposalTerms"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 5,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "confirmed",
+          "request_id",
+          "expected_agreement_id",
+          "expected_work_state",
+          "terms",
+          "reason"
+        ],
+        "title": "ScopeChangeCreate"
+      },
+      "ScopeChangeRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "base_agreement_id": {
+            "type": "string",
+            "title": "Base Agreement Id"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/ProposalTerms"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "delivery_version": {
+            "type": "integer",
+            "title": "Delivery Version"
+          },
+          "author_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Author Role"
+          },
+          "is_mine": {
+            "type": "boolean",
+            "title": "Is Mine"
+          },
+          "proposed_at": {
+            "type": "string",
+            "title": "Proposed At"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScopeDecisionRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "agreement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgreementRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale"
+          },
+          "can_accept": {
+            "type": "boolean",
+            "title": "Can Accept"
+          },
+          "can_decline": {
+            "type": "boolean",
+            "title": "Can Decline"
+          },
+          "can_withdraw": {
+            "type": "boolean",
+            "title": "Can Withdraw"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "base_agreement_id",
+          "terms",
+          "reason",
+          "delivery_version",
+          "author_role",
+          "is_mine",
+          "proposed_at",
+          "decision",
+          "agreement",
+          "stale",
+          "can_accept",
+          "can_decline",
+          "can_withdraw"
+        ],
+        "title": "ScopeChangeRead"
+      },
+      "ScopeDecisionCreate": {
+        "properties": {
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "accept",
+              "decline",
+              "withdraw"
+            ],
+            "title": "Action"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "confirmed",
+          "request_id",
+          "action"
+        ],
+        "title": "ScopeDecisionCreate"
+      },
+      "ScopeDecisionRead": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "accept",
+              "decline",
+              "withdraw"
+            ],
+            "title": "Action"
+          },
+          "actor_role": {
+            "type": "string",
+            "enum": [
+              "brand",
+              "creator"
+            ],
+            "title": "Actor Role"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          },
+          "decided_at": {
+            "type": "string",
+            "title": "Decided At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action",
+          "actor_role",
+          "note",
+          "decided_at"
+        ],
+        "title": "ScopeDecisionRead"
+      },
+      "ScopeProvenance": {
+        "properties": {
+          "scope_change_id": {
+            "type": "string",
+            "title": "Scope Change Id"
+          },
+          "scope_version": {
+            "type": "integer",
+            "title": "Scope Version"
+          },
+          "base_agreement_id": {
+            "type": "string",
+            "title": "Base Agreement Id"
+          },
+          "base_snapshot_hash": {
+            "type": "string",
+            "title": "Base Snapshot Hash"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "proposed_at": {
+            "type": "string",
+            "title": "Proposed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scope_change_id",
+          "scope_version",
+          "base_agreement_id",
+          "base_snapshot_hash",
+          "reason",
+          "proposed_at"
+        ],
+        "title": "ScopeProvenance"
+      },
+      "ScopeWorkspace": {
+        "properties": {
+          "current_agreement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgreementRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "work_state": {
+            "type": "string",
+            "title": "Work State"
+          },
+          "can_propose": {
+            "type": "boolean",
+            "title": "Can Propose"
+          },
+          "pending": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScopeChangeRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeChangeRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_agreement",
+          "work_state",
+          "can_propose",
+          "pending",
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "ScopeWorkspace"
       },
       "SelectRequest": {
         "properties": {

@@ -1,7 +1,7 @@
 """Opt-in native privacy, constraints and concurrent participant conversion."""
 import asyncio,os,uuid
 import pytest
-from sqlalchemy import text
+from sqlalchemy import text, select
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession,create_async_engine
 from app.core.config import settings
@@ -39,7 +39,7 @@ async def test_proposal_simultaneous_sends_privacy_and_history():
                 else:raise AssertionError('Browser role wrote shared record')
                 await savepoint.rollback()
             await connection.execute(text(f'CREATE SCHEMA {schema}'))
-            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','collaboration_proposal_drafts','collaboration_proposal_revisions'):
+            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','notifications','collaboration_proposal_drafts','collaboration_proposal_revisions'):
                 await connection.execute(text(f'CREATE TABLE {schema}.{table} (LIKE public.{table} INCLUDING DEFAULTS INCLUDING INDEXES INCLUDING CONSTRAINTS)'))
         async def seed(db):
             owner=User(supabase_uid=str(uuid.uuid4()),email='native-shared-owner@example.com')
@@ -70,6 +70,11 @@ async def test_proposal_simultaneous_sends_privacy_and_history():
         loser=owner if isinstance(sent[0],FlenzrException) else creator
         winner=creator if loser==owner else owner
         assert (await send(winner))['version']==1
+        from app.domains.notifications.models import Notification
+        async def notifications(db):
+            return (await db.scalars(select(Notification).where(Notification.collaboration_id==record_id))).all()
+        alerts=await call(notifications)
+        assert len(alerts)==1 and alerts[0].user_id==loser and alerts[0].kind=='proposal_sent'
         assert (await call(lambda db:ProposalService.workspace(db,winner,record_id)))['draft'] is None
         loser_view=await call(lambda db:ProposalService.workspace(db,loser,record_id))
         assert loser_view['draft'].base_version==0 and loser_view['latest_version']==1

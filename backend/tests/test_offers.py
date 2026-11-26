@@ -51,7 +51,7 @@ async def test_public_offer_is_a_whitelist_and_private_offer_cannot_leak_or_be_a
     public = await offer(client, owner)
     r = await client.get(f"/api/v1/offers/{public['id']}/public")
     assert r.status_code == 200
-    assert set(r.json()) == {'id','title','brief','brand_name','deliverables','niche','budget_cents','currency','starts_at','ends_at','status','visibility','revision','accepting'}
+    assert set(r.json()) == {'id','title','brief','brand_name','brand_logo_url','deliverables','niche','budget_cents','currency','starts_at','ends_at','status','visibility','revision','accepting'}
     private = await offer(client, owner, 'invited')
     for path in [f"/api/v1/offers/{private['id']}/public", f"/api/v1/offers/{private['id']}", f"/api/v1/campaigns/opportunities/{private['id']}"]:
         assert (await client.get(path, headers=creators[0])).status_code == 404

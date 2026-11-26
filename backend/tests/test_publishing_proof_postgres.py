@@ -44,7 +44,7 @@ async def test_proof_concurrent_saves_submission_completion_races_and_privacy():
                 else:raise AssertionError('Browser role wrote shared record')
                 await savepoint.rollback()
             await connection.execute(text(f'CREATE SCHEMA {schema}'))
-            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','collaboration_proposal_drafts','collaboration_proposal_revisions','collaboration_proposal_acceptances','collaboration_agreements','collaboration_deliveries','collaboration_delivery_reviews','collaboration_completions','collaboration_publishing_proofs','collaboration_proof_confirmations'):
+            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','notifications','collaboration_proposal_drafts','collaboration_proposal_revisions','collaboration_proposal_acceptances','collaboration_agreements','collaboration_deliveries','collaboration_delivery_reviews','collaboration_completions','collaboration_publishing_proofs','collaboration_proof_confirmations'):
                 await connection.execute(text(f'CREATE TABLE {schema}.{table} (LIKE public.{table} INCLUDING DEFAULTS INCLUDING INDEXES INCLUDING CONSTRAINTS)'))
         async def seed(db):
             owner=User(supabase_uid=str(uuid.uuid4()),email=uuid.uuid4().hex+'@example.com')

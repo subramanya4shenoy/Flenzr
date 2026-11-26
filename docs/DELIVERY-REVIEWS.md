@@ -64,3 +64,11 @@ The receipt omits reviewer user IDs, request keys and payload fingerprints. Read
 - Production-browser checks with disposable accounts pass: fresh-read retry, reviewer-only actions, cancel/feedback validation, lost-response retries for both actions, creator revision cycle, stale submission/review rejection, no inherited approval, paginated history/reload, unchanged agreement/status and mobile/privacy.
 
 Step 18 is now implemented: see [Collaboration completion](COMPLETIONS.md) for final approved work, shared completion receipts and closed submissions/reviews.
+
+## Review studio and comments · 26 November 2026
+
+The delivery UI now includes a media review studio with general comments or comments tied to a submitted file and optional video timestamp. Both saved participants can post and resolve/reopen comments; only the author can delete a comment. Endpoints live at `/api/v1/collaborations/{id}/deliveries/{deliveryId}/comments` (GET/POST) and `/{commentId}` (PATCH for resolved state, DELETE for own comments).
+
+Migration `0032_delivery_comments` creates `collaboration_delivery_comments`; `0033_private_chat_and_comments` adds its restrictive API-only RLS policy. Upgrade/rollback/re-upgrade and browser-like read/write denial passed on disposable PostgreSQL; the follow-up also applied and verified it in development. Staging/production rollout remains separate. The API checks collaboration membership and validates file IDs against the selected delivery snapshot. Comments are separate from formal reviews: they neither approve a delivery nor consume a revision round. Use the explicit approve/request-revision controls for those decisions.
+
+Implementation is tracked under P08.09. The 26 November isolated journey passed real private-video preview, timestamped/general comments, resolve/delete permissions and the formal revision/approval cycle. The historical review results above predate this studio. See [Current journey checklist](COLLABORATION-JOURNEY.md).

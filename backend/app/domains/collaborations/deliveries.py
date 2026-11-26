@@ -1,6 +1,8 @@
+from .current_agreement import current_agreement_stmt
 import hashlib
 import json
 from sqlalchemy import select, func
+from app.domains.notifications.service import record_collaboration_notification
 from app.core.exceptions import EntityNotFoundError, FlenzrException, PermissionDeniedError
 from .agreements import stamp
 from .models import Collaboration, CollaborationAgreement, DeliverySubmission, DeliveryReview, DeliveryComment, CollaborationCompletion
@@ -28,7 +30,7 @@ class DeliveryService:
     @staticmethod
     async def workspace(db, user_id, record_id, page=1, page_size=10):
         collab = await DeliveryService.collaboration(db, user_id, record_id)
-        agreement = await db.scalar(select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id == record_id))
+        agreement = await db.scalar(current_agreement_stmt(record_id))
         agreement_id = agreement.id if agreement else None
         rows = (await db.execute(select(DeliverySubmission, DeliveryReview).outerjoin(DeliveryReview,
             DeliveryReview.delivery_id == DeliverySubmission.id).where(DeliverySubmission.collaboration_id == record_id,
@@ -39,15 +41,15 @@ class DeliveryService:
                                                                  DeliverySubmission.version == collab.delivery_version))
         latest_review = await db.scalar(select(DeliveryReview).where(DeliveryReview.delivery_id == latest.id)) if latest else None
         allowance = await DeliveryService.revision_allowance(db, record_id, agreement)
-        return dict(revision_allowance=allowance,
-            can_request_revision=user_id == collab.brand_user_id and collab.status == 'agreed' and bool(agreement_id) and
+        return dict(viewer_role='brand' if user_id==collab.brand_user_id else 'creator', revision_allowance=allowance,
+            can_request_revision=user_id == collab.brand_user_id and collab.status == 'agreed' and bool(agreement_id) and bool(not latest or latest.agreement_id == agreement_id) and
                 (allowance['remaining'] is None or allowance['remaining'] > 0),
             collaboration_status=collab.status,
             completion=DeliveryService.completion_project(completion, latest) if completion else None,
-            can_complete=user_id == collab.brand_user_id and collab.status == 'agreed' and bool(latest_review and latest_review.decision == 'approved'),
+            can_complete=user_id == collab.brand_user_id and collab.status == 'agreed' and bool(latest and latest.agreement_id == agreement_id and latest_review and latest_review.decision == 'approved'),
             latest_version=collab.delivery_version, agreement_id=agreement_id,
             can_submit=user_id == collab.creator_user_id and collab.status == 'agreed' and bool(agreement_id),
-            can_review=user_id == collab.brand_user_id and collab.status == 'agreed' and bool(agreement_id),
+            can_review=user_id == collab.brand_user_id and collab.status == 'agreed' and bool(agreement_id) and bool(not latest or latest.agreement_id == agreement_id),
             items=[DeliveryService.project(row, review) for row, review in rows], total=collab.delivery_version, page=page, page_size=page_size)
 
     @staticmethod
@@ -78,7 +80,7 @@ class DeliveryService:
             if existing.request_hash != fingerprint:
                 raise FlenzrException(code='DELIVERY_REQUEST_REUSED', message='This submission request was already used for different details. Refresh deliveries before submitting again.', status_code=409)
             return DeliveryService.project(existing)
-        agreement = await db.scalar(select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id == record_id))
+        agreement = await db.scalar(current_agreement_stmt(record_id))
         if not agreement or collab.status != 'agreed' or str(body.agreement_id) != agreement.id:
             raise FlenzrException(code='DELIVERY_AGREEMENT_REQUIRED', message='Both participants must accept the same proposal before work can be submitted against its agreement.', status_code=409)
         if collab.delivery_version != body.expected_latest_version:
@@ -96,6 +98,8 @@ class DeliveryService:
         await db.flush()
         for file in attachments:
             file.delivery_id = row.id
+        await record_collaboration_notification(db, collaboration=collab, actor_id=user_id,
+            kind='delivery_submitted', event_key=f'delivery_submitted:{row.version}')
         await db.commit(); await db.refresh(row)
         return DeliveryService.project(row)
 
@@ -120,7 +124,7 @@ class DeliveryService:
             return DeliveryService.review_project(replay, delivery)
         if collab.status != 'agreed' or collab.delivery_version != body.expected_latest_version or delivery.version != collab.delivery_version:
             raise FlenzrException(code='STALE_DELIVERY_REVIEW', message='The delivery changed or is no longer open for review. Refresh and review the latest submitted version.', status_code=409)
-        agreement = await db.scalar(select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id == record_id))
+        agreement = await db.scalar(current_agreement_stmt(record_id))
         if not agreement or agreement.id != delivery.agreement_id:
             raise FlenzrException(code='DELIVERY_AGREEMENT_CHANGED', message='This delivery does not match the current saved agreement.', status_code=409)
         existing = await db.scalar(select(DeliveryReview).where(DeliveryReview.delivery_id == delivery_id))
@@ -134,6 +138,9 @@ class DeliveryService:
             decision='approved' if body.action == 'approve' else 'revisions_requested', feedback=body.feedback,
             request_id=str(body.request_id), request_hash=fingerprint)
         db.add(review)
+        await record_collaboration_notification(db, collaboration=collab, actor_id=user_id,
+            kind='delivery_approved' if body.action == 'approve' else 'revision_requested',
+            event_key=f'delivery_review:{delivery.id}')
         await db.commit(); await db.refresh(review)
         return DeliveryService.review_project(review, delivery)
 
@@ -162,7 +169,7 @@ class DeliveryService:
         review = await db.scalar(select(DeliveryReview).where(DeliveryReview.id == str(body.review_id),
             DeliveryReview.collaboration_id == record_id, DeliveryReview.delivery_id == str(body.delivery_id),
             DeliveryReview.decision == 'approved'))
-        agreement = await db.scalar(select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id == record_id))
+        agreement = await db.scalar(current_agreement_stmt(record_id))
         if collab.status != 'agreed' or collab.delivery_version != body.expected_latest_version or not delivery or not review or not agreement or delivery.agreement_id != agreement.id:
             raise FlenzrException(code='COMPLETION_REQUIRES_CURRENT_APPROVAL', message='Refresh deliveries and approve the latest submitted version before completing this collaboration.', status_code=409)
         row = CollaborationCompletion(collaboration_id=record_id, agreement_id=agreement.id,
@@ -170,6 +177,8 @@ class DeliveryService:
             request_id=str(body.request_id), request_hash=fingerprint)
         db.add(row)
         collab.status = 'completed'
+        await record_collaboration_notification(db, collaboration=collab, actor_id=user_id,
+            kind='collaboration_completed', event_key='completion')
         await db.commit(); await db.refresh(row)
         return DeliveryService.completion_project(row, delivery)
 

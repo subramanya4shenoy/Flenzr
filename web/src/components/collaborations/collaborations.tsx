@@ -11,6 +11,7 @@ import "@/components/brand/campaign-folders.css";
 import "./collaborations.css";
 import type { ProofWorkspace } from "@/lib/publishing-proof";
 import type { FeedbackWorkspace } from "@/lib/collaboration-feedback";
+import { CollaborationActivity } from "./activity";
 import { CollaborationMessages } from "./messages";
 import { CollaborationFeedback } from "./feedback";
 import { CollaborationProof } from "./publishing-proof";
@@ -118,23 +119,26 @@ function CollaborationLibrary({ data, page, pages, recent, onPage }: { data: Col
   </div>;
 }
 
-type CollaborationStep = "overview" | "proposals" | "deliveries" | "proof" | "feedback" | "messages";
-const workflowSteps: { id: Exclude<CollaborationStep, "messages">; label: string }[] = [
+type CollaborationStep = "overview" | "proposals" | "deliveries" | "proof" | "feedback" | "messages" | "activity";
+const workflowSteps: { id: Exclude<CollaborationStep, "messages" | "activity">; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "proposals", label: "Proposals & Agreement" },
   { id: "deliveries", label: "Deliveries & Review" },
   { id: "proof", label: "Publishing Proof" },
   { id: "feedback", label: "Feedback" },
 ];
-const stepIds = new Set<string>([...workflowSteps.map(step => step.id), "messages"]);
+const stepIds = new Set<string>([...workflowSteps.map(step => step.id), "messages", "activity"]);
 function stepFromHash(hash: string): CollaborationStep {
-  const clean = hash.replace(/^#/, "");
+  const clean = hash.replace(/^#/, "") || new URLSearchParams(window.location.search).get("view") || "";
+  if (clean === "proposal") return "proposals";
   if (clean === "collaboration-feedback") return "feedback";
   return stepIds.has(clean) ? (clean as CollaborationStep) : "overview";
 }
 
 function Detail({ row }: { row: Collaboration }) {
   const [status, setStatus] = useState(row.status);
+  const [agreementRefresh, setAgreementRefresh] = useState(0);
+  const proposalStatus = useCallback((value: Collaboration["status"]) => { setStatus(value); setAgreementRefresh(count => count + 1); }, []);
   const [proofConfirmed, setProofConfirmed] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [step, setStep] = useState<CollaborationStep>(() => (typeof window !== "undefined" ? stepFromHash(window.location.hash) : "overview"));
@@ -153,7 +157,7 @@ function Detail({ row }: { row: Collaboration }) {
       .then(res => {
         if (!controller.signal.aborted) {
           const latestItem = res.items.find(item => item.version === res.latest_proof_version) ?? res.items[0];
-          setProofConfirmed(Boolean(res.latest_proof_version > 0 && latestItem?.version === res.latest_proof_version && latestItem?.confirmation));
+          setProofConfirmed(Boolean(res.latest_proof_version > 0 && latestItem?.version === res.latest_proof_version && latestItem?.agreement_id === res.current_agreement_id && latestItem?.delivery_id === res.eligible_delivery?.id && latestItem?.confirmation));
         }
       })
       .catch(() => { /* Step badge check is best-effort. */ });
@@ -165,12 +169,15 @@ function Detail({ row }: { row: Collaboration }) {
         .catch(() => { /* Step badge check is best-effort. */ });
     }
     return () => controller.abort();
-  }, [row.id, status]);
+  }, [row.id, status, agreementRefresh]);
 
   function selectStep(next: CollaborationStep) {
     setStep(next);
     const hash = next === "overview" ? "" : `#${next}`;
-    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
+    const search = new URLSearchParams(window.location.search);
+    search.delete("view");
+    const query = search.size ? `?${search}` : "";
+    window.history.replaceState(null, "", `${window.location.pathname}${query}${hash}`);
   }
 
   const isDone = (id: CollaborationStep) =>
@@ -182,7 +189,7 @@ function Detail({ row }: { row: Collaboration }) {
 
   const nextWorkflowStep = workflowSteps[workflowSteps.findIndex(item => item.id === step) + 1];
   const prevWorkflowStep = workflowSteps[workflowSteps.findIndex(item => item.id === step) - 1];
-  const currentStepLabel = step === "messages" ? "Messages" : workflowSteps.find(item => item.id === step)?.label || "Overview";
+  const currentStepLabel = step === "activity" ? "Activity history" : step === "messages" ? "Messages" : workflowSteps.find(item => item.id === step)?.label || "Overview";
 
   return <div className="fl-collab-detail">
     <aside className="fl-collab-sidebar" aria-label="Collaboration steps">
@@ -201,10 +208,13 @@ function Detail({ row }: { row: Collaboration }) {
       </div>
       <div className="fl-collab-sidebar-group fl-collab-sidebar-divider">
         <span className="fl-collab-sidebar-label">Communication</span>
-        <div className="fl-collab-sidebar-list">
+        <div className="fl-collab-sidebar-list" role="tablist" aria-orientation="vertical" aria-label="Communication and history">
           <button type="button" role="tab" aria-selected={step === "messages"} className="fl-collab-step" data-active={step === "messages"} onClick={() => selectStep("messages")}>
             <MessageSquare size={14} aria-hidden="true" />
             <span>Messages</span>
+          </button>
+          <button type="button" role="tab" aria-selected={step === "activity"} className="fl-collab-step" data-active={step === "activity"} onClick={() => selectStep("activity")}>
+            <Clock3 size={14} aria-hidden="true" /><span>Activity history</span>
           </button>
         </div>
       </div>
@@ -266,13 +276,14 @@ function Detail({ row }: { row: Collaboration }) {
           <button type="button" className="fl-collab-next-cta" onClick={() => selectStep("proposals")}>Proposals &amp; Agreement <ChevronRight size={14} aria-hidden="true" /></button>
         </div>
       </div> : <div className="fl-collab-step-flat" role="tabpanel" aria-label={currentStepLabel}>
-        {step === "proposals" && <CollaborationProposals collaboration={row} onStatus={setStatus} />}
+        {step === "proposals" && <CollaborationProposals collaboration={row} onStatus={proposalStatus} />}
         {step === "deliveries" && <CollaborationDeliveries collaborationId={row.id} status={status} onStatus={setStatus} onOpenProposals={() => selectStep("proposals")} />}
         {step === "proof" && <CollaborationProof collaborationId={row.id} status={status} onConfirmedChange={setProofConfirmed} />}
         {step === "feedback" && <CollaborationFeedback collaborationId={row.id} status={status} onStatus={setStatus} onSubmittedChange={setFeedbackSubmitted} />}
+        {step === "activity" && <CollaborationActivity key={row.id} collaborationId={row.id} onOpenSection={selectStep} />}
         {step === "messages" && <CollaborationMessages key={row.id} collaborationId={row.id} />}
 
-        {step !== "messages" && step !== "proposals" && <div className="fl-collab-step-footer">
+        {step !== "messages" && step !== "activity" && step !== "proposals" && <div className="fl-collab-step-footer">
           {prevWorkflowStep ? <button type="button" onClick={() => selectStep(prevWorkflowStep.id)}><ChevronLeft size={14} aria-hidden="true" /> {prevWorkflowStep.label}</button> : <span />}
           {nextWorkflowStep && <button type="button" onClick={() => selectStep(nextWorkflowStep.id)}>Next: {nextWorkflowStep.label} <ChevronRight size={14} aria-hidden="true" /></button>}
         </div>}

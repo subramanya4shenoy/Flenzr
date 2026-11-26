@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ChevronRight, FileSignature, FileText, Link2, MessageSquare, PackageCheck,
-  Play, Star, Users,
+  Play, Star, Users, Clock3,
 } from "lucide-react";
 import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 import {
@@ -18,15 +18,16 @@ import { campaignMoney } from "@/lib/campaign-drafts";
 import { avatarProxyUrl } from "@/lib/collaboration-messages";
 import "@/components/brand/campaign-folders.css";
 import "./collaborations.css";
+import { CollaborationActivity } from "./activity";
 import { CollaborationMessages } from "./messages";
 import { CollaborationFeedback } from "./feedback";
 import { CollaborationProof } from "./publishing-proof";
 import { CollaborationDeliveries } from "./deliveries";
 import { CollaborationProposals } from "./proposals";
 
-type StepId = "overview" | "proposals" | "deliveries" | "proof" | "feedback" | "messages";
+type StepId = "overview" | "proposals" | "deliveries" | "proof" | "feedback" | "messages" | "activity";
 
-const WORKFLOW_STEPS: { id: Exclude<StepId, "messages">; label: string; icon: typeof FileText }[] = [
+const WORKFLOW_STEPS: { id: Exclude<StepId, "messages" | "activity">; label: string; icon: typeof FileText }[] = [
   { id: "overview", label: "Overview", icon: FileText },
   { id: "proposals", label: "Proposals & Agreement", icon: FileSignature },
   { id: "deliveries", label: "Deliveries & Review", icon: PackageCheck },
@@ -34,7 +35,7 @@ const WORKFLOW_STEPS: { id: Exclude<StepId, "messages">; label: string; icon: ty
   { id: "feedback", label: "Feedback", icon: Star },
 ];
 
-const ALL_STEP_IDS = new Set<string>([...WORKFLOW_STEPS.map(s => s.id), "messages"]);
+const ALL_STEP_IDS = new Set<string>([...WORKFLOW_STEPS.map(s => s.id), "messages", "activity"]);
 function stepFromHash(hash: string): StepId {
   const clean = hash.replace(/^#/, "");
   return ALL_STEP_IDS.has(clean) ? (clean as StepId) : "overview";
@@ -88,6 +89,7 @@ function stepBadge(step: Exclude<StepId, "overview">, p: OfferParticipantSummary
       default: return { label: "Locked · Awaiting completion", tone: "muted" };
     }
   }
+  if (step === "activity" && p.collaboration_id) return { label: "View saved history", tone: "muted" };
   if (!p.collaboration_id) return { label: "Not started", tone: "muted" };
   return { label: p.message_count === 1 ? "1 msg" : `${p.message_count} msgs`, tone: p.message_count > 0 ? "good" : "muted" };
 }
@@ -142,6 +144,11 @@ function stepMetrics(step: Exclude<StepId, "overview">, participants: OfferParti
       { label: "Locked", value: String(locked), tone: "muted" as Tone },
     ];
   }
+  if (step === "activity") return [
+    { label: "Started collaborations", value: String(participants.filter(p => p.collaboration_id).length), tone: "muted" as Tone },
+    { label: "With agreements", value: String(participants.filter(p => p.proposal_status === "agreed").length), tone: "good" as Tone },
+    { label: "Completed", value: String(participants.filter(p => p.delivery_status === "completed").length), tone: "good" as Tone },
+  ];
   const withMsgs = participants.filter(p => p.message_count > 0).length;
   const totalMsgs = participants.reduce((sum, p) => sum + p.message_count, 0);
   const started = participants.filter(p => p.collaboration_id !== null).length;
@@ -262,7 +269,7 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
   const selectedParticipant = isPerInfluencerStep && selectedKey
     ? data.participants.find(p => p.key === selectedKey || p.collaboration_id === selectedKey) || null
     : null;
-  const currentStepLabel = step === "messages" ? "Messages" : WORKFLOW_STEPS.find(s => s.id === step)?.label || "Overview";
+  const currentStepLabel = step === "activity" ? "Activity history" : step === "messages" ? "Messages" : WORKFLOW_STEPS.find(s => s.id === step)?.label || "Overview";
 
   const startedCount = data.participants.filter(p => p.collaboration_id !== null).length;
   const agreedCount = data.participants.filter(p => p.proposal_status === "agreed").length;
@@ -289,10 +296,14 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
         </div>
         <div className="fl-collab-sidebar-group fl-collab-sidebar-divider">
           {!isPerInfluencerStep && <span className="fl-collab-sidebar-label">Communication</span>}
-          <div className="fl-collab-sidebar-list">
+          <div className="fl-collab-sidebar-list" role="tablist" aria-orientation="vertical" aria-label="Communication and history">
             <button type="button" role="tab" aria-selected={step === "messages"} aria-label="Messages" title="Messages" className="fl-collab-step" data-active={step === "messages"} onClick={() => selectStep("messages", false)}>
               <MessageSquare size={16} className="fl-collab-step-icon" aria-hidden="true" />
               {!isPerInfluencerStep && <span>Messages</span>}
+            </button>
+            <button type="button" role="tab" aria-selected={step === "activity"} aria-label="Activity history" title="Activity history" className="fl-collab-step" data-active={step === "activity"} onClick={() => selectStep("activity", false)}>
+              <Clock3 size={16} className="fl-collab-step-icon" aria-hidden="true" />
+              {!isPerInfluencerStep && <span>Activity history</span>}
             </button>
           </div>
         </div>
@@ -469,6 +480,7 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
               {step === "deliveries" && <CollaborationDeliveries key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} viewerRole="brand" onStatus={refresh} onOpenProposals={() => selectStep("proposals", true)} onFocusModeChange={setReviewFocus} />}
               {step === "proof" && <CollaborationProof key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} />}
               {step === "feedback" && <CollaborationFeedback key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} onStatus={refresh} />}
+              {step === "activity" && <CollaborationActivity key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} onOpenSection={section => selectStep(section, true)} />}
               {step === "messages" && <CollaborationMessages key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} onActivity={refresh} />}
             </>}
           </div>

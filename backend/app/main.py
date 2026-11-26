@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.domains.collaborations.realtime import chat_hub
 from app.core.config import settings
 from app.core.database import Base, engine
 from app.core.exceptions import FlenzrException
@@ -34,9 +35,12 @@ async def lifespan(app: FastAPI):
     if "sqlite" in settings.DATABASE_URL:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-    yield
-    # Shutdown: dispose DB connection pool
-    await engine.dispose()
+    await chat_hub.start(settings.CHAT_REDIS_URL, settings.CHAT_REDIS_NAMESPACE)
+    try:
+        yield
+    finally:
+        await chat_hub.stop()
+        await engine.dispose()
 
 
 def create_application() -> FastAPI:
@@ -82,6 +86,8 @@ def create_application() -> FastAPI:
             "status": "healthy",
             "environment": settings.ENVIRONMENT,
             "version": settings.VERSION,
+            "chat_transport": chat_hub.transport,
+            "chat_ready": chat_hub.ready,
         }
 
     # Mount Domain Routers

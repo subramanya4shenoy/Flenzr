@@ -8,13 +8,15 @@ from app.core.dependencies import get_current_user
 from app.core.exceptions import EntityNotFoundError
 from app.domains.identity.models import User
 from app.domains.notifications.models import Notification, now
+from app.domains.notifications.service import notification_href
 
 router = APIRouter(prefix='/notifications', tags=['Notifications'])
 
 
 class NotificationRead(BaseModel):
     id: str
-    enquiry_id: str
+    enquiry_id: str | None
+    collaboration_id: str | None
     kind: str
     title: str
     message: str
@@ -25,9 +27,9 @@ class NotificationRead(BaseModel):
 
 def read(row):
     created = row.created_at.replace(tzinfo=timezone.utc) if row.created_at.tzinfo is None else row.created_at
-    return NotificationRead(id=row.id, enquiry_id=row.enquiry_id, kind=row.kind,
+    return NotificationRead(id=row.id, enquiry_id=row.enquiry_id, collaboration_id=row.collaboration_id, kind=row.kind,
                             title=row.title, message=row.message,
-                            href=f'/dashboard/enquiries/{row.enquiry_id}',
+                            href=notification_href(row),
                             is_unread=row.read_at is None, created_at=created.isoformat())
 
 

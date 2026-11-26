@@ -52,3 +52,6 @@ POST /api/v1/collaborations/{id}/deliveries/{delivery_id}/review enforces the ca
 - Production-browser journey passes private draft validation, send/accept previews for both accounts, cancellation, lost-response retry, used/remaining display, disabled/rejected extra requests, approval after exhaustion, reload, unchanged agreement and mobile fit. Screenshot inspected.
 
 Step 21 is now implemented: see [Publishing proof](PUBLISHING-PROOF.md) for versioned final links and manual testing. Overdue behaviour, secure attachments, reminders and moderated collaboration feedback remain separate roadmap work.
+
+
+Step 38: revision usage is counted against the current immutable agreement revision. An explicitly accepted scope request supplies a new allowance and requires fresh work; previously used rounds remain attached to the earlier agreement and delivery history. See [Scope changes](SCOPE-CHANGES.md).

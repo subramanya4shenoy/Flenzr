@@ -39,9 +39,10 @@ async def test_messages_order_replay_rls_and_immutability():
     try:
         async with engine.begin() as conn:
             await conn.execute(text(f'CREATE SCHEMA {schema}'))
-            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations',
+            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','notifications',
                 'collaboration_proposal_drafts','collaboration_proposal_revisions','collaboration_proposal_acceptances','collaboration_agreements',
-                'collaboration_deliveries','collaboration_delivery_reviews','collaboration_completions','collaboration_messages'):
+                'collaboration_deliveries','collaboration_delivery_reviews','collaboration_completions','collaboration_messages',
+                'collaboration_message_reads','collaboration_message_reactions'):
                 await conn.execute(text(f'CREATE TABLE {schema}.{table} (LIKE public.{table} INCLUDING DEFAULTS INCLUDING INDEXES INCLUDING CONSTRAINTS)'))
             await conn.execute(text(f'CREATE TRIGGER flenzr_message_immutable BEFORE UPDATE OR DELETE ON {schema}.collaboration_messages FOR EACH ROW EXECUTE FUNCTION public.flenzr_immutable_message()'))
         async def seed(db):

@@ -16,6 +16,7 @@ from .models import (
     ProposalRevision, PublishingProof, PublishingProofConfirmation,
 )
 from .realtime import chat_hub
+from .current_agreement import current_agreement_filter
 from .schemas import CollaborationRead
 
 
@@ -326,7 +327,7 @@ class CollaborationGroupService:
 
         if collab_ids:
             for ag in (await db.scalars(
-                select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id.in_(collab_ids))
+                select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id.in_(collab_ids), current_agreement_filter())
             )).all():
                 agreements[ag.collaboration_id] = ag
 
@@ -414,7 +415,7 @@ class CollaborationGroupService:
             display_name, handle, creator_uid, creator_avatar, creator_last_seen = creator_map.get(
                 src.creator_id, (c.creator_name if c else 'Creator', '', None, None, None)
             )
-            online = bool(creator_uid and chat_hub.is_online(creator_uid))
+            online = bool(creator_uid and await chat_hub.is_online(creator_uid))
             quote = (
                 c.quoted_amount_cents if c is not None
                 else (src.proposed_rate_cents if kind == 'application' else src.offered_rate_cents)
@@ -457,12 +458,13 @@ class CollaborationGroupService:
 
             latest_del = latest_deliveries.get(c.id)
             latest_rev = delivery_reviews.get(latest_del.id) if latest_del else None
+            current_work = bool(latest_del and c.id in agreements and latest_del.agreement_id == agreements[c.id].id)
             is_completed = c.id in completions or c.status == 'completed'
             if not has_agreement:
                 del_status: Literal['locked', 'awaiting_submission', 'awaiting_review', 'revisions_requested', 'approved', 'completed'] = 'locked'
             elif is_completed:
                 del_status = 'completed'
-            elif latest_del is None:
+            elif latest_del is None or not current_work:
                 del_status = 'awaiting_submission'
             elif latest_rev is None:
                 del_status = 'awaiting_review'
@@ -472,10 +474,11 @@ class CollaborationGroupService:
                 del_status = 'revisions_requested'
 
             latest_pf = latest_proofs.get(c.id)
-            proof_eligible = is_completed or (latest_rev is not None and latest_rev.decision == 'approved')
-            if not proof_eligible and latest_pf is None:
+            proof_eligible = is_completed or (current_work and latest_rev is not None and latest_rev.decision == 'approved')
+            proof_matches_work = bool(latest_pf and current_work and latest_rev and latest_pf.agreement_id == agreements[c.id].id and latest_pf.delivery_id == latest_del.id and latest_pf.review_id == latest_rev.id)
+            if not proof_eligible:
                 pf_status: Literal['locked', 'awaiting_proof', 'awaiting_confirmation', 'confirmed'] = 'locked'
-            elif latest_pf is None:
+            elif not proof_matches_work:
                 pf_status = 'awaiting_proof'
             elif latest_pf.id in confirmed_proof_ids:
                 pf_status = 'confirmed'

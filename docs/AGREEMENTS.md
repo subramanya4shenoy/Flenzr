@@ -2,6 +2,8 @@
 
 P07 Step 15 · P07.03.01 completed 19 November 2026.
 
+**Current extension:** Step 38 adds [mutually agreed scope changes](SCOPE-CHANGES.md) and immutable agreement revisions. The original acceptance flow below creates revision 1; later accepted scope requests create separate revisions without editing it. Current delivery/review/proof/calendar operations use the latest revision, while every older agreement remains readable/downloadable. The dated original-slice limitations below are historical.
+
 Both saved participants must explicitly accept the same current sent proposal. Sending a proposal is not acceptance, including for its author. The first acceptance records that participant's decision; the second atomically creates one saved agreement and changes the collaboration from Discussion to Agreed.
 
 The collaboration shows each participant's acceptance time, the final agreed price, deliverables, date and usage rights, and a **Download agreement (JSON)** action. Both accounts download the same saved data. An agreement does not create payment or funding.

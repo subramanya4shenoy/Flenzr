@@ -38,7 +38,7 @@ async def test_feedback_concurrent_reviews_constraints_rls_and_immutability():
     try:
         async with engine.begin() as conn:
             await conn.execute(text(f'CREATE SCHEMA {schema}'))
-            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations',
+            for table in ('users','organizations','creators','campaigns','campaign_applications','campaign_invitations','enquiries','collaborations','notifications',
                 'collaboration_proposal_drafts','collaboration_proposal_revisions','collaboration_proposal_acceptances','collaboration_agreements',
                 'collaboration_deliveries','collaboration_delivery_reviews','collaboration_completions','collaboration_feedback'):
                 await conn.execute(text(f'CREATE TABLE {schema}.{table} (LIKE public.{table} INCLUDING DEFAULTS INCLUDING INDEXES INCLUDING CONSTRAINTS)'))

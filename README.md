@@ -107,3 +107,9 @@ Private participant reviews after completion: [Collaboration feedback](docs/COLL
 Private collaboration conversations: [Messaging and manual checks](docs/COLLABORATION-MESSAGES.md).
 
 Full creator-to-brand regression report and reusable browser runner: [Journey verification](docs/COLLABORATION-JOURNEY.md).
+
+Collaboration milestone alerts, recipient rules and regression checks: [Collaboration notifications](docs/COLLABORATION-NOTIFICATIONS.md).
+
+Shared collaboration milestone timeline, privacy and regression checks: [Activity history](docs/COLLABORATION-ACTIVITY.md).
+
+Mutual scope changes, immutable agreement revisions and current-work boundaries: [Scope changes](docs/SCOPE-CHANGES.md).

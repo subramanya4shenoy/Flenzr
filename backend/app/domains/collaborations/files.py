@@ -1,4 +1,5 @@
 """Participant-scoped upload reservations, verification and expiring downloads."""
+from .current_agreement import current_agreement_stmt
 import re
 import uuid
 from datetime import datetime, timezone, timedelta
@@ -44,14 +45,15 @@ class CollaborationFiles:
     @staticmethod
     async def draft_list(db, user_id, record_id):
         await CollaborationFiles.creator(db, user_id, record_id)
+        agreement = await db.scalar(current_agreement_stmt(record_id))
         rows = (await db.scalars(select(CollaborationFile).where(CollaborationFile.collaboration_id == record_id,
             CollaborationFile.delivery_id.is_(None), CollaborationFile.state == 'ready').order_by(CollaborationFile.created_at))).all()
-        return [file_project(row) for row in rows if fresh(row)]
+        return [file_project(row) for row in rows if fresh(row) and agreement and row.agreement_id == agreement.id]
 
     @staticmethod
     async def reserve(db, user_id, record_id, body):
         await CollaborationFiles.creator(db, user_id, record_id)
-        agreement = await db.scalar(select(CollaborationAgreement).where(CollaborationAgreement.collaboration_id == record_id))
+        agreement = await db.scalar(current_agreement_stmt(record_id))
         if not agreement or str(body.agreement_id) != agreement.id:
             raise conflict('Refresh the collaboration agreement before uploading.')
         if (body.content_type not in MIME_EXTENSIONS or PurePath(body.filename).suffix.lower() not in MIME_EXTENSIONS[body.content_type]

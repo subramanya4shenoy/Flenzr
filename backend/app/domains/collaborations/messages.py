@@ -92,7 +92,7 @@ class MessageService:
             peer_role='creator' if is_brand else 'brand',
             peer_avatar_url=creator_avatar if is_brand else brand_avatar,
             my_avatar_url=brand_avatar if is_brand else creator_avatar,
-            peer_online=chat_hub.is_online(peer_user_id),
+            peer_online=await chat_hub.is_online(peer_user_id),
             peer_last_seen_at=stamp(peer_seen) if peer_seen else None,
             peer_last_read_sequence=read_map.get(peer_user_id, 0),
             my_last_read_sequence=read_map.get(user_id, 0),
@@ -150,7 +150,7 @@ class MessageService:
 
         projected_for_sender = MessageService.project(row, user_id)
         projected_for_peer = MessageService.project(row, '')
-        chat_hub.publish(record_id, 'message', projected_for_peer, exclude_user_id=user_id)
+        await chat_hub.publish(record_id, 'message', projected_for_peer, exclude_user_id=user_id)
         return projected_for_sender
 
     @staticmethod
@@ -173,7 +173,7 @@ class MessageService:
         if reader:
             reader.last_seen_at = now
         await db.commit()
-        chat_hub.publish(
+        await chat_hub.publish(
             record_id,
             'read',
             {'user_id': user_id, 'last_read_sequence': row.last_read_sequence, 'read_at': stamp(row.read_at)},
@@ -205,5 +205,5 @@ class MessageService:
         )).all()
         peer_reactions = _project_reactions(all_rows, '')
         my_reactions = _project_reactions(all_rows, user_id)
-        chat_hub.publish(record_id, 'reaction', {'message_id': message_id, 'reactions': peer_reactions}, exclude_user_id=user_id)
+        await chat_hub.publish(record_id, 'reaction', {'message_id': message_id, 'reactions': peer_reactions}, exclude_user_id=user_id)
         return my_reactions

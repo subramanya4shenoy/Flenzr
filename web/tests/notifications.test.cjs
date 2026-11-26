@@ -17,3 +17,5 @@ test('notifications use the cookie gateway, no-store and useful failure messages
   status = 503; await assert.rejects(exports.notificationRequest('/one/read', { method: 'POST' }), /Please retry/);
   assert.equal(called.options.method, 'POST');
 });
+
+test('notification actions distinguish enquiries from collaborations',()=>{const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/notifications.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports});assert.equal(exports.notificationActionLabel({collaboration_id:'saved'}),'Open collaboration');assert.equal(exports.notificationActionLabel({collaboration_id:null}),'Open enquiry');});

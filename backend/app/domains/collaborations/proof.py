@@ -2,8 +2,10 @@
 import hashlib
 import json
 from sqlalchemy import func, select
+from app.domains.notifications.service import record_collaboration_notification
 from app.core.exceptions import EntityNotFoundError, FlenzrException, PermissionDeniedError
 from .agreements import stamp
+from .current_agreement import current_agreement_filter, current_agreement_stmt
 from .deliveries import DeliveryService
 from .models import CollaborationAgreement, CollaborationCompletion, DeliverySubmission, DeliveryReview, PublishingProof, PublishingProofConfirmation
 
@@ -17,7 +19,7 @@ class PublishingProofService:
             DeliveryReview.delivery_id == DeliverySubmission.id).join(CollaborationAgreement,
             CollaborationAgreement.id == DeliverySubmission.agreement_id).where(
             DeliverySubmission.collaboration_id == collab.id, DeliverySubmission.version == collab.delivery_version,
-            CollaborationAgreement.collaboration_id == collab.id, DeliveryReview.collaboration_id == collab.id,
+            CollaborationAgreement.collaboration_id == collab.id, current_agreement_filter(), DeliveryReview.collaboration_id == collab.id,
             DeliveryReview.decision == 'approved'))).one_or_none()
         if row and collab.status == 'completed':
             final = await db.scalar(select(CollaborationCompletion.delivery_id).where(CollaborationCompletion.collaboration_id == collab.id))
@@ -51,7 +53,8 @@ class PublishingProofService:
             PublishingProof.version == latest))).one_or_none()
         can_confirm = user_id == collab.brand_user_id and bool(target and latest_row and not latest_row[1] and
             latest_row[0].delivery_id == target[0].id and latest_row[0].review_id == target[1].id)
-        return dict(can_confirm=can_confirm, can_publish=user_id == collab.creator_user_id and bool(target),
+        agreement = await db.scalar(current_agreement_stmt(record_id))
+        return dict(current_agreement_id=agreement.id if agreement else None, can_confirm=can_confirm, can_publish=user_id == collab.creator_user_id and bool(target),
             eligible_delivery=DeliveryService.project(*target) if target else None,
             latest_proof_version=latest, items=[PublishingProofService.project(*row) for row in rows],
             total=latest, page=page, page_size=page_size)
@@ -80,6 +83,8 @@ class PublishingProofService:
             delivery_id=delivery.id, review_id=review.id, creator_user_id=user_id, version=latest+1,
             notes=body.notes, links=payload['links'], request_id=str(body.request_id), request_hash=fingerprint)
         db.add(row)
+        await record_collaboration_notification(db, collaboration=collab, actor_id=user_id,
+            kind='proof_submitted', event_key=f'proof_submitted:{row.version}')
         await db.commit(); await db.refresh(row)
         return PublishingProofService.project(row, delivery)
 
@@ -117,5 +122,7 @@ class PublishingProofService:
         row = PublishingProofConfirmation(collaboration_id=record_id, proof_id=proof.id, reviewer_user_id=user_id,
             request_id=str(body.request_id), request_hash=fingerprint)
         db.add(row)
+        await record_collaboration_notification(db, collaboration=collab, actor_id=user_id,
+            kind='proof_confirmed', event_key=f'proof_confirmed:{proof.version}')
         await db.commit(); await db.refresh(row)
         return PublishingProofService.confirmation_project(row, proof, delivery)

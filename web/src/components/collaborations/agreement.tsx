@@ -26,11 +26,11 @@ export function AgreementPanel({ collaborationId, workspace, latest, disabled, o
   }
   if (!acceptance && !agreement) return null;
   return <section className="fl-agreement" aria-label="Proposal acceptance and agreement">
-    <h3>{agreement ? `Agreement saved · Version ${agreement.snapshot.proposal_version}` : `Acceptance · Version ${acceptance?.version}`}</h3>
+    <h3>{agreement ? `Agreement saved · Revision ${agreement.revision}` : `Acceptance · Version ${acceptance?.version}`}</h3>
     <p>Both participants must explicitly accept the same version. Sending a proposal alone does not count as acceptance.</p>
     <dl className="fl-agreement-acceptances"><div><dt>Brand / client</dt><dd>{acceptance?.brand_accepted_at ? `Accepted ${new Date(acceptance.brand_accepted_at).toLocaleString()}` : "Not accepted"}</dd></div><div><dt>Creator</dt><dd>{acceptance?.creator_accepted_at ? `Accepted ${new Date(acceptance.creator_accepted_at).toLocaleString()}` : "Not accepted"}</dd></div></dl>
     {agreement ? <>
-      <p>Both participants accepted these terms. This saved agreement is fixed; proposal editing is closed. No payment has been collected.</p>
+      <p>Both participants accepted these terms. This agreement revision is fixed. Updated scope requires a separate mutually accepted request. No payment has been collected.</p>
       <Terms terms={agreement.snapshot.terms} agreed />
       <p className="fl-agreement-reference">Agreement {agreement.id}<br />Saved {new Date(agreement.snapshot.agreed_at).toLocaleString()}</p>
       <button type="button" disabled={downloading} onClick={download}>{downloading ? "Downloading…" : "Download agreement (JSON)"}</button>

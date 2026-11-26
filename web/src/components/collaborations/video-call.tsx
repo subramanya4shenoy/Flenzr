@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, MonitorUp, PhoneOff, Video, VideoOff } from "lucide-react";
+import { CallConnection, callConfiguration } from "@/lib/call-connection";
 import { avatarProxyUrl, type ChatSignalKind } from "@/lib/collaboration-messages";
 
 export type CallState =
@@ -17,19 +18,6 @@ interface VideoCallStageProps {
   sendSignal: (kind: ChatSignalKind, payload: Record<string, unknown>) => Promise<void>;
   registerSignalHandler: (handler: (kind: string, payload: Record<string, unknown>) => void) => () => void;
   onEnd: (durationSeconds: number) => void;
-}
-
-function buildIceServers(): RTCIceServer[] {
-  const servers: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
-  const turnUrl = process.env.NEXT_PUBLIC_TURN_URL;
-  if (turnUrl) {
-    servers.push({
-      urls: turnUrl,
-      ...(process.env.NEXT_PUBLIC_TURN_USERNAME ? { username: process.env.NEXT_PUBLIC_TURN_USERNAME } : {}),
-      ...(process.env.NEXT_PUBLIC_TURN_CREDENTIAL ? { credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL } : {}),
-    });
-  }
-  return servers;
 }
 
 function formatTimer(seconds: number) {
@@ -50,15 +38,18 @@ export function VideoCallStage({
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const screenTrackRef = useRef<MediaStreamTrack | null>(null);
-  const pendingIce = useRef<RTCIceCandidateInit[]>([]);
+  const videoSenderRef = useRef<RTCRtpSender | null>(null);
+  const retryRef = useRef<(() => void) | null>(null);
   const mountedAt = useRef<number>(0);
 
   const [muted, setMuted] = useState(false);
   const [cameraOff, setCameraOff] = useState(false);
+  const [cameraAvailable, setCameraAvailable] = useState(false);
   const [sharingScreen, setSharingScreen] = useState(false);
   const [remoteConnected, setRemoteConnected] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [mediaError, setMediaError] = useState("");
+  const [connectionStatus, setConnectionStatus] = useState("Connecting…");
 
   useEffect(() => {
     mountedAt.current = Date.now();
@@ -68,90 +59,129 @@ export function VideoCallStage({
 
   useEffect(() => {
     let closed = false;
-    const pc = new RTCPeerConnection({ iceServers: buildIceServers() });
+    let pc: RTCPeerConnection;
+    try {
+      pc = new RTCPeerConnection(callConfiguration(
+        process.env.NEXT_PUBLIC_TURN_URL,
+        process.env.NEXT_PUBLIC_TURN_USERNAME,
+        process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+        process.env.NEXT_PUBLIC_CALL_ICE_POLICY,
+      ));
+    } catch {
+      queueMicrotask(() => {
+        if (!closed) setMediaError("Could not start this call. Please check the call configuration and try again.");
+      });
+      return () => { closed = true; };
+    }
     pcRef.current = pc;
-
-    pc.onicecandidate = event => {
-      if (event.candidate && !closed) {
-        void sendSignal("call_ice", { call_id: callId, candidate: event.candidate.toJSON() });
+    let recoveryTimer: ReturnType<typeof setTimeout> | undefined;
+    let attempts = 0;
+    const clearRecovery = () => { clearTimeout(recoveryTimer); recoveryTimer = undefined; };
+    if (isCaller) {
+      pc.addTransceiver("audio", { direction: "sendrecv" });
+      pc.addTransceiver("video", { direction: "sendrecv" });
+    }
+    const bindMedia = async () => {
+      if (closed) return;
+      const stream = localStreamRef.current;
+      for (const transceiver of pc.getTransceivers()) {
+        if (closed) return;
+        const kind = transceiver.receiver.track.kind;
+        const track = stream?.getTracks().find(track => track.kind === kind) || null;
+        transceiver.direction = "sendrecv";
+        await transceiver.sender.replaceTrack(kind === "video" ? screenTrackRef.current || track : track);
+        if (stream) transceiver.sender.setStreams(stream);
+        if (kind === "video") videoSenderRef.current = transceiver.sender;
       }
     };
 
-    pc.ontrack = event => {
-      if (remoteVideo.current && event.streams[0]) {
-        remoteVideo.current.srcObject = event.streams[0];
-        setRemoteConnected(true);
-      }
-    };
-
-    pc.onconnectionstatechange = () => {
-      if (pc.connectionState === "connected") setRemoteConnected(true);
-      if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
-        setRemoteConnected(false);
-      }
-    };
-
-    const unregister = registerSignalHandler((kind, payload) => {
-      if (payload.call_id !== callId || closed) return;
-      if (kind === "call_offer" && payload.sdp) {
-        void (async () => {
-          try {
-            await pc.setRemoteDescription(new RTCSessionDescription(payload.sdp as RTCSessionDescriptionInit));
-            for (const c of pendingIce.current) await pc.addIceCandidate(new RTCIceCandidate(c));
-            pendingIce.current = [];
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            await sendSignal("call_answer", { call_id: callId, sdp: answer });
-          } catch { setMediaError("Could not negotiate video connection."); }
-        })();
-      } else if (kind === "call_answer" && payload.sdp) {
-        void (async () => {
-          try {
-            await pc.setRemoteDescription(new RTCSessionDescription(payload.sdp as RTCSessionDescriptionInit));
-            for (const c of pendingIce.current) await pc.addIceCandidate(new RTCIceCandidate(c));
-            pendingIce.current = [];
-          } catch { setMediaError("Could not complete video handshake."); }
-        })();
-      } else if (kind === "call_ice" && payload.candidate) {
-        const candidate = payload.candidate as RTCIceCandidateInit;
-        if (pc.remoteDescription) {
-          void pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(() => {});
-        } else {
-          pendingIce.current.push(candidate);
-        }
-      }
-    });
-
-    void (async () => {
+    const mediaReady = (async () => {
       try {
         let stream: MediaStream;
         try {
           stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         } catch {
           stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-          setCameraOff(true);
+          if (!closed) setCameraOff(true);
         }
         if (closed) {
-          stream.getTracks().forEach(t => t.stop());
+          stream.getTracks().forEach(track => track.stop());
           return;
         }
+        setCameraAvailable(stream.getVideoTracks().length > 0);
         localStreamRef.current = stream;
         if (localVideo.current) localVideo.current.srcObject = stream;
-        stream.getTracks().forEach(track => pc.addTrack(track, stream));
-
-        if (isCaller) {
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          await sendSignal("call_offer", { call_id: callId, sdp: offer });
-        }
+        await bindMedia();
       } catch {
         if (!closed) setMediaError("Camera or microphone permission was denied. Check browser permissions to join with audio/video.");
       }
     })();
+    const connection = new CallConnection(pc, callId, isCaller, mediaReady, sendSignal, () => {
+      if (!closed) setConnectionStatus("Could not connect. Retry the connection or end this call.");
+    }, bindMedia);
+    const retry = () => {
+      if (closed) return;
+      clearRecovery();
+      setConnectionStatus(attempts ? "Reconnecting…" : "Connecting…");
+      void connection.retry();
+      recoveryTimer = setTimeout(() => {
+        recoveryTimer = undefined;
+        if (closed) return;
+        if (pc.connectionState === "connected") { setConnectionStatus("Connected"); return; }
+        if (++attempts < 3) retry();
+        else setConnectionStatus("Connection interrupted. Retry the connection or end this call.");
+      }, 12000);
+    };
+    const recover = () => {
+      attempts = 1;
+      retry();
+    };
+    pc.onicecandidate = event => {
+      if (event.candidate && !closed) {
+        void sendSignal("call_ice", { call_id: callId, candidate: event.candidate.toJSON() }).catch(() => {
+          if (!closed) setConnectionStatus("Call signaling was interrupted. Retry the connection.");
+        });
+      }
+    };
+    pc.ontrack = event => {
+      if (closed || !remoteVideo.current) return;
+      const stream = remoteVideo.current.srcObject as MediaStream | null || new MediaStream();
+      if (!stream.getTracks().some(track => track.id === event.track.id)) stream.addTrack(event.track);
+      remoteVideo.current.srcObject = stream;
+    };
+    pc.onconnectionstatechange = () => {
+      if (closed) return;
+      const connected = pc.connectionState === "connected";
+      setRemoteConnected(connected);
+      if (connected) {
+        attempts = 0;
+        clearRecovery();
+        setConnectionStatus("Connected");
+      } else if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
+        setConnectionStatus("Reconnecting…");
+        if (!recoveryTimer) recoveryTimer = setTimeout(recover, 2000);
+      }
+    };
+    const unregister = registerSignalHandler((kind, payload) => {
+      if (closed) return;
+      if (kind === "transport_ready") recover();
+      else void connection.receive(kind, payload);
+    });
+    window.addEventListener("online", recover);
+    const manualRetry = () => recover();
+    // Keep manual retries on the same media session and call ID.
+    retryRef.current = manualRetry;
+    if (isCaller) retry();
+    else recoveryTimer = setTimeout(recover, 12000);
 
     return () => {
       closed = true;
       unregister();
+      clearRecovery();
+      window.removeEventListener("online", recover);
+      connection.close();
+      retryRef.current = null;
+      videoSenderRef.current = null;
       screenTrackRef.current?.stop();
       localStreamRef.current?.getTracks().forEach(track => track.stop());
       pc.close();
@@ -182,23 +212,25 @@ export function VideoCallStage({
       screenTrackRef.current.stop();
       screenTrackRef.current = null;
       const camTrack = localStreamRef.current?.getVideoTracks()[0];
-      const sender = pc.getSenders().find(s => s.track?.kind === "video");
-      if (sender && camTrack) await sender.replaceTrack(camTrack);
+      const sender = videoSenderRef.current;
+      if (sender) await sender.replaceTrack(camTrack || null);
       setSharingScreen(false);
       return;
     }
     try {
       const display = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      if (pc !== pcRef.current) { display.getTracks().forEach(track => track.stop()); return; }
       const screenTrack = display.getVideoTracks()[0];
       if (!screenTrack) return;
       screenTrackRef.current = screenTrack;
-      const sender = pc.getSenders().find(s => s.track?.kind === "video");
-      if (sender) await sender.replaceTrack(screenTrack);
+      const sender = videoSenderRef.current;
+      if (!sender) { screenTrack.stop(); return; }
+      await sender.replaceTrack(screenTrack);
       setSharingScreen(true);
       screenTrack.onended = () => {
         const camTrack = localStreamRef.current?.getVideoTracks()[0];
-        const currentSender = pcRef.current?.getSenders().find(s => s.track?.kind === "video");
-        if (currentSender && camTrack) void currentSender.replaceTrack(camTrack);
+        const currentSender = videoSenderRef.current;
+        if (currentSender) void currentSender.replaceTrack(camTrack || null).catch(() => {});
         screenTrackRef.current = null;
         setSharingScreen(false);
       };
@@ -209,15 +241,17 @@ export function VideoCallStage({
 
   return <div className="fl-call-stage" aria-label="Active video call">
     <div className="fl-call-topbar">
-      <span className="fl-call-live-pill"><i aria-hidden="true" /> Live · {formatTimer(elapsed)}</span>
+      <span className="fl-call-live-pill"><i aria-hidden="true" /> {remoteConnected ? "Live" : "Connecting"} · {formatTimer(elapsed)}</span>
       <strong>{peerName}</strong>
     </div>
+    <div role="status" className="fl-call-connection-status">{connectionStatus}{!remoteConnected && <button type="button" onClick={() => retryRef.current?.()}>Retry connection</button>}</div>
+    {mediaError && <p className="fl-call-media-error" role="alert">{mediaError}</p>}
 
     <div className="fl-call-video-wrap">
       <video ref={remoteVideo} autoPlay playsInline className="fl-call-remote-video" data-visible={remoteConnected} />
       {!remoteConnected && <div className="fl-call-remote-placeholder">
         {avatar ? <img src={avatar} alt={peerName} /> : <span>{initials(peerName)}</span>}
-        <p>{mediaError || `Connecting with ${peerName}…`}</p>
+        <p>{mediaError || `${connectionStatus} ${peerName}`}</p>
       </div>}
 
       <div className="fl-call-local-pip" data-off={cameraOff}>
@@ -229,10 +263,10 @@ export function VideoCallStage({
         <button type="button" data-off={muted} onClick={toggleMute} aria-label={muted ? "Unmute microphone" : "Mute microphone"} title={muted ? "Unmute" : "Mute"}>
           {muted ? <MicOff size={17} /> : <Mic size={17} />}
         </button>
-        <button type="button" data-off={cameraOff} onClick={toggleCamera} aria-label={cameraOff ? "Turn camera on" : "Turn camera off"} title={cameraOff ? "Camera on" : "Camera off"}>
+        <button type="button" data-off={cameraOff} disabled={!cameraAvailable} onClick={toggleCamera} aria-label={cameraOff ? "Turn camera on" : "Turn camera off"} title={cameraOff ? "Camera on" : "Camera off"}>
           {cameraOff ? <VideoOff size={17} /> : <Video size={17} />}
         </button>
-        <button type="button" data-active={sharingScreen} onClick={() => void toggleScreenShare()} aria-label={sharingScreen ? "Stop sharing screen" : "Share screen"} title={sharingScreen ? "Stop sharing" : "Share screen"}>
+        <button type="button" data-active={sharingScreen} onClick={() => void toggleScreenShare().catch(() => setMediaError("Could not change screen sharing. Please try again."))} aria-label={sharingScreen ? "Stop sharing screen" : "Share screen"} title={sharingScreen ? "Stop sharing" : "Share screen"}>
           <MonitorUp size={17} />
         </button>
         <button type="button" className="fl-call-hangup" onClick={() => onEnd(elapsed)} aria-label="End call" title="End call">

@@ -1,5 +1,5 @@
 export interface NotificationItem {
-  id: string; enquiry_id: string; kind: string; title: string; message: string;
+  id: string; enquiry_id: string | null; collaboration_id: string | null; kind: string; title: string; message: string;
   href: string; is_unread: boolean; created_at: string;
 }
 export async function notificationRequest<T>(path: string, options?: RequestInit): Promise<T> {
@@ -9,4 +9,8 @@ export async function notificationRequest<T>(path: string, options?: RequestInit
   const data = await response.json().catch(() => null);
   if (!response.ok) throw new Error(response.status === 401 ? "Sign in again to view your notifications." : "Could not update notifications. Please retry.");
   return data as T;
+}
+
+export function notificationActionLabel(item: Pick<NotificationItem, "collaboration_id">): string {
+  return item.collaboration_id ? "Open collaboration" : "Open enquiry";
 }

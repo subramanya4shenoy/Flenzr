@@ -6,7 +6,7 @@ Offers reuse the campaign, application and shared collaboration records. Existin
 
 ## Listing design
 
-Brand and creator Offer lists share a ticket-style card: a stable, muted gradient on charcoal surfaces, bold brief title, niche, a perforated divider, and a separate stub for the total planned budget and application deadline. Brand cards show audience and lifecycle status, with secondary controls grouped under Manage Offer. Creator cards show application status and quick apply. Decorative reference stripes are not scannable codes. The dedicated Offer page keeps its existing document design. Desktop and 390px browser checks, navigation, TypeScript and focused lint pass.
+Brand and creator Offer lists share a ticket-style card: a stable, muted gradient on charcoal surfaces, bold brief title, niche, a perforated divider, and a separate stub for the total planned budget and application deadline. Brand cards show audience and lifecycle status, with secondary controls grouped under Manage Offer. Creator cards show application status and quick apply. Decorative reference stripes are not scannable codes. The dedicated Offer page now uses a full-width document header with brand identity, share controls and breadcrumbs. Desktop and 390px browser checks, navigation, TypeScript and focused lint pass.
 
 Brand listing cards also show application-based interest: up to four recent applicant avatars, a total count and “+N more.” Missing photos use initials. Clicking the row opens that Offer’s applications. Invitations and page views do not increase interest. Applicant previews are fetched in one owner-scoped query for the list and are never populated on public campaign responses.
 
@@ -15,7 +15,7 @@ Brand listing cards also show application-based interest: up to four recent appl
 1. Open **Campaigns** in the brand menu, open a campaign and choose **New Offer**. New drafts default to **Invitation only**; choose **Public** for an openly shareable brief.
 2. Enter the brief, deliverables, niche, planned total budget and application closing date, then save and publish.
 3. Open the dedicated Offer page and use **Share Offer**. Public links show a read-only brief before sign-in. Private links reveal no brief until the viewer signs in as the owning brand or an invited creator.
-4. Choose **Manage** in the Offer's left navigation to change publication state or invite a creator by their Flenzr handle and an individual quote. Send that creator the share link. The form saves access; it does not send an external email.
+4. Choose **Manage** in the Offer's left navigation to change publication state or invite creators. Search/select one or several creators and enter the invitation quote shared by that selection. Each invitation saves independently; failures remain selected with their error so they can be retried. Send recipients the share link. The form saves access; it does not send an external email.
 5. Choose **Applicants** to see the applicant list beside the section menu. Select a creator to review their private pitch, quote and negotiation history, or choose **All applicants** for the current page. Counter the quote, decline it or select the creator at their proposed terms. Multiple creators can be selected independently; lists paginate at 20 applicants.
 6. Start each selected creator’s collaboration. Both parties must accept the same proposal version before that application is shown as claimed. Existing delivery, review, proof and completion workflows then apply.
 

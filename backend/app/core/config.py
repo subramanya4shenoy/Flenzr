@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     # Fallback/test SQLite URL
     TEST_DATABASE_URL: str = "sqlite+aiosqlite:///:memory:"
 
+    # All API workers must share this Redis URL/namespace for live chat.
+    CHAT_REDIS_URL: str = ""
+    CHAT_REDIS_NAMESPACE: str = "flenzr:chat"
+
     # Supabase Configuration
     SUPABASE_URL: str = "https://example.supabase.co"
     SUPABASE_ANON_KEY: str = "mock-anon-key"

@@ -74,9 +74,17 @@ class ProposalAcceptance(Base, TimestampMixin):
 
 class CollaborationAgreement(Base, TimestampMixin):
     __tablename__ = 'collaboration_agreements'
+    __table_args__ = (
+        UniqueConstraint('collaboration_id', 'revision', name='uq_agreement_revision'),
+        CheckConstraint('revision >= 1', name='agreement_revision_positive'),
+        CheckConstraint('(revision = 1 AND scope_change_id IS NULL AND proposal_id IS NOT NULL) OR '
+                        '(revision > 1 AND scope_change_id IS NOT NULL AND proposal_id IS NULL)', name='agreement_origin'),
+    )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), unique=True)
-    proposal_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaboration_proposal_revisions.id', ondelete='RESTRICT'), unique=True)
+    collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
+    revision: Mapped[int] = mapped_column(Integer, default=1, server_default='1')
+    scope_change_id: Mapped[str | None] = mapped_column(String(36), ForeignKey('collaboration_scope_changes.id', use_alter=True, name='fk_agreement_scope_change', ondelete='RESTRICT'), unique=True, nullable=True)
+    proposal_id: Mapped[str | None] = mapped_column(String(36), ForeignKey('collaboration_proposal_revisions.id', ondelete='RESTRICT'), unique=True, nullable=True)
     snapshot: Mapped[dict] = mapped_column(JSON)
     snapshot_hash: Mapped[str] = mapped_column(String(64))
 
@@ -241,3 +249,39 @@ class CollaborationMessageReaction(Base, TimestampMixin):
     collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id', ondelete='RESTRICT'))
     emoji: Mapped[str] = mapped_column(String(16))
+
+
+class ScopeChange(Base, TimestampMixin):
+    __tablename__ = 'collaboration_scope_changes'
+    __table_args__ = (
+        UniqueConstraint('collaboration_id', 'version', name='uq_scope_change_version'),
+        UniqueConstraint('collaboration_id', 'author_id', 'request_id', name='uq_scope_change_request'),
+        CheckConstraint('version >= 1', name='scope_version_positive'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    collaboration_id: Mapped[str] = mapped_column(ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
+    base_agreement_id: Mapped[str] = mapped_column(ForeignKey('collaboration_agreements.id', ondelete='RESTRICT'))
+    author_id: Mapped[str] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'))
+    version: Mapped[int] = mapped_column(Integer)
+    terms: Mapped[dict] = mapped_column(JSON)
+    reason: Mapped[str] = mapped_column(String(1000))
+    work_state_hash: Mapped[str] = mapped_column(String(64))
+    delivery_version: Mapped[int] = mapped_column(Integer)
+    request_id: Mapped[str] = mapped_column(String(36))
+    request_hash: Mapped[str] = mapped_column(String(64))
+
+
+class ScopeDecision(Base, TimestampMixin):
+    __tablename__ = 'collaboration_scope_decisions'
+    __table_args__ = (
+        UniqueConstraint('collaboration_id', 'actor_id', 'request_id', name='uq_scope_decision_request'),
+        CheckConstraint("action IN ('accept','decline','withdraw')", name='scope_decision_action'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    collaboration_id: Mapped[str] = mapped_column(ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
+    scope_change_id: Mapped[str] = mapped_column(ForeignKey('collaboration_scope_changes.id', ondelete='RESTRICT'), unique=True)
+    actor_id: Mapped[str] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'))
+    action: Mapped[str] = mapped_column(String(12))
+    note: Mapped[str] = mapped_column(String(1000), default='')
+    request_id: Mapped[str] = mapped_column(String(36))
+    request_hash: Mapped[str] = mapped_column(String(64))

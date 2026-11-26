@@ -108,8 +108,26 @@ class ProposalAccept(BaseModel):
         return value
 
 
+class ScopeProvenance(BaseModel):
+    scope_change_id: str
+    scope_version: int
+    base_agreement_id: str
+    base_snapshot_hash: str
+    reason: str
+    proposed_at: str
+
+
 class AgreementSnapshot(BaseModel):
-    schema_version: Literal[1]
+    schema_version: Literal[1, 2]
+    scope_change: ScopeProvenance | None = None
+
+    @model_serializer(mode="wrap")
+    def preserve_original_snapshot(self, handler):
+        data = handler(self)
+        if self.scope_change is None:
+            data.pop("scope_change", None)
+        return data
+
     collaboration_id: str
     proposal_id: str
     proposal_version: int
@@ -128,6 +146,8 @@ class AgreementSnapshot(BaseModel):
 class AgreementRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str
+    revision: int = 1
+    scope_change_id: str | None = None
     snapshot: AgreementSnapshot
     snapshot_hash: str
     created_at: datetime
@@ -340,6 +360,7 @@ class RevisionAllowance(BaseModel):
 
 
 class DeliveryWorkspace(BaseModel):
+    viewer_role: Literal['brand', 'creator']
     revision_allowance: RevisionAllowance | None
     can_request_revision: bool
     collaboration_status: Literal['discussion', 'agreed', 'completed']
@@ -441,6 +462,7 @@ class PublishingProofRead(BaseModel):
 
 
 class PublishingProofWorkspace(BaseModel):
+    current_agreement_id: str | None = None
     can_confirm: bool
     can_publish: bool
     eligible_delivery: DeliveryRead | None
@@ -568,3 +590,87 @@ class ChatSignal(BaseModel):
     model_config = ConfigDict(extra='forbid')
     kind: Literal['typing', 'heartbeat', 'call_ring', 'call_accept', 'call_decline', 'call_offer', 'call_answer', 'call_ice', 'call_end']
     payload: dict = Field(default_factory=dict)
+
+
+class CollaborationActivityRead(BaseModel):
+    id: str
+    kind: Literal['collaboration_started', 'proposal_sent', 'proposal_accepted', 'agreement_confirmed',
+                  'delivery_submitted', 'delivery_approved', 'revision_requested', 'proof_submitted',
+                  'proof_confirmed', 'collaboration_completed', 'scope_proposed', 'scope_accepted', 'scope_declined', 'scope_withdrawn']
+    title: str
+    description: str
+    actor_role: Literal['brand', 'creator', 'both'] | None
+    actor_name: str
+    is_mine: bool
+    version: int | None
+    occurred_at: str
+    section: Literal['overview', 'proposals', 'deliveries', 'proof']
+
+
+class CollaborationActivityPage(BaseModel):
+    items: list[CollaborationActivityRead]
+    next_cursor: str | None
+    limit: int
+
+
+class ScopeConsent(BaseModel):
+    confirmed: bool = Field(strict=True)
+
+    @field_validator('confirmed')
+    @classmethod
+    def explicit_scope_confirmation(cls, value):
+        if not value:
+            raise ValueError('Explicit scope confirmation is required')
+        return value
+
+
+class ScopeChangeCreate(ScopeConsent):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    request_id: UUID
+    expected_agreement_id: UUID
+    expected_work_state: str = Field(pattern=r'^[a-f0-9]{64}$')
+    terms: ProposalTerms
+    reason: str = Field(min_length=5, max_length=1000)
+
+
+class ScopeDecisionCreate(ScopeConsent):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    request_id: UUID
+    action: Literal['accept', 'decline', 'withdraw']
+    note: str = Field('', max_length=1000)
+
+
+class ScopeDecisionRead(BaseModel):
+    action: Literal['accept', 'decline', 'withdraw']
+    actor_role: Literal['brand', 'creator']
+    note: str
+    decided_at: str
+
+
+class ScopeChangeRead(BaseModel):
+    id: str
+    version: int
+    base_agreement_id: str
+    terms: ProposalTerms
+    reason: str
+    delivery_version: int
+    author_role: Literal['brand', 'creator']
+    is_mine: bool
+    proposed_at: str
+    decision: ScopeDecisionRead | None
+    agreement: AgreementRead | None
+    stale: bool
+    can_accept: bool
+    can_decline: bool
+    can_withdraw: bool
+
+
+class ScopeWorkspace(BaseModel):
+    current_agreement: AgreementRead | None
+    work_state: str
+    can_propose: bool
+    pending: ScopeChangeRead | None
+    items: list[ScopeChangeRead]
+    total: int
+    page: int
+    page_size: int
