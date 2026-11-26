@@ -235,6 +235,31 @@ class DeliveryReviewRead(BaseModel):
     reviewed_at: str
 
 
+class DeliveryCommentCreate(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    file_id: UUID | None = None
+    timestamp_ms: int | None = Field(None, ge=0, le=86_400_000, strict=True)
+    body: str = Field(min_length=1, max_length=2000)
+
+
+class DeliveryCommentUpdate(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    resolved: bool
+
+
+class DeliveryCommentRead(BaseModel):
+    id: str
+    delivery_id: str
+    file_id: str | None
+    author_id: str
+    author_role: Literal['brand', 'creator']
+    author_name: str
+    timestamp_ms: int | None
+    body: str
+    resolved: bool
+    created_at: str
+
+
 class CollaborationFileRead(BaseModel):
     id: str
     filename: str

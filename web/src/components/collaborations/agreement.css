@@ -1,0 +1,164 @@
+/* Split-pane Proposals & Agreement studio + crisp paper document sheet */
+.fl-prop-studio{display:grid;gap:18px;min-width:0}
+.fl-prop-topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border,var(--ui-line-303036));padding-bottom:12px}
+.fl-prop-tabs{display:flex;align-items:center;gap:6px}
+.fl-shared button.fl-prop-tab{border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;padding:8px 12px;font-size:13px;font-weight:500;color:var(--muted-foreground,var(--ui-ink-a1a1aa));display:inline-flex;align-items:center;gap:6px}
+.fl-shared button.fl-prop-tab:hover{color:var(--foreground,var(--ui-ink-eeeeee))}
+.fl-shared button.fl-prop-tab[data-active="true"]{color:var(--foreground,var(--ui-ink-eeeeee));border-bottom-color:#c1121f;font-weight:650}
+.fl-prop-tab-count{font-size:10px;padding:1px 6px;border-radius:999px;background:var(--muted,var(--ui-paint-18181b));color:var(--muted-foreground)}
+.fl-prop-top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fl-shared button.fl-prop-btn-primary{display:inline-flex;align-items:center;gap:6px;background:#c1121f;border-color:#c1121f;color:#ffffff;font-size:12px;font-weight:600;padding:8px 14px;border-radius:9px}
+.fl-shared button.fl-prop-btn-primary:hover:not(:disabled){background:#a50e1a;border-color:#a50e1a}
+.fl-shared button.fl-prop-btn-secondary{display:inline-flex;align-items:center;gap:6px;background:var(--card,var(--ui-paint-18181b));border-color:var(--border,var(--ui-line-38383f));color:var(--foreground,var(--ui-ink-eeeeee));font-size:12px;font-weight:550;padding:8px 13px;border-radius:9px}
+
+.fl-prop-notice{margin:0;padding:10px 14px;border-radius:10px;border:1px solid rgba(100,200,155,.35);background:rgba(58,155,108,.1);color:#64c89b;font-size:12.5px}
+:root[data-theme="light"] .fl-prop-notice{background:#edf7f1;border-color:#a7d9be;color:#1b6842}
+
+.fl-prop-stack{display:grid;gap:22px;max-width:794px;min-width:0}
+.fl-prop-stack .fl-doc-wrap{position:static}
+.fl-prop-history-section{display:grid;gap:12px}
+.fl-prop-left{display:grid;gap:18px;min-width:0}
+
+/* Left summary strip (like reference 2) */
+.fl-prop-summary-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:18px 0;border-bottom:1px solid var(--border,var(--ui-line-303036))}
+.fl-prop-summary-strip>div{display:grid;gap:4px}
+.fl-prop-summary-strip small{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted-foreground)}
+.fl-prop-summary-strip strong{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--foreground)}
+.fl-prop-summary-strip span{font-size:11px;color:var(--muted-foreground)}
+
+/* Mutual acceptance panel */
+.fl-prop-acceptance-card{display:grid;gap:14px;padding:18px 20px;border:1px solid var(--border,var(--ui-line-303036));border-radius:14px;background:color-mix(in srgb,var(--foreground) 2.5%,transparent)}
+.fl-prop-acceptance-card[data-agreed="true"]{border-color:rgba(100,200,155,.35);background:rgba(58,155,108,.06)}
+:root[data-theme="light"] .fl-prop-acceptance-card[data-agreed="true"]{background:#f4fbf7;border-color:#b6e0c9}
+.fl-prop-acceptance-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.fl-prop-acceptance-head h3{margin:0;font-size:15px;font-weight:650;color:var(--foreground)}
+.fl-prop-acceptance-card>p{margin:0;font-size:12.5px;line-height:1.6;color:var(--muted-foreground)}
+.fl-prop-signers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fl-prop-signer{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border,var(--ui-line-303036));background:var(--card,var(--ui-paint-121215))}
+.fl-prop-signer[data-signed="true"]{border-color:rgba(100,200,155,.4)}
+.fl-prop-signer svg{flex:none;color:var(--muted-foreground)}
+.fl-prop-signer[data-signed="true"] svg{color:#34d399}
+:root[data-theme="light"] .fl-prop-signer[data-signed="true"] svg{color:#16a34a}
+.fl-prop-signer>div{display:grid;gap:2px;min-width:0}
+.fl-prop-signer strong{font-size:12px;font-weight:600;color:var(--foreground)}
+.fl-prop-signer span{font-size:11px;color:var(--muted-foreground)}
+.fl-prop-acceptance-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* Private draft banner */
+.fl-prop-draft-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 16px;border:1px dashed var(--border,var(--ui-line-38383f));border-radius:12px;background:color-mix(in srgb,var(--foreground) 2%,transparent)}
+.fl-prop-draft-banner>div{display:grid;gap:2px}
+.fl-prop-draft-banner strong{font-size:13px;font-weight:600;color:var(--foreground)}
+.fl-prop-draft-banner span{font-size:11.5px;color:var(--muted-foreground)}
+.fl-prop-draft-banner-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Editor form (reference 1 style) */
+.fl-prop-form{display:grid;gap:14px;padding:20px;border:1px solid var(--border,var(--ui-line-303036));border-radius:14px;background:var(--card,var(--ui-paint-121215))}
+.fl-prop-form h3{margin:0;font-size:16px;font-weight:650;color:var(--foreground)}
+.fl-prop-form>p{margin:0;font-size:12px;color:var(--muted-foreground)}
+.fl-prop-form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fl-prop-form label{display:grid;gap:6px;font-size:12px;font-weight:500;color:var(--foreground)}
+.fl-prop-form label>span{font-size:11px;font-weight:400;color:var(--muted-foreground)}
+.fl-prop-form input,.fl-prop-form select,.fl-prop-form textarea{width:100%;min-width:0;box-sizing:border-box;background:var(--background,var(--ui-paint-09090b));color:var(--foreground,var(--ui-ink-eeeeee));border:1px solid var(--border,var(--ui-line-444444));border-radius:8px;padding:9px 11px;font:inherit;font-size:13px}
+.fl-prop-form textarea{resize:vertical}
+.fl-prop-form-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:10px;border-top:1px solid var(--border,var(--ui-line-303036))}
+
+/* History list */
+.fl-prop-history-list{display:grid;gap:8px}
+.fl-shared button.fl-prop-history-item{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;padding:13px 15px;border:1px solid var(--border,var(--ui-line-303036));border-radius:12px;background:var(--card,var(--ui-paint-121215));color:var(--foreground)}
+.fl-shared button.fl-prop-history-item[data-active="true"]{border-color:#c1121f;background:color-mix(in srgb,#c1121f 6%,var(--card,var(--ui-paint-121215)))}
+.fl-prop-history-item strong{display:block;font-size:13px;font-weight:650}
+.fl-prop-history-item small{display:block;font-size:11px;color:var(--muted-foreground);margin-top:2px}
+.fl-prop-history-amt{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fl-prop-history-pager{display:flex;align-items:center;justify-content:center;gap:10px;padding-top:6px;font-size:12px;color:var(--muted-foreground)}
+
+/* Authentic A4 Paper Agreement Sheet */
+.fl-doc-wrap{position:sticky;top:76px;display:grid;gap:14px;min-width:0}
+.fl-doc-paper{display:flex;flex-direction:column;gap:22px;background:#ffffff;color:#18181b;border-radius:3px;border:1px solid #e4e4e7;padding:42px 46px 34px;min-height:820px;box-shadow:0 1px 2px rgb(0 0 0 / 6%),0 14px 36px rgb(0 0 0 / 12%);box-sizing:border-box}
+:root[data-theme="dark"] .fl-doc-paper{border-color:#d4d4d8;box-shadow:0 2px 4px rgb(0 0 0 / 28%),0 22px 54px rgb(0 0 0 / 55%)}
+
+.fl-a4-letterhead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:18px;border-bottom:2px solid #18181b}
+.fl-a4-brand{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.fl-a4-logo{width:38px;height:38px;border-radius:8px;background:#f4f4f5;border:1px solid #e4e4e7;display:grid;place-items:center;flex:none;margin-top:2px}
+.fl-a4-eyebrow{display:block;font-size:9px;font-weight:700;letter-spacing:.12em;color:#71717a;margin-bottom:4px}
+.fl-a4-letterhead h3{margin:0;font-size:21px;font-weight:800;letter-spacing:-.025em;color:#09090b;line-height:1.2}
+.fl-a4-meta{display:grid;justify-items:end;gap:8px;flex:none;text-align:right}
+.fl-a4-stamp{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.1em;padding:3px 9px;border-radius:3px;border:1.5px solid #52525b;color:#3f3f46;background:#f4f4f5}
+.fl-a4-stamp[data-mode="agreed"]{border-color:#15803d;color:#15803d;background:#f0fdf4}
+.fl-a4-stamp[data-mode="draft"]{border-color:#b45309;color:#92400e;background:#fffbeb}
+.fl-a4-meta dl{margin:0;display:grid;gap:2px;font-size:11px}
+.fl-a4-meta dl>div{display:flex;gap:8px;justify-content:flex-end}
+.fl-a4-meta dt{color:#71717a}
+.fl-a4-meta dd{margin:0;font-weight:650;color:#18181b;font-variant-numeric:tabular-nums}
+
+.fl-a4-preamble{margin:0;font-size:12.5px;line-height:1.65;color:#3f3f46}
+.fl-a4-preamble strong{color:#09090b;font-weight:650}
+
+.fl-a4-section{display:grid;gap:10px}
+.fl-a4-section h4,.fl-a4-signatures h4{margin:0;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#18181b;padding-bottom:6px;border-bottom:1px solid #e4e4e7}
+
+.fl-a4-parties{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px}
+.fl-a4-parties>div{display:grid;gap:2px}
+.fl-a4-parties small{font-size:10px;font-weight:600;color:#71717a}
+.fl-a4-parties strong{font-size:13px;font-weight:650;color:#09090b;overflow-wrap:anywhere}
+
+.fl-a4-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.fl-a4-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;padding:8px 0;border-bottom:1px solid #d4d4d8}
+.fl-a4-table th:last-child,.fl-a4-table td:last-child{text-align:right;white-space:nowrap}
+.fl-a4-table tbody td{padding:12px 10px 14px 0;vertical-align:top;color:#27272a;border-bottom:1px solid #e4e4e7}
+.fl-a4-table tbody td:last-child{padding-right:0;font-weight:700;font-variant-numeric:tabular-nums;color:#09090b}
+.fl-a4-table tbody strong{display:block;font-size:13px;font-weight:650;color:#09090b;margin-bottom:4px}
+.fl-a4-table tbody p{margin:0;font-size:12px;line-height:1.6;color:#52525b;white-space:pre-wrap;overflow-wrap:anywhere}
+.fl-a4-table tfoot td{padding:12px 0 4px;font-weight:700;color:#09090b;border-top:1.5px solid #18181b}
+.fl-a4-table tfoot td:last-child{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+
+.fl-a4-clause{margin:0;font-size:12.5px;line-height:1.7;color:#27272a;white-space:pre-wrap;overflow-wrap:anywhere}
+
+.fl-a4-signatures{margin-top:auto;padding-top:14px;display:grid;gap:12px}
+.fl-a4-sig-note{margin:0;font-size:11px;line-height:1.6;color:#71717a}
+.fl-a4-sig-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;padding-top:8px}
+.fl-a4-sig-box{display:grid;gap:8px}
+.fl-a4-sig-line{min-height:42px;display:flex;align-items:flex-end;padding-bottom:6px;border-bottom:1px solid #a1a1aa}
+.fl-a4-sig-box[data-signed="true"] .fl-a4-sig-line{border-bottom-color:#18181b}
+.fl-a4-sig-script{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:20px;line-height:1.1;color:#09090b}
+.fl-a4-sig-pending{font-size:11px;font-style:italic;color:#a1a1aa}
+.fl-a4-sig-meta{display:grid;gap:2px}
+.fl-a4-sig-meta strong{font-size:12px;font-weight:650;color:#09090b}
+.fl-a4-sig-meta small{font-size:10.5px;color:#71717a}
+.fl-a4-sig-meta span{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:#71717a;margin-top:2px}
+.fl-a4-sig-box[data-signed="true"] .fl-a4-sig-meta span{color:#15803d}
+
+.fl-a4-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid #e4e4e7;font-size:9.5px;font-weight:600;letter-spacing:.08em;color:#a1a1aa}
+
+/* Floating dark pill bar below agreed sheet */
+.fl-doc-floating-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px;border-radius:999px;background:#111116;color:#f4f4f5;border:1px solid #27272f;box-shadow:0 10px 28px rgb(0 0 0 / 28%);font-size:11.5px;font-weight:600}
+.fl-doc-floating-bar>div{display:flex;align-items:center;gap:6px}
+.fl-shared .fl-doc-floating-bar button{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:600;background:#22222a;border-color:#34343f;color:#f4f4f5}
+.fl-shared .fl-doc-floating-bar button:hover:not(:disabled){background:#2e2e38}
+
+/* Full A4 Agreement Review & Send / Accept dialog (isolated from .fl-shared-dialog) */
+.fl-doc-review-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(880px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);padding:0;border:1px solid var(--border,var(--ui-line-38383f));border-radius:18px;background:var(--card,var(--ui-paint-141417));color:var(--foreground,var(--ui-ink-eeeeee));display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgb(0 0 0 / 50%)}
+.fl-doc-review-dialog::backdrop{background:rgba(0,0,0,.74);backdrop-filter:blur(5px)}
+.fl-doc-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 24px;border-bottom:1px solid var(--border,var(--ui-line-303036));flex:none}
+.fl-doc-review-head h2{margin:0 0 4px;font-size:18px;font-weight:650;color:var(--foreground,var(--ui-ink-eeeeee))}
+.fl-doc-review-head p{margin:0;font-size:12.5px;color:var(--muted-foreground,var(--ui-ink-a1a1aa));line-height:1.5}
+.fl-doc-review-dialog button.fl-doc-review-close{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;flex:none;border-radius:9px;border:1px solid var(--border,var(--ui-line-38383f));background:var(--muted,var(--ui-paint-18181b));color:var(--foreground,var(--ui-ink-eeeeee));cursor:pointer}
+.fl-doc-review-body{flex:1;overflow-y:auto;padding:24px;background:color-mix(in srgb,var(--foreground) 3%,transparent)}
+.fl-doc-review-body .fl-doc-wrap{position:static;max-width:794px;margin:0 auto}
+.fl-doc-review-body .fl-doc-paper{min-height:0}
+.fl-doc-review-foot{display:grid;gap:12px;padding:16px 24px;border-top:1px solid var(--border,var(--ui-line-303036));flex:none;background:var(--card,var(--ui-paint-141417))}
+.fl-doc-review-foot>p{margin:0;font-size:12px;color:var(--muted-foreground,var(--ui-ink-a1a1aa))}
+.fl-doc-review-foot .fl-shared-actions{margin-top:0;display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.fl-doc-review-error{margin:0;font-size:12.5px;color:var(--ui-ink-fda4af)}
+
+@media(max-width:1020px){
+  .fl-prop-split{grid-template-columns:minmax(0,1fr)}
+  .fl-doc-wrap{position:static}
+}
+@media(max-width:600px){
+  .fl-doc-paper{padding:24px 20px;min-height:0}
+  .fl-a4-letterhead{flex-direction:column}
+  .fl-a4-meta{justify-items:start;text-align:left}
+  .fl-a4-meta dl>div{justify-content:flex-start}
+  .fl-prop-summary-strip,.fl-prop-signers,.fl-prop-form-row,.fl-a4-parties,.fl-a4-sig-grid{grid-template-columns:1fr}
+}
+

@@ -13,7 +13,7 @@ from .calendar import CollaborationCalendar
 from .schemas import CalendarPage
 from .proposals import ProposalService
 from .agreements import AgreementService
-from .deliveries import DeliveryService
+from .deliveries import DeliveryService, DeliveryCommentService
 from .proof import PublishingProofService
 from .messages import MessageService
 from .realtime import chat_hub
@@ -25,7 +25,11 @@ from .feedback import FeedbackService
 from .schemas import FeedbackCreate, FeedbackRead, FeedbackWorkspace
 from .schemas import ProofConfirmationCreate, ProofConfirmationRead
 from .schemas import PublishingProofCreate, PublishingProofRead, PublishingProofWorkspace
-from .schemas import CompletionCreate, CompletionRead, DeliveryRead, DeliveryCreate, DeliveryWorkspace, DeliveryReviewCreate, DeliveryReviewRead
+from .schemas import (
+    CompletionCreate, CompletionRead, DeliveryRead, DeliveryCreate, DeliveryWorkspace,
+    DeliveryReviewCreate, DeliveryReviewRead,
+    DeliveryCommentCreate, DeliveryCommentUpdate, DeliveryCommentRead,
+)
 from .schemas import AgreementRead, AgreementStatus, ProposalAccept
 from .schemas import ProposalWorkspace, ProposalDraftRead, ProposalDraftSave, ProposalRevisionRead, ProposalSend
 
@@ -120,6 +124,30 @@ async def complete_collaboration(record_id: str, body: CompletionCreate,
     return await DeliveryService.complete(db, user.id, record_id, body)
 
 
+@router.get('/{record_id}/deliveries/{delivery_id}/comments', response_model=list[DeliveryCommentRead])
+async def list_delivery_comments(record_id: str, delivery_id: str,
+                                 user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await DeliveryCommentService.list_comments(db, user.id, record_id, delivery_id)
+
+
+@router.post('/{record_id}/deliveries/{delivery_id}/comments', response_model=DeliveryCommentRead, status_code=201)
+async def create_delivery_comment(record_id: str, delivery_id: str, body: DeliveryCommentCreate,
+                                  user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await DeliveryCommentService.create(db, user.id, record_id, delivery_id, body)
+
+
+@router.patch('/{record_id}/deliveries/{delivery_id}/comments/{comment_id}', response_model=DeliveryCommentRead)
+async def update_delivery_comment(record_id: str, delivery_id: str, comment_id: str, body: DeliveryCommentUpdate,
+                                  user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await DeliveryCommentService.update(db, user.id, record_id, delivery_id, comment_id, body)
+
+
+@router.delete('/{record_id}/deliveries/{delivery_id}/comments/{comment_id}')
+async def delete_delivery_comment(record_id: str, delivery_id: str, comment_id: str,
+                                  user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await DeliveryCommentService.delete(db, user.id, record_id, delivery_id, comment_id)
+
+
 @router.get('/{record_id}/publishing-proof', response_model=PublishingProofWorkspace)
 async def publishing_proof(record_id: str, page: int = Query(1, ge=1, le=10000), page_size: int = Query(10, ge=1, le=50),
                            user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
@@ -169,8 +197,8 @@ async def remove_file(record_id: str, file_id: str, user: User = Depends(get_cur
 
 
 @router.post('/{record_id}/files/{file_id}/download', response_model=FileDownload, dependencies=[Depends(private_response)])
-async def download_file(record_id: str, file_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    return await CollaborationFiles.download(db, user.id, record_id, file_id)
+async def download_file(record_id: str, file_id: str, inline: bool = False, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await CollaborationFiles.download(db, user.id, record_id, file_id, inline=inline)
 
 
 @router.get('/{record_id}/feedback', response_model=FeedbackWorkspace, dependencies=[Depends(private_response)])

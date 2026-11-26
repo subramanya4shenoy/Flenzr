@@ -52,6 +52,9 @@ class ProposalService:
             conflict('The agreement is saved. Proposal editing is closed for this collaboration.')
         draft = await ProposalService.own_draft(db, user_id, record_id)
         terms = body.terms.model_dump(mode='json')
+        # Currency is locked to the brand's original offer / enquiry currency.
+        if collab.currency in ('INR', 'USD', 'EUR', 'GBP', 'AED', 'CAD', 'AUD', 'SGD'):
+            terms['currency'] = collab.currency
         if draft and draft.revision == body.expected_revision + 1 and draft.base_version == body.expected_latest_version and draft.terms == terms:
             return draft  # An identical retry after an ambiguous response is safe.
         if collab.proposal_version != body.expected_latest_version:

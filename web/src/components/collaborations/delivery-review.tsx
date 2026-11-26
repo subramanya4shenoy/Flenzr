@@ -5,10 +5,10 @@ import { deliveryReviewPayload, type Delivery, type DeliveryReview, type Deliver
 import { RevisionAllowance } from "./revision-allowance";
 import { DeliveryContents } from "./delivery-contents";
 
-export function DeliveryReviewDialog({ path, delivery, action, onClose, onSaved }: { path: string; delivery: Delivery; action: DeliveryReviewAction; onClose: () => void; onSaved: (receipt: DeliveryReview) => void }) {
+export function DeliveryReviewDialog({ path, delivery, action, initialFeedback = "", onClose, onSaved }: { path: string; delivery: Delivery; action: DeliveryReviewAction; initialFeedback?: string; onClose: () => void; onSaved: (receipt: DeliveryReview) => void }) {
   const ref = useRef<HTMLDialogElement>(null), saving = useRef(false);
   const [attempt, setAttempt] = useState(0), [state, setState] = useState<{ attempt: number; row?: Delivery; allowance?: DeliveryWorkspace["revision_allowance"]; error?: string } | null>(null);
-  const [feedback, setFeedback] = useState(""), [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const [feedback, setFeedback] = useState(initialFeedback), [busy, setBusy] = useState(false), [error, setError] = useState("");
   const [locked, setLocked] = useState(false);
   const request = useRef<{ request_id: string; expected_latest_version: number; action: DeliveryReviewAction; feedback: string } | null>(null);
   const loading = state?.attempt !== attempt;

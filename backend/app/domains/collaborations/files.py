@@ -110,12 +110,12 @@ class CollaborationFiles:
         return {'removed': True}
 
     @staticmethod
-    async def download(db, user_id, record_id, file_id):
+    async def download(db, user_id, record_id, file_id, *, inline=False):
         await DeliveryService.collaboration(db, user_id, record_id)
         row = await CollaborationFiles.find(db, record_id, file_id)
         if row.state != 'ready' or not row.delivery_id:
             raise EntityNotFoundError('Submitted file', file_id)
-        return dict(url=await PrivateStorage().download(row.object_key, row.filename), expires_in=120)
+        return dict(url=await PrivateStorage().download(row.object_key, row.filename, inline=inline), expires_in=600 if inline else 120)
 
     @staticmethod
     async def attach(db, collab, agreement, file_ids):

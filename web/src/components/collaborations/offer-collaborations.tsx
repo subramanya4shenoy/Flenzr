@@ -69,7 +69,7 @@ function stepBadge(step: Exclude<StepId, "overview">, p: OfferParticipantSummary
       case "awaiting_review": return { label: `v${p.delivery_version} · Needs review`, tone: "warn" };
       case "revisions_requested": return { label: `v${p.delivery_version} · Revisions`, tone: "warn" };
       case "awaiting_submission": return { label: "Awaiting upload", tone: "muted" };
-      default: return { label: "Locked", tone: "muted" };
+      default: return { label: "Locked · Awaiting agreement", tone: "muted" };
     }
   }
   if (step === "proof") {
@@ -77,7 +77,7 @@ function stepBadge(step: Exclude<StepId, "overview">, p: OfferParticipantSummary
       case "confirmed": return { label: "Confirmed", tone: "good" };
       case "awaiting_confirmation": return { label: `v${p.proof_version} · Confirm`, tone: "warn" };
       case "awaiting_proof": return { label: "Awaiting proof", tone: "muted" };
-      default: return { label: "Locked", tone: "muted" };
+      default: return { label: "Locked · Awaiting approval", tone: "muted" };
     }
   }
   if (step === "feedback") {
@@ -85,7 +85,7 @@ function stepBadge(step: Exclude<StepId, "overview">, p: OfferParticipantSummary
       case "both_submitted": return { label: "Both done", tone: "good" };
       case "partial": return { label: p.brand_feedback_submitted ? "You submitted" : "Creator submitted", tone: "warn" };
       case "pending": return { label: "Open", tone: "warn" };
-      default: return { label: "Locked", tone: "muted" };
+      default: return { label: "Locked · Awaiting completion", tone: "muted" };
     }
   }
   if (!p.collaboration_id) return { label: "Not started", tone: "muted" };
@@ -159,6 +159,7 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [startingKey, setStartingKey] = useState<string | null>(null);
   const [startError, setStartError] = useState("");
+  const [reviewFocus, setReviewFocus] = useState(false);
 
   const key = `${offerId}:${attempt}`;
   const loading = state?.key !== key && !state?.data;
@@ -218,6 +219,7 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
   function selectStep(next: StepId, keepInfluencer = false) {
     setStep(next);
     setStartError("");
+    setReviewFocus(false);
     if (next === "overview" || !keepInfluencer) setSelectedKey(null);
     const hash = next === "overview" ? "" : `#${next}`;
     window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
@@ -266,8 +268,10 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
   const agreedCount = data.participants.filter(p => p.proposal_status === "agreed").length;
   const completedCount = data.participants.filter(p => p.delivery_status === "completed").length;
 
+  const showPeopleRail = isPerInfluencerStep && !reviewFocus;
+
   return <section className="fl-shared" aria-label="Offer collaborations">
-    <div className="fl-collab-detail" data-three-level={isPerInfluencerStep}>
+    <div className="fl-collab-detail" data-three-level={isPerInfluencerStep} data-rail-collapsed={isPerInfluencerStep && reviewFocus}>
       {/* Level 2: Workflow navigation — full width on Overview, icon-only when a per-influencer step is active */}
       <aside className="fl-collab-sidebar" data-collapsed={isPerInfluencerStep} aria-label="Collaboration workflow">
         <div className="fl-collab-sidebar-group">
@@ -294,8 +298,8 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
         </div>
       </aside>
 
-      {/* Level 3: Influencer list rail — appears beside the icon-only workflow rail */}
-      {isPerInfluencerStep && <aside className="fl-collab-people-rail" aria-label="Opted-in influencers">
+      {/* Level 3: Influencer list rail — collapses automatically while inside Review Studio */}
+      {showPeopleRail && <aside className="fl-collab-people-rail" aria-label="Opted-in influencers">
         <div className="fl-collab-people-head">
           <strong>{currentStepLabel}</strong>
           <span>{data.participants.length} {data.participants.length === 1 ? "influencer" : "influencers"}</span>
@@ -362,7 +366,7 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
         {startError && <p role="alert">{startError}</p>}
 
         {/* Overview (Common to the Offer) */}
-        {step === "overview" && <div className="fl-collab-overview-stack">
+        {step === "overview" && <div className="fl-collab-overview-flat" role="tabpanel" aria-label="Overview">
           <div className="fl-collab-summary-grid">
             <div className="fl-collab-metric"><span>Opted in</span><strong>{data.participants.length}</strong></div>
             <div className="fl-collab-metric"><span>Started</span><strong>{startedCount} / {data.participants.length}</strong></div>
@@ -370,16 +374,39 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
             <div className="fl-collab-metric" data-tone="good"><span>Completed</span><strong>{completedCount} / {data.participants.length}</strong></div>
           </div>
 
-          <article className="fl-shared-detail fl-collab-step-panel">
-            <p>Shared brief and deliverables for all influencers on this offer. Choose any workflow step on the left to see its summary and manage each influencer.</p>
-            <dl>
-              <div><dt>Offer brief</dt><dd>{data.brief}</dd></div>
-              <div><dt>Deliverables</dt><dd>{data.deliverable}</dd></div>
-              <div><dt>Total planned budget</dt><dd>{data.budget_total_cents === null ? "To discuss" : campaignMoney(data.budget_total_cents, data.currency)}</dd></div>
-              <div><dt>Applications close</dt><dd>{shortDate(data.requested_delivery_date)}</dd></div>
-              <div><dt>Created</dt><dd>{new Date(data.created_at).toLocaleString()}</dd></div>
-            </dl>
-          </article>
+          <div className="fl-collab-facts-strip">
+            <div>
+              <small>Total planned budget</small>
+              <strong>{data.budget_total_cents === null ? "To discuss" : campaignMoney(data.budget_total_cents, data.currency)}</strong>
+              <span>Individual creator quotes agreed separately</span>
+            </div>
+            <div>
+              <small>Applications close</small>
+              <strong>{shortDate(data.requested_delivery_date)}</strong>
+              <span>Offer intake deadline</span>
+            </div>
+            <div>
+              <small>Created</small>
+              <strong>{shortDate(data.created_at)}</strong>
+              <span>Shared across all opted-in influencers</span>
+            </div>
+          </div>
+
+          <div className="fl-collab-brief-grid">
+            <section>
+              <h2>Offer brief</h2>
+              <p>{data.brief || "No brief details added."}</p>
+            </section>
+            <section>
+              <h2>Deliverables</h2>
+              <p>{data.deliverable || "Deliverables to discuss."}</p>
+            </section>
+          </div>
+
+          <div className="fl-collab-overview-foot">
+            <p>Choose any workflow step on the left to review summary progress and manage individual influencers.</p>
+            <button type="button" className="fl-collab-next-cta" onClick={() => selectStep("proposals")}>Proposals &amp; Agreement <ChevronRight size={14} aria-hidden="true" /></button>
+          </div>
         </div>}
 
         {/* Step Summary (when a per-influencer step is active and no single influencer is picked) */}
@@ -429,21 +456,23 @@ export function OfferCollaborations({ offerId, viewerId }: { offerId: string; vi
         </div>}
 
         {/* Specific Influencer Workspace for the active step */}
-        {isPerInfluencerStep && selectedParticipant && <article className="fl-shared-detail fl-collab-step-panel" role="tabpanel" aria-label={`${selectedParticipant.creator_name} · ${currentStepLabel}`}>
-          {!selectedParticipant.collaboration ? <div className="fl-collab-start-card">
-            <h2>Collaboration not started yet</h2>
-            <p>{selectedParticipant.creator_name} has an accepted {selectedParticipant.source_kind} on this offer ({selectedParticipant.quoted_amount_cents === null ? "quote to discuss" : campaignMoney(selectedParticipant.quoted_amount_cents, selectedParticipant.currency)}). Start the collaboration to draft proposals, track deliveries, and exchange messages.</p>
-            <button type="button" disabled={startingKey === selectedParticipant.key} onClick={() => void startCollaboration(selectedParticipant)}>
-              <Play size={14} aria-hidden="true" /> {startingKey === selectedParticipant.key ? "Starting collaboration…" : `Start collaboration with ${selectedParticipant.creator_name}`}
-            </button>
-          </div> : <>
-            {step === "proposals" && <CollaborationProposals key={selectedParticipant.collaboration.id} collaboration={selectedParticipant.collaboration} onStatus={refresh} />}
-            {step === "deliveries" && <CollaborationDeliveries key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} onStatus={refresh} />}
-            {step === "proof" && <CollaborationProof key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} />}
-            {step === "feedback" && <CollaborationFeedback key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} onStatus={refresh} />}
-            {step === "messages" && <CollaborationMessages key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} onActivity={refresh} />}
-          </>}
-        </article>}
+        {isPerInfluencerStep && selectedParticipant && (
+          <div className="fl-collab-step-flat" role="tabpanel" aria-label={`${selectedParticipant.creator_name} · ${currentStepLabel}`}>
+            {!selectedParticipant.collaboration ? <div className="fl-step-locked">
+              <h3>Collaboration not started yet</h3>
+              <p>{selectedParticipant.creator_name} has an accepted {selectedParticipant.source_kind} on this offer ({selectedParticipant.quoted_amount_cents === null ? "quote to discuss" : campaignMoney(selectedParticipant.quoted_amount_cents, selectedParticipant.currency)}). Start the collaboration to draft proposals, track deliveries, and exchange messages.</p>
+              <button type="button" className="fl-collab-next-cta" disabled={startingKey === selectedParticipant.key} onClick={() => void startCollaboration(selectedParticipant)}>
+                <Play size={14} aria-hidden="true" /> {startingKey === selectedParticipant.key ? "Starting collaboration…" : `Start collaboration with ${selectedParticipant.creator_name}`}
+              </button>
+            </div> : <>
+              {step === "proposals" && <CollaborationProposals key={selectedParticipant.collaboration.id} collaboration={selectedParticipant.collaboration} onStatus={refresh} />}
+              {step === "deliveries" && <CollaborationDeliveries key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} viewerRole="brand" onStatus={refresh} onOpenProposals={() => selectStep("proposals", true)} onFocusModeChange={setReviewFocus} />}
+              {step === "proof" && <CollaborationProof key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} />}
+              {step === "feedback" && <CollaborationFeedback key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} status={selectedParticipant.collaboration.status} onStatus={refresh} />}
+              {step === "messages" && <CollaborationMessages key={selectedParticipant.collaboration.id} collaborationId={selectedParticipant.collaboration.id} onActivity={refresh} />}
+            </>}
+          </div>
+        )}
       </div>
     </div>
   </section>;

@@ -1,9 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { collaborationRequest } from "@/lib/collaborations";
+import { X } from "lucide-react";
+import { collaborationRequest, type Collaboration } from "@/lib/collaborations";
 import type { components } from "@/types/api";
 import type { ProposalRevision, ProposalWorkspace } from "@/lib/proposals";
 import { Terms } from "./proposal-terms";
+import { AgreementSheet } from "./agreement-sheet";
 type Agreement = components["schemas"]["AgreementRead"];
 type Status = components["schemas"]["AgreementStatus"];
 
@@ -41,7 +43,7 @@ export function AgreementPanel({ collaborationId, workspace, latest, disabled, o
   </section>;
 }
 
-function AcceptanceDialog({ collaborationId, proposal, onClose, onAccepted }: { collaborationId: string; proposal: ProposalRevision; onClose: () => void; onAccepted: (state: Status) => void }) {
+export function AcceptanceDialog({ collaboration, collaborationId, proposal, onClose, onAccepted }: { collaboration?: Collaboration; collaborationId: string; proposal: ProposalRevision; onClose: () => void; onAccepted: (state: Status) => void }) {
   const ref = useRef<HTMLDialogElement>(null), saving = useRef(false);
   const [confirmed, setConfirmed] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState("");
   useEffect(() => { ref.current?.showModal(); }, []);
@@ -54,11 +56,24 @@ function AcceptanceDialog({ collaborationId, proposal, onClose, onAccepted }: { 
     } catch (error) { setError(error instanceof Error ? error.message : "Could not save acceptance. Please retry."); }
     finally { saving.current = false; setBusy(false); }
   }
-  return <dialog ref={ref} className="fl-shared-dialog" aria-labelledby="accept-proposal-title" onCancel={event => { if (saving.current) event.preventDefault(); else onClose(); }}>
-    <h2 id="accept-proposal-title">Accept proposal version {proposal.version}?</h2><Terms terms={proposal.terms} />
-    <p>Your acceptance is saved against this exact version. Once both participants accept, these terms become the fixed shared agreement. No payment is taken.</p>
-    <label className="fl-agreement-confirm"><input name="confirm-proposal-acceptance" type="checkbox" checked={confirmed} disabled={busy} onChange={event => setConfirmed(event.target.checked)} />I accept version {proposal.version} with the price, scope, revision allowance, date and usage rights shown above.</label>
-    {error && <p role="alert">{error}</p>}
-    <div className="fl-shared-actions"><button type="button" disabled={busy} onClick={onClose}>Keep reviewing</button><button type="button" disabled={busy || !confirmed} onClick={accept}>{busy ? "Saving acceptance…" : `Accept version ${proposal.version}`}</button></div>
+  return <dialog ref={ref} className={collaboration ? "fl-doc-review-dialog" : "fl-shared-dialog"} aria-labelledby="accept-proposal-title" onCancel={event => { if (saving.current) event.preventDefault(); else onClose(); }}>
+    <div className="fl-doc-review-head">
+      <div>
+        <h2 id="accept-proposal-title">Accept proposal version {proposal.version}?</h2>
+        <p>Once both participants accept this exact version, it becomes your fixed shared agreement. No payment is taken.</p>
+      </div>
+      <button type="button" className="fl-doc-review-close" disabled={busy} aria-label="Close acceptance review" onClick={onClose}><X size={16} /></button>
+    </div>
+    <div className="fl-doc-review-body">
+      {collaboration ? <AgreementSheet collaboration={collaboration} terms={proposal.terms} mode="proposal" version={proposal.version} /> : <Terms terms={proposal.terms} />}
+    </div>
+    <div className="fl-doc-review-foot">
+      <label className="fl-agreement-confirm"><input name="confirm-proposal-acceptance" type="checkbox" checked={confirmed} disabled={busy} onChange={event => setConfirmed(event.target.checked)} />I accept version {proposal.version} with the price, scope, revision allowance, date and usage rights shown above.</label>
+      {error && <p role="alert" className="fl-doc-review-error">{error}</p>}
+      <div className="fl-shared-actions">
+        <button type="button" disabled={busy} onClick={onClose}>Keep reviewing</button>
+        <button type="button" className="fl-prop-btn-primary" disabled={busy || !confirmed} onClick={accept}>{busy ? "Saving acceptance…" : `Accept version ${proposal.version}`}</button>
+      </div>
+    </div>
   </dialog>;
 }

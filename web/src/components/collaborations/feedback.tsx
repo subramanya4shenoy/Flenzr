@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { RefreshCw } from "lucide-react";
 import { collaborationRequest, type Collaboration } from "@/lib/collaborations";
 import { feedbackPayload, feedbackRatings, feedbackStatus, type Feedback, type FeedbackCreate, type FeedbackWorkspace } from "@/lib/collaboration-feedback";
 
 const roleLabel = (role: "brand" | "creator") => role === "brand" ? "Brand / client" : "Creator";
 
-export function CollaborationFeedback({ collaborationId, status, onStatus }: { collaborationId: string; status: Collaboration["status"]; onStatus?: (status: Collaboration["status"]) => void }) {
+export function CollaborationFeedback({ collaborationId, status, onStatus, onSubmittedChange }: { collaborationId: string; status: Collaboration["status"]; onStatus?: (status: Collaboration["status"]) => void; onSubmittedChange?: (submitted: boolean) => void }) {
   const [attempt, setAttempt] = useState(0), [editing, setEditing] = useState(false), [notice, setNotice] = useState("");
   const key = `${collaborationId}:${status}:${attempt}`, path = `/${collaborationId}/feedback`;
   const [state, setState] = useState<{ key: string; data?: FeedbackWorkspace; error?: string } | null>(null);
@@ -13,13 +14,17 @@ export function CollaborationFeedback({ collaborationId, status, onStatus }: { c
   useEffect(() => {
     const controller = new AbortController();
     collaborationRequest<FeedbackWorkspace>(path, { signal: controller.signal }).then(data => {
-      if (!controller.signal.aborted) { setState({ key, data }); onStatus?.(data.collaboration_status); }
+      if (!controller.signal.aborted) {
+        setState({ key, data });
+        onStatus?.(data.collaboration_status);
+        onSubmittedChange?.(data.items.some(row => row.is_mine));
+      }
     }).catch(error => { if (!controller.signal.aborted) setState({ key, error: error instanceof Error ? error.message : "Could not load collaboration feedback." }); });
     return () => controller.abort();
-  }, [key, path, onStatus]);
+  }, [key, path, onStatus, onSubmittedChange]);
   const reload = () => setAttempt(value => value + 1);
-  return <section id="collaboration-feedback" className="fl-collab-feedback" aria-label="Collaboration feedback" aria-busy={loading}>
-    <header><div><h2>Collaboration feedback</h2><p>Share your experience after the collaboration is completed.</p></div><button type="button" disabled={loading || editing} onClick={() => { setNotice(""); reload(); }}>Refresh feedback</button></header>
+  return <section id="collaboration-feedback" className="fl-collab-feedback fl-collab-flat-section" aria-label="Collaboration feedback" aria-busy={loading}>
+    <header className="fl-collab-sec-head"><div><h2>Collaboration feedback</h2><p>Share your experience after the collaboration is completed.</p></div><button type="button" className="fl-refresh-icon-btn" title="Refresh feedback" aria-label="Refresh feedback" disabled={loading || editing} onClick={() => { setNotice(""); reload(); }}><RefreshCw size={15} aria-hidden="true" /></button></header>
     {notice && <p role="status">{notice}</p>}
     {loading ? <p role="status">Loading feedback…</p> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={reload}>Retry feedback</button></div> : data && <>
       <span className="fl-feedback-state">{feedbackStatus(data)}</span>

@@ -3,7 +3,8 @@ import json
 from sqlalchemy import select, func
 from app.core.exceptions import EntityNotFoundError, FlenzrException, PermissionDeniedError
 from .agreements import stamp
-from .models import Collaboration, CollaborationAgreement, DeliverySubmission, DeliveryReview, CollaborationCompletion
+from .models import Collaboration, CollaborationAgreement, DeliverySubmission, DeliveryReview, DeliveryComment, CollaborationCompletion
+from app.domains.identity.models import User
 from .service import CollaborationService
 
 
@@ -171,3 +172,97 @@ class DeliveryService:
         collab.status = 'completed'
         await db.commit(); await db.refresh(row)
         return DeliveryService.completion_project(row, delivery)
+
+
+class DeliveryCommentService:
+    @staticmethod
+    def project(row, collab, author_name):
+        role = 'brand' if row.author_id == collab.brand_user_id else 'creator'
+        return dict(
+            id=row.id,
+            delivery_id=row.delivery_id,
+            file_id=row.file_id,
+            author_id=row.author_id,
+            author_role=role,
+            author_name=author_name or ('Brand' if role == 'brand' else 'Creator'),
+            timestamp_ms=row.timestamp_ms,
+            body=row.body,
+            resolved=bool(row.resolved),
+            created_at=stamp(row.created_at),
+        )
+
+    @staticmethod
+    async def list_comments(db, user_id, record_id, delivery_id):
+        collab = await DeliveryService.collaboration(db, user_id, record_id)
+        delivery = await db.scalar(select(DeliverySubmission).where(
+            DeliverySubmission.id == delivery_id, DeliverySubmission.collaboration_id == record_id))
+        if not delivery:
+            raise EntityNotFoundError('Delivery', delivery_id)
+        rows = (await db.execute(
+            select(DeliveryComment, User.full_name, User.email)
+            .outerjoin(User, User.id == DeliveryComment.author_id)
+            .where(DeliveryComment.collaboration_id == record_id, DeliveryComment.delivery_id == delivery_id)
+            .order_by(DeliveryComment.created_at.asc())
+        )).all()
+        return [DeliveryCommentService.project(row, collab, name or (email.split('@')[0] if email else '')) for row, name, email in rows]
+
+    @staticmethod
+    async def create(db, user_id, record_id, delivery_id, body):
+        collab = await DeliveryService.collaboration(db, user_id, record_id)
+        delivery = await db.scalar(select(DeliverySubmission).where(
+            DeliverySubmission.id == delivery_id, DeliverySubmission.collaboration_id == record_id))
+        if not delivery:
+            raise EntityNotFoundError('Delivery', delivery_id)
+        file_id = str(body.file_id) if body.file_id else None
+        if file_id:
+            valid_ids = {f.get('id') for f in (delivery.files or []) if isinstance(f, dict)}
+            if file_id not in valid_ids:
+                raise EntityNotFoundError('Submitted file', file_id)
+        row = DeliveryComment(
+            collaboration_id=record_id,
+            delivery_id=delivery_id,
+            file_id=file_id,
+            author_id=user_id,
+            timestamp_ms=body.timestamp_ms,
+            body=body.body,
+            resolved=False,
+        )
+        db.add(row)
+        await db.commit()
+        await db.refresh(row)
+        user = await db.get(User, user_id)
+        author_name = (user.full_name or (user.email.split('@')[0] if user and user.email else '')) if user else ''
+        return DeliveryCommentService.project(row, collab, author_name)
+
+    @staticmethod
+    async def update(db, user_id, record_id, delivery_id, comment_id, body):
+        collab = await DeliveryService.collaboration(db, user_id, record_id)
+        row = await db.scalar(select(DeliveryComment).where(
+            DeliveryComment.id == comment_id,
+            DeliveryComment.collaboration_id == record_id,
+            DeliveryComment.delivery_id == delivery_id,
+        ))
+        if not row:
+            raise EntityNotFoundError('Delivery comment', comment_id)
+        row.resolved = bool(body.resolved)
+        await db.commit()
+        await db.refresh(row)
+        user = await db.get(User, row.author_id)
+        author_name = (user.full_name or (user.email.split('@')[0] if user and user.email else '')) if user else ''
+        return DeliveryCommentService.project(row, collab, author_name)
+
+    @staticmethod
+    async def delete(db, user_id, record_id, delivery_id, comment_id):
+        await DeliveryService.collaboration(db, user_id, record_id)
+        row = await db.scalar(select(DeliveryComment).where(
+            DeliveryComment.id == comment_id,
+            DeliveryComment.collaboration_id == record_id,
+            DeliveryComment.delivery_id == delivery_id,
+        ))
+        if not row:
+            raise EntityNotFoundError('Delivery comment', comment_id)
+        if row.author_id != user_id:
+            raise PermissionDeniedError('You can only delete your own review comments.')
+        await db.delete(row)
+        await db.commit()
+        return {'deleted': True}

@@ -38,3 +38,25 @@ export function deliveryReviewPayload(action: DeliveryReviewAction, feedback: st
 }
 
 export type Completion = components["schemas"]["CompletionRead"];
+
+export interface DeliveryComment {
+  id: string;
+  delivery_id: string;
+  file_id: string | null;
+  author_id: string;
+  author_role: "brand" | "creator";
+  author_name: string;
+  timestamp_ms: number | null;
+  body: string;
+  resolved: boolean;
+  created_at: string;
+}
+
+export function formatTimecode(ms: number): string {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const hrs = Math.floor(totalSec / 3600);
+  const mins = Math.floor((totalSec % 3600) / 60);
+  const secs = totalSec % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return hrs > 0 ? `${hrs}:${pad(mins)}:${pad(secs)}` : `${mins}:${pad(secs)}`;
+}

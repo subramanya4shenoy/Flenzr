@@ -3,12 +3,14 @@ import { WorkspaceLoader } from "@/components/ui/workspace-loader";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, Check, ChevronLeft, ChevronRight, Clock3, Handshake, MessageSquare, Users } from "lucide-react";
+import { ArrowUpRight, Check, ChevronLeft, ChevronRight, Clock3, Handshake, MessageSquare, RefreshCw, Users } from "lucide-react";
 import { collaborationRequest, type Collaboration, type CollaborationGroupItem, type CollaborationGroupPage } from "@/lib/collaborations";
 import { collaborationStatusLabel, parseRecentCollaborations, recentCollaborations, recentCollaborationsEvent, recentCollaborationsKey, recentHref, withOpenedRecent, withoutRecent, type RecentCollaboration } from "@/lib/collaboration-recents";
 import { campaignMoney } from "@/lib/campaign-drafts";
 import "@/components/brand/campaign-folders.css";
 import "./collaborations.css";
+import type { ProofWorkspace } from "@/lib/publishing-proof";
+import type { FeedbackWorkspace } from "@/lib/collaboration-feedback";
 import { CollaborationMessages } from "./messages";
 import { CollaborationFeedback } from "./feedback";
 import { CollaborationProof } from "./publishing-proof";
@@ -70,7 +72,7 @@ export function SharedCollaborations({ id, viewerId }: { id?: string; viewerId?:
   }, [id, key, state, write]);
   const pages = state?.data ? Math.max(1, Math.ceil(state.data.total / state.data.page_size)) : 1;
   return <section className="fl-shared" aria-label="Shared collaborations" aria-busy={loading}>
-    {!id && <header><div><h1>Collaborations</h1><p>Shared records for you and your collaborator.</p></div><button type="button" disabled={loading} onClick={() => setAttempt(value => value + 1)}>Refresh</button></header>}
+    {!id && <header><div><h1>Collaborations</h1><p>Shared records for you and your collaborator.</p></div><button type="button" className="fl-refresh-icon-btn" title="Refresh collaborations" aria-label="Refresh collaborations" disabled={loading} onClick={() => setAttempt(value => value + 1)}><RefreshCw size={15} aria-hidden="true" /></button></header>}
     {id && !state?.row && <nav className="fl-collab-breadcrumb" aria-label="Breadcrumb"><ol><li><Link href="/dashboard/collaborations">Collaborations</Link></li><li aria-current="page">Collaboration</li></ol></nav>}
     {loading ? <WorkspaceLoader label="Loading collaborations…" /> : state?.error ? <div role="alert"><p>{state.error}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>Retry</button></div> : state?.row ? <Detail row={state.row} /> : state?.data && <CollaborationLibrary data={state.data} page={page} pages={pages} recent={recentCollaborations(recents.rows, state.data.items)} onPage={setPage} />}
   </section>;
@@ -133,6 +135,8 @@ function stepFromHash(hash: string): CollaborationStep {
 
 function Detail({ row }: { row: Collaboration }) {
   const [status, setStatus] = useState(row.status);
+  const [proofConfirmed, setProofConfirmed] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [step, setStep] = useState<CollaborationStep>(() => (typeof window !== "undefined" ? stepFromHash(window.location.hash) : "overview"));
 
   useEffect(() => {
@@ -141,6 +145,27 @@ function Detail({ row }: { row: Collaboration }) {
     window.addEventListener("popstate", sync);
     return () => { window.removeEventListener("hashchange", sync); window.removeEventListener("popstate", sync); };
   }, []);
+
+  useEffect(() => {
+    if (status === "discussion") return;
+    const controller = new AbortController();
+    collaborationRequest<ProofWorkspace>(`/${row.id}/publishing-proof?page=1&page_size=1`, { signal: controller.signal })
+      .then(res => {
+        if (!controller.signal.aborted) {
+          const latestItem = res.items.find(item => item.version === res.latest_proof_version) ?? res.items[0];
+          setProofConfirmed(Boolean(res.latest_proof_version > 0 && latestItem?.version === res.latest_proof_version && latestItem?.confirmation));
+        }
+      })
+      .catch(() => { /* Step badge check is best-effort. */ });
+    if (status === "completed") {
+      collaborationRequest<FeedbackWorkspace>(`/${row.id}/feedback`, { signal: controller.signal })
+        .then(res => {
+          if (!controller.signal.aborted) setFeedbackSubmitted(res.items.some(item => item.is_mine));
+        })
+        .catch(() => { /* Step badge check is best-effort. */ });
+    }
+    return () => controller.abort();
+  }, [row.id, status]);
 
   function selectStep(next: CollaborationStep) {
     setStep(next);
@@ -151,7 +176,9 @@ function Detail({ row }: { row: Collaboration }) {
   const isDone = (id: CollaborationStep) =>
     (id === "overview" && status !== "discussion")
     || (id === "proposals" && (status === "agreed" || status === "completed"))
-    || (id === "deliveries" && status === "completed");
+    || (id === "deliveries" && status === "completed")
+    || (id === "proof" && proofConfirmed)
+    || (id === "feedback" && feedbackSubmitted);
 
   const nextWorkflowStep = workflowSteps[workflowSteps.findIndex(item => item.id === step) + 1];
   const prevWorkflowStep = workflowSteps[workflowSteps.findIndex(item => item.id === step) - 1];
@@ -204,30 +231,52 @@ function Detail({ row }: { row: Collaboration }) {
         </div>
       </div>
 
-      <article className="fl-shared-detail fl-collab-step-panel" role="tabpanel" aria-label={currentStepLabel}>
-        {step === "overview" && <>
-          <p>This saved brief and quote provide source context. Move to Proposals &amp; Agreement to draft and confirm shared terms.</p>
-          <dl>
-            <div><dt>Source brief</dt><dd>{row.brief}</dd></div>
-            <div><dt>Requested deliverables</dt><dd>{row.deliverable}</dd></div>
-            <div><dt>Source quote</dt><dd>{row.quoted_amount_cents === null ? "To discuss" : campaignMoney(row.quoted_amount_cents, row.currency)}</dd></div>
-            <div><dt>Requested delivery</dt><dd>{row.requested_delivery_date || "To discuss"} · subject to agreement</dd></div>
-            <div><dt>Source reference</dt><dd>{sourceLabel[row.source_kind]} · {row.source_id}</dd></div>
-            <div><dt>Created</dt><dd>{new Date(row.created_at).toLocaleString()}</dd></div>
-          </dl>
-          <p>No payment or funded booking has been created.</p>
-        </>}
+      {step === "overview" ? <div className="fl-collab-overview-flat" role="tabpanel" aria-label="Overview">
+        <div className="fl-collab-facts-strip">
+          <div>
+            <small>Source quote</small>
+            <strong>{row.quoted_amount_cents === null ? "To discuss" : campaignMoney(row.quoted_amount_cents, row.currency)}</strong>
+            <span>Initial agreed or proposed rate</span>
+          </div>
+          <div>
+            <small>Requested delivery</small>
+            <strong>{row.requested_delivery_date ? shortDate(row.requested_delivery_date) : "To discuss"}</strong>
+            <span>Subject to mutual agreement</span>
+          </div>
+          <div>
+            <small>Source</small>
+            <strong>{sourceLabel[row.source_kind]}</strong>
+            <span>Started {shortDate(row.created_at)}</span>
+          </div>
+        </div>
+
+        <div className="fl-collab-brief-grid">
+          <section>
+            <h2>Brief</h2>
+            <p>{row.brief || "No brief details added."}</p>
+          </section>
+          <section>
+            <h2>Requested deliverables</h2>
+            <p>{row.deliverable || "Deliverables to discuss."}</p>
+          </section>
+        </div>
+
+        <div className="fl-collab-overview-foot">
+          <p>Source context only · confirm final scope, price, rights, and dates in Proposals &amp; Agreement. Payments aren’t live yet.</p>
+          <button type="button" className="fl-collab-next-cta" onClick={() => selectStep("proposals")}>Proposals &amp; Agreement <ChevronRight size={14} aria-hidden="true" /></button>
+        </div>
+      </div> : <div className="fl-collab-step-flat" role="tabpanel" aria-label={currentStepLabel}>
         {step === "proposals" && <CollaborationProposals collaboration={row} onStatus={setStatus} />}
-        {step === "deliveries" && <CollaborationDeliveries collaborationId={row.id} status={status} onStatus={setStatus} />}
-        {step === "proof" && <CollaborationProof collaborationId={row.id} status={status} />}
-        {step === "feedback" && <CollaborationFeedback collaborationId={row.id} status={status} onStatus={setStatus} />}
+        {step === "deliveries" && <CollaborationDeliveries collaborationId={row.id} status={status} onStatus={setStatus} onOpenProposals={() => selectStep("proposals")} />}
+        {step === "proof" && <CollaborationProof collaborationId={row.id} status={status} onConfirmedChange={setProofConfirmed} />}
+        {step === "feedback" && <CollaborationFeedback collaborationId={row.id} status={status} onStatus={setStatus} onSubmittedChange={setFeedbackSubmitted} />}
         {step === "messages" && <CollaborationMessages key={row.id} collaborationId={row.id} />}
 
-        {step !== "messages" && <div className="fl-collab-step-footer">
+        {step !== "messages" && step !== "proposals" && <div className="fl-collab-step-footer">
           {prevWorkflowStep ? <button type="button" onClick={() => selectStep(prevWorkflowStep.id)}><ChevronLeft size={14} aria-hidden="true" /> {prevWorkflowStep.label}</button> : <span />}
           {nextWorkflowStep && <button type="button" onClick={() => selectStep(nextWorkflowStep.id)}>Next: {nextWorkflowStep.label} <ChevronRight size={14} aria-hidden="true" /></button>}
         </div>}
-      </article>
+      </div>}
     </div>
   </div>;
 }

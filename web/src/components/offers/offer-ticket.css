@@ -11,7 +11,7 @@
 .fl-ticket-status{color:var(--ticket-ink);font-size:9px;font-weight:650;line-height:1.4;padding:4px 7px;border:1px solid var(--ticket-glass-border);border-radius:5px;background:var(--ticket-glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);max-width:100%;overflow-wrap:anywhere}
 .fl-offer-ticket .fl-ticket-issuer{font-size:10px;color:var(--ticket-muted);margin:14px 0 7px;font-weight:550;line-height:1.5;overflow-wrap:anywhere}
 .fl-offer-ticket h3{font-size:19px;font-weight:800;letter-spacing:-.055em;line-height:1.08;margin:0 0 12px;overflow-wrap:anywhere}
-.fl-offer-ticket h3 a{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ticket-ink);text-decoration:none}.fl-offer-ticket h3 svg{display:inline;vertical-align:baseline;margin-left:7px;stroke-width:2}
+.fl-offer-ticket h3 a,.fl-offer-ticket h3 button.fl-ticket-title-btn{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ticket-ink);text-decoration:none;background:transparent;border:0;padding:0;font:inherit;text-align:left;cursor:pointer;width:100%}.fl-offer-ticket h3 svg{display:inline;vertical-align:baseline;margin-left:7px;stroke-width:2}
 .fl-offer-ticket .fl-ticket-deliverables{font-size:11px;line-height:1.6;color:var(--ticket-muted);margin:0 0 16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
 .fl-ticket-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}.fl-ticket-tags>span{color:var(--ticket-ink);display:inline-flex;align-items:center;gap:5px;font-size:9px;line-height:1.4;padding:4px 7px;border:1px solid var(--ticket-glass-border);background:var(--ticket-glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:4px;max-width:100%;overflow-wrap:anywhere}
 .fl-ticket-stub{position:relative;padding:12px 14px;border-top:1px dashed var(--ui-line-8a75964a);border-radius:0 0 19px 19px;background:var(--ui-paint-121216)}
@@ -43,4 +43,6 @@
 .fl-offer-ticket[data-artwork="black"]{--ticket-art:url("/offer-patterns/black.svg")}
 .fl-offer-ticket[data-artwork="iridescent-silk"]{--ticket-art:url("/offer-patterns/iridescent-silk.svg")}
 .fl-offer-ticket:is([data-artwork="pastel-mesh"],[data-artwork="iridescent-silk"]){--ticket-ink:#252334;--ticket-muted:#443e4b;--ticket-paper:#c5d4e4;--ticket-scrim:transparent;--ticket-glass:#ffffff52;--ticket-glass-border:#ffffff8c}
-.fl-offer-ticket:is([data-artwork="pastel-mesh"],[data-artwork="iridescent-silk"]) :is(h3 a,.fl-ticket-issuer,.fl-ticket-deliverables){text-shadow:0 1px 3px #ffffff66}
+.fl-offer-ticket:is([data-artwork="pastel-mesh"],[data-artwork="iridescent-silk"]) :is(h3 a,h3 button.fl-ticket-title-btn,.fl-ticket-issuer,.fl-ticket-deliverables){text-shadow:0 1px 3px #ffffff66}
+.fl-offer-ticket .fl-ticket-actions button.fl-ticket-open{flex:1 1 140px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border:0;border-radius:7px;background:#2f2834;color:#f6eefc;font:inherit;font-size:10px;font-weight:600;line-height:1.5;cursor:pointer;transition:background .15s ease}
+.fl-offer-ticket .fl-ticket-actions button.fl-ticket-open:hover{background:#3b3241}

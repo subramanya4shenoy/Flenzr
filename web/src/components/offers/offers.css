@@ -129,3 +129,70 @@
   .fl-manage-invite-form{grid-template-columns:1fr}
   .fl-manage-invite-form>button{justify-self:start;height:auto}
 }
+
+/* Neat compact Applicant cards (no outer wrapper box) */
+.fl-applicants-flat{margin-top:8px;padding-top:18px;border-top:1px solid var(--border,var(--ui-line-2c2830));display:grid;gap:14px}
+.fl-applicants-intro,.fl-applicants-empty{margin:0;font-size:12px;line-height:1.6;color:var(--muted-foreground);max-width:640px}
+.fl-applicants-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px;align-items:stretch}
+.fl-applicants-list[data-single="true"]{grid-template-columns:minmax(0,560px)}
+.fl-applicant-row{display:flex;flex-direction:column;gap:10px;padding:16px 18px;border:1px solid var(--border,var(--ui-line-303037));border-radius:14px;background:var(--card,var(--ui-paint-121215));min-width:0}
+.fl-applicant-row-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.fl-applicant-row-head h3{margin:0 0 1px;font-size:14px;font-weight:650;color:var(--foreground)}
+.fl-applicant-quote{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding-top:2px}
+.fl-applicant-quote strong{font-size:19px;font-weight:700;letter-spacing:-.025em;font-variant-numeric:tabular-nums;color:var(--foreground)}
+.fl-applicant-quote span{font-size:11px;color:var(--muted-foreground)}
+.fl-applicant-pitch{margin:0;font-size:12.5px;line-height:1.55;color:var(--foreground);white-space:pre-wrap;overflow-wrap:anywhere}
+.fl-offer-page button.fl-applicant-history-btn{display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;border:1px solid var(--border,var(--ui-line-2c2830));border-radius:8px;background:color-mix(in srgb,var(--foreground) 3%,transparent);color:var(--foreground);font-size:11.5px;font-weight:550;justify-content:flex-start}
+.fl-offer-page button.fl-applicant-history-btn:hover{background:color-mix(in srgb,var(--foreground) 7%,transparent)}
+.fl-offer-page button.fl-applicant-history-btn svg:last-child{margin-left:auto;color:var(--muted-foreground)}
+
+.fl-history-dialog{width:min(540px,calc(100vw - 28px));max-height:80dvh;display:flex;flex-direction:column;gap:16px;padding:22px 24px}
+.fl-history-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--border,var(--ui-line-3c3642))}
+.fl-history-dialog-head h2{margin:0 0 4px;font-size:18px;font-weight:650;color:var(--foreground)}
+.fl-history-dialog-head p{margin:0;font-size:12px;color:var(--muted-foreground)}
+.fl-offer-dialog button.fl-history-dialog-close{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;flex:none}
+.fl-history-timeline{list-style:none;margin:0;padding:0 4px 0 0;overflow-y:auto;display:grid;gap:12px}
+.fl-history-timeline li{padding:12px 14px;border:1px solid var(--border,var(--ui-line-3c3642));border-radius:10px;background:color-mix(in srgb,var(--foreground) 2.5%,transparent);display:grid;gap:4px}
+.fl-history-timeline-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.fl-history-timeline-head strong{font-size:12px;font-weight:650;color:var(--foreground);text-transform:capitalize}
+.fl-history-timeline-head span{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--foreground)}
+.fl-history-timeline time{font-size:11px;color:var(--muted-foreground)}
+.fl-history-timeline p{margin:4px 0 0;font-size:12.5px;line-height:1.55;color:var(--foreground);white-space:pre-wrap;overflow-wrap:anywhere}
+.fl-applicant-row .fl-offer-controls{margin-top:auto;padding-top:6px;gap:8px}
+.fl-applicant-row button.fl-manage-btn{padding:7px 12px;font-size:11.5px;border-radius:8px}
+.fl-applicant-selection{margin-top:auto;display:grid;gap:8px;justify-items:start;padding-top:10px;border-top:1px dashed var(--border,var(--ui-line-2c2830))}
+.fl-applicant-selection p{margin:0;font-size:11.5px;line-height:1.55;color:var(--muted-foreground)}
+.fl-offer-page a.fl-applicant-collab-link{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;background:#c1121f;border:1px solid #c1121f;color:#ffffff;font-size:11.5px;font-weight:600;text-decoration:none;white-space:nowrap}
+.fl-offer-page a.fl-applicant-collab-link:hover{background:#a50e1a;border-color:#a50e1a}
+
+/* Applicants table (matching Campaigns & Collaborations tables) */
+.fl-applicants-table{min-width:780px}
+.fl-applicants-table .fl-offer-application-identity strong{display:block;font-size:12.5px;font-weight:600;color:var(--foreground)}
+.fl-applicants-table .fl-offer-application-identity span{display:block;font-size:11px;color:var(--muted-foreground)}
+.fl-applicants-table-quote strong{display:block;font-size:13px;font-weight:650;font-variant-numeric:tabular-nums;color:var(--foreground)}
+.fl-applicants-table-quote small{display:block;font-size:10px;color:var(--muted-foreground);margin-top:2px}
+.fl-applicants-table-pitch{max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted-foreground)}
+.fl-offer-page button.fl-applicants-table-history{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:7px;font-size:11px;font-weight:500;background:transparent;border:1px solid var(--border,var(--ui-line-2c2830));color:var(--foreground);white-space:nowrap}
+.fl-offer-page button.fl-applicants-table-history:hover{background:color-mix(in srgb,var(--foreground) 6%,transparent)}
+.fl-applicants-table-actions{text-align:right;white-space:nowrap}
+.fl-applicants-row-btns{display:inline-flex;align-items:center;gap:6px;justify-content:flex-end}
+.fl-applicants-table-actions button.fl-manage-btn{padding:6px 10px;font-size:11px;border-radius:7px}
+.fl-applicants-expand-icon{display:inline-flex;align-items:center;justify-content:center;color:var(--muted-foreground);transition:transform .16s ease;flex:none}
+.fl-applicants-expand-icon[data-expanded="true"]{transform:rotate(180deg);color:var(--foreground)}
+.fl-applicants-main-row[data-expanded="true"] td{border-bottom-color:transparent;background:color-mix(in srgb,var(--foreground) 2.5%,transparent)}
+.fl-applicants-expanded-row{cursor:default!important}
+.fl-applicants-expanded-row:hover{background:transparent!important}
+.fl-applicants-expanded-row td{padding:0 18px 20px 48px;background:color-mix(in srgb,var(--foreground) 2.5%,transparent)}
+.fl-applicants-expanded-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;padding-top:14px;border-top:1px dashed var(--border,var(--ui-line-2c2830))}
+.fl-applicants-expanded-col{display:grid;gap:10px;align-content:start;min-width:0}
+.fl-applicants-expanded-col h4{margin:0;font-size:10px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+.fl-applicants-expanded-pitch{margin:0;font-size:12.5px;line-height:1.65;color:var(--foreground);white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow-y:auto;padding-right:6px}
+.fl-applicants-expanded-empty{margin:0;font-size:12px;color:var(--muted-foreground)}
+.fl-applicants-expanded-history{list-style:none;margin:0;padding:0 6px 0 0;display:grid;gap:10px;max-height:260px;overflow-y:auto}
+.fl-applicants-expanded-history li{padding-left:12px;border-left:2px solid var(--border,var(--ui-line-3c3642));display:grid;gap:2px}
+.fl-applicants-expanded-history li>div{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.fl-applicants-expanded-history li strong{font-size:12px;font-weight:600;color:var(--foreground);text-transform:capitalize}
+.fl-applicants-expanded-history li span{font-size:12px;font-weight:650;font-variant-numeric:tabular-nums;color:var(--foreground)}
+.fl-applicants-expanded-history li time{font-size:10.5px;color:var(--muted-foreground)}
+.fl-applicants-expanded-history li p{margin:3px 0 0;font-size:12px;line-height:1.55;color:var(--muted-foreground);white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:760px){.fl-applicants-expanded-row td{padding:0 14px 16px}.fl-applicants-expanded-body{grid-template-columns:1fr;gap:16px}}

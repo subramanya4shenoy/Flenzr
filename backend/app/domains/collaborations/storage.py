@@ -80,12 +80,15 @@ class PrivateStorage:
         except httpx.HTTPError:
             raise unavailable() from None
 
-    async def download(self, key, filename):
+    async def download(self, key, filename, *, inline=False):
         await self.check_bucket()
-        data = await self.request('POST', '/object/sign/' + self.object_path(key), json={'expiresIn': 120})
+        expires = 600 if inline else 120
+        data = await self.request('POST', '/object/sign/' + self.object_path(key), json={'expiresIn': expires})
         path = data.get('signedURL', '')
         if not path.startswith('/object/sign/'):
             raise unavailable()
+        if inline:
+            return self.base + path
         return self.base + path + '&download=' + quote(filename, safe='')
 
     async def remove(self, keys):

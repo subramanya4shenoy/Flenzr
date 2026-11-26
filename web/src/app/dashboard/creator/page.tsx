@@ -42,7 +42,6 @@ import {
 } from "@/components/creator/creator-collab-pipeline";
 import { CampaignOpportunities } from "@/components/campaigns/campaign-opportunities";
 import { CampaignActivity } from "@/components/campaigns/campaign-activity";
-import { EnquiryInbox } from "@/components/enquiries/enquiry-inbox";
 import { CreatorAnalyticsView } from "@/components/creator/creator-analytics-view";
 import { CreatorPortfolioView } from "@/components/creator/creator-portfolio-view";
 import { CreatorWalletView } from "@/components/creator/creator-wallet-view";
@@ -538,7 +537,7 @@ export default function CreatorDashboardPage() {
 
           {/* TAB 2: COLLAB PIPELINE */}
           {activeTab === "pipeline" && (
-            <div className="space-y-6"><EnquiryInbox /><CampaignActivity audience="creator" /></div>
+            <CampaignActivity audience="creator" includeDirectOffers initialKind="direct" />
           )}
 
           {activeTab === "opportunities" && <CampaignOpportunities onViewApplications={() => {

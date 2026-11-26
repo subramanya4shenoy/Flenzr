@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime, timezone
-from sqlalchemy import BigInteger, CheckConstraint, Date, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, Date, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import Base, TimestampMixin
 
@@ -110,6 +110,18 @@ class DeliveryReview(Base, TimestampMixin):
     feedback: Mapped[str] = mapped_column(Text)
     request_id: Mapped[str] = mapped_column(String(36))
     request_hash: Mapped[str] = mapped_column(String(64))
+
+
+class DeliveryComment(Base, TimestampMixin):
+    __tablename__ = 'collaboration_delivery_comments'
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    collaboration_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaborations.id', ondelete='RESTRICT'), index=True)
+    delivery_id: Mapped[str] = mapped_column(String(36), ForeignKey('collaboration_deliveries.id', ondelete='RESTRICT'), index=True)
+    file_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    author_id: Mapped[str] = mapped_column(String(36), ForeignKey('users.id', ondelete='RESTRICT'))
+    timestamp_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    body: Mapped[str] = mapped_column(Text)
+    resolved: Mapped[bool] = mapped_column(Boolean, default=False, server_default='false')
 
 
 class CollaborationCompletion(Base, TimestampMixin):
